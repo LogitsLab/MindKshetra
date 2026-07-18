@@ -58,7 +58,9 @@ export default function ChapterPageClient({ chapter, meta, slokas }: Props) {
 
       <div className="mt-10 grid gap-3">
         {slokas.length > 0 ? (
-          slokas.map((sloka) => <SlokaCard key={sloka.id} sloka={sloka} />)
+          slokas.map((sloka) => (
+            <SlokaCard key={sloka.id} sloka={sloka} showChapter={false} />
+          ))
         ) : (
           <EmptyState title={t("noSearchResults")} />
         )}

@@ -13,7 +13,7 @@ import {
 } from "@/lib/slokas";
 import {
   cleanCommentary,
-  formatWordMeaningsInline,
+  hasCommentary,
   splitVerseLines,
 } from "@/lib/verseDisplay";
 
@@ -35,16 +35,24 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
 
   const translation =
     lang === "hi" ? sloka.hindi_translation : sloka.english_translation;
-  const commentaryRaw =
+
+  const preferredMeaning =
     lang === "hi" ? sloka.hindi_meaning : sloka.english_meaning;
-  const commentary = commentaryRaw ? cleanCommentary(commentaryRaw) : "";
+  const fallbackMeaning =
+    lang === "hi" ? sloka.english_meaning : sloka.hindi_meaning;
+  const usingFallback =
+    !hasCommentary(preferredMeaning) && hasCommentary(fallbackMeaning);
+  const commentarySource = usingFallback ? fallbackMeaning : preferredMeaning;
+  const commentary = hasCommentary(commentarySource)
+    ? cleanCommentary(commentarySource!)
+    : "";
 
   const chapterTitle =
     lang === "hi" ? chapterMeta?.name_sanskrit : chapterMeta?.name;
+  const verseCount = chapterMeta?.verses_count;
 
   return (
     <article className="animate-fade">
-      {/* Shloka as the page heading */}
       <header className="border-b border-white/[0.06] pb-8 text-center">
         <p className="font-body text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
           {lang === "hi" ? "भगवद्गीता" : "Bhagavad Gita"} ·{" "}
@@ -87,6 +95,14 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
         ) : (
           <span className="text-[var(--text-muted)]/40">{t("start")}</span>
         )}
+
+        {verseCount ? (
+          <p className="order-last w-full text-center text-xs tracking-[0.14em] text-[var(--text-muted)] sm:order-none sm:w-auto">
+            {t("verseProgress")} {sloka.verse_number} {t("ofChapter")}{" "}
+            {verseCount}
+          </p>
+        ) : null}
+
         {next ? (
           <Link
             href={`/sloka/${next.id}`}
@@ -99,87 +115,38 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
         )}
       </nav>
 
-      {/* Two balanced columns */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:gap-0 lg:items-stretch">
-        {/* Verse details */}
+      <a
+        href="#reflection"
+        className="mt-4 flex items-center justify-center border border-[var(--line)] bg-[rgba(14,20,32,0.45)] px-4 py-2.5 text-sm text-[var(--brass-soft)] transition hover:border-[var(--brass)]/40 lg:hidden"
+      >
+        {t("readReflection")}
+      </a>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-stretch lg:gap-0">
         <section className="min-w-0 space-y-7 border border-[var(--line)] bg-[rgba(14,20,32,0.35)] p-5 sm:p-7 lg:rounded-none lg:border-r-0">
-          {passage && passage.verses.length > 1 && (
-            <div>
-              <h2 className="mb-2 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
-                {t("passage")} {passage.label}
-              </h2>
-              <p className="mb-4 text-sm text-[var(--text-muted)]">
-                {t("passageHint")}
-              </p>
-              <ul className="space-y-3">
-                {passage.verses.map((v) => {
-                  const isFocus = v.id === sloka.id;
-                  const line =
-                    lang === "hi" ? v.hindi_translation : v.english_translation;
-                  return (
-                    <li key={v.id}>
-                      {isFocus ? (
-                        <p className="border-l-2 border-[var(--brass)] pl-3">
-                          <span className="font-display text-sm text-[var(--brass)]">
-                            {formatVerseRef(v)}
-                          </span>
-                          <span className="mt-1 block text-[15px] leading-relaxed text-[var(--text)]">
-                            {line}
-                          </span>
-                        </p>
-                      ) : (
-                        <Link
-                          href={`/sloka/${v.id}`}
-                          className="block border-l-2 border-transparent pl-3 transition hover:border-[var(--brass)]/40"
-                        >
-                          <span className="font-display text-sm text-[var(--text-muted)]">
-                            {formatVerseRef(v)}
-                          </span>
-                          <span className="mt-1 block text-[15px] font-light leading-relaxed text-[var(--text-muted)] line-clamp-3">
-                            {line}
-                          </span>
-                        </Link>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-
-          {passage && passage.verses.length > 1 && (
-            <div className="h-px bg-[var(--line)]" />
-          )}
-
-          {wordEntries.length > 0 && (
-            <div>
-              <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                {t("wordMeanings")}
-              </h2>
-              <p className="text-[15px] font-light leading-[1.85] text-[var(--text-muted)]">
-                {formatWordMeaningsInline(wordEntries)}
-              </p>
-            </div>
-          )}
+          {/* Primary reading: translation first */}
+          <div>
+            <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+              {t("translation")}
+            </h2>
+            <p className="font-display text-xl leading-relaxed text-[var(--text)] sm:text-[1.35rem]">
+              {translation}
+            </p>
+          </div>
 
           <div className="h-px bg-[var(--line)]" />
 
           <div>
             <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
-              {t("translation")}
+              {t("meaning")}
             </h2>
-            <p className="text-lg leading-relaxed text-[var(--text)]">
-              {translation}
-            </p>
-          </div>
-
-          {commentary ? (
-            <>
-              <div className="h-px bg-[var(--line)]" />
-              <div>
-                <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
-                  {t("meaning")}
-                </h2>
+            {commentary ? (
+              <>
+                {usingFallback ? (
+                  <p className="mb-3 text-xs tracking-[0.08em] text-[var(--text-muted)]/80">
+                    {t("commentaryFallbackNote")}
+                  </p>
+                ) : null}
                 <div className="space-y-4 text-[15px] font-light leading-[1.8] text-[var(--text-muted)]">
                   {commentary.split(/\n\n+/).map((para, i) => (
                     <p key={i} className="whitespace-pre-wrap">
@@ -188,13 +155,103 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
                   ))}
                 </div>
                 <p className="mt-4 text-xs tracking-[0.12em] text-[var(--text-muted)]/70">
-                  {lang === "hi"
+                  {usingFallback || lang === "hi"
                     ? t("commentarySourceHi")
                     : t("commentarySourceEn")}
                 </p>
-              </div>
+              </>
+            ) : (
+              <p className="text-sm font-light text-[var(--text-muted)]/80">
+                {t("commentaryUnavailable")}
+              </p>
+            )}
+          </div>
+
+          {/* Secondary study material */}
+          {passage && passage.verses.length > 1 && (
+            <>
+              <div className="h-px bg-[var(--line)]" />
+              <details className="group">
+                <summary className="cursor-pointer list-none text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)] marker:content-none [&::-webkit-details-marker]:hidden">
+                  <span className="inline-flex items-center gap-2">
+                    {t("passage")} {passage.label}
+                    <span className="text-[var(--text-muted)] transition group-open:rotate-90">
+                      →
+                    </span>
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm text-[var(--text-muted)]">
+                  {t("passageHint")}
+                </p>
+                <ul className="mt-4 space-y-3">
+                  {passage.verses.map((v) => {
+                    const isFocus = v.id === sloka.id;
+                    const line =
+                      lang === "hi"
+                        ? v.hindi_translation
+                        : v.english_translation;
+                    return (
+                      <li key={v.id}>
+                        {isFocus ? (
+                          <p className="border-l-2 border-[var(--brass)] pl-3">
+                            <span className="font-display text-sm text-[var(--brass)]">
+                              {formatVerseRef(v)}
+                            </span>
+                            <span className="mt-1 block text-[15px] leading-relaxed text-[var(--text)]">
+                              {line}
+                            </span>
+                          </p>
+                        ) : (
+                          <Link
+                            href={`/sloka/${v.id}`}
+                            className="block border-l-2 border-transparent pl-3 transition hover:border-[var(--brass)]/40"
+                          >
+                            <span className="font-display text-sm text-[var(--text-muted)]">
+                              {formatVerseRef(v)}
+                            </span>
+                            <span className="mt-1 block text-[15px] font-light leading-relaxed text-[var(--text-muted)] line-clamp-3">
+                              {line}
+                            </span>
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
             </>
-          ) : null}
+          )}
+
+          {wordEntries.length > 0 && (
+            <>
+              <div className="h-px bg-[var(--line)]" />
+              <details className="group" open>
+                <summary className="cursor-pointer list-none text-[0.7rem] uppercase tracking-[0.2em] text-[var(--text-muted)] marker:content-none [&::-webkit-details-marker]:hidden">
+                  <span className="inline-flex items-center gap-2">
+                    {t("wordMeanings")}
+                    <span className="text-[var(--text-muted)]/70 transition group-open:rotate-90">
+                      →
+                    </span>
+                  </span>
+                </summary>
+                <dl className="mt-4 grid gap-x-4 gap-y-3 sm:grid-cols-2">
+                  {wordEntries.map(([word, meaning]) => (
+                    <div
+                      key={word}
+                      className="border-l border-[var(--line)] pl-3"
+                    >
+                      <dt className="font-display text-sm text-[var(--brass-soft)]">
+                        {word}
+                      </dt>
+                      <dd className="mt-0.5 text-sm font-light leading-snug text-[var(--text-muted)]">
+                        {meaning}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+            </>
+          )}
 
           {sloka.tags.length > 0 && (
             <>
@@ -204,27 +261,31 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
                   {t("themes")}
                 </h2>
                 <ul className="flex flex-wrap gap-2">
-                  {sloka.tags.map((tag) => (
-                    <li
-                      key={tag}
-                      className="border border-[var(--line)] px-2.5 py-1 text-xs text-[var(--text-muted)]"
-                    >
-                      {tag.replace(/_/g, " ")}
-                    </li>
-                  ))}
+                  {sloka.tags.map((tag) => {
+                    const label = tag.replace(/_/g, " ");
+                    return (
+                      <li key={tag}>
+                        <Link
+                          href={`/explore?q=${encodeURIComponent(label)}`}
+                          className="inline-block border border-[var(--line)] px-2.5 py-1 text-xs text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
+                        >
+                          {label}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </>
           )}
         </section>
 
-        {/* Story — equal column, sticky on desktop */}
-        <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
+        <aside
+          id="reflection"
+          className="min-w-0 scroll-mt-24 lg:sticky lg:top-24 lg:self-start"
+        >
           <div className="h-full border border-[var(--line)] lg:border-l-[var(--brass)]/35">
-            <VerseStory
-              slokaId={sloka.id}
-              passageLabel={passage?.label}
-            />
+            <VerseStory slokaId={sloka.id} passageLabel={passage?.label} />
           </div>
         </aside>
       </div>

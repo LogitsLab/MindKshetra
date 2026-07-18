@@ -53,6 +53,13 @@ export function cleanCommentary(text: string): string {
     .trim();
 }
 
+/** True when commentary is real content (not empty / placeholder "."). */
+export function hasCommentary(text?: string | null): boolean {
+  if (!text) return false;
+  const cleaned = cleanCommentary(text);
+  return cleaned.length > 1 && cleaned !== ".";
+}
+
 /** Traditional inline padārtha: word—meaning; word—meaning */
 export function formatWordMeaningsInline(
   entries: Array<[string, string]>

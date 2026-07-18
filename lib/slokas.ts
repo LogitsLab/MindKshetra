@@ -3,6 +3,11 @@ import type { Sloka } from "@/lib/types";
 
 const slokas = slokasData as Sloka[];
 
+/** Canonical Gita order — computed once. */
+const orderedSlokas = [...slokas].sort(
+  (a, b) => a.chapter - b.chapter || a.verse_number - b.verse_number
+);
+
 export function getAllSlokas(): Sloka[] {
   return slokas;
 }
@@ -63,14 +68,11 @@ export function getAdjacentSlokas(id: number): {
   prev: Sloka | null;
   next: Sloka | null;
 } {
-  const ordered = [...slokas].sort(
-    (a, b) => a.chapter - b.chapter || a.verse_number - b.verse_number
-  );
-  const idx = ordered.findIndex((s) => s.id === id);
+  const idx = orderedSlokas.findIndex((s) => s.id === id);
   if (idx < 0) return { prev: null, next: null };
   return {
-    prev: idx > 0 ? ordered[idx - 1] : null,
-    next: idx < ordered.length - 1 ? ordered[idx + 1] : null,
+    prev: idx > 0 ? orderedSlokas[idx - 1] : null,
+    next: idx < orderedSlokas.length - 1 ? orderedSlokas[idx + 1] : null,
   };
 }
 

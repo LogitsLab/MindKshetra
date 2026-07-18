@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import EmptyState from "@/components/EmptyState";
 import SlokaCard from "@/components/SlokaCard";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -8,9 +9,16 @@ import type { Sloka } from "@/lib/types";
 
 export default function ExploreSearch() {
   const { t } = useLanguage();
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const initialQ = searchParams.get("q") ?? "";
+  const [query, setQuery] = useState(initialQ);
   const [results, setResults] = useState<Sloka[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fromUrl = searchParams.get("q") ?? "";
+    setQuery(fromUrl);
+  }, [searchParams]);
 
   useEffect(() => {
     const q = query.trim();
