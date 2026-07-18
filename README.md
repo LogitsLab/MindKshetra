@@ -51,7 +51,7 @@ npm start
 1. Home shows MindKshetra brand, tagline, and three entry links
 2. Explore search (e.g. `2.47` or “duty”) + chapter browse → verse detail with prev/next and word meanings
 3. Mood → pick a mood → matched verses + “Ask Madhav about this”
-4. Ask Madhav → starter chips, persisted chat, streamed reply + cited verse cards
+4. Ask Madhav → starter chips, ephemeral chat (clears on refresh), streamed reply + cited verse cards
 5. Verse story panel generates EN/HI stories (cached locally when FS is writable)
 6. Without `GROQ_API_KEY`, chat/story show a clear configuration error
 

@@ -19,21 +19,6 @@ type UiMessage = {
   citations?: Citation[];
 };
 
-const STORAGE_KEY = "mindkshetra-madhav-chat";
-
-function loadStoredMessages(welcome: UiMessage): UiMessage[] {
-  if (typeof window === "undefined") return [welcome];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [welcome];
-    const parsed = JSON.parse(raw) as UiMessage[];
-    if (!Array.isArray(parsed) || parsed.length === 0) return [welcome];
-    return parsed;
-  } catch {
-    return [welcome];
-  }
-}
-
 type Props = {
   initialPrompt?: string;
 };
@@ -61,21 +46,20 @@ export default function ChatWindow({ initialPrompt }: Props) {
   );
 
   const [messages, setMessages] = useState<UiMessage[]>([welcome]);
-  const [hydrated, setHydrated] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const initialSent = useRef(false);
 
+  // Drop any legacy saved chats; sessions are in-memory only
   useEffect(() => {
-    if (initialPrompt?.trim()) {
-      setMessages([welcome]);
-    } else {
-      setMessages(loadStoredMessages(welcome));
+    try {
+      localStorage.removeItem("mindkshetra-madhav-chat");
+    } catch {
+      /* ignore */
     }
-    setHydrated(true);
-  }, [initialPrompt, welcome]);
+  }, []);
 
   // Keep welcome text in sync when language toggles and chat is only welcome
   useEffect(() => {
@@ -88,15 +72,6 @@ export default function ChatWindow({ initialPrompt }: Props) {
       );
     });
   }, [welcome]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    } catch {
-      /* ignore quota */
-    }
-  }, [messages, hydrated]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -242,10 +217,10 @@ export default function ChatWindow({ initialPrompt }: Props) {
   );
 
   useEffect(() => {
-    if (!hydrated || !initialPrompt?.trim() || initialSent.current) return;
+    if (!initialPrompt?.trim() || initialSent.current) return;
     initialSent.current = true;
     void sendMessage(initialPrompt, [welcome]);
-  }, [hydrated, initialPrompt, sendMessage, welcome]);
+  }, [initialPrompt, sendMessage, welcome]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -255,11 +230,6 @@ export default function ChatWindow({ initialPrompt }: Props) {
   function clearChat() {
     setMessages([welcome]);
     setError(null);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      /* ignore */
-    }
   }
 
   const showStarters =
@@ -277,7 +247,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
             className="opacity-90"
           />
           <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]">
-            {t("sessionSaved")}
+            {t("sessionEphemeral")}
           </p>
         </div>
         <button

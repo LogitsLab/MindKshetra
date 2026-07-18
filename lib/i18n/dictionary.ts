@@ -98,6 +98,7 @@ export const dictionary = {
     madhavDisclaimer:
       "MindKshetra is for reflection, not medical or crisis care. If you are in danger or thinking of harming yourself, contact a trusted person or local emergency services immediately.",
     sessionSaved: "Session saved on this device",
+    sessionEphemeral: "Chat clears on refresh",
     clearChat: "Clear chat",
     you: "You",
     madhav: "Madhav",
@@ -214,6 +215,7 @@ export const dictionary = {
     madhavDisclaimer:
       "MindKshetra चिंतन के लिए है, चिकित्सा या संकट देखभाल के लिए नहीं। यदि आप खतरे में हैं या आत्महत्या के विचार आ रहे हैं, तुरंत किसी विश्वसनीय व्यक्ति या स्थानीय आपातकालीन सेवा से संपर्क करें।",
     sessionSaved: "यह वार्ता इस उपकरण पर सहेजी गई है",
+    sessionEphemeral: "रिफ्रेश पर वार्ता साफ़ हो जाती है",
     clearChat: "वार्ता साफ़ करें",
     you: "आप",
     madhav: "माधव",
