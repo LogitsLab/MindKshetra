@@ -55,7 +55,7 @@ export default function RootLayout({
         <LanguageProvider>
           <div className="site-atmosphere" aria-hidden />
           <Nav />
-          <main className="relative mx-auto min-h-[calc(100vh-64px)] w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8">
+          <main className="relative mx-auto min-h-[calc(100dvh-4rem)] w-full max-w-6xl px-4 pb-12 pt-5 sm:px-6 sm:pb-16 sm:pt-8">
             {children}
           </main>
         </LanguageProvider>

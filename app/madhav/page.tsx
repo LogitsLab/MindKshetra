@@ -13,15 +13,17 @@ function MadhavContent() {
   return (
     <div className="animate-fade">
       <header className="max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
+        <p className="text-[0.65rem] uppercase tracking-[0.22em] text-[var(--brass-soft)] sm:text-xs">
           {t("madhavEyebrow")}
         </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold text-[var(--text)] sm:text-5xl">
+        <h1 className="mt-2 font-display text-2xl font-semibold text-[var(--text)] sm:mt-3 sm:text-5xl">
           {t("madhavTitle")}
         </h1>
-        <p className="mt-3 text-[var(--text-muted)]">{t("madhavIntro")}</p>
+        <p className="mt-2 hidden text-[var(--text-muted)] sm:mt-3 sm:block">
+          {t("madhavIntro")}
+        </p>
       </header>
-      <div className="mt-8">
+      <div className="mt-4 sm:mt-8">
         <ChatWindow initialPrompt={initialPrompt} />
       </div>
       <p className="mt-4 max-w-2xl text-xs leading-relaxed text-[var(--text-muted)]">

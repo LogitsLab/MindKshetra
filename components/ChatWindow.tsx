@@ -236,17 +236,17 @@ export default function ChatWindow({ initialPrompt }: Props) {
     messages.length <= 1 && !loading && !initialPrompt?.trim();
 
   return (
-    <div className="flex h-[min(72vh,680px)] flex-col overflow-hidden border border-[var(--line)] bg-[rgba(14,20,32,0.65)] shadow-[0_0_80px_rgba(61,122,106,0.08)] backdrop-blur-sm">
-      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2 sm:px-5">
-        <div className="flex items-center gap-2.5">
+    <div className="flex h-[calc(100dvh-11.5rem)] max-h-[720px] min-h-[22rem] flex-col overflow-hidden border border-[var(--line)] bg-[rgba(14,20,32,0.65)] shadow-[0_0_80px_rgba(61,122,106,0.08)] backdrop-blur-sm sm:h-[min(68dvh,680px)] sm:min-h-[28rem]">
+      <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2 sm:px-5">
+        <div className="flex min-w-0 items-center gap-2.5">
           <Image
             src="/brand/madhav.svg"
             alt=""
             width={28}
             height={28}
-            className="opacity-90"
+            className="shrink-0 opacity-90"
           />
-          <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]">
+          <p className="truncate text-[11px] uppercase tracking-[0.14em] text-[var(--text-muted)] sm:text-xs">
             {t("sessionEphemeral")}
           </p>
         </div>
@@ -254,21 +254,21 @@ export default function ChatWindow({ initialPrompt }: Props) {
           type="button"
           onClick={clearChat}
           disabled={loading}
-          className="text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
+          className="shrink-0 px-3 py-2 text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
         >
           {t("clearChat")}
         </button>
       </div>
 
-      <div className="flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
+      <div className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-3 sm:space-y-5 sm:p-6">
         {showStarters && (
-          <div className="mb-2 flex flex-col items-center border-b border-white/[0.06] pb-6 pt-2 text-center">
+          <div className="mb-2 flex flex-col items-center border-b border-white/[0.06] pb-5 pt-1 text-center sm:pb-6 sm:pt-2">
             <Image
               src="/brand/madhav.svg"
               alt=""
-              width={64}
-              height={64}
-              className="opacity-85"
+              width={56}
+              height={56}
+              className="opacity-85 sm:h-16 sm:w-16"
             />
             <p className="mt-3 max-w-sm text-sm font-light leading-relaxed text-[var(--text-muted)]">
               {t("madhavIntro")}
@@ -279,7 +279,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`max-w-[92%] ${
+            className={`max-w-[min(92%,28rem)] break-words sm:max-w-[92%] ${
               msg.role === "user" ? "ml-auto" : "mr-auto"
             }`}
           >
@@ -298,7 +298,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
                 />
               )}
               <p
-                className={`text-[10px] uppercase tracking-[0.18em] ${
+                className={`text-[11px] uppercase tracking-[0.16em] ${
                   msg.role === "user"
                     ? "text-[var(--brass-soft)]"
                     : "text-[var(--text-muted)]"
@@ -308,7 +308,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
               </p>
             </div>
             <div
-              className={`px-4 py-3 text-[15px] font-light leading-relaxed whitespace-pre-wrap ${
+              className={`px-3.5 py-3 text-[15px] font-light leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] sm:px-4 ${
                 msg.role === "user"
                   ? "bg-[rgba(201,162,39,0.14)] text-[var(--text)]"
                   : "border border-[var(--line)] bg-white/[0.04] text-[var(--text)]"
@@ -324,7 +324,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
                     <Link
                       key={c.id}
                       href={`/sloka/${c.id}`}
-                      className="block border border-[var(--line)] bg-black/30 px-3 py-2.5 text-sm transition hover:border-[var(--brass)]/40"
+                      className="block border border-[var(--line)] bg-black/30 px-3 py-3 text-sm transition hover:border-[var(--brass)]/40"
                     >
                       <span className="text-[var(--brass-soft)]">{c.ref}</span>
                       <span className="mt-0.5 block line-clamp-2 font-light text-[var(--text-muted)]">
@@ -345,7 +345,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
                 type="button"
                 onClick={() => void sendMessage(starter)}
                 disabled={loading}
-                className="border border-[var(--line)] px-3 py-2 text-left text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
+                className="min-h-11 border border-[var(--line)] px-3 py-2.5 text-left text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
               >
                 {starter}
               </button>
@@ -363,19 +363,21 @@ export default function ChatWindow({ initialPrompt }: Props) {
 
       <form
         onSubmit={onSubmit}
-        className="flex gap-2 border-t border-[var(--line)] p-3 sm:p-4"
+        className="flex gap-2 border-t border-[var(--line)] p-2.5 sm:p-4"
       >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t("sharePlaceholder")}
           disabled={loading}
-          className="min-w-0 flex-1 border border-[var(--line)] bg-black/30 px-3 py-3 text-[var(--text)] placeholder:text-[var(--text-muted)]/60 outline-none focus:border-[var(--brass)]/50 disabled:opacity-60"
+          enterKeyHint="send"
+          autoComplete="off"
+          className="min-h-11 min-w-0 flex-1 border border-[var(--line)] bg-black/30 px-3 py-3 text-base text-[var(--text)] placeholder:text-[var(--text-muted)]/60 outline-none focus:border-[var(--brass)]/50 disabled:opacity-60 sm:text-[15px]"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="shrink-0 bg-[var(--brass)] px-5 py-3 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-11 shrink-0 bg-[var(--brass)] px-4 py-3 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)] disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
         >
           {loading ? "…" : t("send")}
         </button>

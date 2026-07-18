@@ -84,11 +84,11 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
         />
       </header>
 
-      <nav className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] py-3 text-sm">
+      <nav className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] py-2 text-sm sm:gap-3 sm:py-3">
         {prev ? (
           <Link
             href={`/sloka/${prev.id}`}
-            className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+            className="inline-flex min-h-11 items-center px-1 text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
           >
             ← {formatVerseRef(prev)}
           </Link>
@@ -106,7 +106,7 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
         {next ? (
           <Link
             href={`/sloka/${next.id}`}
-            className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+            className="inline-flex min-h-11 items-center px-1 text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
           >
             {formatVerseRef(next)} →
           </Link>
@@ -117,7 +117,7 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
 
       <a
         href="#reflection"
-        className="mt-4 flex items-center justify-center border border-[var(--line)] bg-[rgba(14,20,32,0.45)] px-4 py-2.5 text-sm text-[var(--brass-soft)] transition hover:border-[var(--brass)]/40 lg:hidden"
+        className="mt-4 flex min-h-11 items-center justify-center border border-[var(--line)] bg-[rgba(14,20,32,0.45)] px-4 py-2.5 text-sm text-[var(--brass-soft)] transition hover:border-[var(--brass)]/40 lg:hidden"
       >
         {t("readReflection")}
       </a>

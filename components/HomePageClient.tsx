@@ -52,7 +52,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
   return (
     <div className="relative">
       {/* Hero */}
-      <section className="relative flex min-h-[calc(100vh-8rem)] flex-col justify-center py-10 sm:py-16">
+      <section className="relative flex min-h-[calc(100dvh-8rem)] flex-col justify-center py-8 sm:py-16">
         {/* Scrim only — site-atmosphere already carries the hero image */}
         <div className="hero-bleed pointer-events-none absolute inset-y-0 -z-10">
           <div
@@ -76,26 +76,26 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
           <p className="animate-rise mb-4 font-body text-xs uppercase tracking-[0.28em] text-[var(--brass-soft)] sm:text-sm">
             {t("homeEyebrow")}
           </p>
-          <h1 className="animate-rise-delay-1 font-display text-6xl font-semibold leading-[0.95] tracking-tight text-[var(--text)] sm:text-7xl md:text-8xl">
+          <h1 className="animate-rise-delay-1 font-display text-[2.75rem] font-semibold leading-[0.95] tracking-tight text-[var(--text)] sm:text-7xl md:text-8xl">
             MindKshetra
           </h1>
-          <p className="animate-rise-delay-2 mt-5 max-w-xl font-display text-xl leading-snug text-[var(--brass-soft)] sm:text-2xl md:text-3xl">
+          <p className="animate-rise-delay-2 mt-4 max-w-xl font-display text-lg leading-snug text-[var(--brass-soft)] sm:mt-5 sm:text-2xl md:text-3xl">
             {t("homeTagline")}
           </p>
-          <p className="animate-rise-delay-3 mt-6 max-w-lg text-base font-light leading-relaxed text-[var(--text-muted)] sm:text-lg">
+          <p className="animate-rise-delay-3 mt-4 max-w-lg text-[0.95rem] font-light leading-relaxed text-[var(--text-muted)] sm:mt-6 sm:text-lg">
             {t("homeBody")}
           </p>
 
-          <div className="animate-rise-delay-3 mt-10 flex flex-wrap items-center gap-3">
+          <div className="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
             <Link
               href="/madhav"
-              className="bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)]"
+              className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)]"
             >
               {t("homeCtaMadhav")}
             </Link>
             <Link
               href="/explore"
-              className="border border-[var(--line)] px-6 py-3 text-sm text-[var(--text)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
+              className="min-h-11 border border-[var(--line)] px-6 py-3 text-sm text-[var(--text)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
             >
               {t("homeCtaExplore")}
             </Link>
