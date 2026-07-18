@@ -49,9 +49,8 @@ next-env.d.ts
 *~
 
 # OS
-.DS_Store
 .AppleDouble
 .LSOverride
 
-# local story cache / generated data (if any)
-*.local.json
+# generated verse stories
+/data/stories-cache.json
