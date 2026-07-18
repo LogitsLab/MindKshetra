@@ -94,7 +94,7 @@ export const dictionary = {
     madhavEyebrow: "Grounded guidance",
     madhavTitle: "Ask Madhav",
     madhavIntro:
-      "Speak freely. Madhav answers in Krishna’s voice, grounded in retrieved verses — not as a therapist or doctor.",
+      "Speak freely. Madhav answers with a short story, Gita verses, how to meet the moment, and one line to carry — not as a therapist or doctor.",
     madhavDisclaimer:
       "MindKshetra is for reflection, not medical or crisis care. If you are in danger or thinking of harming yourself, contact a trusted person or local emergency services immediately.",
     sessionSaved: "Session saved on this device",
@@ -106,7 +106,7 @@ export const dictionary = {
     sharePlaceholder: "Share what you’re facing…",
     send: "Send",
     welcomeMadhav:
-      "I am Madhav. Speak what weighs on your mind — I will answer with a verse and one clear step.",
+      "I am Madhav. Tell me what weighs on you — I will answer with a short story, a verse from the Gita, how to meet it, and one line to carry.",
     starter1: "I feel anxious about work",
     starter2: "I'm stuck on a big decision",
     starter3: "I'm struggling to leave a bad habit",
@@ -211,7 +211,7 @@ export const dictionary = {
     madhavEyebrow: "आधारित मार्गदर्शन",
     madhavTitle: "माधव से पूछें",
     madhavIntro:
-      "खुलकर कहें। माधव कृष्ण की वाणी में उत्तर देते हैं — खोजे गए श्लोकों पर आधारित; चिकित्सक या संकट सेवा नहीं।",
+      "खुलकर कहें। माधव एक छोटी कथा, गीता के श्लोक, उससे निपटने का मार्ग और एक पंक्ति देते हैं — चिकित्सक या संकट सेवा नहीं।",
     madhavDisclaimer:
       "MindKshetra चिंतन के लिए है, चिकित्सा या संकट देखभाल के लिए नहीं। यदि आप खतरे में हैं या आत्महत्या के विचार आ रहे हैं, तुरंत किसी विश्वसनीय व्यक्ति या स्थानीय आपातकालीन सेवा से संपर्क करें।",
     sessionSaved: "यह वार्ता इस उपकरण पर सहेजी गई है",
@@ -223,7 +223,7 @@ export const dictionary = {
     sharePlaceholder: "जो मन में है, लिखें…",
     send: "भेजें",
     welcomeMadhav:
-      "मैं माधव हूँ। जो बोझ मन पर है, कहें — एक श्लोक और एक स्पष्ट कदम दूँगा।",
+      "मैं माधव हूँ। जो बोझ मन पर है, कहें — एक छोटी कथा, गीता का श्लोक, उससे निपटने का मार्ग, और एक पंक्ति साथ दूँगा।",
     starter1: "काम को लेकर चिंता हो रही है",
     starter2: "एक बड़े निर्णय पर अटका हूँ",
     starter3: "एक बुरी आदत छोड़ने में संघर्ष है",

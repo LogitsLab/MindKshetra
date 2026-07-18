@@ -308,7 +308,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
               </p>
             </div>
             <div
-              className={`px-4 py-3 text-[15px] font-light leading-relaxed ${
+              className={`px-4 py-3 text-[15px] font-light leading-relaxed whitespace-pre-wrap ${
                 msg.role === "user"
                   ? "bg-[rgba(201,162,39,0.14)] text-[var(--text)]"
                   : "border border-[var(--line)] bg-white/[0.04] text-[var(--text)]"
