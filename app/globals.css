@@ -1,0 +1,209 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #07090f;
+  --field: #0e1420;
+  --mist: #182234;
+  --text: #eef2f7;
+  --text-muted: #9aa8bc;
+  --brass: #c9a227;
+  --brass-soft: #e2c45a;
+  --teal-glow: #3d7a6a;
+  --line: rgba(201, 162, 39, 0.22);
+  --surface: rgba(238, 242, 247, 0.04);
+  --surface-hover: rgba(238, 242, 247, 0.08);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--text);
+  background-color: var(--void);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Atmospheric field — full-bleed image plane + dusk overlays */
+.site-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--void);
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(7, 9, 15, 0.55) 0%,
+      rgba(7, 9, 15, 0.7) 42%,
+      rgba(7, 9, 15, 0.9) 100%
+    ),
+    radial-gradient(ellipse 90% 55% at 50% -8%, rgba(61, 122, 106, 0.22), transparent 58%),
+    radial-gradient(ellipse 50% 40% at 88% 28%, rgba(201, 162, 39, 0.08), transparent 52%),
+    url("/images/hero.jpg");
+  background-size: cover, cover, cover, cover;
+  background-position: center, center, center, center 38%;
+  background-repeat: no-repeat;
+}
+
+.site-atmosphere::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    repeating-radial-gradient(
+      circle at 50% 45%,
+      transparent 0,
+      transparent 72px,
+      rgba(201, 162, 39, 0.03) 73px,
+      transparent 74px
+    );
+  animation: field-breathe 14s ease-in-out infinite;
+  opacity: 0.55;
+}
+
+.site-atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  opacity: 0.3;
+  mix-blend-mode: soft-light;
+}
+
+@keyframes field-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.85;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-rise-delay-1 {
+  animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.animate-rise-delay-2 {
+  animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+}
+
+.animate-rise-delay-3 {
+  animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both;
+}
+
+.animate-fade {
+  animation: fade-in 1.2s ease both;
+}
+
+.watermark-sanskrit {
+  animation: soft-pulse 8s ease-in-out infinite;
+}
+
+.surface {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.surface:hover {
+  background: var(--surface-hover);
+  border-color: rgba(201, 162, 39, 0.45);
+}
+
+.link-underline {
+  background-image: linear-gradient(var(--brass-soft), var(--brass-soft));
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  transition: background-size 0.3s ease;
+}
+
+.link-underline:hover {
+  background-size: 100% 1px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(154, 168, 188, 0.25);
+  border-radius: 999px;
+}
+
+.path-mark {
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+
+/* Break out of max-w content column for full-bleed hero plane */
+.hero-bleed {
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-rise-delay-1,
+  .animate-rise-delay-2,
+  .animate-rise-delay-3,
+  .animate-fade,
+  .watermark-sanskrit,
+  .site-atmosphere::before {
+    animation: none !important;
+  }
+
+  .path-mark,
+  .mood-glyph,
+  .surface {
+    transition: none !important;
+  }
+}
