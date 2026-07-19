@@ -25,6 +25,8 @@ GROQ_API_KEY=your_key_here
 
 Get a key at [console.groq.com](https://console.groq.com).
 
+Optional (production on Vercel): set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` for shared rate limits and story cache across serverless instances.
+
 ## Run
 
 ```bash

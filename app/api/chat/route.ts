@@ -19,7 +19,7 @@ type ChatBody = {
 };
 
 export async function POST(request: NextRequest) {
-  const limited = rateLimit(`chat:${clientKey(request)}`, 20, 60_000);
+  const limited = await rateLimit(`chat:${clientKey(request)}`, 20, 60_000);
   if (!limited.ok) {
     return new Response(
       JSON.stringify({
@@ -61,6 +61,16 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  const MAX_MESSAGE_CHARS = 2000;
+  if (lastUser.content.length > MAX_MESSAGE_CHARS) {
+    return new Response(
+      JSON.stringify({
+        error: `Message too long. Please keep it under ${MAX_MESSAGE_CHARS} characters.`,
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   if (!process.env.GROQ_API_KEY) {
     return new Response(
       JSON.stringify({
@@ -79,7 +89,10 @@ export async function POST(request: NextRequest) {
   const history = messages
     .filter((m) => m.role === "user" || m.role === "assistant")
     .slice(-8)
-    .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+    .map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content.slice(0, MAX_MESSAGE_CHARS),
+    }));
 
   const promptMessages = [
     { role: "system" as const, content: systemPrompt },
@@ -225,10 +238,15 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Chat failed";
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("[chat]", err);
+    return new Response(
+      JSON.stringify({
+        error: "Madhav could not answer just now. Please try again in a moment.",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }

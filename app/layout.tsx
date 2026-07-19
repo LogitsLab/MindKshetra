@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     description:
       "Clarity from the Gita, for the battlefield of the mind. Explore verses, match your mood, and talk with Madhav.",
     images: [
-      { url: "/images/og.png", width: 1200, height: 630, alt: "MindKshetra" },
+      { url: "/images/og.jpg", width: 1200, height: 630, alt: "MindKshetra" },
     ],
     type: "website",
   },
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MindKshetra",
     description: "Clarity from the Gita, for the battlefield of the mind.",
-    images: ["/images/og.png"],
+    images: ["/images/og.jpg"],
   },
 };
 

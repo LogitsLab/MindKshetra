@@ -1,18 +1,40 @@
+import { redisEnabled, redisIncr } from "@/lib/redis";
+
 type Bucket = { count: number; resetAt: number };
 
 const buckets = new Map<string, Bucket>();
 
 /**
- * Simple in-memory sliding window rate limit.
- * Fine for a single Node process / local demo.
+ * Sliding-window rate limit.
+ * Uses Upstash Redis when configured (shared across serverless instances);
+ * falls back to in-memory for local/dev.
  */
-export function rateLimit(
+export async function rateLimit(
   key: string,
   limit: number,
   windowMs: number
-): { ok: true } | { ok: false; retryAfterSec: number } {
+): Promise<{ ok: true } | { ok: false; retryAfterSec: number }> {
+  const windowSec = Math.max(1, Math.ceil(windowMs / 1000));
+
+  if (redisEnabled()) {
+    const count = await redisIncr(`rl:${key}`, windowSec);
+    if (count !== null) {
+      if (count > limit) {
+        return { ok: false, retryAfterSec: windowSec };
+      }
+      return { ok: true };
+    }
+  }
+
   const now = Date.now();
   const bucket = buckets.get(key);
+
+  // Opportunistic cleanup of expired buckets
+  if (buckets.size > 500) {
+    Array.from(buckets.entries()).forEach(([k, b]) => {
+      if (now >= b.resetAt) buckets.delete(k);
+    });
+  }
 
   if (!bucket || now >= bucket.resetAt) {
     buckets.set(key, { count: 1, resetAt: now + windowMs });

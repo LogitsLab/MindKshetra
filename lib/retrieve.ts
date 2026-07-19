@@ -21,7 +21,7 @@ const STOP_WORDS = new Set([
 /** Broad tags get lower boost so they don't dominate every query. */
 const TAG_WEIGHT: Record<string, number> = {
   devotion_surrender: 1.1,
-  purpose_meaning: 1.1,
+  purpose_meaning: 0.7,
   duty_responsibility: 2.2,
   equanimity: 2.4,
   control_of_mind: 2.5,
@@ -132,17 +132,28 @@ export function retrieveSlokas(query: string, limit = 5): Sloka[] {
 
   const scored = all.map((sloka) => {
     let score = 0;
-    const haystack = [
+    const translationHay = [
       sloka.english_translation,
       sloka.hindi_translation,
-      sloka.transliteration_iast,
-      ...sloka.tags,
+      sloka.english_meaning ?? "",
+      sloka.hindi_meaning ?? "",
+      ...sloka.tags.map((t) => t.replace(/_/g, " ")),
     ]
       .join(" ")
       .toLowerCase();
 
+    // IAST separately with word-boundary-ish checks to reduce false positives
+    const iast = (sloka.transliteration_iast || "").toLowerCase();
+
     for (const token of tokens) {
-      if (haystack.includes(token)) score += 1.5;
+      if (translationHay.includes(token)) score += 1.8;
+      // Only count IAST hits for longer tokens (≥4) to avoid substring noise
+      if (token.length >= 4) {
+        const iastRe = new RegExp(
+          `(^|[^a-zāīūṛṝḷṅñṭḍṇśṣḥṃ])${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-zāīūṛṝḷṅñṭḍṇśṣḥṃ]|$)`
+        );
+        if (iastRe.test(iast)) score += 0.6;
+      }
       if (sloka.tags.some((t) => t.replace(/_/g, " ").includes(token))) {
         score += 2;
       }
@@ -172,16 +183,50 @@ export function retrieveSlokas(query: string, limit = 5): Sloka[] {
   const top = scored.filter((s) => s.score > 0).slice(0, limit);
   if (top.length > 0) return top.map((s) => s.sloka);
 
-  // Tag-aware fallbacks instead of always chapter 2
-  if (tags.includes("discipline_habit") || tags.includes("attachment_desire")) {
-    const keys = new Set(["2.58", "2.60", "2.61", "6.5", "6.6"]);
-    const found = all.filter((s) =>
-      keys.has(`${s.chapter}.${s.verse_number}`)
-    );
-    if (found.length) return found.slice(0, limit);
+  // Diversified tag-aware fallbacks
+  const FALLBACKS: Array<{ tags: string[]; keys: string[] }> = [
+    {
+      tags: ["discipline_habit", "attachment_desire"],
+      keys: ["2.58", "2.60", "2.61", "6.5", "6.6"],
+    },
+    {
+      tags: ["grief_loss", "loneliness"],
+      keys: ["2.11", "2.13", "2.14", "2.27", "12.13"],
+    },
+    {
+      tags: ["anxiety_fear", "hope"],
+      keys: ["2.3", "2.7", "18.66", "11.33", "6.5"],
+    },
+    {
+      tags: ["anger", "relationships_conflict"],
+      keys: ["2.62", "2.63", "16.21", "2.56", "5.23"],
+    },
+    {
+      tags: ["low_self_worth", "unmotivated", "courage"],
+      keys: ["2.3", "2.37", "6.5", "9.30", "18.58"],
+    },
+  ];
+
+  for (const fb of FALLBACKS) {
+    if (fb.tags.some((t) => tags.includes(t))) {
+      const keys = new Set(fb.keys);
+      const found = all.filter((s) =>
+        keys.has(`${s.chapter}.${s.verse_number}`)
+      );
+      if (found.length) return found.slice(0, limit);
+    }
   }
 
-  const fallbackKeys = new Set(["2.47", "2.48", "2.56", "2.3", "6.5"]);
+  // Rotate default fallback by a simple hash of the query
+  const pools = [
+    ["2.47", "2.48", "2.56", "2.3", "6.5"],
+    ["18.66", "9.22", "9.30", "12.13", "2.14"],
+    ["3.19", "3.30", "4.18", "5.10", "6.26"],
+  ];
+  let hash = 0;
+  for (let i = 0; i < query.length; i++) hash = (hash + query.charCodeAt(i) * (i + 1)) % 997;
+  const pool = pools[hash % pools.length];
+  const fallbackKeys = new Set(pool);
   return all
     .filter((s) => fallbackKeys.has(`${s.chapter}.${s.verse_number}`))
     .slice(0, limit);

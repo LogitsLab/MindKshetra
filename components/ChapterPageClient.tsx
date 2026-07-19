@@ -16,6 +16,7 @@ type Props = {
 
 export default function ChapterPageClient({ chapter, meta, slokas }: Props) {
   const { lang, t } = useLanguage();
+  const showJump = slokas.length >= 40;
 
   return (
     <div className="animate-fade">
@@ -36,7 +37,7 @@ export default function ChapterPageClient({ chapter, meta, slokas }: Props) {
         <p className="text-xs uppercase tracking-[0.2em] text-[var(--brass-soft)]">
           {t("chapter")} {chapter}
         </p>
-        <h1 className="mt-2 font-display text-4xl font-semibold text-[var(--text)] sm:text-5xl">
+        <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-5xl">
           {lang === "hi"
             ? meta?.name_sanskrit ?? `${t("chapter")} ${chapter}`
             : meta?.name ?? `${t("chapter")} ${chapter}`}
@@ -56,10 +57,35 @@ export default function ChapterPageClient({ chapter, meta, slokas }: Props) {
         </p>
       </header>
 
+      {showJump && (
+        <div className="mt-8">
+          <p className="mb-2 text-[0.65rem] uppercase tracking-[0.16em] text-[var(--text-muted)]">
+            {t("jumpToVerse")}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {slokas.map((sloka) => (
+              <a
+                key={sloka.id}
+                href={`#verse-${sloka.verse_number}`}
+                className="inline-flex min-h-9 min-w-9 items-center justify-center border border-[var(--line)] px-2 text-xs text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
+              >
+                {sloka.verse_number}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mt-10 grid gap-3">
         {slokas.length > 0 ? (
           slokas.map((sloka) => (
-            <SlokaCard key={sloka.id} sloka={sloka} showChapter={false} />
+            <div
+              key={sloka.id}
+              id={`verse-${sloka.verse_number}`}
+              className="scroll-mt-28"
+            >
+              <SlokaCard sloka={sloka} showChapter={false} />
+            </div>
           ))
         ) : (
           <EmptyState title={t("noSearchResults")} />

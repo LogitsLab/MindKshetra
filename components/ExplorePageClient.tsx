@@ -27,7 +27,7 @@ export default function ExplorePageClient({ chapters }: Props) {
 
       <ExploreSearch />
 
-      <div className="mt-12">
+      <div className="mt-12" id="chapters">
         <p className="mb-4 text-xs uppercase tracking-[0.22em] text-[var(--text-muted)]">
           {t("chapters")}
         </p>

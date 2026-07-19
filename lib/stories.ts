@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { redisEnabled, redisGet, redisSet } from "@/lib/redis";
 
 export type StoryLanguage = "en" | "hi";
 
@@ -17,6 +18,7 @@ type StoryCache = Record<string, StoryEntry>;
 
 const CACHE_PATH = path.join(process.cwd(), "data", "stories-cache.json");
 const MAX_VARIANTS = 3;
+const REDIS_PREFIX = "story:";
 
 /** Prefer memory on serverless; also sync to disk when writable (local/dev). */
 const memoryCache: StoryCache = {};
@@ -40,7 +42,6 @@ function normalizeEntry(raw: unknown): StoryEntry | null {
   const entry = raw as { stories?: unknown; lastIndex?: unknown };
   if (!Array.isArray(entry.stories)) return null;
 
-  // New format: { en, hi }[]
   if (entry.stories.every(isBilingualVariant)) {
     const stories = entry.stories as StoryVariant[];
     if (!stories.length) return null;
@@ -51,7 +52,6 @@ function normalizeEntry(raw: unknown): StoryEntry | null {
     return { stories, lastIndex };
   }
 
-  // Legacy per-language string[] — drop (plots were not shared across langs)
   return null;
 }
 
@@ -64,7 +64,6 @@ async function hydrateFromDisk(): Promise<void> {
     const raw = await fs.readFile(CACHE_PATH, "utf8");
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     for (const [key, value] of Object.entries(parsed)) {
-      // Only keep new shared keys ("123"), skip legacy "123:en"
       if (!/^\d+$/.test(key)) continue;
       const entry = normalizeEntry(value);
       if (entry) memoryCache[key] = entry;
@@ -84,11 +83,46 @@ async function persistToDisk(): Promise<void> {
       await fs.writeFile(tmp, JSON.stringify(memoryCache, null, 2), "utf8");
       await fs.rename(tmp, CACHE_PATH);
     } catch {
-      // Read-only FS (common on serverless) — stay memory-only
       diskEnabled = false;
     }
   });
   await writeQueue;
+}
+
+async function loadEntry(slokaId: number): Promise<StoryEntry | null> {
+  const key = cacheKey(slokaId);
+  if (memoryCache[key]) return memoryCache[key];
+
+  if (redisEnabled()) {
+    const raw = await redisGet(`${REDIS_PREFIX}${key}`);
+    if (raw) {
+      try {
+        const entry = normalizeEntry(JSON.parse(raw));
+        if (entry) {
+          memoryCache[key] = entry;
+          return entry;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
+  await hydrateFromDisk();
+  return memoryCache[key] ?? null;
+}
+
+async function saveEntry(slokaId: number, entry: StoryEntry): Promise<void> {
+  const key = cacheKey(slokaId);
+  memoryCache[key] = entry;
+  if (redisEnabled()) {
+    await redisSet(
+      `${REDIS_PREFIX}${key}`,
+      JSON.stringify(entry),
+      60 * 60 * 24 * 30
+    );
+  }
+  await persistToDisk();
 }
 
 function pickStory(
@@ -108,8 +142,7 @@ export async function getCachedStory(
   slokaId: number,
   lang: StoryLanguage
 ): Promise<{ story: string; variant: number; total: number } | null> {
-  await hydrateFromDisk();
-  const entry = memoryCache[cacheKey(slokaId)];
+  const entry = await loadEntry(slokaId);
   if (!entry?.stories?.length) return null;
   const idx = Math.min(entry.lastIndex, entry.stories.length - 1);
   return pickStory(entry, lang, idx);
@@ -119,22 +152,18 @@ export async function cycleCachedStory(
   slokaId: number,
   lang: StoryLanguage
 ): Promise<{ story: string; variant: number; total: number } | null> {
-  await hydrateFromDisk();
-  const key = cacheKey(slokaId);
-  const entry = memoryCache[key];
+  const entry = await loadEntry(slokaId);
   if (!entry?.stories?.length) return null;
 
   const next = (entry.lastIndex + 1) % entry.stories.length;
   entry.lastIndex = next;
-  memoryCache[key] = entry;
-  await persistToDisk();
+  await saveEntry(slokaId, entry);
 
   return pickStory(entry, lang, next);
 }
 
 export async function canGenerateNewVariant(slokaId: number): Promise<boolean> {
-  await hydrateFromDisk();
-  const entry = memoryCache[cacheKey(slokaId)];
+  const entry = await loadEntry(slokaId);
   return !entry || entry.stories.length < MAX_VARIANTS;
 }
 
@@ -142,9 +171,7 @@ export async function saveStoryVariant(
   slokaId: number,
   variant: StoryVariant
 ): Promise<{ variant: number; total: number }> {
-  await hydrateFromDisk();
-  const key = cacheKey(slokaId);
-  const entry = memoryCache[key] ?? { stories: [], lastIndex: 0 };
+  const entry = (await loadEntry(slokaId)) ?? { stories: [], lastIndex: 0 };
 
   if (entry.stories.length < MAX_VARIANTS) {
     entry.stories.push(variant);
@@ -155,8 +182,7 @@ export async function saveStoryVariant(
     entry.lastIndex = oldest;
   }
 
-  memoryCache[key] = entry;
-  await persistToDisk();
+  await saveEntry(slokaId, entry);
 
   return {
     variant: entry.lastIndex + 1,

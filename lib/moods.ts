@@ -17,7 +17,7 @@ export const moods: Mood[] = [
   { id: "big-decision", label: "Facing a big decision", labelHi: "बड़े निर्णय पर", tags: ["confusion_decision", "duty_responsibility", "courage"] },
   { id: "conflict", label: "Going through conflict", labelHi: "संघर्ष में", tags: ["relationships_conflict", "anger", "equanimity"] },
   { id: "failure", label: "Feeling like a failure", labelHi: "असफलता का भाव", tags: ["low_self_worth", "courage", "action_without_attachment"] },
-  { id: "purpose", label: "Searching for purpose", labelHi: "उद्देश्य खोजते", tags: ["purpose_meaning", "duty_responsibility", "devotion_surrender"] },
+  { id: "purpose", label: "Searching for purpose", labelHi: "उद्देश्य खोजते", tags: ["purpose_meaning", "duty_responsibility", "devotion_surrender", "courage"] },
   { id: "happy", label: "Happy", labelHi: "प्रसन्न", tags: ["gratitude_contentment", "equanimity", "detachment"] },
 ];
 

@@ -124,7 +124,7 @@ export function getTeachingPassage(
   return { verses, focus, label };
 }
 
-/** Search English, Hindi, IAST, Sanskrit, and chapter.verse refs. */
+/** Search English, Hindi, IAST, Sanskrit, tags, and chapter.verse refs. */
 export function searchSlokas(query: string, limit = 40): Sloka[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
@@ -137,30 +137,74 @@ export function searchSlokas(query: string, limit = 40): Sloka[] {
     return exact ? [exact] : [];
   }
 
-  const tokens = q.split(/\s+/).filter((t) => t.length > 1);
+  const tokens = q
+    .split(/\s+/)
+    .map((t) => t.replace(/[^a-z0-9\u0900-\u097f]/gi, ""))
+    .filter((t) => t.length > 1);
 
-  return slokas
-    .map((sloka) => {
-      const ref = formatVerseRef(sloka).toLowerCase();
-      const haystack = [
-        ref,
+  // Document frequency for IDF (token → how many verses contain it)
+  const docFreq = new Map<string, number>();
+  const haystacks = slokas.map((sloka) => {
+    const ref = formatVerseRef(sloka).toLowerCase();
+    const hay = [
+      ref,
+      sloka.english_translation,
+      sloka.hindi_translation,
+      sloka.english_meaning ?? "",
+      sloka.hindi_meaning ?? "",
+      sloka.transliteration_iast,
+      sloka.sanskrit_devanagari,
+      ...sloka.tags.map((t) => t.replace(/_/g, " ")),
+    ]
+      .join(" ")
+      .toLowerCase();
+    return { sloka, ref, hay };
+  });
+
+  for (const token of tokens) {
+    let count = 0;
+    for (const { hay } of haystacks) {
+      if (hay.includes(token)) count += 1;
+    }
+    docFreq.set(token, count);
+  }
+
+  const N = slokas.length;
+
+  return haystacks
+    .map(({ sloka, ref, hay }) => {
+      let score = 0;
+
+      // Exact / phrase match is strongest
+      if (hay.includes(q)) score += 18;
+
+      for (const token of tokens) {
+        if (!hay.includes(token)) continue;
+        const df = docFreq.get(token) || 1;
+        // Rarer tokens weigh more; ultra-common tokens almost vanish
+        const idf = Math.log(1 + N / df);
+        const weight = Math.min(8, idf * 2.2);
+        score += weight;
+
+        // Tag-name hit boost
+        if (sloka.tags.some((t) => t.replace(/_/g, " ").includes(token))) {
+          score += 3 * Math.min(2, idf);
+        }
+
+        if (ref === token || ref.startsWith(`${token}.`)) score += 12;
+      }
+
+      // Prefer verses whose translation (not only IAST) carries the query
+      const translationHay = [
         sloka.english_translation,
         sloka.hindi_translation,
         sloka.english_meaning ?? "",
         sloka.hindi_meaning ?? "",
-        sloka.transliteration_iast,
-        sloka.sanskrit_devanagari,
-        ...sloka.tags,
       ]
         .join(" ")
         .toLowerCase();
+      if (tokens.some((t) => translationHay.includes(t))) score += 2;
 
-      let score = 0;
-      if (haystack.includes(q)) score += 10;
-      for (const token of tokens) {
-        if (haystack.includes(token)) score += 2;
-        if (ref === token || ref.startsWith(`${token}.`)) score += 5;
-      }
       return { sloka, score };
     })
     .filter(({ score }) => score > 0)
@@ -173,3 +217,15 @@ export function searchSlokas(query: string, limit = 40): Sloka[] {
     .slice(0, limit)
     .map(({ sloka }) => sloka);
 }
+
+/** Theme chips for empty-search recovery. */
+export const SEARCH_SUGGESTIONS = [
+  "duty",
+  "fear",
+  "anger",
+  "peace",
+  "grief",
+  "शांति",
+  "2.47",
+] as const;
+

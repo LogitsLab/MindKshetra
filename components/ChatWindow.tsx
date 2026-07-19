@@ -2,7 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 
 type Citation = {
@@ -49,10 +57,16 @@ export default function ChatWindow({ initialPrompt }: Props) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastFailedPrompt, setLastFailedPrompt] = useState<string | null>(
+    null
+  );
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const stickToBottom = useRef(true);
   const initialSent = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Drop any legacy saved chats; sessions are in-memory only
   useEffect(() => {
     try {
       localStorage.removeItem("mindkshetra-madhav-chat");
@@ -61,7 +75,6 @@ export default function ChatWindow({ initialPrompt }: Props) {
     }
   }, []);
 
-  // Keep welcome text in sync when language toggles and chat is only welcome
   useEffect(() => {
     setMessages((prev) => {
       if (prev.length === 1 && prev[0]?.id === "welcome") {
@@ -74,16 +87,41 @@ export default function ChatWindow({ initialPrompt }: Props) {
   }, [welcome]);
 
   useEffect(() => {
+    if (!stickToBottom.current) return;
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  function onScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    stickToBottom.current = nearBottom;
+  }
+
+  const resizeTextarea = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, []);
+
+  useEffect(() => {
+    resizeTextarea();
+  }, [input, resizeTextarea]);
 
   const sendMessage = useCallback(
     async (text: string, baseMessages?: UiMessage[]) => {
       const trimmed = text.trim();
       if (!trimmed || loading) return;
 
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       setError(null);
+      setLastFailedPrompt(null);
       setInput("");
+      stickToBottom.current = true;
 
       const current = baseMessages ?? messages;
       const userMsg: UiMessage = {
@@ -104,6 +142,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
             language: lang,
             messages: nextMessages
@@ -114,7 +153,11 @@ export default function ChatWindow({ initialPrompt }: Props) {
 
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || `Request failed (${res.status})`);
+          throw new Error(
+            typeof data.error === "string"
+              ? data.error
+              : `Request failed (${res.status})`
+          );
         }
 
         if (!res.body) throw new Error("No response stream");
@@ -197,6 +240,14 @@ export default function ChatWindow({ initialPrompt }: Props) {
           );
         }
       } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          setMessages((prev) => {
+            const currentMsg = prev.find((m) => m.id === assistantId);
+            if (currentMsg?.content?.trim()) return prev;
+            return prev.filter((m) => m.id !== assistantId && m.id !== userMsg.id);
+          });
+          return;
+        }
         const message =
           err instanceof Error ? err.message : "Something went wrong";
         let hadPartial = false;
@@ -209,8 +260,10 @@ export default function ChatWindow({ initialPrompt }: Props) {
           return prev.filter((m) => m.id !== assistantId);
         });
         setError(hadPartial ? `${message} (partial)` : message);
+        setLastFailedPrompt(trimmed);
       } finally {
         setLoading(false);
+        if (abortRef.current === controller) abortRef.current = null;
       }
     },
     [loading, messages, lang]
@@ -227,9 +280,27 @@ export default function ChatWindow({ initialPrompt }: Props) {
     await sendMessage(input);
   }
 
+  function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      void sendMessage(input);
+    }
+  }
+
   function clearChat() {
+    abortRef.current?.abort();
     setMessages([welcome]);
     setError(null);
+    setLastFailedPrompt(null);
+  }
+
+  function stopGeneration() {
+    abortRef.current?.abort();
+  }
+
+  function retryLast() {
+    if (!lastFailedPrompt) return;
+    void sendMessage(lastFailedPrompt);
   }
 
   const showStarters =
@@ -250,17 +321,35 @@ export default function ChatWindow({ initialPrompt }: Props) {
             {t("sessionEphemeral")}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={clearChat}
-          disabled={loading}
-          className="shrink-0 px-3 py-2 text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
-        >
-          {t("clearChat")}
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          {loading ? (
+            <button
+              type="button"
+              onClick={stopGeneration}
+              className="px-3 py-2 text-xs text-[var(--brass-soft)] transition hover:text-[var(--brass)]"
+            >
+              {t("stop")}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={clearChat}
+            disabled={loading}
+            className="px-3 py-2 text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
+          >
+            {t("clearChat")}
+          </button>
+        </div>
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-3 sm:space-y-5 sm:p-6">
+      <div
+        ref={scrollRef}
+        onScroll={onScroll}
+        className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-3 sm:space-y-5 sm:p-6"
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+      >
         {showStarters && (
           <div className="mb-2 flex flex-col items-center border-b border-white/[0.06] pb-5 pt-1 text-center sm:pb-6 sm:pt-2">
             <Image
@@ -356,23 +445,34 @@ export default function ChatWindow({ initialPrompt }: Props) {
       </div>
 
       {error && (
-        <div className="border-t border-[var(--line)] bg-[rgba(140,60,70,0.2)] px-4 py-2 text-sm text-[#f0c4c8]">
-          {error}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--line)] bg-[rgba(140,60,70,0.2)] px-4 py-2 text-sm text-[#f0c4c8]">
+          <span>{error}</span>
+          {lastFailedPrompt ? (
+            <button
+              type="button"
+              onClick={retryLast}
+              className="shrink-0 text-[var(--brass-soft)] underline-offset-2 hover:underline"
+            >
+              {t("retry")}
+            </button>
+          ) : null}
         </div>
       )}
 
       <form
         onSubmit={onSubmit}
-        className="flex gap-2 border-t border-[var(--line)] p-2.5 sm:p-4"
+        className="flex items-end gap-2 border-t border-[var(--line)] p-2.5 sm:p-4"
       >
-        <input
+        <textarea
+          ref={textareaRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={onKeyDown}
           placeholder={t("sharePlaceholder")}
           disabled={loading}
+          rows={1}
           enterKeyHint="send"
-          autoComplete="off"
-          className="min-h-11 min-w-0 flex-1 border border-[var(--line)] bg-black/30 px-3 py-3 text-base text-[var(--text)] placeholder:text-[var(--text-muted)]/60 outline-none focus:border-[var(--brass)]/50 disabled:opacity-60 sm:text-[15px]"
+          className="max-h-40 min-h-11 min-w-0 flex-1 resize-none border border-[var(--line)] bg-black/30 px-3 py-3 text-base text-[var(--text)] placeholder:text-[var(--text-muted)]/60 outline-none focus:border-[var(--brass)]/50 disabled:opacity-60 sm:text-[15px]"
         />
         <button
           type="submit"

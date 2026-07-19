@@ -51,7 +51,7 @@ export async function GET(request: NextRequest, { params }: Params) {
 }
 
 export async function POST(request: NextRequest, { params }: Params) {
-  const limited = rateLimit(`story:${clientKey(request)}`, 12, 60_000);
+  const limited = await rateLimit(`story:${clientKey(request)}`, 12, 60_000);
   if (!limited.ok) {
     return NextResponse.json(
       { error: `Too many requests. Try again in ${limited.retryAfterSec}s.` },

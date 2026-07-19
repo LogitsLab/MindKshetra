@@ -122,6 +122,17 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
         {t("readReflection")}
       </a>
 
+      <Link
+        href={`/madhav?prompt=${encodeURIComponent(
+          lang === "hi"
+            ? `श्लोक ${formatVerseRef(sloka)} के बारे में मुझे समझाइए — आज मेरे जीवन में इसका क्या अर्थ हो सकता है?`
+            : `Help me understand verse ${formatVerseRef(sloka)} — what might it mean for my life right now?`
+        )}`}
+        className="mt-3 flex min-h-11 items-center justify-center bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)]"
+      >
+        {t("askMadhavVerse")}
+      </Link>
+
       <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-stretch lg:gap-0">
         <section className="min-w-0 space-y-7 border border-[var(--line)] bg-[rgba(14,20,32,0.35)] p-5 sm:p-7 lg:rounded-none lg:border-r-0">
           {/* Primary reading: translation first */}
