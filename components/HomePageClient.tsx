@@ -43,7 +43,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       title: t("homeMadhavTitle"),
       blurb: t("homeMadhavBlurb"),
       image: "/images/paths/madhav.jpg",
-      icon: "/icons/paths/madhav.svg",
+      icon: "/icons/paths/madhav.jpg",
     },
   ];
 
@@ -132,7 +132,9 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
                   alt=""
                   width={40}
                   height={40}
-                  className="path-mark mb-3 opacity-85 transition duration-300 group-hover:-translate-y-0.5 group-hover:opacity-100"
+                  className={`path-mark mb-3 opacity-85 transition duration-300 group-hover:-translate-y-0.5 group-hover:opacity-100 ${
+                    entry.href === "/madhav" ? "rounded-full object-cover ring-1 ring-[var(--brass)]/40" : ""
+                  }`}
                 />
                 <span className="font-body text-xs text-[var(--brass)]">
                   0{i + 1}

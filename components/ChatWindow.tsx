@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
+import ChatMarkdown from "@/components/ChatMarkdown";
 
 type Citation = {
   id: number;
@@ -30,6 +31,40 @@ type UiMessage = {
 type Props = {
   initialPrompt?: string;
 };
+
+type SpeechRecognitionResultLike = {
+  isFinal: boolean;
+  0: { transcript: string };
+};
+
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: ArrayLike<SpeechRecognitionResultLike>;
+};
+
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: { error?: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+};
+
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+
+function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
+  if (typeof window === "undefined") return null;
+  const w = window as Window & {
+    SpeechRecognition?: SpeechRecognitionCtor;
+    webkitSpeechRecognition?: SpeechRecognitionCtor;
+  };
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
 
 export default function ChatWindow({ initialPrompt }: Props) {
   const { lang, t } = useLanguage();
@@ -60,12 +95,17 @@ export default function ChatWindow({ initialPrompt }: Props) {
   const [lastFailedPrompt, setLastFailedPrompt] = useState<string | null>(
     null
   );
+  const [listening, setListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickToBottom = useRef(true);
   const initialSent = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const baseInputRef = useRef("");
+  const wantListenRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -74,6 +114,25 @@ export default function ChatWindow({ initialPrompt }: Props) {
       /* ignore */
     }
   }, []);
+
+  useEffect(() => {
+    setVoiceSupported(Boolean(getSpeechRecognitionCtor()));
+    return () => {
+      wantListenRef.current = false;
+      try {
+        recognitionRef.current?.abort();
+      } catch {
+        /* ignore */
+      }
+      recognitionRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.lang = lang === "hi" ? "hi-IN" : "en-IN";
+    }
+  }, [lang]);
 
   useEffect(() => {
     setMessages((prev) => {
@@ -114,6 +173,14 @@ export default function ChatWindow({ initialPrompt }: Props) {
       const trimmed = text.trim();
       if (!trimmed || loading) return;
 
+      wantListenRef.current = false;
+      try {
+        recognitionRef.current?.stop();
+      } catch {
+        /* ignore */
+      }
+      setListening(false);
+
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
@@ -121,6 +188,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
       setError(null);
       setLastFailedPrompt(null);
       setInput("");
+      baseInputRef.current = "";
       stickToBottom.current = true;
 
       const current = baseMessages ?? messages;
@@ -289,6 +357,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
 
   function clearChat() {
     abortRef.current?.abort();
+    stopListening();
     setMessages([welcome]);
     setError(null);
     setLastFailedPrompt(null);
@@ -296,6 +365,104 @@ export default function ChatWindow({ initialPrompt }: Props) {
 
   function stopGeneration() {
     abortRef.current?.abort();
+  }
+
+  function stopListening() {
+    wantListenRef.current = false;
+    try {
+      recognitionRef.current?.stop();
+    } catch {
+      /* ignore */
+    }
+    setListening(false);
+  }
+
+  function startListening() {
+    if (loading) return;
+    const Ctor = getSpeechRecognitionCtor();
+    if (!Ctor) {
+      setError(t("voiceUnsupported"));
+      return;
+    }
+
+    stopListening();
+    const recognition = new Ctor();
+    recognitionRef.current = recognition;
+    recognition.lang = lang === "hi" ? "hi-IN" : "en-IN";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    baseInputRef.current = input.trim();
+    wantListenRef.current = true;
+    setError(null);
+    setListening(true);
+
+    recognition.onresult = (event) => {
+      let finalChunk = "";
+      let interimChunk = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        const piece = result[0]?.transcript ?? "";
+        if (result.isFinal) finalChunk += piece;
+        else interimChunk += piece;
+      }
+
+      if (finalChunk) {
+        const next = [baseInputRef.current, finalChunk.trim()]
+          .filter(Boolean)
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim();
+        baseInputRef.current = next;
+        setInput(next);
+      } else if (interimChunk) {
+        const next = [baseInputRef.current, interimChunk.trim()]
+          .filter(Boolean)
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim();
+        setInput(next);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      const code = event.error;
+      if (code === "aborted" || code === "no-speech") return;
+      if (code === "not-allowed") {
+        setError(t("voiceError"));
+      } else {
+        setError(t("voiceError"));
+      }
+      wantListenRef.current = false;
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      if (wantListenRef.current && recognitionRef.current === recognition) {
+        try {
+          recognition.start();
+          return;
+        } catch {
+          /* fall through */
+        }
+      }
+      setListening(false);
+    };
+
+    try {
+      recognition.start();
+      textareaRef.current?.focus();
+    } catch {
+      wantListenRef.current = false;
+      setListening(false);
+      setError(t("voiceError"));
+    }
+  }
+
+  function toggleListening() {
+    if (listening) stopListening();
+    else startListening();
   }
 
   function retryLast() {
@@ -307,15 +474,15 @@ export default function ChatWindow({ initialPrompt }: Props) {
     messages.length <= 1 && !loading && !initialPrompt?.trim();
 
   return (
-    <div className="flex h-[calc(100dvh-11.5rem)] max-h-[720px] min-h-[22rem] flex-col overflow-hidden border border-[var(--line)] bg-[rgba(14,20,32,0.65)] shadow-[0_0_80px_rgba(61,122,106,0.08)] backdrop-blur-sm sm:h-[min(68dvh,680px)] sm:min-h-[28rem]">
-      <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2 sm:px-5">
+    <div className="flex h-[calc(100dvh-11.5rem)] max-h-[760px] min-h-[22rem] flex-col overflow-hidden border border-[var(--line)] bg-[rgba(14,20,32,0.72)] shadow-[0_0_80px_rgba(61,122,106,0.08)] backdrop-blur-sm sm:h-[min(72dvh,720px)] sm:min-h-[28rem]">
+      <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-2.5">
           <Image
-            src="/brand/madhav.svg"
+            src="/brand/madhav.jpg"
             alt=""
-            width={28}
-            height={28}
-            className="shrink-0 opacity-90"
+            width={32}
+            height={32}
+            className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-[var(--brass)]/45"
           />
           <p className="truncate text-[11px] uppercase tracking-[0.14em] text-[var(--text-muted)] sm:text-xs">
             {t("sessionEphemeral")}
@@ -345,21 +512,22 @@ export default function ChatWindow({ initialPrompt }: Props) {
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-3 sm:space-y-5 sm:p-6"
+        className="flex-1 space-y-6 overflow-y-auto overscroll-contain px-4 py-5 sm:space-y-7 sm:px-7 sm:py-6"
         role="log"
         aria-live="polite"
         aria-relevant="additions"
       >
         {showStarters && (
-          <div className="mb-2 flex flex-col items-center border-b border-white/[0.06] pb-5 pt-1 text-center sm:pb-6 sm:pt-2">
+          <div className="mb-1 flex flex-col items-center border-b border-white/[0.06] pb-6 pt-2 text-center sm:pb-8 sm:pt-3">
             <Image
-              src="/brand/madhav.svg"
+              src="/brand/madhav.jpg"
               alt=""
-              width={56}
-              height={56}
-              className="opacity-85 sm:h-16 sm:w-16"
+              width={72}
+              height={72}
+              className="h-16 w-16 rounded-full object-cover opacity-95 ring-1 ring-[var(--brass)]/40 sm:h-[4.5rem] sm:w-[4.5rem]"
+              priority
             />
-            <p className="mt-3 max-w-sm text-sm font-light leading-relaxed text-[var(--text-muted)]">
+            <p className="mt-4 max-w-sm text-sm font-light leading-relaxed text-[var(--text-muted)]">
               {t("madhavIntro")}
             </p>
           </div>
@@ -368,22 +536,22 @@ export default function ChatWindow({ initialPrompt }: Props) {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`max-w-[min(92%,28rem)] break-words sm:max-w-[92%] ${
+            className={`max-w-[min(96%,36rem)] break-words sm:max-w-[min(100%,40rem)] ${
               msg.role === "user" ? "ml-auto" : "mr-auto"
             }`}
           >
             <div
-              className={`mb-1.5 flex items-center gap-2 ${
+              className={`mb-2 flex items-center gap-2 ${
                 msg.role === "user" ? "justify-end" : "justify-start"
               }`}
             >
               {msg.role === "assistant" && (
                 <Image
-                  src="/brand/madhav.svg"
+                  src="/brand/madhav.jpg"
                   alt=""
-                  width={20}
-                  height={20}
-                  className="opacity-80"
+                  width={24}
+                  height={24}
+                  className="h-6 w-6 rounded-full object-cover ring-1 ring-[var(--brass)]/35"
                 />
               )}
               <p
@@ -397,26 +565,36 @@ export default function ChatWindow({ initialPrompt }: Props) {
               </p>
             </div>
             <div
-              className={`px-3.5 py-3 text-[15px] font-light leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] sm:px-4 ${
+              className={`px-4 py-4 text-[15px] font-light leading-[1.75] break-words [overflow-wrap:anywhere] sm:px-5 sm:py-5 sm:text-[15.5px] sm:leading-[1.8] ${
                 msg.role === "user"
-                  ? "bg-[rgba(201,162,39,0.14)] text-[var(--text)]"
-                  : "border border-[var(--line)] bg-white/[0.04] text-[var(--text)]"
+                  ? "bg-[rgba(201,162,39,0.14)] text-[var(--text)] whitespace-pre-wrap"
+                  : "border border-[var(--line)] bg-white/[0.035] text-[var(--text)]"
               }`}
             >
-              {msg.content || (loading ? t("reflecting") : "")}
+              {msg.content ? (
+                msg.role === "assistant" ? (
+                  <ChatMarkdown content={msg.content} />
+                ) : (
+                  msg.content
+                )
+              ) : loading ? (
+                <span className="text-[var(--text-muted)]">{t("reflecting")}</span>
+              ) : (
+                ""
+              )}
             </div>
             {msg.role === "assistant" &&
               msg.citations &&
               msg.citations.length > 0 && (
-                <div className="mt-2 space-y-1.5">
+                <div className="mt-3 space-y-2">
                   {msg.citations.slice(0, 3).map((c) => (
                     <Link
                       key={c.id}
                       href={`/sloka/${c.id}`}
-                      className="block border border-[var(--line)] bg-black/30 px-3 py-3 text-sm transition hover:border-[var(--brass)]/40"
+                      className="block border border-[var(--line)] bg-black/30 px-3.5 py-3.5 text-sm transition hover:border-[var(--brass)]/40"
                     >
                       <span className="text-[var(--brass-soft)]">{c.ref}</span>
-                      <span className="mt-0.5 block line-clamp-2 font-light text-[var(--text-muted)]">
+                      <span className="mt-1 block line-clamp-2 font-light leading-relaxed text-[var(--text-muted)]">
                         {lang === "hi" && c.hindi ? c.hindi : c.english}
                       </span>
                     </Link>
@@ -427,14 +605,14 @@ export default function ChatWindow({ initialPrompt }: Props) {
         ))}
 
         {showStarters && (
-          <div className="flex flex-wrap gap-2 pt-1">
+          <div className="flex flex-wrap gap-2.5 pt-1">
             {starters.map((starter) => (
               <button
                 key={starter}
                 type="button"
                 onClick={() => void sendMessage(starter)}
                 disabled={loading}
-                className="min-h-11 border border-[var(--line)] px-3 py-2.5 text-left text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
+                className="min-h-11 border border-[var(--line)] px-3.5 py-2.5 text-left text-sm leading-snug text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
               >
                 {starter}
               </button>
@@ -461,14 +639,57 @@ export default function ChatWindow({ initialPrompt }: Props) {
 
       <form
         onSubmit={onSubmit}
-        className="flex items-end gap-2 border-t border-[var(--line)] p-2.5 sm:p-4"
+        className="flex items-end gap-2.5 border-t border-[var(--line)] p-3.5 sm:gap-3 sm:p-5"
       >
+        {voiceSupported ? (
+          <button
+            type="button"
+            onClick={toggleListening}
+            disabled={loading}
+            aria-pressed={listening}
+            aria-label={listening ? t("voiceStop") : t("voiceListen")}
+            title={listening ? t("voiceStop") : t("voiceListen")}
+            className={`relative flex min-h-11 min-w-11 shrink-0 items-center justify-center border transition disabled:cursor-not-allowed disabled:opacity-50 ${
+              listening
+                ? "border-[var(--brass)] bg-[rgba(201,162,39,0.22)] text-[var(--brass-soft)]"
+                : "border-[var(--line)] bg-black/30 text-[var(--text-muted)] hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
+            }`}
+          >
+            {listening ? (
+              <span
+                className="absolute inset-0 animate-pulse bg-[rgba(201,162,39,0.12)]"
+                aria-hidden
+              />
+            ) : null}
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+              className="relative"
+            >
+              <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" />
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1" />
+              <path d="M12 18v3" />
+            </svg>
+          </button>
+        ) : null}
         <textarea
           ref={textareaRef}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setInput(e.target.value);
+            if (!listening) baseInputRef.current = e.target.value;
+          }}
           onKeyDown={onKeyDown}
-          placeholder={t("sharePlaceholder")}
+          placeholder={
+            listening ? t("voiceListening") : t("sharePlaceholder")
+          }
           disabled={loading}
           rows={1}
           enterKeyHint="send"
