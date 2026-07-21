@@ -14,6 +14,7 @@ type Props = {
 type StoryResponse = {
   story: string | null;
   cached?: boolean;
+  seeded?: boolean;
   generated?: boolean;
   variant?: number;
   total?: number;
@@ -26,6 +27,7 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
   const { lang: appLang, t } = useLanguage();
   const [lang, setLang] = useState<"en" | "hi">(appLang);
   const [story, setStory] = useState<string | null>(null);
+  const [seeded, setSeeded] = useState(false);
   const [variant, setVariant] = useState<number | null>(null);
   const [total, setTotal] = useState<number>(0);
   const [passage, setPassage] = useState<string | undefined>(passageLabel);
@@ -47,10 +49,12 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
       if (data.passage) setPassage(data.passage);
       if (data.story) {
         setStory(data.story);
+        setSeeded(Boolean(data.seeded));
         setVariant(data.variant ?? 1);
         setTotal(data.total ?? 1);
       } else {
         setStory(null);
+        setSeeded(false);
         setVariant(null);
         setTotal(0);
       }
@@ -84,6 +88,7 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
         throw new Error("No story returned");
       }
       setStory(data.story);
+      setSeeded(Boolean(data.seeded));
       setVariant(data.variant ?? 1);
       setTotal(data.total ?? 1);
       if (data.passage) setPassage(data.passage);
@@ -157,7 +162,9 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
 
         {variant && total > 0 && (
           <p className="mt-4 text-xs tracking-[0.12em] text-[var(--brass)]">
-            {t("variantOf")} {variant} {t("of")} {total}
+            {seeded
+              ? t("storyDefaultLabel")
+              : `${t("variantOf")} ${variant} ${t("of")} ${total}`}
           </p>
         )}
 
@@ -165,16 +172,7 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3 border-t border-white/[0.06] pt-5">
-        {!story ? (
-          <button
-            type="button"
-            onClick={() => requestStory(false)}
-            disabled={loading}
-            className="bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)] disabled:opacity-50"
-          >
-            {loading ? t("writing") : t("generateStory")}
-          </button>
-        ) : (
+        {story ? (
           <>
             <SpeakButton
               text={story}
@@ -199,6 +197,15 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
               {t("storyHint")}
             </p>
           </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => requestStory(false)}
+            disabled={loading}
+            className="bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)] disabled:opacity-50"
+          >
+            {loading ? t("writing") : t("generateStory")}
+          </button>
         )}
       </div>
     </section>

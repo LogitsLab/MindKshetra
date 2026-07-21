@@ -61,6 +61,14 @@ export default function ExplorePageClient({ chapters }: Props) {
                 <p className="mt-3 line-clamp-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
                   {chapter.summary}
                 </p>
+                {(lang === "hi" ? chapter.moral_hi : chapter.moral) ? (
+                  <p className="mt-3 border-l border-[var(--brass)]/40 pl-3 text-sm leading-snug text-[var(--brass-soft)] line-clamp-3">
+                    <span className="mb-1 block text-[0.65rem] uppercase tracking-[0.14em] text-[var(--text-muted)]">
+                      {t("chapterMoral")}
+                    </span>
+                    {lang === "hi" ? chapter.moral_hi : chapter.moral}
+                  </p>
+                ) : null}
                 <p className="mt-4 text-xs text-[var(--brass)]">
                   {chapter.verses_count} {t("verses")} →
                 </p>

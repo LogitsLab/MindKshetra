@@ -4,125 +4,161 @@
     "name": "Arjuna's Dilemma",
     "name_sanskrit": "अर्जुनविषादयोग",
     "verses_count": 47,
-    "summary": "The first chapter of the Bhagavad Gita - \"Arjuna Vishada Yoga\" introduces the setup, the setting, the characters and the circumstances that led to the epic battle of Mahabharata, fought between the Pandavas and the Kauravas. It outlines the reasons that led to the revelation of the Bhagavad Gita."
+    "summary": "The first chapter of the Bhagavad Gita - \"Arjuna Vishada Yoga\" introduces the setup, the setting, the characters and the circumstances that led to the epic battle of Mahabharata, fought between the Pandavas and the Kauravas. It outlines the reasons that led to the revelation of the Bhagavad Gita.",
+    "moral": "Honest sorrow is not weakness — naming your fear is the first step onto the field.",
+    "moral_hi": "सच्चा शोक कमज़ोरी नहीं — अपने भय को नाम देना ही क्षेत्र में पहला कदम है।"
   },
   {
     "number": 2,
     "name": "Transcendental Knowledge",
     "name_sanskrit": "सांख्ययोग",
     "verses_count": 72,
-    "summary": "The second chapter of the Bhagavad Gita is \"Sankhya Yoga\". This is the most important chapter of the Bhagavad Gita as Lord Krishna condenses the teachings of the entire Gita in this chapter."
+    "summary": "The second chapter of the Bhagavad Gita is \"Sankhya Yoga\". This is the most important chapter of the Bhagavad Gita as Lord Krishna condenses the teachings of the entire Gita in this chapter.",
+    "moral": "You have a right to action, not to fruits — steady wisdom acts without clinging to results.",
+    "moral_hi": "कर्म पर अधिकार है, फल पर नहीं — स्थिर बुद्धि परिणाम की आसक्ति के बिना कर्म करती है।"
   },
   {
     "number": 3,
     "name": "Path of Selfless Service",
     "name_sanskrit": "कर्मयोग",
     "verses_count": 43,
-    "summary": "The third chapter of the Bhagavad Gita is \"Karma Yoga\" or the \"Path of Selfless Service\". Here Lord Krishna emphasizes the importance of karma in life. He reveals that it is important for every human being to engage in some sort of activity in this material world."
+    "summary": "The third chapter of the Bhagavad Gita is \"Karma Yoga\" or the \"Path of Selfless Service\". Here Lord Krishna emphasizes the importance of karma in life. He reveals that it is important for every human being to engage in some sort of activity in this material world.",
+    "moral": "Inaction is not freedom; selfless action done as duty purifies and uplifts life.",
+    "moral_hi": "निष्क्रियता मुक्ति नहीं; कर्तव्य रूप में किया निष्काम कर्म जीवन को शुद्ध और ऊँचा करता है।"
   },
   {
     "number": 4,
     "name": "Path of Knowledge and the Disciplines of Action",
     "name_sanskrit": "ज्ञानकर्मसंन्यासयोग",
     "verses_count": 42,
-    "summary": "The fourth chapter of the Bhagavad Gita is \"Jnana Karma Sanyasa Yoga\". In this chapter, Krishna glorifies the Karma Yoga and imparts the Transcendental Knowledge (the knowledge of the soul and the Ultimate Truth) to Arjuna."
+    "summary": "The fourth chapter of the Bhagavad Gita is \"Jnana Karma Sanyasa Yoga\". In this chapter, Krishna glorifies the Karma Yoga and imparts the Transcendental Knowledge (the knowledge of the soul and the Ultimate Truth) to Arjuna.",
+    "moral": "True knowledge ends the cycle of bondage — act with understanding, not blind habit.",
+    "moral_hi": "सच्चा ज्ञान बंधन का अंत करता है — अंधी आदत से नहीं, समझ के साथ कर्म करो।"
   },
   {
     "number": 5,
     "name": "Path of Renunciation",
     "name_sanskrit": "कर्मसंन्यासयोग",
     "verses_count": 29,
-    "summary": "The fifth chapter of the Bhagavad Gita is \"Karma Sanyasa Yoga\". In this chapter, Krishna compares the paths of renunciation in actions (Karma Sanyas) and actions with detachment (Karma Yoga) and explains that both are means to reach the same goal and we can choose either."
+    "summary": "The fifth chapter of the Bhagavad Gita is \"Karma Sanyasa Yoga\". In this chapter, Krishna compares the paths of renunciation in actions (Karma Sanyas) and actions with detachment (Karma Yoga) and explains that both are means to reach the same goal and we can choose either.",
+    "moral": "Renunciation and engaged work meet in the same peace when the ego drops the claim of doership.",
+    "moral_hi": "संन्यास और कर्मयोग एक ही शांति में मिलते हैं जब अहंकार कर्तृत्व का दावा छोड़ देता है।"
   },
   {
     "number": 6,
     "name": "Path of Meditation",
     "name_sanskrit": "ध्यानयोग",
     "verses_count": 47,
-    "summary": "The sixth chapter of the Bhagavad Gita is \"Dhyana Yoga\". In this chapter, Krishna reveals the \"Yoga of Meditation\" and how to practise this Yoga. He discusses the role of action in preparing for Meditation, how performing duties in devotion purifies one's mind and heightens one's spiritual consciousness."
+    "summary": "The sixth chapter of the Bhagavad Gita is \"Dhyana Yoga\". In this chapter, Krishna reveals the \"Yoga of Meditation\" and how to practise this Yoga. He discusses the role of action in preparing for Meditation, how performing duties in devotion purifies one's mind and heightens one's spiritual consciousness.",
+    "moral": "Master the mind gently through practice and detachment — the self is both friend and enemy.",
+    "moral_hi": "अभ्यास और वैराग्य से मन को कोमलता से साधो — आत्मा मित्र भी है और शत्रु भी।"
   },
   {
     "number": 7,
     "name": "Self-Knowledge and Enlightenment",
     "name_sanskrit": "ज्ञानविज्ञानयोग",
     "verses_count": 30,
-    "summary": "The seventh chapter of the Bhagavad Gita is \"Gyaan Vigyana Yoga \". In this chapter, Krishna reveals that he is the Supreme Truth, the principal cause and the sustaining force of everything."
+    "summary": "The seventh chapter of the Bhagavad Gita is \"Gyaan Vigyana Yoga \". In this chapter, Krishna reveals that he is the Supreme Truth, the principal cause and the sustaining force of everything.",
+    "moral": "See the One behind the many; devotion rooted in knowledge frees you from Maya’s spell.",
+    "moral_hi": "अनेक के पीछे एक को देखो; ज्ञान-युक्त भक्ति माया के मोह से मुक्त करती है।"
   },
   {
     "number": 8,
     "name": "Path of the Eternal God",
     "name_sanskrit": "अक्षरब्रह्मयोग",
     "verses_count": 28,
-    "summary": "The eighth chapter of the Bhagavad Gita is \"Akshara Brahma Yoga\". In this chapter, Krishna reveals the importance of the last thought before death. If we can remember Krishna at the time of death, we will certainly attain him."
+    "summary": "The eighth chapter of the Bhagavad Gita is \"Akshara Brahma Yoga\". In this chapter, Krishna reveals the importance of the last thought before death. If we can remember Krishna at the time of death, we will certainly attain him.",
+    "moral": "How you live shapes how you leave — remember the Divine in life, and at the last breath.",
+    "moral_hi": "जैसे जीते हो, वैसा ही अंतिम क्षण बनता है — जीवन में और अंतिम श्वास में भी ईश्वर को याद रखो।"
   },
   {
     "number": 9,
     "name": "Yoga through the King of Sciences",
     "name_sanskrit": "राजविद्याराजगुह्ययोग",
     "verses_count": 34,
-    "summary": "The ninth chapter of the Bhagavad Gita is \"Raja Vidya Yoga\". In this chapter, Krishna explains that He is Supreme and how this material existence is created, maintained and destroyed by His Yogmaya and all beings come and go under his supervision."
+    "summary": "The ninth chapter of the Bhagavad Gita is \"Raja Vidya Yoga\". In this chapter, Krishna explains that He is Supreme and how this material existence is created, maintained and destroyed by His Yogmaya and all beings come and go under his supervision.",
+    "moral": "The Divine receives even the simplest offering given with love — no one is shut out of grace.",
+    "moral_hi": "प्रेम से दिया गया साधारण अर्पण भी स्वीकार होता है — कृपा से कोई वंचित नहीं।"
   },
   {
     "number": 10,
     "name": "Yoga through Appreciating the Infinite Opulences of God",
     "name_sanskrit": "विभूतियोग",
     "verses_count": 42,
-    "summary": "The tenth chapter of the Bhagavad Gita is \"Vibhooti Yoga\". In this chapter, Krishna reveals Himself as the cause of all causes. He describes His various manifestations and opulences in order to increase Arjuna's Bhakti."
+    "summary": "The tenth chapter of the Bhagavad Gita is \"Vibhooti Yoga\". In this chapter, Krishna reveals Himself as the cause of all causes. He describes His various manifestations and opulences in order to increase Arjuna's Bhakti.",
+    "moral": "Wherever you find excellence, power, or beauty, recognize a spark of the Infinite.",
+    "moral_hi": "जहाँ उत्कृष्टता, शक्ति या सौंदर्य दिखे, वहाँ अनंत की एक चिंगारी पहचानो।"
   },
   {
     "number": 11,
     "name": "Yoga through Beholding the Cosmic Form of God",
     "name_sanskrit": "विश्वरूपदर्शनयोग",
     "verses_count": 55,
-    "summary": "The eleventh chapter of the Bhagavad Gita is \"Vishwaroopa Darshana Yoga\". In this chapter, Arjuna requests Krishna to reveal His Universal Cosmic Form that encompasses all the universes, the entire existence."
+    "summary": "The eleventh chapter of the Bhagavad Gita is \"Vishwaroopa Darshana Yoga\". In this chapter, Arjuna requests Krishna to reveal His Universal Cosmic Form that encompasses all the universes, the entire existence.",
+    "moral": "Awe humbles the ego: the universe is vast, and surrender is wiser than control.",
+    "moral_hi": "विस्मय अहंकार को नम्र करता है — ब्रह्मांड विशाल है, और समर्पण नियंत्रण से बुद्धिमान है।"
   },
   {
     "number": 12,
     "name": "The Yoga of Devotion",
     "name_sanskrit": "भक्तियोग",
     "verses_count": 20,
-    "summary": "The twelfth chapter of the Bhagavad Gita is \"Bhakti Yoga\". In this chapter, Krishna emphasizes the superiority of Bhakti Yoga (the path of devotion) over all other types of spiritual disciplines and reveals various aspects of devotion."
+    "summary": "The twelfth chapter of the Bhagavad Gita is \"Bhakti Yoga\". In this chapter, Krishna emphasizes the superiority of Bhakti Yoga (the path of devotion) over all other types of spiritual disciplines and reveals various aspects of devotion.",
+    "moral": "Love expressed as kindness, patience, and steady devotion is the surest path.",
+    "moral_hi": "दया, धैर्य और स्थिर भक्ति के रूप में प्रकट प्रेम सबसे पक्का मार्ग है।"
   },
   {
     "number": 13,
     "name": "Yoga through Distinguishing the Field and the Knower of the Field",
     "name_sanskrit": "क्षेत्र-क्षेत्रज्ञविभागयोग",
     "verses_count": 35,
-    "summary": "The thirteenth chapter of the Bhagavad Gita is \"Ksetra Ksetrajna Vibhaaga Yoga\". The word \"kshetra\" means \"the field\", and the \"kshetrajna\" means \"the knower of the field\". We can think of our material body as the field and our immortal soul as the knower of the field."
+    "summary": "The thirteenth chapter of the Bhagavad Gita is \"Ksetra Ksetrajna Vibhaaga Yoga\". The word \"kshetra\" means \"the field\", and the \"kshetrajna\" means \"the knower of the field\". We can think of our material body as the field and our immortal soul as the knower of the field.",
+    "moral": "Know the body as the field and the Self as its knower — wisdom begins with this distinction.",
+    "moral_hi": "शरीर को क्षेत्र और आत्मा को क्षेत्रज्ञ जानो — ज्ञान इसी भेद से शुरू होता है।"
   },
   {
     "number": 14,
     "name": "Yoga through Understanding the Three Modes of Material Nature",
     "name_sanskrit": "गुणत्रयविभागयोग",
     "verses_count": 27,
-    "summary": "The fourteenth chapter of the Bhagavad Gita is \"Gunatraya Vibhaga Yoga\". In this chapter, Krishna reveals the three gunas (modes) of the material nature - goodness, passion and ignorance which everything in the material existence is influenced by."
+    "summary": "The fourteenth chapter of the Bhagavad Gita is \"Gunatraya Vibhaga Yoga\". In this chapter, Krishna reveals the three gunas (modes) of the material nature - goodness, passion and ignorance which everything in the material existence is influenced by.",
+    "moral": "Rise above the three gunas; do not be tossed by restless passion or dull inertia.",
+    "moral_hi": "तीनों गुणों से ऊपर उठो; चंचल रजस् या जड़ तमस् में मत बहो।"
   },
   {
     "number": 15,
     "name": "The Yoga of the Supreme Divine Personality",
     "name_sanskrit": "पुरुषोत्तमयोग",
     "verses_count": 20,
-    "summary": "The fifteenth chapter of the Bhagavad Gita is \"Purushottama Yoga\". In Sanskrit, Purusha means the \"All-pervading God\", and Purushottam means the timeless & transcendental aspect of God."
+    "summary": "The fifteenth chapter of the Bhagavad Gita is \"Purushottama Yoga\". In Sanskrit, Purusha means the \"All-pervading God\", and Purushottam means the timeless & transcendental aspect of God.",
+    "moral": "Cut attachment to the world-tree with non-attachment, and take refuge in the Supreme Self.",
+    "moral_hi": "वैराग्य से संसार-वृक्ष की आसक्ति काटो, और परम पुरुष में शरण लो।"
   },
   {
     "number": 16,
     "name": "Yoga through Discerning the Divine and Demoniac Natures",
     "name_sanskrit": "दैवासुरसम्पद्विभागयोग",
     "verses_count": 24,
-    "summary": "The sixteenth chapter of the Bhagavad Gita is \"Daivasura Sampad Vibhaga Yoga\". In this chapter, Krishna describes explicitly the two kinds of natures among human beings - divine and demoniac."
+    "summary": "The sixteenth chapter of the Bhagavad Gita is \"Daivasura Sampad Vibhaga Yoga\". In this chapter, Krishna describes explicitly the two kinds of natures among human beings - divine and demoniac.",
+    "moral": "Choose divine qualities — truth, restraint, compassion — over arrogance and harm.",
+    "moral_hi": "अहंकार और हिंसा के बजाय सत्य, संयम और करुणा — दैवी गुण चुनो।"
   },
   {
     "number": 17,
     "name": "Yoga through Discerning the Three Divisions of Faith",
     "name_sanskrit": "श्रद्धात्रयविभागयोग",
     "verses_count": 28,
-    "summary": "The seventeenth chapter of the Bhagavad Gita is \"Sraddhatraya Vibhaga Yoga\". In this chapter, Krishna describes the three types of faith corresponding to the three modes of the material nature."
+    "summary": "The seventeenth chapter of the Bhagavad Gita is \"Sraddhatraya Vibhaga Yoga\". In this chapter, Krishna describes the three types of faith corresponding to the three modes of the material nature.",
+    "moral": "Faith shapes destiny; purify what you trust, eat, give, and offer.",
+    "moral_hi": "श्रद्धा भाग्य गढ़ती है — जिस पर विश्वास, आहार, दान और यज्ञ हो, उसे शुद्ध करो।"
   },
   {
     "number": 18,
     "name": "Yoga through the Perfection of Renunciation and Surrender",
     "name_sanskrit": "मोक्षसंन्यासयोग",
     "verses_count": 78,
-    "summary": "The eighteenth chapter of the Bhagavad Gita is \"Moksha Sanyas Yoga\". Arjuna requests the Lord to explain the difference between the two types of renunciations - sanyaas(renunciation of actions) and tyaag(renunciation of desires)."
+    "summary": "The eighteenth chapter of the Bhagavad Gita is \"Moksha Sanyas Yoga\". Arjuna requests the Lord to explain the difference between the two types of renunciations - sanyaas(renunciation of actions) and tyaag(renunciation of desires).",
+    "moral": "Surrender the fruits, fulfill your own duty, and rest in grace — that is liberation in action.",
+    "moral_hi": "फल छोड़ो, अपना स्वधर्म निभाओ, और कृपा में विश्राम करो — यही कर्म में मोक्ष है।"
   }
 ]

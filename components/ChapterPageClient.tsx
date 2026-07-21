@@ -5,7 +5,7 @@ import Link from "next/link";
 import EmptyState from "@/components/EmptyState";
 import SlokaCard from "@/components/SlokaCard";
 import { useLanguage } from "@/components/LanguageProvider";
-import type { ChapterMeta } from "@/lib/chapters";
+import { chapterMoral, type ChapterMeta } from "@/lib/chapters";
 import type { Sloka } from "@/lib/types";
 
 type Props = {
@@ -52,6 +52,16 @@ export default function ChapterPageClient({ chapter, meta, slokas }: Props) {
             {meta.summary}
           </p>
         )}
+        {chapterMoral(meta, lang) ? (
+          <div className="mt-5 border border-[var(--line)] bg-[rgba(14,20,32,0.35)] p-4">
+            <p className="text-[0.7rem] uppercase tracking-[0.18em] text-[var(--brass-soft)]">
+              {t("chapterMoral")}
+            </p>
+            <p className="mt-2 font-display text-lg leading-snug text-[var(--text)]">
+              {chapterMoral(meta, lang)}
+            </p>
+          </div>
+        ) : null}
         <p className="mt-3 text-sm text-[var(--brass)]">
           {slokas.length} {slokas.length === 1 ? t("verse") : t("verses")}
         </p>

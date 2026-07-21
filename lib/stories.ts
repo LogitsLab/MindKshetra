@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import seedStories from "@/data/stories-seed.json";
 import { redisEnabled, redisGet, redisSet } from "@/lib/redis";
 
 export type StoryLanguage = "en" | "hi";
@@ -20,6 +21,8 @@ const CACHE_PATH = path.join(process.cwd(), "data", "stories-cache.json");
 const MAX_VARIANTS = 3;
 const REDIS_PREFIX = "story:";
 
+const seedMap = seedStories as Record<string, StoryVariant>;
+
 /** Prefer memory on serverless; also sync to disk when writable (local/dev). */
 const memoryCache: StoryCache = {};
 let writeQueue: Promise<void> = Promise.resolve();
@@ -29,6 +32,15 @@ let hydrated = false;
 
 function cacheKey(slokaId: number): string {
   return String(slokaId);
+}
+
+function getSeedEntry(slokaId: number): StoryEntry | null {
+  const pair = seedMap[cacheKey(slokaId)];
+  if (!pair?.en?.trim() || !pair?.hi?.trim()) return null;
+  return {
+    stories: [{ en: pair.en, hi: pair.hi }],
+    lastIndex: 0,
+  };
 }
 
 function isBilingualVariant(value: unknown): value is StoryVariant {
@@ -109,7 +121,10 @@ async function loadEntry(slokaId: number): Promise<StoryEntry | null> {
   }
 
   await hydrateFromDisk();
-  return memoryCache[key] ?? null;
+  if (memoryCache[key]) return memoryCache[key];
+
+  // Built-in default story for every verse
+  return getSeedEntry(slokaId);
 }
 
 async function saveEntry(slokaId: number, entry: StoryEntry): Promise<void> {
@@ -141,25 +156,45 @@ function pickStory(
 export async function getCachedStory(
   slokaId: number,
   lang: StoryLanguage
-): Promise<{ story: string; variant: number; total: number } | null> {
+): Promise<{
+  story: string;
+  variant: number;
+  total: number;
+  seeded: boolean;
+} | null> {
   const entry = await loadEntry(slokaId);
   if (!entry?.stories?.length) return null;
   const idx = Math.min(entry.lastIndex, entry.stories.length - 1);
-  return pickStory(entry, lang, idx);
+  const picked = pickStory(entry, lang, idx);
+  const seed = getSeedEntry(slokaId);
+  const seeded =
+    entry.stories.length === 1 &&
+    !!seed &&
+    entry.stories[0].en === seed.stories[0].en;
+  return { ...picked, seeded };
 }
 
 export async function cycleCachedStory(
   slokaId: number,
   lang: StoryLanguage
-): Promise<{ story: string; variant: number; total: number } | null> {
+): Promise<{
+  story: string;
+  variant: number;
+  total: number;
+  seeded: boolean;
+} | null> {
   const entry = await loadEntry(slokaId);
   if (!entry?.stories?.length) return null;
 
+  // Persist a clone if we were on seed-only (so index changes stick)
   const next = (entry.lastIndex + 1) % entry.stories.length;
-  entry.lastIndex = next;
-  await saveEntry(slokaId, entry);
+  const cloned: StoryEntry = {
+    stories: [...entry.stories],
+    lastIndex: next,
+  };
+  await saveEntry(slokaId, cloned);
 
-  return pickStory(entry, lang, next);
+  return getCachedStory(slokaId, lang);
 }
 
 export async function canGenerateNewVariant(slokaId: number): Promise<boolean> {
@@ -171,15 +206,24 @@ export async function saveStoryVariant(
   slokaId: number,
   variant: StoryVariant
 ): Promise<{ variant: number; total: number }> {
-  const entry = (await loadEntry(slokaId)) ?? { stories: [], lastIndex: 0 };
+  const existing = await loadEntry(slokaId);
+  const entry: StoryEntry = existing
+    ? { stories: [...existing.stories], lastIndex: existing.lastIndex }
+    : { stories: [], lastIndex: 0 };
 
   if (entry.stories.length < MAX_VARIANTS) {
     entry.stories.push(variant);
     entry.lastIndex = entry.stories.length - 1;
   } else {
-    const oldest = (entry.lastIndex + 1) % MAX_VARIANTS;
-    entry.stories[oldest] = variant;
-    entry.lastIndex = oldest;
+    // Keep the first (default) story; rotate generated slots only
+    const replaceAt =
+      entry.stories.length > 1
+        ? entry.lastIndex <= 0
+          ? 1
+          : ((entry.lastIndex - 1 + 1) % (MAX_VARIANTS - 1)) + 1
+        : 0;
+    entry.stories[replaceAt] = variant;
+    entry.lastIndex = replaceAt;
   }
 
   await saveEntry(slokaId, entry);
