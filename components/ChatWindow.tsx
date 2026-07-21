@@ -13,6 +13,8 @@ import {
 } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import ChatMarkdown from "@/components/ChatMarkdown";
+import SpeakButton from "@/components/SpeakButton";
+import { stopSpeaking } from "@/lib/tts";
 
 type Citation = {
   id: number;
@@ -185,6 +187,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
       const controller = new AbortController();
       abortRef.current = controller;
 
+      stopSpeaking();
       setError(null);
       setLastFailedPrompt(null);
       setInput("");
@@ -358,6 +361,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
   function clearChat() {
     abortRef.current?.abort();
     stopListening();
+    stopSpeaking();
     setMessages([welcome]);
     setError(null);
     setLastFailedPrompt(null);
@@ -365,6 +369,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
 
   function stopGeneration() {
     abortRef.current?.abort();
+    stopSpeaking();
   }
 
   function stopListening() {
@@ -563,6 +568,17 @@ export default function ChatWindow({ initialPrompt }: Props) {
               >
                 {msg.role === "user" ? t("you") : t("madhav")}
               </p>
+              {msg.role === "assistant" && msg.content.trim() ? (
+                <SpeakButton
+                  text={msg.content}
+                  lang={lang}
+                  listenLabel={t("ttsListen")}
+                  stopLabel={t("ttsStop")}
+                  unsupportedLabel={t("ttsUnsupported")}
+                  compact
+                  className="ml-1 border border-[var(--line)]"
+                />
+              ) : null}
             </div>
             <div
               className={`px-4 py-4 text-[15px] font-light leading-[1.75] break-words [overflow-wrap:anywhere] sm:px-5 sm:py-5 sm:text-[15.5px] sm:leading-[1.8] ${

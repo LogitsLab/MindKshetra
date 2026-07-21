@@ -119,6 +119,9 @@ export const dictionary = {
     voiceStop: "Stop listening",
     voiceUnsupported: "Voice input isn’t supported in this browser. Try Chrome or Edge.",
     voiceError: "Couldn’t hear that. Check the mic and try again.",
+    ttsListen: "Listen",
+    ttsStop: "Stop audio",
+    ttsUnsupported: "Text-to-speech isn’t supported in this browser.",
     welcomeMadhav:
       "Parth — I am Madhav. Tell me what weighs on you, in words or by voice. I will meet you there, with the Gita beside us.",
     starter1: "I feel anxious about work",
@@ -250,6 +253,9 @@ export const dictionary = {
     voiceStop: "सुनना रोकें",
     voiceUnsupported: "इस ब्राउज़र में आवाज़ इनपुट नहीं चलता। Chrome या Edge आज़माएँ।",
     voiceError: "सुन नहीं पाए। माइक जाँचें और फिर कोशिश करें।",
+    ttsListen: "सुनें",
+    ttsStop: "आवाज़ रोकें",
+    ttsUnsupported: "इस ब्राउज़र में पाठ-से-वाणी उपलब्ध नहीं है।",
     welcomeMadhav:
       "पार्थ — मैं माधव हूँ। जो बोझ मन पर है, शब्दों में या आवाज़ से कहें। मैं वहीं मिलूँगा, गीता साथ लेकर।",
     starter1: "काम को लेकर चिंता हो रही है",

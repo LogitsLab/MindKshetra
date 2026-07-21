@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import SpeakButton from "@/components/SpeakButton";
 import { useLanguage } from "@/components/LanguageProvider";
+import { stopSpeaking } from "@/lib/tts";
 
 type Props = {
   slokaId: number;
@@ -58,12 +60,14 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
   }, [slokaId, lang]);
 
   useEffect(() => {
+    stopSpeaking();
     setStory(null);
     setError(null);
     void loadCached();
   }, [loadCached]);
 
   async function requestStory(regenerate: boolean) {
+    stopSpeaking();
     setLoading(true);
     setError(null);
     try {
@@ -114,7 +118,10 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
             <button
               key={code}
               type="button"
-              onClick={() => setLang(code)}
+              onClick={() => {
+                stopSpeaking();
+                setLang(code);
+              }}
               disabled={loading}
               className={`px-2.5 py-1 text-xs uppercase tracking-[0.14em] transition ${
                 lang === code
@@ -169,6 +176,13 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
           </button>
         ) : (
           <>
+            <SpeakButton
+              text={story}
+              lang={lang}
+              listenLabel={t("ttsListen")}
+              stopLabel={t("ttsStop")}
+              unsupportedLabel={t("ttsUnsupported")}
+            />
             <button
               type="button"
               onClick={() => requestStory(true)}
