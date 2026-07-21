@@ -1,3 +1,6 @@
+import { dbVectorSearch } from "@/lib/content/db";
+import { isDbContentEnabled } from "@/lib/content/source";
+import { embedText, embeddingsEnabled } from "@/lib/embeddings";
 import { getAllSlokas } from "@/lib/slokas";
 import type { ChatMessage, Sloka } from "@/lib/types";
 
@@ -18,7 +21,6 @@ const STOP_WORDS = new Set([
   "gita", "verse", "teaching", "krishna",
 ]);
 
-/** Broad tags get lower boost so they don't dominate every query. */
 const TAG_WEIGHT: Record<string, number> = {
   devotion_surrender: 1.1,
   purpose_meaning: 0.7,
@@ -49,29 +51,29 @@ const TAG_WEIGHT: Record<string, number> = {
 };
 
 const MOOD_KEYWORDS: Record<string, string[]> = {
-  anxiety_fear: ["anxious", "anxiety", "afraid", "fear", "scared", "worried", "worry", "nervous", "panic"],
+  anxiety_fear: ["anxious", "anxiety", "afraid", "fear", "scared", "worried", "worry", "nervous", "panic", "terrified"],
   grief_loss: ["grief", "grieving", "loss", "lost", "death", "died", "mourn", "sad", "sorrow", "cry", "crying"],
-  anger: ["angry", "anger", "rage", "furious", "mad", "irritated", "resent"],
-  confusion_decision: ["confused", "confusion", "decision", "decide", "unsure", "stuck", "dilemma", "choice"],
-  overwhelm_burnout: ["overwhelmed", "overwhelm", "burnout", "burned", "exhausted", "stressed", "stress", "too much"],
+  anger: ["angry", "anger", "rage", "furious", "mad", "irritated", "resent", "exploding"],
+  confusion_decision: ["confused", "confusion", "decision", "decide", "unsure", "stuck", "dilemma", "choice", "choose"],
+  overwhelm_burnout: ["overwhelmed", "overwhelm", "burnout", "burned", "exhausted", "stressed", "stress"],
   loneliness: ["lonely", "alone", "isolated", "isolation", "nobody"],
-  guilt: ["guilt", "guilty", "ashamed", "shame", "regret"],
-  jealousy_comparison: ["jealous", "jealousy", "envy", "compare", "comparison", "unfair"],
-  low_self_worth: ["failure", "fail", "worthless", "inadequate", "not enough", "useless"],
+  guilt: ["guilt", "guilty", "ashamed", "shame", "regret", "mistake"],
+  jealousy_comparison: ["jealous", "jealousy", "envy", "compare", "comparison", "unfair", "successful"],
+  low_self_worth: ["failure", "fail", "worthless", "inadequate", "useless"],
   duty_responsibility: ["duty", "responsibility", "work", "job", "obligation", "should"],
-  purpose_meaning: ["purpose", "meaning", "direction", "pointless"],
+  purpose_meaning: ["purpose", "meaning", "direction", "pointless", "life"],
   attachment_desire: ["desire", "want", "craving", "attached", "attachment", "obsess", "addiction"],
   detachment: ["let go", "letting go", "detach", "release"],
   courage: ["courage", "brave", "stand up", "strength"],
   equanimity: ["calm", "peace", "balance", "steady"],
   control_of_mind: ["mind", "thoughts", "racing", "focus", "distract", "meditation"],
   success_ambition: ["success", "ambition", "career", "win", "achieve", "goal"],
-  relationships_conflict: ["conflict", "fight", "argument", "relationship", "partner", "family"],
+  relationships_conflict: ["conflict", "fight", "argument", "relationship", "partner", "family", "fighting"],
   gratitude_contentment: ["grateful", "gratitude", "thankful", "content", "happy", "joy"],
   devotion_surrender: ["faith", "pray", "god", "surrender", "devote"],
-  action_without_attachment: ["result", "outcome", "fruit", "expect"],
-  impermanence_mortality: ["death", "dying", "change", "impermanent", "mortal"],
-  discipline_habit: ["habit", "discipline", "routine", "practice", "lazy", "addiction"],
+  action_without_attachment: ["result", "outcome", "fruit", "expect", "results"],
+  impermanence_mortality: ["death", "dying", "change", "impermanent", "mortal", "temporary"],
+  discipline_habit: ["habit", "discipline", "routine", "practice", "lazy", "habits"],
   ego_pride: ["ego", "pride", "arrogant", "humble"],
   hope: ["hope", "hopeful", "optimistic", "better"],
   unmotivated: ["unmotivated", "motivation", "lazy", "apathetic", "give up"],
@@ -83,12 +85,9 @@ function tokenize(text: string): string[] {
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
     .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
-
-  // Keep Devanagari tokens (2+ chars)
   const hindi = (text.match(/[\u0900-\u097F]{2,}/g) || []).map((w) =>
     w.toLowerCase()
   );
-
   return Array.from(new Set(latin.concat(hindi)));
 }
 
@@ -96,115 +95,89 @@ function inferredTags(query: string): string[] {
   const lower = query.toLowerCase();
   const hits: string[] = [];
   for (const [tag, keywords] of Object.entries(MOOD_KEYWORDS)) {
-    if (keywords.some((kw) => lower.includes(kw))) {
-      hits.push(tag);
-    }
+    if (keywords.some((kw) => lower.includes(kw))) hits.push(tag);
   }
   return hits;
 }
 
-/** Build a retrieval query from recent user turns (not only the last message). */
 export function buildRetrievalQuery(messages: ChatMessage[]): string {
   const userTurns = messages
     .filter((m) => m.role === "user")
     .map((m) => m.content.trim())
     .filter(Boolean);
   if (userTurns.length === 0) return "";
-  // Weight latest turn highest by repeating it
   const latest = userTurns[userTurns.length - 1];
   const earlier = userTurns.slice(-3, -1).join(" ");
   return `${latest} ${latest} ${earlier}`.trim();
 }
 
-export function retrieveSlokas(query: string, limit = 5): Sloka[] {
+async function tagScoreSlokas(
+  query: string,
+  all: Sloka[],
+  limit: number
+): Promise<Array<{ sloka: Sloka; score: number }>> {
   const tokens = tokenize(query);
   const tags = inferredTags(query);
   const tagSet = new Set(tags);
-  const all = getAllSlokas();
-
-  // IDF-ish: rarer tags among corpus score higher when matched via keywords only
   const tagFreq = new Map<string, number>();
   for (const s of all) {
-    for (const t of s.tags) {
-      tagFreq.set(t, (tagFreq.get(t) || 0) + 1);
-    }
+    for (const t of s.tags) tagFreq.set(t, (tagFreq.get(t) || 0) + 1);
   }
 
-  const scored = all.map((sloka) => {
-    let score = 0;
-    const translationHay = [
-      sloka.english_translation,
-      sloka.hindi_translation,
-      sloka.english_meaning ?? "",
-      sloka.hindi_meaning ?? "",
-      ...sloka.tags.map((t) => t.replace(/_/g, " ")),
-    ]
-      .join(" ")
-      .toLowerCase();
+  return all
+    .map((sloka) => {
+      let score = 0;
+      const translationHay = [
+        sloka.english_translation,
+        sloka.hindi_translation,
+        sloka.english_meaning ?? "",
+        sloka.hindi_meaning ?? "",
+        ...sloka.tags.map((t) => t.replace(/_/g, " ")),
+      ]
+        .join(" ")
+        .toLowerCase();
 
-    // IAST separately with word-boundary-ish checks to reduce false positives
-    const iast = (sloka.transliteration_iast || "").toLowerCase();
+      for (const token of tokens) {
+        if (translationHay.includes(token)) score += 1.8;
+        if (sloka.tags.some((t) => t.replace(/_/g, " ").includes(token))) {
+          score += 2;
+        }
+      }
 
-    for (const token of tokens) {
-      if (translationHay.includes(token)) score += 1.8;
-      // Only count IAST hits for longer tokens (≥4) to avoid substring noise
-      if (token.length >= 4) {
-        const iastRe = new RegExp(
-          `(^|[^a-zāīūṛṝḷṅñṭḍṇśṣḥṃ])${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-zāīūṛṝḷṅñṭḍṇśṣḥṃ]|$)`
+      for (const tag of sloka.tags) {
+        if (!tagSet.has(tag)) continue;
+        const freq = tagFreq.get(tag) || 1;
+        const rarity = Math.min(3, 700 / freq);
+        const weight = TAG_WEIGHT[tag] ?? 2;
+        score += weight * (0.5 + rarity * 0.15);
+      }
+
+      const onlyBroad =
+        sloka.tags.length > 0 &&
+        sloka.tags.every(
+          (t) => t === "devotion_surrender" || t === "purpose_meaning"
         );
-        if (iastRe.test(iast)) score += 0.6;
-      }
-      if (sloka.tags.some((t) => t.replace(/_/g, " ").includes(token))) {
-        score += 2;
-      }
-    }
+      if (onlyBroad && tags.length > 0) score *= 0.55;
 
-    for (const tag of sloka.tags) {
-      if (!tagSet.has(tag)) continue;
-      const freq = tagFreq.get(tag) || 1;
-      const rarity = Math.min(3, 700 / freq);
-      const weight = TAG_WEIGHT[tag] ?? 2;
-      score += weight * (0.5 + rarity * 0.15);
-    }
+      return { sloka, score };
+    })
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score || a.sloka.id - b.sloka.id)
+    .slice(0, limit);
+}
 
-    // Soft penalty for verses that only carry ultra-broad tags
-    const onlyBroad =
-      sloka.tags.length > 0 &&
-      sloka.tags.every(
-        (t) => t === "devotion_surrender" || t === "purpose_meaning"
-      );
-    if (onlyBroad && tags.length > 0) score *= 0.55;
-
-    return { sloka, score };
-  });
-
-  scored.sort((a, b) => b.score - a.score || a.sloka.id - b.sloka.id);
-
-  const top = scored.filter((s) => s.score > 0).slice(0, limit);
-  if (top.length > 0) return top.map((s) => s.sloka);
-
-  // Diversified tag-aware fallbacks
+function diversifiedFallbacks(
+  query: string,
+  tags: string[],
+  all: Sloka[],
+  limit: number
+): Sloka[] {
   const FALLBACKS: Array<{ tags: string[]; keys: string[] }> = [
-    {
-      tags: ["discipline_habit", "attachment_desire"],
-      keys: ["2.58", "2.60", "2.61", "6.5", "6.6"],
-    },
-    {
-      tags: ["grief_loss", "loneliness"],
-      keys: ["2.11", "2.13", "2.14", "2.27", "12.13"],
-    },
-    {
-      tags: ["anxiety_fear", "hope"],
-      keys: ["2.3", "2.7", "18.66", "11.33", "6.5"],
-    },
-    {
-      tags: ["anger", "relationships_conflict"],
-      keys: ["2.62", "2.63", "16.21", "2.56", "5.23"],
-    },
-    {
-      tags: ["low_self_worth", "unmotivated", "courage"],
-      keys: ["2.3", "2.37", "6.5", "9.30", "18.58"],
-    },
+    { tags: ["discipline_habit", "attachment_desire"], keys: ["2.58", "2.60", "2.61", "6.5", "6.6"] },
+    { tags: ["grief_loss", "loneliness"], keys: ["2.11", "2.13", "2.14", "2.27", "12.13"] },
+    { tags: ["anxiety_fear", "hope"], keys: ["2.3", "2.7", "18.66", "11.33", "6.5"] },
+    { tags: ["anger", "relationships_conflict"], keys: ["2.62", "2.63", "16.21", "2.56", "5.23"] },
+    { tags: ["low_self_worth", "unmotivated", "courage"], keys: ["2.3", "2.37", "6.5", "9.30", "18.58"] },
   ];
 
   for (const fb of FALLBACKS) {
@@ -217,17 +190,64 @@ export function retrieveSlokas(query: string, limit = 5): Sloka[] {
     }
   }
 
-  // Rotate default fallback by a simple hash of the query
   const pools = [
     ["2.47", "2.48", "2.56", "2.3", "6.5"],
     ["18.66", "9.22", "9.30", "12.13", "2.14"],
     ["3.19", "3.30", "4.18", "5.10", "6.26"],
   ];
   let hash = 0;
-  for (let i = 0; i < query.length; i++) hash = (hash + query.charCodeAt(i) * (i + 1)) % 997;
+  for (let i = 0; i < query.length; i++) {
+    hash = (hash + query.charCodeAt(i) * (i + 1)) % 997;
+  }
   const pool = pools[hash % pools.length];
   const fallbackKeys = new Set(pool);
   return all
     .filter((s) => fallbackKeys.has(`${s.chapter}.${s.verse_number}`))
     .slice(0, limit);
+}
+
+export async function retrieveSlokas(
+  query: string,
+  limit = 5
+): Promise<Sloka[]> {
+  const all = await getAllSlokas();
+  const tags = inferredTags(query);
+  const merged = new Map<number, { sloka: Sloka; score: number }>();
+
+  const tagResults = await tagScoreSlokas(query, all, limit * 2);
+  for (const { sloka, score } of tagResults) {
+    merged.set(sloka.id, {
+      sloka,
+      score: (merged.get(sloka.id)?.score ?? 0) + score * 0.3,
+    });
+  }
+
+  if (isDbContentEnabled() && embeddingsEnabled()) {
+    try {
+      const embedding = await embedText(query);
+      if (embedding) {
+        const vectorHits = await dbVectorSearch(embedding, limit * 2);
+        for (const { sloka, similarity } of vectorHits) {
+          const prev = merged.get(sloka.id);
+          merged.set(sloka.id, {
+            sloka,
+            score: (prev?.score ?? 0) + similarity * 0.7 * 10,
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("[retrieve] vector search failed", err);
+    }
+  }
+
+  const ranked = Array.from(merged.values())
+    .sort((a, b) => b.score - a.score || a.sloka.id - b.sloka.id)
+    .slice(0, limit);
+
+  if (ranked.length > 0) return ranked.map((r) => r.sloka);
+
+  const tagOnly = tagResults.map((r) => r.sloka);
+  if (tagOnly.length > 0) return tagOnly.slice(0, limit);
+
+  return diversifiedFallbacks(query, tags, all, limit);
 }

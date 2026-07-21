@@ -1,107 +1,69 @@
-import slokasData from "@/data/slokas.json";
+import "server-only";
 import type { Sloka } from "@/lib/types";
+import {
+  formatVerseRef,
+  suggestSearchTerms,
+  type TeachingPassage,
+} from "@/lib/sloka-utils";
 
-const slokas = slokasData as Sloka[];
+export {
+  formatVerseRef,
+  suggestSearchTerms,
+  SEARCH_SUGGESTIONS,
+  type TeachingPassage,
+} from "@/lib/sloka-utils";
 
-/** Canonical Gita order — computed once. */
-const orderedSlokas = [...slokas].sort(
-  (a, b) => a.chapter - b.chapter || a.verse_number - b.verse_number
-);
-
-export function getAllSlokas(): Sloka[] {
-  return slokas;
+async function content() {
+  return import("@/lib/content/index");
 }
 
-export function getSlokaById(id: number): Sloka | undefined {
-  return slokas.find((s) => s.id === id);
+export async function getAllSlokas(): Promise<Sloka[]> {
+  return (await content()).getAllSlokas();
 }
 
-export function getSlokasByChapter(chapter: number): Sloka[] {
-  return slokas
-    .filter((s) => s.chapter === chapter)
-    .sort((a, b) => a.verse_number - b.verse_number);
+export async function getSlokaById(id: number): Promise<Sloka | undefined> {
+  return (await content()).getSlokaById(id);
 }
 
-export function getChapters(): number[] {
-  const set = new Set(slokas.map((s) => s.chapter));
-  return Array.from(set).sort((a, b) => a - b);
+export async function getSlokasByChapter(chapter: number): Promise<Sloka[]> {
+  return (await content()).getSlokasByChapter(chapter);
 }
 
-export function getSlokasByTags(tags: string[]): Sloka[] {
-  if (tags.length === 0) return [];
-  const tagSet = new Set(tags);
-  const freq = new Map<string, number>();
-  for (const s of slokas) {
-    for (const t of s.tags) freq.set(t, (freq.get(t) || 0) + 1);
-  }
-
-  return slokas
-    .map((sloka) => {
-      let score = 0;
-      for (const t of sloka.tags) {
-        if (!tagSet.has(t)) continue;
-        const f = freq.get(t) || 1;
-        // Prefer rarer matching tags so moods aren't flooded by broad themes
-        score += 1 + Math.min(2.5, 200 / f);
-      }
-      return { sloka, score };
-    })
-    .filter(({ score }) => score > 0)
-    .sort(
-      (a, b) =>
-        b.score - a.score ||
-        a.sloka.chapter - b.sloka.chapter ||
-        a.sloka.verse_number - b.sloka.verse_number
-    )
-    .map(({ sloka }) => sloka);
+export async function getChapters(): Promise<number[]> {
+  return (await content()).getChapters();
 }
 
-export function formatVerseRef(sloka: Sloka): string {
-  return `${sloka.chapter}.${sloka.verse_number}`;
+export async function getSlokaByRef(
+  chapter: number,
+  verse: number
+): Promise<Sloka | undefined> {
+  return (await content()).getSlokaByRef(chapter, verse);
 }
 
-export function getSlokaByRef(chapter: number, verse: number): Sloka | undefined {
-  return slokas.find((s) => s.chapter === chapter && s.verse_number === verse);
-}
-
-export function getAdjacentSlokas(id: number): {
+export async function getAdjacentSlokas(id: number): Promise<{
   prev: Sloka | null;
   next: Sloka | null;
-} {
-  const idx = orderedSlokas.findIndex((s) => s.id === id);
-  if (idx < 0) return { prev: null, next: null };
-  return {
-    prev: idx > 0 ? orderedSlokas[idx - 1] : null,
-    next: idx < orderedSlokas.length - 1 ? orderedSlokas[idx + 1] : null,
-  };
+}> {
+  return (await content()).getAdjacentSlokas(id);
 }
 
-export type TeachingPassage = {
-  /** Verses in the teaching unit (same chapter, consecutive). */
-  verses: Sloka[];
-  /** The verse the reader opened. */
-  focus: Sloka;
-  /** e.g. "2.47–2.50" or "2.47" when alone. */
-  label: string;
-};
+export async function getSlokasByTags(tags: string[]): Promise<Sloka[]> {
+  return (await content()).getSlokasByTags(tags);
+}
 
-/**
- * Many Gita teachings span a short run of consecutive verses.
- * Prefer ~1 before + focus + ~2 after (up to `size`), clamped to the chapter.
- */
-export function getTeachingPassage(
+export async function getTeachingPassage(
   id: number,
   size = 4
-): TeachingPassage | null {
-  const focus = getSlokaById(id);
+): Promise<TeachingPassage | null> {
+  const mod = await content();
+  const focus = await mod.getSlokaById(id);
   if (!focus) return null;
 
-  const chapterVerses = getSlokasByChapter(focus.chapter);
+  const chapterVerses = await mod.getSlokasByChapter(focus.chapter);
   const idx = chapterVerses.findIndex((s) => s.id === id);
   if (idx < 0) return null;
 
   const window = Math.max(1, Math.min(size, chapterVerses.length));
-  // Bias slightly forward (argument often continues after the famous line)
   let start = idx - 1;
   let end = start + window;
   if (start < 0) {
@@ -124,7 +86,6 @@ export function getTeachingPassage(
   return { verses, focus, label };
 }
 
-/** Map colloquial search terms to tag / corpus vocabulary. */
 const SEARCH_ALIASES: Record<string, string[]> = {
   lonely: ["loneliness", "alone", "isolated"],
   loneliness: ["lonely", "alone"],
@@ -152,8 +113,12 @@ function expandSearchTokens(tokens: string[]): string[] {
   return Array.from(out);
 }
 
-/** Search English, Hindi, IAST, Sanskrit, tags, and chapter.verse refs. */
-export function searchSlokas(query: string, limit = 40): Sloka[] {
+export async function searchSlokas(
+  query: string,
+  limit = 40
+): Promise<Sloka[]> {
+  const mod = await content();
+  const slokas = await mod.getAllSlokas();
   const q = query.trim().toLowerCase();
   if (!q) return [];
 
@@ -161,7 +126,7 @@ export function searchSlokas(query: string, limit = 40): Sloka[] {
   if (refMatch) {
     const chapter = Number(refMatch[1]);
     const verse = Number(refMatch[2]);
-    const exact = getSlokaByRef(chapter, verse);
+    const exact = await mod.getSlokaByRef(chapter, verse);
     return exact ? [exact] : [];
   }
 
@@ -172,7 +137,6 @@ export function searchSlokas(query: string, limit = 40): Sloka[] {
       .filter((t) => t.length > 1)
   );
 
-  // Document frequency for IDF (token → how many verses contain it)
   const docFreq = new Map<string, number>();
   const haystacks = slokas.map((sloka) => {
     const ref = formatVerseRef(sloka).toLowerCase();
@@ -204,27 +168,17 @@ export function searchSlokas(query: string, limit = 40): Sloka[] {
   return haystacks
     .map(({ sloka, ref, hay }) => {
       let score = 0;
-
-      // Exact / phrase match is strongest
       if (hay.includes(q)) score += 18;
-
       for (const token of tokens) {
         if (!hay.includes(token)) continue;
         const df = docFreq.get(token) || 1;
-        // Rarer tokens weigh more; ultra-common tokens almost vanish
         const idf = Math.log(1 + N / df);
-        const weight = Math.min(8, idf * 2.2);
-        score += weight;
-
-        // Tag-name hit boost
+        score += Math.min(8, idf * 2.2);
         if (sloka.tags.some((t) => t.replace(/_/g, " ").includes(token))) {
           score += 3 * Math.min(2, idf);
         }
-
         if (ref === token || ref.startsWith(`${token}.`)) score += 12;
       }
-
-      // Prefer verses whose translation (not only IAST) carries the query
       const translationHay = [
         sloka.english_translation,
         sloka.hindi_translation,
@@ -234,7 +188,6 @@ export function searchSlokas(query: string, limit = 40): Sloka[] {
         .join(" ")
         .toLowerCase();
       if (tokens.some((t) => translationHay.includes(t))) score += 2;
-
       return { sloka, score };
     })
     .filter(({ score }) => score > 0)
@@ -247,56 +200,6 @@ export function searchSlokas(query: string, limit = 40): Sloka[] {
     .slice(0, limit)
     .map(({ sloka }) => sloka);
 }
-
-/** Theme chips for empty-search recovery. */
-export const SEARCH_SUGGESTIONS = [
-  "duty",
-  "fear",
-  "anger",
-  "peace",
-  "grief",
-  "शांति",
-  "2.47",
-] as const;
-
-/** Vocabulary used for typo / nearest recovery. */
-const NEAREST_VOCAB = [
-  "duty",
-  "fear",
-  "anger",
-  "peace",
-  "grief",
-  "anxiety",
-  "lonely",
-  "hope",
-  "courage",
-  "attachment",
-  "detachment",
-  "discipline",
-  "ego",
-  "guilt",
-  "jealousy",
-  "overwhelm",
-  "burnout",
-  "surrender",
-  "meditation",
-  "karma",
-  "devotion",
-  "equanimity",
-  "purpose",
-  "shame",
-  "stress",
-  "worry",
-  "calm",
-  "focus",
-  "faith",
-  "शांति",
-  "कर्तव्य",
-  "भय",
-  "क्रोध",
-  "दुःख",
-  ...SEARCH_SUGGESTIONS,
-] as const;
 
 function levenshtein(a: string, b: string): number {
   if (a === b) return 0;
@@ -315,46 +218,19 @@ function levenshtein(a: string, b: string): number {
   return row[b.length];
 }
 
-/** Suggest corrected query terms for typos (e.g. anxity → anxiety). */
-export function suggestSearchTerms(query: string, limit = 3): string[] {
-  const tokens = query
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .map((t) => t.replace(/[^a-z0-9\u0900-\u097f]/gi, ""))
-    .filter((t) => t.length >= 3);
-
-  const out: string[] = [];
-  for (const token of tokens) {
-    let best: { term: string; dist: number } | null = null;
-    for (const term of NEAREST_VOCAB) {
-      const t = term.toLowerCase();
-      if (t === token) continue;
-      const dist = levenshtein(token, t);
-      const maxDist = token.length <= 4 ? 1 : token.length <= 7 ? 2 : 3;
-      if (dist > 0 && dist <= maxDist) {
-        if (!best || dist < best.dist) best = { term: t, dist };
-      }
-    }
-    if (best && !out.includes(best.term)) out.push(best.term);
-    if (out.length >= limit) break;
-  }
-  return out;
-}
-
-/**
- * Soft nearest-neighbor verses when exact search is empty.
- * Uses prefix/substring/edit-distance against tags + translation tokens.
- */
-export function suggestNearestSlokas(query: string, limit = 6): Sloka[] {
+export async function suggestNearestSlokas(
+  query: string,
+  limit = 6
+): Promise<Sloka[]> {
   const q = query.trim().toLowerCase();
   if (!q) return [];
 
   const corrected = suggestSearchTerms(q, 2);
   const expanded = corrected.length ? corrected.join(" ") : q;
-  const direct = searchSlokas(expanded, limit);
+  const direct = await searchSlokas(expanded, limit);
   if (direct.length > 0) return direct;
 
+  const slokas = await getAllSlokas();
   const tokens = q
     .split(/\s+/)
     .map((t) => t.replace(/[^a-z0-9\u0900-\u097f]/gi, ""))
@@ -402,4 +278,3 @@ export function suggestNearestSlokas(query: string, limit = 6): Sloka[] {
     .slice(0, limit)
     .map((r) => r.sloka);
 }
-

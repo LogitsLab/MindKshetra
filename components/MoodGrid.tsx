@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
-import { moodLabel } from "@/lib/moods";
+import { moodLabel } from "@/lib/mood-utils";
 import { getMoodVisual } from "@/lib/moodVisuals";
 import type { Mood } from "@/lib/types";
 

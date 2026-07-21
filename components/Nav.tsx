@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
+import AuthButton from "@/components/AuthButton";
+import { ThemeToggle } from "@/components/ThemeProvider";
 import type { DictKey } from "@/lib/i18n/dictionary";
 import type { AppLang } from "@/lib/i18n/dictionary";
 
@@ -37,7 +39,7 @@ export default function Nav() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[rgba(7,9,15,0.85)] backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-[var(--hairline)] bg-[var(--nav-bg)] backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-3.5">
         <Link
           href="/"
@@ -77,10 +79,14 @@ export default function Nav() {
             })}
           </nav>
           <LangToggle lang={lang} setLang={setLang} t={t} />
+          <ThemeToggle />
+          <AuthButton />
         </div>
 
         {/* Mobile controls */}
         <div className="flex items-center gap-2 md:hidden">
+          <AuthButton />
+          <ThemeToggle />
           <LangToggle lang={lang} setLang={setLang} t={t} />
           <button
             type="button"
@@ -118,7 +124,7 @@ export default function Nav() {
       {menuOpen ? (
         <div
           id="mobile-nav"
-          className="border-t border-white/[0.06] bg-[rgba(7,9,15,0.96)] md:hidden"
+          className="border-t border-[var(--hairline)] bg-[var(--nav-bg)] backdrop-blur-xl md:hidden"
         >
           <nav className="mx-auto flex max-w-6xl flex-col px-4 py-2">
             {links.map((link) => {
@@ -128,7 +134,7 @@ export default function Nav() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`border-b border-white/[0.04] py-3.5 text-base transition last:border-0 ${
+                  className={`border-b border-[var(--hairline)] py-3.5 text-base transition last:border-0 ${
                     active
                       ? "text-[var(--brass-soft)]"
                       : "text-[var(--text-muted)]"
@@ -138,6 +144,16 @@ export default function Nav() {
                 </Link>
               );
             })}
+            <Link
+              href="/account"
+              className={`border-b border-[var(--hairline)] py-3.5 text-base transition ${
+                pathname.startsWith("/account")
+                  ? "text-[var(--brass-soft)]"
+                  : "text-[var(--text-muted)]"
+              }`}
+            >
+              {t("account")}
+            </Link>
           </nav>
         </div>
       ) : null}
@@ -165,7 +181,7 @@ function LangToggle({
         onClick={() => setLang("en")}
         className={`min-h-10 min-w-10 px-2.5 text-xs font-medium tracking-wide transition ${
           lang === "en"
-            ? "bg-[var(--brass)] text-[var(--void)]"
+            ? "bg-[var(--brass)] text-[var(--on-brass)]"
             : "text-[var(--text-muted)] hover:text-[var(--text)]"
         }`}
         aria-pressed={lang === "en"}
@@ -177,7 +193,7 @@ function LangToggle({
         onClick={() => setLang("hi")}
         className={`min-h-10 min-w-10 px-2.5 text-xs font-medium tracking-wide transition ${
           lang === "hi"
-            ? "bg-[var(--brass)] text-[var(--void)]"
+            ? "bg-[var(--brass)] text-[var(--on-brass)]"
             : "text-[var(--text-muted)] hover:text-[var(--text)]"
         }`}
         aria-pressed={lang === "hi"}

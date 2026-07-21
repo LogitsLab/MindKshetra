@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import { verifyAndFixCitations } from "@/lib/cite";
 import {
+  createChatSession,
+  saveChatMessage,
+} from "@/lib/chat-store";
+import { crisisResponse, detectCrisis } from "@/lib/crisis";
+import {
   buildMadhavSystemPrompt,
   createGroqChatStream,
   createGroqCompletion,
@@ -8,8 +13,9 @@ import {
 } from "@/lib/groq";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
 import { warnIfRedisMissing } from "@/lib/redis";
-import { formatVerseRef } from "@/lib/slokas";
 import { buildRetrievalQuery, retrieveSlokas } from "@/lib/retrieve";
+import { formatVerseRef } from "@/lib/slokas";
+import { getAuthUserId } from "@/lib/supabase/server";
 import type { ChatMessage } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -17,6 +23,7 @@ export const runtime = "nodejs";
 type ChatBody = {
   messages?: ChatMessage[];
   language?: "en" | "hi";
+  sessionId?: string;
 };
 
 export async function POST(request: NextRequest) {
@@ -73,6 +80,48 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const language = body.language === "hi" ? "hi" : "en";
+  const userId = await getAuthUserId();
+
+  let sessionId = body.sessionId;
+  if (!sessionId) {
+    sessionId = (await createChatSession(userId)) ?? undefined;
+  }
+
+  const crisis = detectCrisis(lastUser.content);
+  if (crisis.detected) {
+    console.warn("[chat] crisis pattern detected");
+    const response = crisisResponse(language);
+    if (sessionId) {
+      await saveChatMessage(sessionId, "user", lastUser.content);
+      await saveChatMessage(sessionId, "assistant", response, []);
+    }
+
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        const send = (payload: unknown) => {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
+          );
+        };
+        if (sessionId) send({ type: "session", sessionId });
+        send({ type: "citations", citations: [] });
+        send({ type: "token", content: response });
+        send({ type: "done" });
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+      },
+    });
+  }
+
   if (!process.env.GROQ_API_KEY) {
     return new Response(
       JSON.stringify({
@@ -83,9 +132,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const language = body.language === "hi" ? "hi" : "en";
   const retrievalQuery = buildRetrievalQuery(messages);
-  const cited = retrieveSlokas(retrievalQuery || lastUser.content, 5);
+  const cited = await retrieveSlokas(retrievalQuery || lastUser.content, 5);
   const systemPrompt = buildMadhavSystemPrompt(cited, language);
 
   const history = messages
@@ -121,6 +169,7 @@ export async function POST(request: NextRequest) {
     }));
 
     const upstream = groqRes.body.getReader();
+    const citedIds = cited.map((s) => s.id);
 
     const readable = new ReadableStream({
       async start(controller) {
@@ -130,6 +179,7 @@ export async function POST(request: NextRequest) {
           );
         };
 
+        if (sessionId) send({ type: "session", sessionId });
         send({ type: "citations", citations });
 
         let sseBuffer = "";
@@ -196,6 +246,17 @@ export async function POST(request: NextRequest) {
               send({ type: "replace", content: fixed });
               visibleSent = fixed;
             }
+
+            if (sessionId) {
+              await saveChatMessage(sessionId, "user", lastUser.content);
+              await saveChatMessage(
+                sessionId,
+                "assistant",
+                visibleSent,
+                citedIds
+              );
+            }
+
             send({ type: "done" });
           } else {
             send({
@@ -210,21 +271,20 @@ export async function POST(request: NextRequest) {
             const fixed = verifyAndFixCitations(visibleSent, cited);
             if (fixed !== visibleSent) {
               send({ type: "replace", content: fixed });
+              visibleSent = fixed;
+            }
+            if (sessionId) {
+              await saveChatMessage(sessionId, "user", lastUser.content);
+              await saveChatMessage(
+                sessionId,
+                "assistant",
+                visibleSent,
+                citedIds
+              );
             }
             send({ type: "done" });
           } else {
-            try {
-              const fallback = await createGroqCompletion(promptMessages);
-              if (fallback) {
-                const fixed = verifyAndFixCitations(fallback, cited);
-                send({ type: "token", content: fixed });
-                send({ type: "done" });
-              } else {
-                send({ type: "error", error: message });
-              }
-            } catch {
-              send({ type: "error", error: message });
-            }
+            send({ type: "error", error: message });
           }
         } finally {
           controller.close();

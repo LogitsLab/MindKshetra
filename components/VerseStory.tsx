@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import SpeakButton from "@/components/SpeakButton";
+import ShareButton from "@/components/ShareButton";
 import { useLanguage } from "@/components/LanguageProvider";
 import { stopSpeaking } from "@/lib/tts";
 
@@ -100,7 +101,7 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
   }
 
   return (
-    <section className="flex h-full min-h-[24rem] flex-col bg-[rgba(14,20,32,0.55)] p-5 backdrop-blur-sm sm:p-7 lg:min-h-[min(72vh,40rem)]">
+    <section className="flex h-full min-h-[24rem] flex-col bg-[var(--panel)] p-5 backdrop-blur-sm sm:p-7 lg:min-h-[min(72vh,40rem)]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
@@ -130,7 +131,7 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
               disabled={loading}
               className={`px-2.5 py-1 text-xs uppercase tracking-[0.14em] transition ${
                 lang === code
-                  ? "bg-[var(--brass)] text-[var(--void)]"
+                  ? "bg-[var(--brass)] text-[var(--on-brass)]"
                   : "text-[var(--text-muted)] hover:text-[var(--text)]"
               }`}
             >
@@ -140,7 +141,7 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
         </div>
       </div>
 
-      <div className="mt-5 min-h-0 flex-1 overflow-y-auto border-t border-white/[0.06] pt-5">
+      <div className="mt-5 min-h-0 flex-1 overflow-y-auto border-t border-[var(--hairline)] pt-5">
         {story ? (
           <p className="whitespace-pre-wrap text-[15px] font-light leading-[1.85] text-[var(--text)]">
             {story}
@@ -168,10 +169,10 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
           </p>
         )}
 
-        {error && <p className="mt-4 text-sm text-[#f0c4c8]">{error}</p>}
+        {error && <p className="mt-4 text-sm text-[var(--danger)]">{error}</p>}
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-3 border-t border-white/[0.06] pt-5">
+      <div className="mt-5 flex flex-wrap gap-3 border-t border-[var(--hairline)] pt-5">
         {story ? (
           <>
             <SpeakButton
@@ -193,6 +194,16 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
                   ? t("nextVariant")
                   : t("refreshStory")}
             </button>
+            <ShareButton
+              title={`MindKshetra ${slokaId} story`}
+              text={story}
+              url={
+                typeof window !== "undefined"
+                  ? `${window.location.origin}/sloka/${slokaId}`
+                  : `/sloka/${slokaId}`
+              }
+              imageUrl={`/api/og/story/${slokaId}?lang=${lang}`}
+            />
             <p className="w-full text-xs text-[var(--text-muted)]">
               {t("storyHint")}
             </p>
@@ -202,7 +213,7 @@ export default function VerseStory({ slokaId, passageLabel }: Props) {
             type="button"
             onClick={() => requestStory(false)}
             disabled={loading}
-            className="bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)] disabled:opacity-50"
+            className="bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
           >
             {loading ? t("writing") : t("generateStory")}
           </button>

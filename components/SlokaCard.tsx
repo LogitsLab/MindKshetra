@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
 import { getChapterMeta } from "@/lib/chapters";
 import type { Sloka } from "@/lib/types";
-import { formatVerseRef } from "@/lib/slokas";
+import { formatVerseRef } from "@/lib/sloka-utils";
 import { hasCommentary } from "@/lib/verseDisplay";
 
 type Props = {

@@ -2,11 +2,10 @@
 
 import MoodGrid from "@/components/MoodGrid";
 import { useLanguage } from "@/components/LanguageProvider";
-import { getAllMoods } from "@/lib/moods";
+import { moods } from "@/lib/moods-data";
 
 export default function MoodPage() {
   const { t } = useLanguage();
-  const moods = getAllMoods();
 
   return (
     <div className="animate-fade">

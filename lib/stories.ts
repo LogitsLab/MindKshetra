@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import seedStories from "@/data/stories-seed.json";
+import { isDbContentEnabled } from "@/lib/content/source";
 import { redisEnabled, redisGet, redisSet } from "@/lib/redis";
 
 export type StoryLanguage = "en" | "hi";
@@ -20,11 +21,13 @@ type StoryCache = Record<string, StoryEntry>;
 const CACHE_PATH = path.join(process.cwd(), "data", "stories-cache.json");
 const MAX_VARIANTS = 3;
 const REDIS_PREFIX = "story:";
+const REDIS_IDX_PREFIX = "story:idx:";
 
 const seedMap = seedStories as Record<string, StoryVariant>;
 
 /** Prefer memory on serverless; also sync to disk when writable (local/dev). */
 const memoryCache: StoryCache = {};
+const lastIndexMemory = new Map<number, number>();
 let writeQueue: Promise<void> = Promise.resolve();
 let diskEnabled =
   process.env.VERCEL !== "1" && process.env.STORY_CACHE_MEMORY_ONLY !== "1";
@@ -101,7 +104,47 @@ async function persistToDisk(): Promise<void> {
   await writeQueue;
 }
 
-async function loadEntry(slokaId: number): Promise<StoryEntry | null> {
+async function getLastIndex(slokaId: number, max: number): Promise<number> {
+  if (lastIndexMemory.has(slokaId)) {
+    return Math.min(lastIndexMemory.get(slokaId)!, Math.max(0, max));
+  }
+  if (redisEnabled()) {
+    const raw = await redisGet(`${REDIS_IDX_PREFIX}${slokaId}`);
+    if (raw != null) {
+      const n = Number(raw);
+      if (Number.isInteger(n) && n >= 0) {
+        return Math.min(n, Math.max(0, max));
+      }
+    }
+  }
+  return 0;
+}
+
+async function setLastIndex(slokaId: number, index: number): Promise<void> {
+  lastIndexMemory.set(slokaId, index);
+  if (redisEnabled()) {
+    await redisSet(`${REDIS_IDX_PREFIX}${slokaId}`, String(index), 60 * 60 * 24 * 30);
+  }
+}
+
+async function loadEntryFromDb(slokaId: number): Promise<StoryEntry | null> {
+  const { dbLoadStoryVariants } = await import("@/lib/content/db");
+  const variants = await dbLoadStoryVariants(slokaId);
+  if (!variants.length) {
+    // Fallback to bundled seed if DB row missing
+    return getSeedEntry(slokaId);
+  }
+  const lastIndex = await getLastIndex(slokaId, variants.length - 1);
+  return { stories: variants, lastIndex };
+}
+
+async function saveEntryToDb(slokaId: number, entry: StoryEntry): Promise<void> {
+  const { dbReplaceStoryVariants } = await import("@/lib/content/db");
+  await dbReplaceStoryVariants(slokaId, entry.stories);
+  await setLastIndex(slokaId, entry.lastIndex);
+}
+
+async function loadEntryLocal(slokaId: number): Promise<StoryEntry | null> {
   const key = cacheKey(slokaId);
   if (memoryCache[key]) return memoryCache[key];
 
@@ -123,11 +166,10 @@ async function loadEntry(slokaId: number): Promise<StoryEntry | null> {
   await hydrateFromDisk();
   if (memoryCache[key]) return memoryCache[key];
 
-  // Built-in default story for every verse
   return getSeedEntry(slokaId);
 }
 
-async function saveEntry(slokaId: number, entry: StoryEntry): Promise<void> {
+async function saveEntryLocal(slokaId: number, entry: StoryEntry): Promise<void> {
   const key = cacheKey(slokaId);
   memoryCache[key] = entry;
   if (redisEnabled()) {
@@ -138,6 +180,30 @@ async function saveEntry(slokaId: number, entry: StoryEntry): Promise<void> {
     );
   }
   await persistToDisk();
+}
+
+async function loadEntry(slokaId: number): Promise<StoryEntry | null> {
+  if (isDbContentEnabled()) {
+    try {
+      return await loadEntryFromDb(slokaId);
+    } catch (err) {
+      console.warn("[stories] DB load failed, falling back to local", err);
+      return loadEntryLocal(slokaId);
+    }
+  }
+  return loadEntryLocal(slokaId);
+}
+
+async function saveEntry(slokaId: number, entry: StoryEntry): Promise<void> {
+  if (isDbContentEnabled()) {
+    try {
+      await saveEntryToDb(slokaId, entry);
+      return;
+    } catch (err) {
+      console.warn("[stories] DB save failed, falling back to local", err);
+    }
+  }
+  await saveEntryLocal(slokaId, entry);
 }
 
 function pickStory(
@@ -153,6 +219,15 @@ function pickStory(
   };
 }
 
+function isSeededEntry(entry: StoryEntry, slokaId: number): boolean {
+  const seed = getSeedEntry(slokaId);
+  if (!seed || entry.stories.length !== 1) return false;
+  return (
+    entry.stories[0].en === seed.stories[0].en &&
+    entry.stories[0].hi === seed.stories[0].hi
+  );
+}
+
 export async function getCachedStory(
   slokaId: number,
   lang: StoryLanguage
@@ -166,12 +241,7 @@ export async function getCachedStory(
   if (!entry?.stories?.length) return null;
   const idx = Math.min(entry.lastIndex, entry.stories.length - 1);
   const picked = pickStory(entry, lang, idx);
-  const seed = getSeedEntry(slokaId);
-  const seeded =
-    entry.stories.length === 1 &&
-    !!seed &&
-    entry.stories[0].en === seed.stories[0].en;
-  return { ...picked, seeded };
+  return { ...picked, seeded: isSeededEntry(entry, slokaId) };
 }
 
 export async function cycleCachedStory(
@@ -186,13 +256,18 @@ export async function cycleCachedStory(
   const entry = await loadEntry(slokaId);
   if (!entry?.stories?.length) return null;
 
-  // Persist a clone if we were on seed-only (so index changes stick)
   const next = (entry.lastIndex + 1) % entry.stories.length;
   const cloned: StoryEntry = {
     stories: [...entry.stories],
     lastIndex: next,
   };
-  await saveEntry(slokaId, cloned);
+
+  if (isDbContentEnabled()) {
+    // Variants already in DB — only advance the cursor
+    await setLastIndex(slokaId, next);
+  } else {
+    await saveEntry(slokaId, cloned);
+  }
 
   return getCachedStory(slokaId, lang);
 }
@@ -226,7 +301,21 @@ export async function saveStoryVariant(
     entry.lastIndex = replaceAt;
   }
 
-  await saveEntry(slokaId, entry);
+  if (isDbContentEnabled()) {
+    try {
+      const { dbReplaceStoryVariants } = await import("@/lib/content/db");
+      await dbReplaceStoryVariants(slokaId, entry.stories);
+      await setLastIndex(slokaId, entry.lastIndex);
+      return {
+        variant: entry.lastIndex + 1,
+        total: entry.stories.length,
+      };
+    } catch (err) {
+      console.warn("[stories] DB save variant failed, falling back", err);
+    }
+  }
+
+  await saveEntryLocal(slokaId, entry);
 
   return {
     variant: entry.lastIndex + 1,

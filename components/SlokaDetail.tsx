@@ -2,15 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import FavoriteButton from "@/components/FavoriteButton";
+import JournalBox from "@/components/JournalBox";
+import ShareButton from "@/components/ShareButton";
 import VerseStory from "@/components/VerseStory";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { ChapterMeta } from "@/lib/chapters";
 import type { Sloka } from "@/lib/types";
-import {
-  formatVerseRef,
-  getAdjacentSlokas,
-  getTeachingPassage,
-} from "@/lib/slokas";
+import { formatVerseRef } from "@/lib/sloka-utils";
+import type { TeachingPassage } from "@/lib/sloka-utils";
 import {
   cleanCommentary,
   hasCommentary,
@@ -20,12 +20,19 @@ import {
 type Props = {
   sloka: Sloka;
   chapterMeta?: ChapterMeta;
+  prev?: Sloka | null;
+  next?: Sloka | null;
+  passage?: TeachingPassage | null;
 };
 
-export default function SlokaDetail({ sloka, chapterMeta }: Props) {
+export default function SlokaDetail({
+  sloka,
+  chapterMeta,
+  prev = null,
+  next = null,
+  passage = null,
+}: Props) {
   const { lang, t } = useLanguage();
-  const { prev, next } = getAdjacentSlokas(sloka.id);
-  const passage = getTeachingPassage(sloka.id);
 
   const sanskritLines = splitVerseLines(sloka.sanskrit_devanagari);
   const iastLines = splitVerseLines(sloka.transliteration_iast);
@@ -53,7 +60,7 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
 
   return (
     <article className="animate-fade">
-      <header className="border-b border-white/[0.06] pb-8 text-center">
+      <header className="border-b border-[var(--hairline)] pb-8 text-center">
         <p className="font-body text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
           {lang === "hi" ? "भगवद्गीता" : "Bhagavad Gita"} ·{" "}
           {formatVerseRef(sloka)}
@@ -84,7 +91,7 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
         />
       </header>
 
-      <nav className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] py-2 text-sm sm:gap-3 sm:py-3">
+      <nav className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--hairline)] py-2 text-sm sm:gap-3 sm:py-3">
         {prev ? (
           <Link
             href={`/sloka/${prev.id}`}
@@ -113,11 +120,20 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
         ) : (
           <span className="text-[var(--text-muted)]/40">{t("end")}</span>
         )}
+        <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
+          <FavoriteButton slokaId={sloka.id} />
+          <ShareButton
+            title={`MindKshetra ${formatVerseRef(sloka)}`}
+            text={translation}
+            url={`${typeof window !== "undefined" ? window.location.origin : ""}/sloka/${sloka.id}`}
+            imageUrl={`/api/og/verse/${sloka.id}`}
+          />
+        </div>
       </nav>
 
       <a
         href="#reflection"
-        className="mt-4 flex min-h-11 items-center justify-center border border-[var(--line)] bg-[rgba(14,20,32,0.45)] px-4 py-2.5 text-sm text-[var(--brass-soft)] transition hover:border-[var(--brass)]/40 lg:hidden"
+        className="mt-4 flex min-h-11 items-center justify-center border border-[var(--line)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--brass-soft)] transition hover:border-[var(--brass)]/40 lg:hidden"
       >
         {t("readReflection")}
       </a>
@@ -128,13 +144,13 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
             ? `श्लोक ${formatVerseRef(sloka)} के बारे में मुझे समझाइए — आज मेरे जीवन में इसका क्या अर्थ हो सकता है?`
             : `Help me understand verse ${formatVerseRef(sloka)} — what might it mean for my life right now?`
         )}`}
-        className="mt-3 flex min-h-11 items-center justify-center bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)]"
+        className="mt-3 flex min-h-11 items-center justify-center bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
       >
         {t("askMadhavVerse")}
       </Link>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-stretch lg:gap-0">
-        <section className="min-w-0 space-y-7 border border-[var(--line)] bg-[rgba(14,20,32,0.35)] p-5 sm:p-7 lg:rounded-none lg:border-r-0">
+        <section className="min-w-0 space-y-7 border border-[var(--line)] bg-[var(--panel)] p-5 sm:p-7 lg:rounded-none lg:border-r-0">
           {/* Primary reading: translation first */}
           <div>
             <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
@@ -300,6 +316,8 @@ export default function SlokaDetail({ sloka, chapterMeta }: Props) {
           </div>
         </aside>
       </div>
+
+      <JournalBox slokaId={sloka.id} />
     </article>
   );
 }

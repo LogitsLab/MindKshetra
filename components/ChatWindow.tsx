@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
+import { CHAT_SESSION_KEY } from "@/components/AuthProvider";
 import ChatMarkdown from "@/components/ChatMarkdown";
 import SpeakButton from "@/components/SpeakButton";
 import { stopSpeaking } from "@/lib/tts";
@@ -32,6 +33,13 @@ type UiMessage = {
 
 type Props = {
   initialPrompt?: string;
+};
+
+type ChatSessionSummary = {
+  id: string;
+  title: string | null;
+  created_at: string;
+  updated_at?: string;
 };
 
 type SpeechRecognitionResultLike = {
@@ -99,6 +107,10 @@ export default function ChatWindow({ initialPrompt }: Props) {
   );
   const [listening, setListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [recentSessions, setRecentSessions] = useState<ChatSessionSummary[]>([]);
+  const [showRecent, setShowRecent] = useState(false);
+  const [restoring, setRestoring] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickToBottom = useRef(true);
@@ -109,9 +121,58 @@ export default function ChatWindow({ initialPrompt }: Props) {
   const baseInputRef = useRef("");
   const wantListenRef = useRef(false);
 
+  const restoreSession = useCallback(
+    async (id: string) => {
+      try {
+        const res = await fetch(`/api/chat/sessions?sessionId=${encodeURIComponent(id)}`);
+        if (!res.ok) return false;
+        const data = (await res.json()) as {
+          messages?: Array<{ role: "user" | "assistant"; content: string }>;
+        };
+        if (!data.messages?.length) return false;
+
+        const restored: UiMessage[] = [
+          welcome,
+          ...data.messages.map((m, i) => ({
+            id: `restored-${i}`,
+            role: m.role,
+            content: m.content,
+          })),
+        ];
+        setMessages(restored);
+        setSessionId(id);
+        localStorage.setItem(CHAT_SESSION_KEY, id);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [welcome]
+  );
+
   useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const stored = localStorage.getItem(CHAT_SESSION_KEY);
+      if (stored) {
+        const ok = await restoreSession(stored);
+        if (!cancelled && !ok) {
+          localStorage.removeItem(CHAT_SESSION_KEY);
+        }
+      }
+      if (!cancelled) setRestoring(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [restoreSession]);
+
+  const loadRecentSessions = useCallback(async () => {
     try {
-      localStorage.removeItem("mindkshetra-madhav-chat");
+      const res = await fetch("/api/chat/sessions");
+      if (!res.ok) return;
+      const data = (await res.json()) as { sessions?: ChatSessionSummary[] };
+      setRecentSessions(data.sessions ?? []);
     } catch {
       /* ignore */
     }
@@ -216,6 +277,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
           signal: controller.signal,
           body: JSON.stringify({
             language: lang,
+            sessionId: sessionId ?? undefined,
             messages: nextMessages
               .filter((m) => m.id !== "welcome")
               .map((m) => ({ role: m.role, content: m.content })),
@@ -254,6 +316,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
               content?: string;
               citations?: Citation[];
               error?: string;
+              sessionId?: string;
             };
             try {
               payload = JSON.parse(line.slice(6));
@@ -261,7 +324,10 @@ export default function ChatWindow({ initialPrompt }: Props) {
               continue;
             }
 
-            if (payload.type === "citations" && payload.citations) {
+            if (payload.type === "session" && payload.sessionId) {
+              setSessionId(payload.sessionId);
+              localStorage.setItem(CHAT_SESSION_KEY, payload.sessionId);
+            } else if (payload.type === "citations" && payload.citations) {
               citations = payload.citations;
               setMessages((prev) =>
                 prev.map((m) =>
@@ -337,7 +403,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
         if (abortRef.current === controller) abortRef.current = null;
       }
     },
-    [loading, messages, lang]
+    [loading, messages, lang, sessionId]
   );
 
   useEffect(() => {
@@ -358,13 +424,47 @@ export default function ChatWindow({ initialPrompt }: Props) {
     }
   }
 
-  function clearChat() {
+  function newChat() {
     abortRef.current?.abort();
     stopListening();
     stopSpeaking();
+    setSessionId(null);
+    localStorage.removeItem(CHAT_SESSION_KEY);
     setMessages([welcome]);
     setError(null);
     setLastFailedPrompt(null);
+    setShowRecent(false);
+  }
+
+  function clearChat() {
+    newChat();
+  }
+
+  async function openRecent() {
+    const next = !showRecent;
+    setShowRecent(next);
+    if (next) await loadRecentSessions();
+  }
+
+  async function switchSession(id: string) {
+    if (id === sessionId) {
+      setShowRecent(false);
+      return;
+    }
+    abortRef.current?.abort();
+    stopListening();
+    stopSpeaking();
+    setError(null);
+    setLastFailedPrompt(null);
+    const ok = await restoreSession(id);
+    if (!ok) {
+      setError(
+        lang === "hi"
+          ? "वार्ता लोड नहीं हो सकी।"
+          : "Could not load that conversation."
+      );
+    }
+    setShowRecent(false);
   }
 
   function stopGeneration() {
@@ -476,11 +576,14 @@ export default function ChatWindow({ initialPrompt }: Props) {
   }
 
   const showStarters =
-    messages.length <= 1 && !loading && !initialPrompt?.trim();
+    !restoring &&
+    messages.length <= 1 &&
+    !loading &&
+    !initialPrompt?.trim();
 
   return (
-    <div className="flex h-full min-h-[26rem] flex-col overflow-hidden border border-[var(--line)] bg-[rgba(14,20,32,0.72)] shadow-[0_0_80px_rgba(61,122,106,0.08)] backdrop-blur-sm sm:min-h-[32rem]">
-      <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5 sm:px-7">
+    <div className="flex h-full min-h-[26rem] flex-col overflow-hidden border border-[var(--line)] bg-[var(--panel-strong)] shadow-[0_0_80px_rgba(61,122,106,0.08)] backdrop-blur-sm sm:min-h-[32rem]">
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--hairline)] px-5 py-3.5 sm:px-7">
         <div className="flex min-w-0 items-center gap-2.5">
           <Image
             src="/brand/madhav.jpg"
@@ -490,10 +593,25 @@ export default function ChatWindow({ initialPrompt }: Props) {
             className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-[var(--brass)]/45"
           />
           <p className="truncate text-[11px] uppercase tracking-[0.14em] text-[var(--text-muted)] sm:text-xs">
-            {t("sessionEphemeral")}
+            {sessionId ? t("sessionSaved") : t("sessionEphemeral")}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={() => void openRecent()}
+            className="px-3 py-2 text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+          >
+            {t("recentChats")}
+          </button>
+          <button
+            type="button"
+            onClick={newChat}
+            disabled={loading}
+            className="px-3 py-2 text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
+          >
+            {t("newChat")}
+          </button>
           {loading ? (
             <button
               type="button"
@@ -514,6 +632,35 @@ export default function ChatWindow({ initialPrompt }: Props) {
         </div>
       </div>
 
+      {showRecent ? (
+        <div className="border-b border-[var(--hairline)] px-5 py-3 sm:px-7">
+          {recentSessions.length === 0 ? (
+            <p className="text-sm text-[var(--text-muted)]">
+              {lang === "hi" ? "अभी कोई सहेजी वार्ता नहीं।" : "No saved chats yet."}
+            </p>
+          ) : (
+            <ul className="space-y-1">
+              {recentSessions.map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => void switchSession(s.id)}
+                    className={`w-full truncate px-2 py-2 text-left text-sm transition hover:text-[var(--brass-soft)] ${
+                      s.id === sessionId
+                        ? "text-[var(--brass-soft)]"
+                        : "text-[var(--text-muted)]"
+                    }`}
+                  >
+                    {s.title?.trim() ||
+                      new Date(s.updated_at ?? s.created_at).toLocaleString()}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
+
       <div
         ref={scrollRef}
         onScroll={onScroll}
@@ -523,7 +670,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
         aria-relevant="additions"
       >
         {showStarters && (
-          <div className="mb-2 flex flex-col items-center border-b border-white/[0.06] pb-8 pt-3 text-center sm:pb-10 sm:pt-4">
+          <div className="mb-2 flex flex-col items-center border-b border-[var(--hairline)] pb-8 pt-3 text-center sm:pb-10 sm:pt-4">
             <Image
               src="/brand/madhav.jpg"
               alt=""
@@ -586,7 +733,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
               className={`px-5 py-5 text-base font-light leading-[1.8] break-words [overflow-wrap:anywhere] sm:px-6 sm:py-6 sm:text-[17px] sm:leading-[1.85] ${
                 msg.role === "user"
                   ? "bg-[rgba(201,162,39,0.14)] text-[var(--text)] whitespace-pre-wrap"
-                  : "border border-[var(--line)] bg-white/[0.035] text-[var(--text)]"
+                  : "border border-[var(--line)] bg-[var(--surface)] text-[var(--text)]"
               }`}
             >
               {msg.content ? (
@@ -609,7 +756,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
                     <Link
                       key={c.id}
                       href={`/sloka/${c.id}`}
-                      className="block border border-[var(--line)] bg-black/30 px-4 py-4 text-[15px] transition hover:border-[var(--brass)]/40 sm:text-base"
+                      className="block border border-[var(--line)] bg-[var(--input-bg)] px-4 py-4 text-[15px] transition hover:border-[var(--brass)]/40 sm:text-base"
                     >
                       <span className="text-[var(--brass-soft)]">{c.ref}</span>
                       <span className="mt-1 block line-clamp-2 font-light leading-relaxed text-[var(--text-muted)]">
@@ -641,7 +788,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
       </div>
 
       {error && (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--line)] bg-[rgba(140,60,70,0.2)] px-4 py-2 text-sm text-[#f0c4c8]">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--line)] bg-[var(--danger-bg)] px-4 py-2 text-sm text-[var(--danger)]">
           <span>{error}</span>
           {lastFailedPrompt ? (
             <button
@@ -670,7 +817,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
             className={`relative flex min-h-11 min-w-11 shrink-0 items-center justify-center border transition disabled:cursor-not-allowed disabled:opacity-50 ${
               listening
                 ? "border-[var(--brass)] bg-[rgba(201,162,39,0.22)] text-[var(--brass-soft)]"
-                : "border-[var(--line)] bg-black/30 text-[var(--text-muted)] hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
+                : "border-[var(--line)] bg-[var(--input-bg)] text-[var(--text-muted)] hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
             }`}
           >
             {listening ? (
@@ -711,12 +858,12 @@ export default function ChatWindow({ initialPrompt }: Props) {
           disabled={loading}
           rows={1}
           enterKeyHint="send"
-          className="max-h-48 min-h-12 min-w-0 flex-1 resize-none border border-[var(--line)] bg-black/30 px-4 py-3.5 text-base text-[var(--text)] placeholder:text-[var(--text-muted)]/60 outline-none focus:border-[var(--brass)]/50 disabled:opacity-60 sm:text-[17px]"
+          className="max-h-48 min-h-12 min-w-0 flex-1 resize-none border border-[var(--line)] bg-[var(--input-bg)] px-4 py-3.5 text-base text-[var(--text)] placeholder:text-[var(--text-muted)]/60 outline-none focus:border-[var(--brass)]/50 disabled:opacity-60 sm:text-[17px]"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="min-h-12 shrink-0 bg-[var(--brass)] px-5 py-3.5 text-base font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)] disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
+          className="min-h-12 shrink-0 bg-[var(--brass)] px-5 py-3.5 text-base font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
         >
           {loading ? "…" : t("send")}
         </button>

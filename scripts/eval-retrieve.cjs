@@ -1,8 +1,17 @@
 #!/usr/bin/env node
 /**
  * Eval for Explore search + Madhav retrieve ranking + citation gating.
+ * Hybrid vector mode (Voyage + pgvector): npm run eval:hybrid
+ *   or EVAL_HYBRID=1 / EVAL_HYBRID=auto
+ *
  * Run: npm run eval
+ *      npm run eval:hybrid
  */
+const path = require("path");
+const ROOT = path.join(__dirname, "..");
+require("dotenv").config({ path: path.join(ROOT, ".env.local") });
+require("dotenv").config({ path: path.join(ROOT, ".env") });
+
 const slokas = require("../data/slokas.json");
 
 // ——— Search cases ———
@@ -376,8 +385,232 @@ for (const tag of need) {
   if (!ok) failed++;
 }
 
-if (failed) {
-  console.error(`\n${failed} check(s) failed`);
-  process.exit(1);
+async function voyageEmbedQueries(queries, apiKey) {
+  const delayMs = Number(process.env.EVAL_VOYAGE_DELAY_MS || 22_000);
+  const maxRetries = 6;
+  let lastErr;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const res = await fetch("https://api.voyageai.com/v1/embeddings", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        input: queries.map((q) => q.slice(0, 8000)),
+        model: "voyage-3",
+        input_type: "query",
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.data.map((d) => d.embedding);
+    }
+    const body = await res.text();
+    lastErr = new Error(`Voyage ${res.status}: ${body}`);
+    if (res.status === 429) {
+      const wait = delayMs * (attempt + 1);
+      console.log(`[hybrid] rate limited — waiting ${Math.round(wait / 1000)}s…`);
+      await new Promise((r) => setTimeout(r, wait));
+      continue;
+    }
+    throw lastErr;
+  }
+  throw lastErr;
 }
-console.log("\nAll eval checks passed");
+
+function hybridRetrieve(query, vectorHits, limit = 10) {
+  const merged = new Map();
+  const tokens = tokenize(query);
+  const tags = inferredTags(query);
+  const tagSet = new Set(tags);
+  const tagFreq = new Map();
+  for (const s of slokas) {
+    for (const t of s.tags || []) tagFreq.set(t, (tagFreq.get(t) || 0) + 1);
+  }
+
+  const tagScored = slokas
+    .map((sloka) => {
+      let score = 0;
+      const translationHay = [
+        sloka.english_translation,
+        sloka.hindi_translation,
+        sloka.english_meaning || "",
+        sloka.hindi_meaning || "",
+        ...(sloka.tags || []).map((t) => t.replace(/_/g, " ")),
+      ]
+        .join(" ")
+        .toLowerCase();
+      for (const token of tokens) {
+        if (translationHay.includes(token)) score += 1.8;
+        if ((sloka.tags || []).some((t) => t.replace(/_/g, " ").includes(token)))
+          score += 2;
+      }
+      for (const tag of sloka.tags || []) {
+        if (!tagSet.has(tag)) continue;
+        const freq = tagFreq.get(tag) || 1;
+        const rarity = Math.min(3, 700 / freq);
+        const weight = TAG_WEIGHT[tag] ?? 2;
+        score += weight * (0.5 + rarity * 0.15);
+      }
+      const onlyBroad =
+        (sloka.tags || []).length > 0 &&
+        (sloka.tags || []).every(
+          (t) => t === "devotion_surrender" || t === "purpose_meaning"
+        );
+      if (onlyBroad && tags.length > 0) score *= 0.55;
+      return { sloka, score };
+    })
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score || a.sloka.id - b.sloka.id)
+    .slice(0, limit * 2);
+
+  for (const { sloka, score } of tagScored) {
+    merged.set(sloka.id, { sloka, score: score * 0.3 });
+  }
+
+  for (const hit of vectorHits) {
+    const prev = merged.get(hit.sloka.id);
+    merged.set(hit.sloka.id, {
+      sloka: hit.sloka,
+      score: (prev?.score ?? 0) + hit.similarity * 0.7 * 10,
+    });
+  }
+
+  return Array.from(merged.values())
+    .sort((a, b) => b.score - a.score || a.sloka.id - b.sloka.id)
+    .slice(0, limit)
+    .map((r) => r.sloka);
+}
+
+async function runHybridEval() {
+  const force =
+    process.argv.includes("--hybrid") || process.env.EVAL_HYBRID === "1";
+  const auto = process.env.EVAL_HYBRID === "auto";
+  const want = force || auto;
+
+  console.log("\n== Madhav retrieve (hybrid vector) ==");
+
+  if (!want) {
+    console.log(
+      "SKIP — pass --hybrid, EVAL_HYBRID=1, or EVAL_HYBRID=auto to run Voyage/pgvector"
+    );
+    return 0;
+  }
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  const voyageKey = process.env.VOYAGE_API_KEY?.trim();
+
+  if (!url || !sbKey || !voyageKey) {
+    const msg =
+      "SKIP — set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, VOYAGE_API_KEY";
+    if (force) {
+      console.error(msg);
+      return 1;
+    }
+    console.log(msg);
+    return 0;
+  }
+
+  const { createClient } = require("@supabase/supabase-js");
+  const supabase = createClient(url, sbKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { count, error: countErr } = await supabase
+    .from("sloka_embeddings")
+    .select("*", { count: "exact", head: true });
+  if (countErr) throw countErr;
+
+  const embCount = count ?? 0;
+  const minEmb = Number(process.env.EVAL_HYBRID_MIN_EMBEDDINGS || 200);
+  if (embCount < minEmb) {
+    const msg = `SKIP — only ${embCount} embeddings (need ≥${minEmb}). Run npm run db:embeddings`;
+    if (force) {
+      console.error(msg);
+      return 1;
+    }
+    console.log(msg);
+    return 0;
+  }
+
+  console.log(`Embeddings: ${embCount}. Embedding ${RETRIEVE_CASES.length} queries via Voyage…`);
+  const embeddings = await voyageEmbedQueries(
+    RETRIEVE_CASES.map((c) => c.q),
+    voyageKey
+  );
+
+  const byId = new Map(slokas.map((s) => [s.id, s]));
+  let hybridFailed = 0;
+  let hybridPassed = 0;
+
+  for (let i = 0; i < RETRIEVE_CASES.length; i++) {
+    const c = RETRIEVE_CASES[i];
+    const embedding = embeddings[i];
+    const { data, error } = await supabase.rpc("match_slokas", {
+      query_embedding: embedding,
+      match_count: 20,
+    });
+    if (error) throw error;
+
+    const vectorHits = (data ?? [])
+      .map((row) => {
+        const sloka = byId.get(row.sloka_id);
+        return sloka
+          ? { sloka, similarity: Number(row.similarity) }
+          : null;
+      })
+      .filter(Boolean);
+
+    const results = hybridRetrieve(c.q, vectorHits, 10);
+    const refs = results.map(formatRef);
+    const tagHit = results.some((s) =>
+      (s.tags || []).some((t) => (c.expectTags || []).includes(t))
+    );
+    const refHit = (c.expectAnyRef || []).some((r) => refs.includes(r));
+    const ok = tagHit || refHit;
+    if (ok) hybridPassed++;
+    else hybridFailed++;
+    console.log(
+      ok ? "PASS" : "FAIL",
+      `"${c.q.slice(0, 48)}${c.q.length > 48 ? "…" : ""}"`,
+      "→",
+      refs.slice(0, 5).join(", ") || "(none)",
+      vectorHits.length ? `(vec top ${formatRef(vectorHits[0].sloka)})` : "(no vec)"
+    );
+  }
+
+  const total = RETRIEVE_CASES.length;
+  const rate = (hybridPassed / total) * 100;
+  const minRate = Number(process.env.EVAL_HYBRID_MIN_RATE || 90);
+  console.log(
+    `\nHybrid pass rate: ${hybridPassed}/${total} (${rate.toFixed(1)}%) — target ≥${minRate}%`
+  );
+  if (rate < minRate) {
+    console.error(`Hybrid vector eval below ${minRate}%`);
+    return hybridFailed;
+  }
+  return 0;
+}
+
+(async () => {
+  if (failed) {
+    console.error(`\n${failed} check(s) failed`);
+    process.exit(1);
+  }
+  console.log("\nAll tag/JSON eval checks passed");
+
+  try {
+    const hybridFails = await runHybridEval();
+    if (hybridFails > 0) process.exit(1);
+  } catch (err) {
+    console.error("\nHybrid eval error:", err.message || err);
+    const force =
+      process.argv.includes("--hybrid") || process.env.EVAL_HYBRID === "1";
+    if (force) process.exit(1);
+    console.log("Hybrid skipped after error (pass EVAL_HYBRID=1 to require it).");
+  }
+
+  console.log("\nAll eval checks passed");
+})();

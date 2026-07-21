@@ -4,7 +4,7 @@ import Link from "next/link";
 import EmptyState from "@/components/EmptyState";
 import SlokaCard from "@/components/SlokaCard";
 import { useLanguage } from "@/components/LanguageProvider";
-import { moodLabel } from "@/lib/moods";
+import { moodLabel } from "@/lib/mood-utils";
 import { getMoodVisual } from "@/lib/moodVisuals";
 import type { Mood, Sloka } from "@/lib/types";
 
@@ -62,7 +62,7 @@ export default function MoodDetailClient({ mood, slokas }: Props) {
         </div>
         <Link
           href={`/madhav?prompt=${encodeURIComponent(prompt)}`}
-          className="bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)]"
+          className="bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
         >
           {t("askMadhavAbout")}
         </Link>

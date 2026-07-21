@@ -5,10 +5,10 @@ import { getSlokasByTags } from "@/lib/slokas";
 
 type Props = { params: { id: string } };
 
-export default function MoodDetailPage({ params }: Props) {
-  const mood = getMoodById(params.id);
+export default async function MoodDetailPage({ params }: Props) {
+  const mood = await getMoodById(params.id);
   if (!mood) notFound();
 
-  const slokas = getSlokasByTags(mood.tags).slice(0, 40);
+  const slokas = (await getSlokasByTags(mood.tags)).slice(0, 40);
   return <MoodDetailClient mood={mood} slokas={slokas} />;
 }

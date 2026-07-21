@@ -5,9 +5,10 @@ import { getChapters, getSlokasByChapter } from "@/lib/slokas";
 
 type Props = { params: { chapter: string } };
 
-export default function ChapterPage({ params }: Props) {
+export default async function ChapterPage({ params }: Props) {
   const chapter = Number(params.chapter);
-  if (!Number.isInteger(chapter) || !getChapters().includes(chapter)) {
+  const chapters = await getChapters();
+  if (!Number.isInteger(chapter) || !chapters.includes(chapter)) {
     notFound();
   }
 
@@ -15,7 +16,7 @@ export default function ChapterPage({ params }: Props) {
     <ChapterPageClient
       chapter={chapter}
       meta={getChapterMeta(chapter)}
-      slokas={getSlokasByChapter(chapter)}
+      slokas={await getSlokasByChapter(chapter)}
     />
   );
 }

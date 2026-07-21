@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import EmptyState from "@/components/EmptyState";
 import SlokaCard from "@/components/SlokaCard";
 import { useLanguage } from "@/components/LanguageProvider";
-import { SEARCH_SUGGESTIONS } from "@/lib/slokas";
+import { SEARCH_SUGGESTIONS } from "@/lib/sloka-utils";
 import type { Sloka } from "@/lib/types";
 
 type SearchPayload = {
@@ -75,7 +75,7 @@ export default function ExploreSearch() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("searchPlaceholder")}
-        className="mt-2 w-full border border-[var(--line)] bg-black/25 px-4 py-3 text-base text-[var(--text)] placeholder:text-[var(--text-muted)]/55 outline-none focus:border-[var(--brass)]/50 sm:text-[15px]"
+        className="mt-2 w-full border border-[var(--line)] bg-[var(--input-bg)] px-4 py-3 text-base text-[var(--text)] placeholder:text-[var(--text-muted)]/55 outline-none focus:border-[var(--brass)]/50 sm:text-[15px]"
       />
 
       {!query.trim() && (

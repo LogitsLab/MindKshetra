@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
-import { moodLabel } from "@/lib/moods";
+import { moodLabel } from "@/lib/mood-utils";
 import { getMoodVisual } from "@/lib/moodVisuals";
 import type { Mood } from "@/lib/types";
 
@@ -22,6 +24,19 @@ type Props = {
 
 export default function HomePageClient({ featured, previewMoods }: Props) {
   const { lang, t } = useLanguage();
+  const { user } = useAuth();
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    if (!user) {
+      setStreak(0);
+      return;
+    }
+    fetch("/api/account/streak", { method: "POST" })
+      .then((r) => r.json())
+      .then((d) => setStreak(Number(d.current) || 0))
+      .catch(() => {});
+  }, [user]);
 
   const entries = [
     {
@@ -51,61 +66,74 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
 
   return (
     <div className="relative">
-      {/* Hero */}
+      {/* Hero — cinematic text over the field (no white card) */}
       <section className="relative flex min-h-[calc(100dvh-8rem)] flex-col justify-center py-8 sm:py-16">
-        {/* Scrim only — site-atmosphere already carries the hero image */}
         <div className="hero-bleed pointer-events-none absolute inset-y-0 -z-10">
           <div
-            className="absolute inset-0 bg-gradient-to-r from-[rgba(7,9,15,0.55)] via-[rgba(7,9,15,0.28)] to-transparent"
+            className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent"
             aria-hidden
           />
           <div
-            className="absolute inset-0 bg-gradient-to-t from-[var(--void)] via-transparent to-[rgba(7,9,15,0.2)]"
+            className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"
             aria-hidden
           />
         </div>
 
         <p
-          className="watermark-sanskrit pointer-events-none absolute left-1/2 top-1/2 -z-0 -translate-x-1/2 -translate-y-1/2 select-none font-display text-[18vw] leading-none text-white/[0.03] sm:text-[9rem]"
+          className="watermark-sanskrit pointer-events-none absolute left-1/2 top-1/2 -z-0 -translate-x-1/2 -translate-y-1/2 select-none font-display text-[18vw] leading-none text-white/[0.06] sm:text-[9rem]"
           aria-hidden
         >
           मनः
         </p>
 
         <div className="relative z-10 max-w-3xl">
-          <p className="animate-rise mb-4 font-body text-xs uppercase tracking-[0.28em] text-[var(--brass-soft)] sm:text-sm">
+          <p className="animate-rise mb-4 font-body text-xs uppercase tracking-[0.28em] text-[var(--brass)] sm:text-sm">
             {t("homeEyebrow")}
           </p>
-          <h1 className="animate-rise-delay-1 font-display text-[2.75rem] font-semibold leading-[0.95] tracking-tight text-[var(--text)] sm:text-7xl md:text-8xl">
+          <h1 className="animate-rise-delay-1 font-display text-[2.75rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-7xl md:text-8xl">
             MindKshetra
           </h1>
-          <p className="animate-rise-delay-2 mt-4 max-w-xl font-display text-lg leading-snug text-[var(--brass-soft)] sm:mt-5 sm:text-2xl md:text-3xl">
+          <p className="animate-rise-delay-2 mt-4 max-w-xl font-display text-lg leading-snug text-[var(--brass-hover)] sm:mt-5 sm:text-2xl md:text-3xl">
             {t("homeTagline")}
           </p>
-          <p className="animate-rise-delay-3 mt-4 max-w-lg text-[0.95rem] font-light leading-relaxed text-[var(--text-muted)] sm:mt-6 sm:text-lg">
+          <p className="animate-rise-delay-3 mt-4 max-w-lg text-[0.95rem] font-light leading-relaxed text-white/80 sm:mt-6 sm:text-lg">
             {t("homeBody")}
           </p>
 
           <div className="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
             <Link
               href="/madhav"
-              className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)]"
+              className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
             >
               {t("homeCtaMadhav")}
             </Link>
             <Link
               href="/explore"
-              className="min-h-11 border border-[var(--line)] px-6 py-3 text-sm text-[var(--text)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
+              className="min-h-11 border border-white/35 bg-white/10 px-6 py-3 text-sm text-white backdrop-blur-sm transition hover:border-[var(--brass)]/60 hover:bg-white/15"
             >
               {t("homeCtaExplore")}
             </Link>
+            <Link
+              href="/verse-of-the-day"
+              className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
+            >
+              {t("homeVotdLink")}
+            </Link>
+            {streak > 0 ? (
+              <span
+                className="min-h-11 px-2 py-3 text-sm text-[var(--brass)]"
+                title={t("streakLabel")}
+              >
+                {streak} {t("homeStreakLabel")}
+              </span>
+            ) : null}
           </div>
         </div>
       </section>
 
       {/* Paths with images */}
-      <section className="border-t border-white/[0.06] py-14">
-        <p className="mb-8 text-xs uppercase tracking-[0.22em] text-[var(--text-muted)]">
+      <section className="border-t border-[var(--hairline)] py-14">
+        <p className="mb-8 text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
           {t("homePaths")}
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -120,10 +148,10 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
                 alt=""
                 fill
                 sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover opacity-50 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-65"
+                className="object-cover opacity-70 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-85"
               />
               <div
-                className="absolute inset-0 bg-gradient-to-t from-[var(--void)] via-[rgba(7,9,15,0.72)] to-[rgba(7,9,15,0.25)]"
+                className="absolute inset-0 bg-gradient-to-t from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-[var(--media-scrim-soft)]"
                 aria-hidden
               />
               <div className="relative z-10 p-6 sm:p-7">
@@ -132,17 +160,17 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
                   alt=""
                   width={40}
                   height={40}
-                  className={`path-mark mb-3 opacity-85 transition duration-300 group-hover:-translate-y-0.5 group-hover:opacity-100 ${
-                    entry.href === "/madhav" ? "rounded-full object-cover ring-1 ring-[var(--brass)]/40" : ""
+                  className={`path-mark mb-3 opacity-90 transition duration-300 group-hover:-translate-y-0.5 group-hover:opacity-100 ${
+                    entry.href === "/madhav" ? "rounded-full object-cover ring-1 ring-[var(--brass)]/50" : ""
                   }`}
                 />
                 <span className="font-body text-xs text-[var(--brass)]">
                   0{i + 1}
                 </span>
-                <h2 className="mt-2 font-display text-3xl text-[var(--text)] transition group-hover:text-[var(--brass-soft)]">
+                <h2 className="mt-2 font-display text-3xl text-[var(--on-media)] transition group-hover:text-[var(--brass-hover)]">
                   <span className="link-underline">{entry.title}</span>
                 </h2>
-                <p className="mt-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
+                <p className="mt-2 text-sm font-light leading-relaxed text-[var(--on-media-muted)]">
                   {entry.blurb}
                 </p>
               </div>
@@ -151,12 +179,19 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
         </div>
       </section>
 
-      {/* Featured verse */}
-      <section className="border-t border-white/[0.06] py-14">
-        <p className="mb-6 text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-          {t("homeFeaturedEyebrow")}
-        </p>
-        <div className="relative overflow-hidden border border-[var(--line)] bg-[rgba(14,20,32,0.55)] px-6 py-10 sm:px-10 sm:py-12">
+      {/* Verse of the day */}
+      <section className="border-t border-[var(--hairline)] py-14">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
+            {t("homeFeaturedEyebrow")}
+          </p>
+          {streak > 0 ? (
+            <p className="text-xs tracking-[0.12em] text-[var(--brass-soft)]">
+              {streak} {t("homeStreakLabel")}
+            </p>
+          ) : null}
+        </div>
+        <div className="glass relative overflow-hidden px-6 py-10 sm:px-10 sm:py-12">
           <Image
             src="/ornaments/chapter.svg"
             alt=""
@@ -185,23 +220,31 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
           <p className="mt-6 max-w-2xl text-base font-light leading-relaxed text-[var(--text-muted)] sm:text-lg">
             {translation}
           </p>
-          <Link
-            href={`/sloka/${featured.id}`}
-            className="mt-8 inline-block bg-[var(--brass)] px-5 py-2.5 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)]"
-          >
-            {t("homeFeaturedCta")}
-          </Link>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href="/verse-of-the-day"
+              className="inline-block bg-[var(--brass)] px-5 py-2.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+            >
+              {t("homeFeaturedCta")}
+            </Link>
+            <Link
+              href={`/sloka/${featured.id}`}
+              className="inline-block border border-[var(--line)] px-5 py-2.5 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/40 hover:text-[var(--brass-soft)]"
+            >
+              {t("homeFeaturedDetail")}
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Mood preview */}
-      <section className="border-t border-white/[0.06] py-14">
+      <section className="border-t border-[var(--hairline)] py-14">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-xl">
+          <div className="glass max-w-xl px-5 py-4">
             <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
               {t("homeMoodsEyebrow")}
             </p>
-            <h2 className="mt-3 font-display text-3xl font-semibold text-[var(--text)] sm:text-4xl">
+            <h2 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-4xl">
               {t("homeMoodsTitle")}
             </h2>
             <p className="mt-2 text-sm font-light text-[var(--text-muted)] sm:text-base">
@@ -210,7 +253,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
           </div>
           <Link
             href="/mood"
-            className="text-sm text-[var(--brass-soft)] transition hover:text-[var(--brass)]"
+            className="text-sm text-[var(--brass)] transition hover:text-[var(--brass-soft)]"
           >
             {t("homeMoodsAll")} →
           </Link>
@@ -222,7 +265,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
               <Link
                 key={mood.id}
                 href={`/mood/${mood.id}`}
-                className="surface group relative flex min-h-[96px] items-center justify-between gap-3 overflow-hidden px-5 py-5"
+                className="surface group relative flex min-h-[96px] items-center justify-between gap-3 overflow-hidden px-5 py-5 backdrop-blur-md"
               >
                 <span
                   className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100"
@@ -256,27 +299,27 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       </section>
 
       {/* Closing band */}
-      <section className="relative mt-4 flex min-h-[240px] flex-col justify-center overflow-hidden border-t border-white/[0.06] py-16 sm:min-h-[280px]">
+      <section className="relative mt-4 flex min-h-[240px] flex-col justify-center overflow-hidden border-t border-[var(--hairline)] py-16 sm:min-h-[280px]">
         <div className="hero-bleed pointer-events-none absolute inset-y-0 -z-10">
           <Image
             src="/images/hero.jpg"
             alt=""
             fill
             sizes="100vw"
-            className="object-cover object-[center_60%] opacity-40"
+            className="object-cover object-[center_60%] opacity-55"
           />
           <div
-            className="absolute inset-0 bg-gradient-to-r from-[var(--void)] via-[rgba(7,9,15,0.85)] to-[rgba(7,9,15,0.55)]"
+            className="absolute inset-0 bg-gradient-to-r from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-[var(--media-scrim-soft)]"
             aria-hidden
           />
         </div>
         <div className="relative z-10 max-w-xl">
-          <p className="font-display text-3xl text-[var(--text)] sm:text-4xl">
+          <p className="font-display text-3xl text-[var(--on-media)] sm:text-4xl">
             {t("homeCloseLine")}
           </p>
           <Link
             href="/madhav"
-            className="mt-6 inline-block bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)]"
+            className="mt-6 inline-block bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
           >
             {t("homeCloseCta")}
           </Link>

@@ -26,12 +26,12 @@ export async function GET(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }
 
-  const sloka = getSlokaById(id);
+  const sloka = await getSlokaById(id);
   if (!sloka) {
     return NextResponse.json({ error: "Sloka not found" }, { status: 404 });
   }
 
-  const passage = getTeachingPassage(id);
+  const passage = await getTeachingPassage(id);
   const lang = parseLang(request.nextUrl.searchParams.get("lang"));
   const cached = await getCachedStory(id, lang);
   if (!cached) {
@@ -70,12 +70,12 @@ export async function POST(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }
 
-  const sloka = getSlokaById(id);
+  const sloka = await getSlokaById(id);
   if (!sloka) {
     return NextResponse.json({ error: "Sloka not found" }, { status: 404 });
   }
 
-  const passage = getTeachingPassage(id);
+  const passage = await getTeachingPassage(id);
   if (!passage) {
     return NextResponse.json({ error: "Sloka not found" }, { status: 404 });
   }

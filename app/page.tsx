@@ -24,19 +24,23 @@ const PREVIEW_MOOD_POOL = [
   "failure",
 ] as const;
 
-/** Deterministic day-of-year seed (UTC). */
 function daySeed(): number {
   const now = new Date();
   const start = Date.UTC(now.getUTCFullYear(), 0, 0);
-  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const today = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate()
+  );
   return Math.floor((today - start) / 86_400_000);
 }
 
-export default function HomePage() {
+export default async function HomePage() {
   const seed = daySeed();
-  const all = getAllSlokas();
+  const all = await getAllSlokas();
   const featuredSloka =
-    getSlokaById(all[seed % all.length]?.id ?? 1) ?? getSlokaByRef(2, 47);
+    (await getSlokaById(all[seed % all.length]?.id ?? 1)) ??
+    (await getSlokaByRef(2, 47));
 
   if (!featuredSloka) {
     throw new Error("Featured verse missing from dataset");
@@ -53,11 +57,11 @@ export default function HomePage() {
     hindi: featuredSloka.hindi_translation,
   };
 
-  const moods = getAllMoods();
+  const moods = await getAllMoods();
   const previewMoods: Mood[] = [];
   for (let i = 0; i < 6; i++) {
     const id = PREVIEW_MOOD_POOL[(seed + i * 3) % PREVIEW_MOOD_POOL.length];
-    const mood = getMoodById(id) ?? moods[i];
+    const mood = (await getMoodById(id)) ?? moods[i];
     if (mood && !previewMoods.some((m) => m.id === mood.id)) {
       previewMoods.push(mood);
     }

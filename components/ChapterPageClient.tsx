@@ -53,7 +53,7 @@ export default function ChapterPageClient({ chapter, meta, slokas }: Props) {
           </p>
         )}
         {chapterMoral(meta, lang) ? (
-          <div className="mt-5 border border-[var(--line)] bg-[rgba(14,20,32,0.35)] p-4">
+          <div className="mt-5 border border-[var(--line)] bg-[var(--panel)] p-4">
             <p className="text-[0.7rem] uppercase tracking-[0.18em] text-[var(--brass-soft)]">
               {t("chapterMoral")}
             </p>
