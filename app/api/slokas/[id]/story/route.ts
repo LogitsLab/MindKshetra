@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateBilingualStory } from "@/lib/groq";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
+import { warnIfRedisMissing } from "@/lib/redis";
 import { getSlokaById, getTeachingPassage } from "@/lib/slokas";
 import {
   canGenerateNewVariant,
@@ -19,6 +20,7 @@ function parseLang(value: string | null): StoryLanguage {
 }
 
 export async function GET(request: NextRequest, { params }: Params) {
+  warnIfRedisMissing();
   const id = Number(params.id);
   if (!Number.isInteger(id)) {
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });

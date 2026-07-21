@@ -78,7 +78,7 @@ export default function ChatMarkdown({ content, className = "" }: Props) {
   const blocks = trimmed.split(/\n{2,}/);
 
   return (
-    <div className={`space-y-3.5 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
       {blocks.map((block, bi) => {
         const lines = block.split("\n");
         const isList = lines.every((l) => /^[-•]\s+/.test(l.trim()) || !l.trim());

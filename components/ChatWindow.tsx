@@ -163,7 +163,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, []);
 
   useEffect(() => {
@@ -479,8 +479,8 @@ export default function ChatWindow({ initialPrompt }: Props) {
     messages.length <= 1 && !loading && !initialPrompt?.trim();
 
   return (
-    <div className="flex h-[calc(100dvh-11.5rem)] max-h-[760px] min-h-[22rem] flex-col overflow-hidden border border-[var(--line)] bg-[rgba(14,20,32,0.72)] shadow-[0_0_80px_rgba(61,122,106,0.08)] backdrop-blur-sm sm:h-[min(72dvh,720px)] sm:min-h-[28rem]">
-      <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-4 py-3 sm:px-6">
+    <div className="flex h-full min-h-[26rem] flex-col overflow-hidden border border-[var(--line)] bg-[rgba(14,20,32,0.72)] shadow-[0_0_80px_rgba(61,122,106,0.08)] backdrop-blur-sm sm:min-h-[32rem]">
+      <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5 sm:px-7">
         <div className="flex min-w-0 items-center gap-2.5">
           <Image
             src="/brand/madhav.jpg"
@@ -517,22 +517,22 @@ export default function ChatWindow({ initialPrompt }: Props) {
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        className="flex-1 space-y-6 overflow-y-auto overscroll-contain px-4 py-5 sm:space-y-7 sm:px-7 sm:py-6"
+        className="flex-1 space-y-8 overflow-y-auto overscroll-contain px-5 py-6 sm:space-y-10 sm:px-8 sm:py-8"
         role="log"
         aria-live="polite"
         aria-relevant="additions"
       >
         {showStarters && (
-          <div className="mb-1 flex flex-col items-center border-b border-white/[0.06] pb-6 pt-2 text-center sm:pb-8 sm:pt-3">
+          <div className="mb-2 flex flex-col items-center border-b border-white/[0.06] pb-8 pt-3 text-center sm:pb-10 sm:pt-4">
             <Image
               src="/brand/madhav.jpg"
               alt=""
-              width={72}
-              height={72}
-              className="h-16 w-16 rounded-full object-cover opacity-95 ring-1 ring-[var(--brass)]/40 sm:h-[4.5rem] sm:w-[4.5rem]"
+              width={80}
+              height={80}
+              className="h-[4.5rem] w-[4.5rem] rounded-full object-cover opacity-95 ring-1 ring-[var(--brass)]/40 sm:h-20 sm:w-20"
               priority
             />
-            <p className="mt-4 max-w-sm text-sm font-light leading-relaxed text-[var(--text-muted)]">
+            <p className="mt-5 max-w-lg text-base font-light leading-relaxed text-[var(--text-muted)] sm:text-[17px] sm:leading-[1.75]">
               {t("madhavIntro")}
             </p>
           </div>
@@ -541,8 +541,10 @@ export default function ChatWindow({ initialPrompt }: Props) {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`max-w-[min(96%,36rem)] break-words sm:max-w-[min(100%,40rem)] ${
-              msg.role === "user" ? "ml-auto" : "mr-auto"
+            className={`break-words ${
+              msg.role === "user"
+                ? "ml-auto max-w-[min(92%,34rem)]"
+                : "mr-auto max-w-[min(100%,52rem)]"
             }`}
           >
             <div
@@ -581,7 +583,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
               ) : null}
             </div>
             <div
-              className={`px-4 py-4 text-[15px] font-light leading-[1.75] break-words [overflow-wrap:anywhere] sm:px-5 sm:py-5 sm:text-[15.5px] sm:leading-[1.8] ${
+              className={`px-5 py-5 text-base font-light leading-[1.8] break-words [overflow-wrap:anywhere] sm:px-6 sm:py-6 sm:text-[17px] sm:leading-[1.85] ${
                 msg.role === "user"
                   ? "bg-[rgba(201,162,39,0.14)] text-[var(--text)] whitespace-pre-wrap"
                   : "border border-[var(--line)] bg-white/[0.035] text-[var(--text)]"
@@ -602,12 +604,12 @@ export default function ChatWindow({ initialPrompt }: Props) {
             {msg.role === "assistant" &&
               msg.citations &&
               msg.citations.length > 0 && (
-                <div className="mt-3 space-y-2">
+                <div className="mt-4 space-y-3">
                   {msg.citations.slice(0, 3).map((c) => (
                     <Link
                       key={c.id}
                       href={`/sloka/${c.id}`}
-                      className="block border border-[var(--line)] bg-black/30 px-3.5 py-3.5 text-sm transition hover:border-[var(--brass)]/40"
+                      className="block border border-[var(--line)] bg-black/30 px-4 py-4 text-[15px] transition hover:border-[var(--brass)]/40 sm:text-base"
                     >
                       <span className="text-[var(--brass-soft)]">{c.ref}</span>
                       <span className="mt-1 block line-clamp-2 font-light leading-relaxed text-[var(--text-muted)]">
@@ -621,14 +623,14 @@ export default function ChatWindow({ initialPrompt }: Props) {
         ))}
 
         {showStarters && (
-          <div className="flex flex-wrap gap-2.5 pt-1">
+          <div className="flex flex-wrap gap-3 pt-2">
             {starters.map((starter) => (
               <button
                 key={starter}
                 type="button"
                 onClick={() => void sendMessage(starter)}
                 disabled={loading}
-                className="min-h-11 border border-[var(--line)] px-3.5 py-2.5 text-left text-sm leading-snug text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
+                className="min-h-12 border border-[var(--line)] px-4 py-3 text-left text-[15px] leading-snug text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50 sm:text-base"
               >
                 {starter}
               </button>
@@ -655,7 +657,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
 
       <form
         onSubmit={onSubmit}
-        className="flex items-end gap-2.5 border-t border-[var(--line)] p-3.5 sm:gap-3 sm:p-5"
+        className="flex items-end gap-3 border-t border-[var(--line)] p-4 sm:gap-4 sm:p-6"
       >
         {voiceSupported ? (
           <button
@@ -709,12 +711,12 @@ export default function ChatWindow({ initialPrompt }: Props) {
           disabled={loading}
           rows={1}
           enterKeyHint="send"
-          className="max-h-40 min-h-11 min-w-0 flex-1 resize-none border border-[var(--line)] bg-black/30 px-3 py-3 text-base text-[var(--text)] placeholder:text-[var(--text-muted)]/60 outline-none focus:border-[var(--brass)]/50 disabled:opacity-60 sm:text-[15px]"
+          className="max-h-48 min-h-12 min-w-0 flex-1 resize-none border border-[var(--line)] bg-black/30 px-4 py-3.5 text-base text-[var(--text)] placeholder:text-[var(--text-muted)]/60 outline-none focus:border-[var(--brass)]/50 disabled:opacity-60 sm:text-[17px]"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="min-h-11 shrink-0 bg-[var(--brass)] px-4 py-3 text-sm font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)] disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
+          className="min-h-12 shrink-0 bg-[var(--brass)] px-5 py-3.5 text-base font-medium text-[var(--void)] transition hover:bg-[var(--brass-soft)] disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
         >
           {loading ? "…" : t("send")}
         </button>

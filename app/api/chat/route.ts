@@ -7,6 +7,7 @@ import {
   stripThinkBlocks,
 } from "@/lib/groq";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
+import { warnIfRedisMissing } from "@/lib/redis";
 import { formatVerseRef } from "@/lib/slokas";
 import { buildRetrievalQuery, retrieveSlokas } from "@/lib/retrieve";
 import type { ChatMessage } from "@/lib/types";
@@ -19,6 +20,7 @@ type ChatBody = {
 };
 
 export async function POST(request: NextRequest) {
+  warnIfRedisMissing();
   const limited = await rateLimit(`chat:${clientKey(request)}`, 20, 60_000);
   if (!limited.ok) {
     return new Response(

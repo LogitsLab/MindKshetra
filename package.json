@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "eval": "node scripts/eval-retrieve.cjs"
+    "eval": "node scripts/eval-retrieve.cjs",
+    "qa:commentary": "node scripts/qa-commentary.cjs"
   },
   "dependencies": {
     "groq-sdk": "^0.12.0",

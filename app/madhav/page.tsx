@@ -12,34 +12,31 @@ function MadhavContent() {
   const initialPrompt = searchParams.get("prompt")?.trim() || undefined;
 
   return (
-    <div className="animate-fade">
-      <header className="max-w-2xl">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <Image
-            src="/brand/madhav.jpg"
-            alt=""
-            width={56}
-            height={56}
-            className="mt-0.5 h-11 w-11 shrink-0 rounded-full object-cover ring-1 ring-[var(--brass)]/40 sm:mt-1 sm:h-14 sm:w-14"
-            priority
-          />
-          <div className="min-w-0">
-            <p className="text-[0.65rem] uppercase tracking-[0.22em] text-[var(--brass-soft)] sm:text-xs">
-              {t("madhavEyebrow")}
-            </p>
-            <h1 className="mt-2 font-display text-2xl font-semibold text-[var(--text)] sm:mt-3 sm:text-5xl">
-              {t("madhavTitle")}
-            </h1>
-            <p className="mt-2 hidden text-[var(--text-muted)] sm:mt-3 sm:block">
-              {t("madhavIntro")}
-            </p>
-          </div>
+    <div className="flex min-h-[calc(100dvh-5rem)] flex-col animate-fade">
+      <header className="flex shrink-0 items-center gap-3 sm:gap-4">
+        <Image
+          src="/brand/madhav.jpg"
+          alt=""
+          width={48}
+          height={48}
+          className="h-11 w-11 shrink-0 rounded-full object-cover ring-1 ring-[var(--brass)]/40 sm:h-12 sm:w-12"
+          priority
+        />
+        <div className="min-w-0">
+          <p className="text-[0.65rem] uppercase tracking-[0.22em] text-[var(--brass-soft)] sm:text-xs">
+            {t("madhavEyebrow")}
+          </p>
+          <h1 className="mt-1 font-display text-xl font-semibold text-[var(--text)] sm:text-3xl">
+            {t("madhavTitle")}
+          </h1>
         </div>
       </header>
-      <div className="mt-4 sm:mt-8">
+
+      <div className="mt-4 min-h-0 flex-1 sm:mt-5">
         <ChatWindow initialPrompt={initialPrompt} />
       </div>
-      <p className="mt-4 max-w-2xl text-xs leading-relaxed text-[var(--text-muted)]">
+
+      <p className="mt-3 shrink-0 text-xs leading-relaxed text-[var(--text-muted)] sm:mt-4">
         {t("madhavDisclaimer")}
       </p>
     </div>

@@ -124,6 +124,34 @@ export function getTeachingPassage(
   return { verses, focus, label };
 }
 
+/** Map colloquial search terms to tag / corpus vocabulary. */
+const SEARCH_ALIASES: Record<string, string[]> = {
+  lonely: ["loneliness", "alone", "isolated"],
+  loneliness: ["lonely", "alone"],
+  anxious: ["anxiety", "fear", "worried"],
+  anxiety: ["anxious", "fear", "worried"],
+  scared: ["fear", "afraid", "anxiety"],
+  angry: ["anger", "rage"],
+  sad: ["grief", "sorrow", "loss"],
+  stressed: ["stress", "overwhelm", "burnout"],
+  tired: ["burnout", "exhaust", "overwhelm"],
+  peace: ["equanimity", "calm", "शांति"],
+  peaceful: ["peace", "equanimity", "calm"],
+  purpose: ["meaning", "duty"],
+  lazy: ["unmotivated", "discipline"],
+  jealous: ["jealousy", "envy", "comparison"],
+  ashamed: ["shame", "guilt"],
+  worthless: ["failure", "inadequate", "self worth"],
+};
+
+function expandSearchTokens(tokens: string[]): string[] {
+  const out = new Set(tokens);
+  for (const t of tokens) {
+    for (const a of SEARCH_ALIASES[t] || []) out.add(a);
+  }
+  return Array.from(out);
+}
+
 /** Search English, Hindi, IAST, Sanskrit, tags, and chapter.verse refs. */
 export function searchSlokas(query: string, limit = 40): Sloka[] {
   const q = query.trim().toLowerCase();
@@ -137,10 +165,12 @@ export function searchSlokas(query: string, limit = 40): Sloka[] {
     return exact ? [exact] : [];
   }
 
-  const tokens = q
-    .split(/\s+/)
-    .map((t) => t.replace(/[^a-z0-9\u0900-\u097f]/gi, ""))
-    .filter((t) => t.length > 1);
+  const tokens = expandSearchTokens(
+    q
+      .split(/\s+/)
+      .map((t) => t.replace(/[^a-z0-9\u0900-\u097f]/gi, ""))
+      .filter((t) => t.length > 1)
+  );
 
   // Document frequency for IDF (token → how many verses contain it)
   const docFreq = new Map<string, number>();
@@ -228,4 +258,148 @@ export const SEARCH_SUGGESTIONS = [
   "शांति",
   "2.47",
 ] as const;
+
+/** Vocabulary used for typo / nearest recovery. */
+const NEAREST_VOCAB = [
+  "duty",
+  "fear",
+  "anger",
+  "peace",
+  "grief",
+  "anxiety",
+  "lonely",
+  "hope",
+  "courage",
+  "attachment",
+  "detachment",
+  "discipline",
+  "ego",
+  "guilt",
+  "jealousy",
+  "overwhelm",
+  "burnout",
+  "surrender",
+  "meditation",
+  "karma",
+  "devotion",
+  "equanimity",
+  "purpose",
+  "shame",
+  "stress",
+  "worry",
+  "calm",
+  "focus",
+  "faith",
+  "शांति",
+  "कर्तव्य",
+  "भय",
+  "क्रोध",
+  "दुःख",
+  ...SEARCH_SUGGESTIONS,
+] as const;
+
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 0; i < a.length; i++) {
+    let prev = i;
+    for (let j = 0; j < b.length; j++) {
+      const cur = row[j + 1];
+      const cost = a[i] === b[j] ? 0 : 1;
+      row[j + 1] = Math.min(row[j + 1] + 1, row[j] + 1, prev + cost);
+      prev = cur;
+    }
+  }
+  return row[b.length];
+}
+
+/** Suggest corrected query terms for typos (e.g. anxity → anxiety). */
+export function suggestSearchTerms(query: string, limit = 3): string[] {
+  const tokens = query
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map((t) => t.replace(/[^a-z0-9\u0900-\u097f]/gi, ""))
+    .filter((t) => t.length >= 3);
+
+  const out: string[] = [];
+  for (const token of tokens) {
+    let best: { term: string; dist: number } | null = null;
+    for (const term of NEAREST_VOCAB) {
+      const t = term.toLowerCase();
+      if (t === token) continue;
+      const dist = levenshtein(token, t);
+      const maxDist = token.length <= 4 ? 1 : token.length <= 7 ? 2 : 3;
+      if (dist > 0 && dist <= maxDist) {
+        if (!best || dist < best.dist) best = { term: t, dist };
+      }
+    }
+    if (best && !out.includes(best.term)) out.push(best.term);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+/**
+ * Soft nearest-neighbor verses when exact search is empty.
+ * Uses prefix/substring/edit-distance against tags + translation tokens.
+ */
+export function suggestNearestSlokas(query: string, limit = 6): Sloka[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+
+  const corrected = suggestSearchTerms(q, 2);
+  const expanded = corrected.length ? corrected.join(" ") : q;
+  const direct = searchSlokas(expanded, limit);
+  if (direct.length > 0) return direct;
+
+  const tokens = q
+    .split(/\s+/)
+    .map((t) => t.replace(/[^a-z0-9\u0900-\u097f]/gi, ""))
+    .filter((t) => t.length >= 3);
+
+  if (tokens.length === 0) return [];
+
+  const scored = slokas.map((sloka) => {
+    let score = 0;
+    const tagWords = sloka.tags.map((t) => t.replace(/_/g, " ").toLowerCase());
+    const hay = [
+      ...tagWords,
+      sloka.english_translation.toLowerCase(),
+      (sloka.english_meaning ?? "").toLowerCase(),
+    ].join(" ");
+
+    for (const token of tokens) {
+      if (hay.includes(token)) {
+        score += 6;
+        continue;
+      }
+      for (const tw of tagWords) {
+        for (const part of tw.split(" ")) {
+          if (part.length < 3) continue;
+          if (part.startsWith(token) || token.startsWith(part)) {
+            score += 4;
+            continue;
+          }
+          const maxDist = token.length <= 4 ? 1 : 2;
+          if (levenshtein(token, part) <= maxDist) score += 3;
+        }
+      }
+    }
+    return { sloka, score };
+  });
+
+  return scored
+    .filter((r) => r.score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        a.sloka.chapter - b.sloka.chapter ||
+        a.sloka.verse_number - b.sloka.verse_number
+    )
+    .slice(0, limit)
+    .map((r) => r.sloka);
+}
 

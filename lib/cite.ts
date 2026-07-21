@@ -1,29 +1,70 @@
 import { formatVerseRef } from "@/lib/slokas";
 import type { Sloka } from "@/lib/types";
 
+const VERSE_COUNTS: Record<number, number> = {
+  1: 47,
+  2: 72,
+  3: 43,
+  4: 42,
+  5: 29,
+  6: 47,
+  7: 30,
+  8: 28,
+  9: 34,
+  10: 42,
+  11: 55,
+  12: 20,
+  13: 35,
+  14: 27,
+  15: 20,
+  16: 24,
+  17: 28,
+  18: 78,
+};
+
+/** Context that suggests a Gita citation rather than a time/ratio. */
+const CITE_CONTEXT =
+  /(?:verse|śloka|sloka|chapter|gita|गीता|श्लोक|अध्याय|bg\.?|see|from)\b/i;
+
 /**
- * Find Gita-style chapter.verse citations.
- * Restricts to chapters 1–18 and verse numbers ≤78 to avoid clock times (e.g. 2:30).
+ * Find Gita-style chapter.verse citations with context gating.
+ * Bare N:M / N.M numbers without verse-like context are ignored
+ * (avoids rewriting times like "2:30" or ratios).
  */
 export function extractCitedRefs(text: string): string[] {
   const matches = Array.from(
-    text.matchAll(/\b(\d{1,2})\s*[.:]\s*(\d{1,3})\b/g)
+    text.matchAll(/\b(\d{1,2})\s*([.:])\s*(\d{1,3})\b/g)
   );
   const refs: string[] = [];
+
   for (const m of matches) {
     const chapter = Number(m[1]);
-    const verse = Number(m[2]);
+    const sep = m[2];
+    const verse = Number(m[3]);
     if (chapter < 1 || chapter > 18) continue;
-    if (verse < 1 || verse > 78) continue;
+    const maxVerse = VERSE_COUNTS[chapter] ?? 78;
+    if (verse < 1 || verse > maxVerse) continue;
+
+    const idx = m.index ?? 0;
+    const windowStart = Math.max(0, idx - 28);
+    const windowEnd = Math.min(text.length, idx + m[0].length + 12);
+    const around = text.slice(windowStart, windowEnd);
+
+    // Dot refs like 2.47 are the app's normal form — accept when in-range.
+    // Colon refs (2:47) need nearby citation context to avoid clock times.
+    const hasContext = CITE_CONTEXT.test(around);
+    if (sep === ":" && !hasContext) continue;
+
     refs.push(`${chapter}.${verse}`);
   }
+
   return Array.from(new Set(refs));
 }
 
 /**
  * Ensure Madhav only cites retrieved verses.
- * Invented refs are stripped (not remapped) to avoid corrupting prose;
- * if nothing valid remains, append a grounding note.
+ * Invented refs are stripped (not remapped); if nothing valid remains,
+ * append a grounding note.
  */
 export function verifyAndFixCitations(
   text: string,
@@ -43,7 +84,6 @@ export function verifyAndFixCitations(
     out = out.replace(pattern, "").replace(/[ \t]{2,}/g, " ");
   }
 
-  // Collapse awkward leftover punctuation from stripped refs
   out = out
     .replace(/\(\s*\)/g, "")
     .replace(/\s+([,;.])/g, "$1")
@@ -52,12 +92,17 @@ export function verifyAndFixCitations(
 
   const after = extractCitedRefs(out);
   const hasAllowed = after.some((ref) => allowed.has(ref));
-  const mentionsInWords =
-    /chapter\s+\d+|श्लोक\s*\d+|verse\s+\d+/i.test(out) &&
-    retrieved.some((s) =>
-      out.includes(`${s.chapter}.${s.verse_number}`) ||
-      out.includes(`chapter ${s.chapter}`)
+  const mentionsInWords = retrieved.some((s) => {
+    const ref = formatVerseRef(s);
+    return (
+      out.includes(ref) ||
+      new RegExp(
+        `chapter\\s+${s.chapter}[^\\d]{0,12}verse\\s+${s.verse_number}`,
+        "i"
+      ).test(out) ||
+      new RegExp(`श्लोक\\s*${s.chapter}\\s*[.:]?\\s*${s.verse_number}`).test(out)
     );
+  });
 
   if (!hasAllowed && !mentionsInWords) {
     out = `${out} (See ${primary}.)`;
