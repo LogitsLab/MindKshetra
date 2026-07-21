@@ -668,11 +668,7 @@ export default function ChatWindow({
     !loading &&
     !initialPrompt?.trim();
 
-  const statusLabel = incognito
-    ? t("incognitoOn")
-    : sessionId
-      ? t("sessionSaved")
-      : t("sessionEphemeral");
+  const statusLabel = incognito ? t("incognitoOn") : null;
 
   const historyPanel = (
     <div className="flex h-full flex-col">
@@ -873,14 +869,14 @@ export default function ChatWindow({
             height={32}
             className="hidden h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-[var(--brass)]/45 sm:block"
           />
-          <p
-            className={`truncate text-[11px] uppercase tracking-[0.14em] sm:text-xs ${
-              incognito ? "text-[var(--brass-soft)]" : "text-[var(--text-muted)]"
-            }`}
-            title={incognito ? t("incognitoHint") : undefined}
-          >
-            {statusLabel}
-          </p>
+          {statusLabel ? (
+            <p
+              className="truncate text-[11px] uppercase tracking-[0.14em] text-[var(--brass-soft)] sm:text-xs"
+              title={t("incognitoHint")}
+            >
+              {statusLabel}
+            </p>
+          ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button

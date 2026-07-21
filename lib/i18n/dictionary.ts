@@ -62,8 +62,7 @@ export const dictionary = {
     votdEmailOff: "Off",
     votdEmailNotReady:
       "Email delivery isn’t set up on this deployment yet — the toggle still saves your preference.",
-    magicLinkHint:
-      "Check spam if it doesn’t arrive in a minute. Production works best with custom SMTP in Supabase Auth.",
+    magicLinkHint: "If it doesn’t arrive in a minute, check your spam folder.",
     homeMoodsEyebrow: "How are you arriving?",
     homeMoodsTitle: "Begin with a mood",
     homeMoodsBlurb: "Pick a state of mind — we’ll gather verses that meet you there.",
@@ -214,6 +213,7 @@ export const dictionary = {
     guestBadge: "Guest · Upgrade",
     signInTitle: "Your field journal",
     signInGoogle: "Continue with Google",
+    signInGoogleSoon: "Continue with Google (coming soon)",
     signInEmail: "Email me a sign-in link",
     emailLabel: "Email",
     emailPlaceholder: "you@example.com",
@@ -319,8 +319,7 @@ export const dictionary = {
     votdEmailOff: "बंद",
     votdEmailNotReady:
       "इस डिप्लॉयमेंट पर ईमेल अभी सेट अप नहीं है — टॉगल आपकी पसंद फिर भी सहेजता है।",
-    magicLinkHint:
-      "एक मिनट में न आए तो स्पैम देखें। प्रोडक्शन के लिए Supabase Auth में कस्टम SMTP बेहतर है।",
+    magicLinkHint: "एक मिनट में न आए तो स्पैम फ़ोल्डर देखें।",
     homeMoodsEyebrow: "आप कैसे पहुँचे हैं?",
     homeMoodsTitle: "मनोदशा से आरंभ करें",
     homeMoodsBlurb: "अपनी अवस्था चुनें — हम उससे जुड़े श्लोक लाएँगे।",
@@ -471,6 +470,7 @@ export const dictionary = {
     guestBadge: "अतिथि · अपग्रेड",
     signInTitle: "आपकी क्षेत्र डायरी",
     signInGoogle: "Google से जारी रखें",
+    signInGoogleSoon: "Google से जारी रखें (जल्द आ रहा है)",
     signInEmail: "ईमेल पर साइन-इन लिंक भेजें",
     emailLabel: "ईमेल",
     emailPlaceholder: "you@example.com",

@@ -18,7 +18,6 @@ export default function AccountPageClient() {
     user,
     loading,
     configured,
-    signInWithGoogle,
     signInWithEmail,
     signInAnonymously,
     signOut,
@@ -28,7 +27,7 @@ export default function AccountPageClient() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<"google" | "guest" | null>(null);
+  const [busy, setBusy] = useState<"guest" | null>(null);
   const [exporting, setExporting] = useState(false);
   const [votdEmail, setVotdEmail] = useState<"idle" | "sending" | "sent">(
     "idle"
@@ -102,14 +101,6 @@ export default function AccountPageClient() {
       return;
     }
     setStatus("sent");
-  }
-
-  async function onGoogle() {
-    setError(null);
-    setBusy("google");
-    const result = await signInWithGoogle();
-    if (result.error) setError(result.error);
-    setBusy(null);
   }
 
   async function onGuest() {
@@ -651,11 +642,12 @@ export default function AccountPageClient() {
           <div className="space-y-3">
             <button
               type="button"
-              onClick={() => void onGoogle()}
-              disabled={busy !== null}
-              className="w-full min-h-12 border border-[var(--line)] px-4 py-3 text-sm text-[var(--text)] transition hover:border-[var(--brass)]/45 disabled:opacity-50"
+              disabled
+              aria-disabled="true"
+              title={t("signInGoogleSoon")}
+              className="w-full min-h-12 cursor-not-allowed border border-[var(--line)] px-4 py-3 text-sm text-[var(--text-muted)] opacity-60"
             >
-              {busy === "google" ? t("loading") : t("signInGoogle")}
+              {t("signInGoogleSoon")}
             </button>
 
             {!user ? (
