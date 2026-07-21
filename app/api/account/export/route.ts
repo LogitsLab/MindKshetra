@@ -16,6 +16,7 @@ export async function GET() {
     { data: journalRows },
     { data: streak },
     { data: sessions },
+    { data: prefs },
   ] = await Promise.all([
     supabase
       .from("favorites")
@@ -38,6 +39,13 @@ export async function GET() {
       .eq("user_id", userId)
       .order("updated_at", { ascending: false })
       .limit(50),
+    supabase
+      .from("user_preferences")
+      .select(
+        "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about"
+      )
+      .eq("user_id", userId)
+      .maybeSingle(),
   ]);
 
   const favorites = [];
@@ -82,6 +90,14 @@ export async function GET() {
   const payload = {
     exportedAt: new Date().toISOString(),
     userId,
+    preferences: {
+      votdEmailEnabled: prefs?.votd_email_enabled ?? true,
+      displayName: prefs?.display_name ?? null,
+      dateOfBirth: prefs?.date_of_birth ?? null,
+      place: prefs?.place ?? null,
+      preferredLanguage: prefs?.preferred_language ?? null,
+      about: prefs?.about ?? null,
+    },
     streak: streak
       ? {
           current: streak.current_streak,

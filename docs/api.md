@@ -131,11 +131,31 @@ Download a JSON export of the signed-in user's favorites, reflections, streak, a
 
 ### `GET /api/votd/email`
 
-`{ "configured": true|false }` — whether Resend is set up.
+`{ "configured": true|false, "enabled": true|false }` — Resend setup + the signed-in user’s preference (defaults to enabled).
 
 ### `POST /api/votd/email`
 
-Email today's verse to the signed-in user's address. Requires `RESEND_API_KEY`. Rate-limited.
+Email today’s verse (Sanskrit, transliteration, EN/HI, meaning, word meanings, story, links) to the signed-in user’s address. Requires `RESEND_API_KEY`. Honors Account settings opt-out (`403` if disabled). Rate-limited.
+
+### `GET /api/account/preferences`
+
+```json
+{
+  "votdEmailEnabled": true,
+  "displayName": "Arjuna",
+  "dateOfBirth": "1995-07-21",
+  "place": "Delhi",
+  "preferredLanguage": "en",
+  "about": "...",
+  "email": "you@example.com"
+}
+```
+
+Email is read-only from auth. Apply `004_user_prefs.sql` and `005_user_profile.sql` if columns are missing.
+
+### `PATCH /api/account/preferences`
+
+Body (any subset): `{ "votdEmailEnabled", "displayName", "dateOfBirth", "place", "preferredLanguage", "about" }`
 
 ---
 
