@@ -5,6 +5,8 @@ import { isDbContentEnabled } from "@/lib/content/source";
 export type ChatSession = {
   id: string;
   title: string | null;
+  /** First user message snippet for history list. */
+  preview: string | null;
   created_at: string;
   updated_at?: string;
 };
@@ -62,10 +64,34 @@ export async function saveChatMessage(
     cited_sloka_ids: citedSlokaIds,
   });
 
+  const now = new Date().toISOString();
   await db
     .from("chat_sessions")
-    .update({ updated_at: new Date().toISOString() })
+    .update({ updated_at: now })
     .eq("id", sessionId);
+
+  if (role === "user") {
+    const title = makeSessionTitle(content);
+    if (title) {
+      await db
+        .from("chat_sessions")
+        .update({ title })
+        .eq("id", sessionId)
+        .is("title", null);
+    }
+  }
+}
+
+function makeSessionTitle(content: string): string {
+  const oneLine = content.replace(/\s+/g, " ").trim();
+  if (!oneLine) return "";
+  return oneLine.length > 72 ? `${oneLine.slice(0, 72).trim()}…` : oneLine;
+}
+
+function makePreview(content: string, max = 100): string {
+  const oneLine = content.replace(/\s+/g, " ").trim();
+  if (!oneLine) return "";
+  return oneLine.length > max ? `${oneLine.slice(0, max).trim()}…` : oneLine;
 }
 
 export async function getChatSession(
@@ -88,22 +114,50 @@ export async function listChatSessions(
   userId?: string | null,
   limit = 10
 ): Promise<ChatSession[]> {
+  if (!userId) return [];
+
   const db = await getDb();
   if (!db) return [];
 
-  let query = db
+  const { data, error } = await db
     .from("chat_sessions")
     .select("id, title, created_at, updated_at")
+    .eq("user_id", userId)
     .order("updated_at", { ascending: false })
     .limit(limit);
 
-  if (userId) {
-    query = query.eq("user_id", userId);
+  if (error || !data?.length) return [];
+
+  const ids = data.map((s) => s.id as string);
+  const { data: msgs } = await db
+    .from("chat_messages")
+    .select("session_id, content, created_at")
+    .in("session_id", ids)
+    .eq("role", "user")
+    .order("created_at", { ascending: true });
+
+  const firstUserBySession = new Map<string, string>();
+  for (const m of msgs ?? []) {
+    const sid = m.session_id as string;
+    if (!firstUserBySession.has(sid) && typeof m.content === "string") {
+      firstUserBySession.set(sid, m.content);
+    }
   }
 
-  const { data, error } = await query;
-  if (error) return [];
-  return (data ?? []) as ChatSession[];
+  return data.map((s) => {
+    const first = firstUserBySession.get(s.id as string) ?? null;
+    const title =
+      (typeof s.title === "string" && s.title.trim()) ||
+      (first ? makeSessionTitle(first) : null);
+    const preview = first ? makePreview(first) : null;
+    return {
+      id: s.id as string,
+      title,
+      preview,
+      created_at: s.created_at as string,
+      updated_at: s.updated_at as string | undefined,
+    };
+  });
 }
 
 export async function assignSessionToUser(

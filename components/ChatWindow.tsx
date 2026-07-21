@@ -17,6 +17,8 @@ import ChatMarkdown from "@/components/ChatMarkdown";
 import SpeakButton from "@/components/SpeakButton";
 import { stopSpeaking } from "@/lib/tts";
 
+const INCOGNITO_KEY = "mindkshetra-chat-incognito";
+
 type Citation = {
   id: number;
   ref: string;
@@ -33,11 +35,14 @@ type UiMessage = {
 
 type Props = {
   initialPrompt?: string;
+  /** Fill parent height (Ask Madhav full-screen layout). */
+  fullScreen?: boolean;
 };
 
 type ChatSessionSummary = {
   id: string;
   title: string | null;
+  preview?: string | null;
   created_at: string;
   updated_at?: string;
 };
@@ -76,7 +81,10 @@ function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
-export default function ChatWindow({ initialPrompt }: Props) {
+export default function ChatWindow({
+  initialPrompt,
+  fullScreen = false,
+}: Props) {
   const { lang, t } = useLanguage();
   const welcome = useMemo<UiMessage>(
     () => ({
@@ -108,8 +116,11 @@ export default function ChatWindow({ initialPrompt }: Props) {
   const [listening, setListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [recentSessions, setRecentSessions] = useState<ChatSessionSummary[]>([]);
-  const [showRecent, setShowRecent] = useState(false);
+  const [recentSessions, setRecentSessions] = useState<ChatSessionSummary[]>(
+    []
+  );
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [incognito, setIncognito] = useState(false);
   const [restoring, setRestoring] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -120,6 +131,8 @@ export default function ChatWindow({ initialPrompt }: Props) {
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const baseInputRef = useRef("");
   const wantListenRef = useRef(false);
+  const historyCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const incognitoRef = useRef(false);
 
   const restoreSession = useCallback(
     async (id: string) => {
@@ -153,6 +166,15 @@ export default function ChatWindow({ initialPrompt }: Props) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      const storedIncognito =
+        typeof window !== "undefined" &&
+        sessionStorage.getItem(INCOGNITO_KEY) === "1";
+      if (storedIncognito) {
+        setIncognito(true);
+        incognitoRef.current = true;
+        if (!cancelled) setRestoring(false);
+        return;
+      }
       const stored = localStorage.getItem(CHAT_SESSION_KEY);
       if (stored) {
         const ok = await restoreSession(stored);
@@ -167,7 +189,24 @@ export default function ChatWindow({ initialPrompt }: Props) {
     };
   }, [restoreSession]);
 
+  useEffect(() => {
+    incognitoRef.current = incognito;
+  }, [incognito]);
+
+  useEffect(() => {
+    if (!historyOpen) return;
+    function onKey(e: globalThis.KeyboardEvent) {
+      if (e.key === "Escape") setHistoryOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [historyOpen]);
+
   const loadRecentSessions = useCallback(async () => {
+    if (incognitoRef.current) {
+      setRecentSessions([]);
+      return;
+    }
     try {
       const res = await fetch("/api/chat/sessions");
       if (!res.ok) return;
@@ -175,6 +214,30 @@ export default function ChatWindow({ initialPrompt }: Props) {
       setRecentSessions(data.sessions ?? []);
     } catch {
       /* ignore */
+    }
+  }, []);
+
+  const openHistory = useCallback(() => {
+    if (historyCloseTimer.current) {
+      clearTimeout(historyCloseTimer.current);
+      historyCloseTimer.current = null;
+    }
+    setHistoryOpen(true);
+    void loadRecentSessions();
+  }, [loadRecentSessions]);
+
+  const scheduleCloseHistory = useCallback(() => {
+    if (historyCloseTimer.current) clearTimeout(historyCloseTimer.current);
+    historyCloseTimer.current = setTimeout(() => {
+      setHistoryOpen(false);
+      historyCloseTimer.current = null;
+    }, 150);
+  }, []);
+
+  const cancelCloseHistory = useCallback(() => {
+    if (historyCloseTimer.current) {
+      clearTimeout(historyCloseTimer.current);
+      historyCloseTimer.current = null;
     }
   }, []);
 
@@ -188,6 +251,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
         /* ignore */
       }
       recognitionRef.current = null;
+      if (historyCloseTimer.current) clearTimeout(historyCloseTimer.current);
     };
   }, []);
 
@@ -277,7 +341,8 @@ export default function ChatWindow({ initialPrompt }: Props) {
           signal: controller.signal,
           body: JSON.stringify({
             language: lang,
-            sessionId: sessionId ?? undefined,
+            incognito: incognito || undefined,
+            sessionId: incognito ? undefined : sessionId ?? undefined,
             messages: nextMessages
               .filter((m) => m.id !== "welcome")
               .map((m) => ({ role: m.role, content: m.content })),
@@ -325,8 +390,11 @@ export default function ChatWindow({ initialPrompt }: Props) {
             }
 
             if (payload.type === "session" && payload.sessionId) {
-              setSessionId(payload.sessionId);
-              localStorage.setItem(CHAT_SESSION_KEY, payload.sessionId);
+              if (!incognitoRef.current) {
+                setSessionId(payload.sessionId);
+                localStorage.setItem(CHAT_SESSION_KEY, payload.sessionId);
+                void loadRecentSessions();
+              }
             } else if (payload.type === "citations" && payload.citations) {
               citations = payload.citations;
               setMessages((prev) =>
@@ -403,7 +471,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
         if (abortRef.current === controller) abortRef.current = null;
       }
     },
-    [loading, messages, lang, sessionId]
+    [loading, messages, lang, sessionId, incognito, loadRecentSessions]
   );
 
   useEffect(() => {
@@ -429,26 +497,45 @@ export default function ChatWindow({ initialPrompt }: Props) {
     stopListening();
     stopSpeaking();
     setSessionId(null);
-    localStorage.removeItem(CHAT_SESSION_KEY);
+    if (!incognito) localStorage.removeItem(CHAT_SESSION_KEY);
     setMessages([welcome]);
     setError(null);
     setLastFailedPrompt(null);
-    setShowRecent(false);
+    setHistoryOpen(false);
   }
 
   function clearChat() {
     newChat();
   }
 
-  async function openRecent() {
-    const next = !showRecent;
-    setShowRecent(next);
-    if (next) await loadRecentSessions();
+  function toggleIncognito() {
+    const next = !incognito;
+    setIncognito(next);
+    incognitoRef.current = next;
+    try {
+      if (next) sessionStorage.setItem(INCOGNITO_KEY, "1");
+      else sessionStorage.removeItem(INCOGNITO_KEY);
+    } catch {
+      /* ignore */
+    }
+    if (next) {
+      abortRef.current?.abort();
+      stopListening();
+      stopSpeaking();
+      setSessionId(null);
+      localStorage.removeItem(CHAT_SESSION_KEY);
+      setMessages([welcome]);
+      setError(null);
+      setLastFailedPrompt(null);
+      setRecentSessions([]);
+      setHistoryOpen(false);
+    }
   }
 
   async function switchSession(id: string) {
+    if (incognito) return;
     if (id === sessionId) {
-      setShowRecent(false);
+      setHistoryOpen(false);
       return;
     }
     abortRef.current?.abort();
@@ -464,7 +551,7 @@ export default function ChatWindow({ initialPrompt }: Props) {
           : "Could not load that conversation."
       );
     }
-    setShowRecent(false);
+    setHistoryOpen(false);
   }
 
   function stopGeneration() {
@@ -581,28 +668,233 @@ export default function ChatWindow({ initialPrompt }: Props) {
     !loading &&
     !initialPrompt?.trim();
 
+  const statusLabel = incognito
+    ? t("incognitoOn")
+    : sessionId
+      ? t("sessionSaved")
+      : t("sessionEphemeral");
+
+  const historyPanel = (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--hairline)] px-4 py-3">
+        <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--brass-soft)]">
+          {t("chatHistory")}
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            newChat();
+            setHistoryOpen(false);
+          }}
+          disabled={loading}
+          className="text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
+        >
+          {t("newChat")}
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto px-2 py-2">
+        {incognito ? (
+          <p className="px-2 py-3 text-sm leading-relaxed text-[var(--text-muted)]">
+            {t("historyIncognitoHint")}
+          </p>
+        ) : recentSessions.length === 0 ? (
+          <p className="px-2 py-3 text-sm text-[var(--text-muted)]">
+            {t("noSavedChats")}
+          </p>
+        ) : (
+          <ul className="space-y-0.5">
+            {recentSessions.map((s) => {
+              const when = new Date(
+                s.updated_at ?? s.created_at
+              ).toLocaleString(undefined, {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              });
+              const headline =
+                s.title?.trim() ||
+                s.preview?.trim() ||
+                (lang === "hi" ? "वार्ता" : "Conversation");
+              const detail =
+                s.preview?.trim() &&
+                s.title?.trim() &&
+                s.preview.trim() !== s.title.trim()
+                  ? s.preview.trim()
+                  : null;
+              return (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => void switchSession(s.id)}
+                    className={`w-full px-3 py-2.5 text-left transition hover:bg-[var(--surface)] ${
+                      s.id === sessionId
+                        ? "bg-[var(--surface)]"
+                        : ""
+                    }`}
+                  >
+                    <span
+                      className={`block truncate text-sm leading-snug ${
+                        s.id === sessionId
+                          ? "text-[var(--brass-soft)]"
+                          : "text-[var(--text)]"
+                      }`}
+                    >
+                      {headline}
+                    </span>
+                    {detail ? (
+                      <span className="mt-0.5 block line-clamp-2 text-xs font-light leading-snug text-[var(--text-muted)]">
+                        {detail}
+                      </span>
+                    ) : null}
+                    <span className="mt-1 block text-[0.65rem] tracking-[0.04em] text-[var(--text-muted)]/80">
+                      {when}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+      {incognito ? (
+        <p className="border-t border-[var(--hairline)] px-4 py-2 text-[11px] text-[var(--text-muted)]">
+          {t("incognitoHint")}
+        </p>
+      ) : null}
+    </div>
+  );
+
   return (
-    <div className="flex h-full min-h-[26rem] flex-col overflow-hidden border border-[var(--line)] bg-[var(--panel-strong)] shadow-[0_0_80px_rgba(61,122,106,0.08)] backdrop-blur-sm sm:min-h-[32rem]">
-      <div className="flex items-center justify-between gap-3 border-b border-[var(--hairline)] px-5 py-3.5 sm:px-7">
+    <div
+      className={`relative flex flex-col overflow-hidden bg-[var(--panel-strong)] backdrop-blur-sm ${
+        fullScreen
+          ? "h-full min-h-0 border-0 shadow-none"
+          : "h-full min-h-[26rem] border border-[var(--line)] shadow-[0_0_80px_rgba(61,122,106,0.08)] sm:min-h-[32rem]"
+      }`}
+    >
+      {/* Visible history tab — hover or click to open (desktop) */}
+      <button
+        type="button"
+        className={`absolute left-0 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-center gap-1 border border-l-0 border-[var(--brass)]/45 bg-[var(--panel-strong)] py-4 pl-1.5 pr-2 text-[var(--brass-soft)] shadow-[4px_0_20px_rgba(0,0,0,0.2)] transition hover:bg-[var(--surface)] hover:text-[var(--brass)] md:flex ${
+          historyOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
+        onMouseEnter={openHistory}
+        onMouseLeave={scheduleCloseHistory}
+        onClick={() => {
+          if (historyOpen) setHistoryOpen(false);
+          else openHistory();
+        }}
+        aria-label={t("openChatHistory")}
+        title={t("historyHoverHint")}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+        <span
+          className="text-[0.65rem] uppercase tracking-[0.16em]"
+          style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+        >
+          {t("chatHistory")}
+        </span>
+      </button>
+
+      {/* History sidebar */}
+      <aside
+        className={`absolute inset-y-0 left-0 z-40 flex w-[min(280px,85vw)] flex-col border-r border-[var(--line)] bg-[var(--panel-strong)] shadow-[8px_0_32px_rgba(0,0,0,0.25)] transition-all duration-200 ease-out md:w-[280px] ${
+          historyOpen
+            ? "translate-x-0 opacity-100"
+            : "pointer-events-none -translate-x-full opacity-0"
+        }`}
+        onMouseEnter={() => {
+          cancelCloseHistory();
+          openHistory();
+        }}
+        onMouseLeave={scheduleCloseHistory}
+        aria-hidden={!historyOpen}
+      >
+        {historyPanel}
+      </aside>
+
+      {/* Mobile overlay backdrop */}
+      {historyOpen ? (
+        <button
+          type="button"
+          className="absolute inset-0 z-30 bg-black/40 md:hidden"
+          aria-label="Close history"
+          onClick={() => setHistoryOpen(false)}
+        />
+      ) : null}
+
+      <div
+        className={`flex items-center justify-between gap-3 border-b border-[var(--hairline)] py-3.5 ${
+          fullScreen ? "px-4 sm:px-6" : "px-4 sm:px-7"
+        }`}
+      >
         <div className="flex min-w-0 items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              if (historyOpen) setHistoryOpen(false);
+              else openHistory();
+            }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center border border-[var(--line)] text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] md:hidden"
+            aria-label={t("chatHistory")}
+            aria-expanded={historyOpen}
+            title={t("historyHoverHint")}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              aria-hidden
+            >
+              <path d="M4 6h16M4 12h10M4 18h14" />
+            </svg>
+          </button>
           <Image
             src="/brand/madhav.jpg"
             alt=""
             width={32}
             height={32}
-            className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-[var(--brass)]/45"
+            className="hidden h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-[var(--brass)]/45 sm:block"
           />
-          <p className="truncate text-[11px] uppercase tracking-[0.14em] text-[var(--text-muted)] sm:text-xs">
-            {sessionId ? t("sessionSaved") : t("sessionEphemeral")}
+          <p
+            className={`truncate text-[11px] uppercase tracking-[0.14em] sm:text-xs ${
+              incognito ? "text-[var(--brass-soft)]" : "text-[var(--text-muted)]"
+            }`}
+            title={incognito ? t("incognitoHint") : undefined}
+          >
+            {statusLabel}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
-            onClick={() => void openRecent()}
-            className="px-3 py-2 text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+            onClick={toggleIncognito}
+            aria-pressed={incognito}
+            className={`px-3 py-2 text-xs transition ${
+              incognito
+                ? "text-[var(--brass-soft)]"
+                : "text-[var(--text-muted)] hover:text-[var(--brass-soft)]"
+            }`}
+            title={t("incognitoHint")}
           >
-            {t("recentChats")}
+            {t("incognito")}
           </button>
           <button
             type="button"
@@ -625,41 +917,12 @@ export default function ChatWindow({ initialPrompt }: Props) {
             type="button"
             onClick={clearChat}
             disabled={loading}
-            className="px-3 py-2 text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
+            className="hidden px-3 py-2 text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50 sm:inline"
           >
             {t("clearChat")}
           </button>
         </div>
       </div>
-
-      {showRecent ? (
-        <div className="border-b border-[var(--hairline)] px-5 py-3 sm:px-7">
-          {recentSessions.length === 0 ? (
-            <p className="text-sm text-[var(--text-muted)]">
-              {lang === "hi" ? "अभी कोई सहेजी वार्ता नहीं।" : "No saved chats yet."}
-            </p>
-          ) : (
-            <ul className="space-y-1">
-              {recentSessions.map((s) => (
-                <li key={s.id}>
-                  <button
-                    type="button"
-                    onClick={() => void switchSession(s.id)}
-                    className={`w-full truncate px-2 py-2 text-left text-sm transition hover:text-[var(--brass-soft)] ${
-                      s.id === sessionId
-                        ? "text-[var(--brass-soft)]"
-                        : "text-[var(--text-muted)]"
-                    }`}
-                  >
-                    {s.title?.trim() ||
-                      new Date(s.updated_at ?? s.created_at).toLocaleString()}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      ) : null}
 
       <div
         ref={scrollRef}

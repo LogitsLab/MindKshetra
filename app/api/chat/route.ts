@@ -24,6 +24,7 @@ type ChatBody = {
   messages?: ChatMessage[];
   language?: "en" | "hi";
   sessionId?: string;
+  incognito?: boolean;
 };
 
 export async function POST(request: NextRequest) {
@@ -82,10 +83,14 @@ export async function POST(request: NextRequest) {
 
   const language = body.language === "hi" ? "hi" : "en";
   const userId = await getAuthUserId();
+  const incognito = Boolean(body.incognito);
 
-  let sessionId = body.sessionId;
-  if (!sessionId) {
-    sessionId = (await createChatSession(userId)) ?? undefined;
+  let sessionId: string | undefined = undefined;
+  if (!incognito) {
+    sessionId = body.sessionId;
+    if (!sessionId) {
+      sessionId = (await createChatSession(userId)) ?? undefined;
+    }
   }
 
   const crisis = detectCrisis(lastUser.content);
