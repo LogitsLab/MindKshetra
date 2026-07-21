@@ -4,6 +4,7 @@ import {
   formatVerseRef,
   getAllSlokas,
   getSlokaById,
+  getTeachingPassage,
 } from "@/lib/slokas";
 import { getCachedStory } from "@/lib/stories";
 import { rateLimit, clientKey } from "@/lib/rateLimit";
@@ -232,10 +233,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Verse unavailable" }, { status: 500 });
   }
 
-  const [storyEn, storyHi] = await Promise.all([
-    getCachedStory(sloka.id, "en"),
-    getCachedStory(sloka.id, "hi"),
-  ]);
+  const passage = await getTeachingPassage(sloka.id);
+  let storyEnText: string | null = null;
+  let storyHiText: string | null = null;
+  if (passage?.mode === "scene" && passage.sceneEn && passage.sceneHi) {
+    storyEnText = passage.sceneEn;
+    storyHiText = passage.sceneHi;
+  } else {
+    const key = passage?.anchorId ?? sloka.id;
+    const [storyEn, storyHi] = await Promise.all([
+      getCachedStory(key, "en"),
+      getCachedStory(key, "hi"),
+    ]);
+    storyEnText = storyEn?.story ?? null;
+    storyHiText = storyHi?.story ?? null;
+  }
 
   const site =
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
@@ -248,8 +260,8 @@ export async function POST(request: Request) {
     sloka,
     ref,
     site,
-    storyEn: storyEn?.story ?? null,
-    storyHi: storyHi?.story ?? null,
+    storyEn: storyEnText,
+    storyHi: storyHiText,
   });
 
   const textParts = [
@@ -265,8 +277,8 @@ export async function POST(request: Request) {
   if (sloka.english_meaning) {
     textParts.push("", `Meaning: ${sloka.english_meaning}`);
   }
-  if (storyEn?.story) {
-    textParts.push("", "Story:", storyEn.story);
+  if (storyEnText) {
+    textParts.push("", "Story:", storyEnText);
   }
   textParts.push("", `${site}/verse-of-the-day`);
 

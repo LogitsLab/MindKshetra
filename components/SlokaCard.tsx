@@ -11,9 +11,15 @@ type Props = {
   sloka: Sloka;
   /** Show chapter name under the verse ref (default true). */
   showChapter?: boolean;
+  /** Show a completed checkmark. */
+  completed?: boolean;
 };
 
-export default function SlokaCard({ sloka, showChapter = true }: Props) {
+export default function SlokaCard({
+  sloka,
+  showChapter = true,
+  completed = false,
+}: Props) {
   const { lang, t } = useLanguage();
   const translation =
     lang === "hi" ? sloka.hindi_translation : sloka.english_translation;
@@ -27,12 +33,19 @@ export default function SlokaCard({ sloka, showChapter = true }: Props) {
   return (
     <Link
       href={`/sloka/${sloka.id}`}
-      className="surface group block p-5 transition hover:translate-x-0.5"
+      className={`surface group block p-5 transition hover:translate-x-0.5 ${
+        completed ? "border-[var(--brass)]/35" : ""
+      }`}
     >
       <div className="flex items-baseline justify-between gap-3">
         <div>
           <p className="font-body text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
             {formatVerseRef(sloka)}
+            {completed ? (
+              <span className="ml-2 text-[var(--brass)]" title={t("markedComplete")}>
+                ✓
+              </span>
+            ) : null}
           </p>
           {chapterName ? (
             <p className="mt-1 text-[0.65rem] tracking-[0.12em] text-[var(--text-muted)]">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import { useProgress } from "@/components/ProgressProvider";
 import { moodLabel } from "@/lib/mood-utils";
 import { getMoodVisual } from "@/lib/moodVisuals";
 import type { Mood } from "@/lib/types";
@@ -25,6 +26,7 @@ type Props = {
 export default function HomePageClient({ featured, previewMoods }: Props) {
   const { lang, t } = useLanguage();
   const { user } = useAuth();
+  const { continueSlokaId } = useProgress();
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
@@ -101,18 +103,35 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
           </p>
 
           <div className="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
-            <Link
-              href="/madhav"
-              className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-            >
-              {t("homeCtaMadhav")}
-            </Link>
+            {continueSlokaId ? (
+              <Link
+                href={`/sloka/${continueSlokaId}`}
+                className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+              >
+                {t("continueReading")}
+              </Link>
+            ) : (
+              <Link
+                href="/madhav"
+                className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+              >
+                {t("homeCtaMadhav")}
+              </Link>
+            )}
             <Link
               href="/explore"
               className="min-h-11 border border-white/35 bg-white/10 px-6 py-3 text-sm text-white backdrop-blur-sm transition hover:border-[var(--brass)]/60 hover:bg-white/15"
             >
               {t("homeCtaExplore")}
             </Link>
+            {continueSlokaId ? (
+              <Link
+                href="/madhav"
+                className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
+              >
+                {t("homeCtaMadhav")}
+              </Link>
+            ) : null}
             <Link
               href="/verse-of-the-day"
               className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"

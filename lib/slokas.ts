@@ -1,5 +1,6 @@
 import "server-only";
 import type { Sloka } from "@/lib/types";
+import { findPassageUnit, formatPassageRange } from "@/lib/passages";
 import {
   formatVerseRef,
   suggestSearchTerms,
@@ -51,39 +52,76 @@ export async function getSlokasByTags(tags: string[]): Promise<Sloka[]> {
   return (await content()).getSlokasByTags(tags);
 }
 
+/**
+ * Resolve the curated teaching / scene unit for a verse.
+ * Stories are shared across every verse in the unit (keyed by anchorId).
+ */
 export async function getTeachingPassage(
-  id: number,
-  size = 4
+  id: number
 ): Promise<TeachingPassage | null> {
   const mod = await content();
   const focus = await mod.getSlokaById(id);
   if (!focus) return null;
 
+  const unit = findPassageUnit(focus.chapter, focus.verse_number);
   const chapterVerses = await mod.getSlokasByChapter(focus.chapter);
+  if (!chapterVerses.length) return null;
+
+  if (unit) {
+    const verses = chapterVerses.filter(
+      (s) => s.verse_number >= unit.from && s.verse_number <= unit.to
+    );
+    if (!verses.length) return null;
+    const first = verses[0];
+    const label = formatPassageRange(unit.chapter, unit.from, unit.to);
+
+    return {
+      verses,
+      focus,
+      label,
+      anchorId: first.id,
+      unitId: unit.id,
+      mode: unit.mode,
+      titleEn: unit.titleEn,
+      titleHi: unit.titleHi,
+      themeEn: unit.themeEn,
+      themeHi: unit.themeHi,
+      sceneEn: unit.sceneEn,
+      sceneHi: unit.sceneHi,
+    };
+  }
+
+  // Fallback: small local window if a verse somehow missed the map
   const idx = chapterVerses.findIndex((s) => s.id === id);
   if (idx < 0) return null;
-
-  const window = Math.max(1, Math.min(size, chapterVerses.length));
-  let start = idx - 1;
+  const window = Math.min(4, chapterVerses.length);
+  let start = Math.max(0, idx - 1);
   let end = start + window;
-  if (start < 0) {
-    start = 0;
-    end = window;
-  }
   if (end > chapterVerses.length) {
     end = chapterVerses.length;
     start = Math.max(0, end - window);
   }
-
   const verses = chapterVerses.slice(start, end);
   const first = verses[0];
   const last = verses[verses.length - 1];
-  const label =
-    verses.length === 1
-      ? formatVerseRef(first)
-      : `${formatVerseRef(first)}–${last.verse_number}`;
+  const label = formatPassageRange(
+    first.chapter,
+    first.verse_number,
+    last.verse_number
+  );
 
-  return { verses, focus, label };
+  return {
+    verses,
+    focus,
+    label,
+    anchorId: first.id,
+    unitId: label,
+    mode: "teaching",
+    titleEn: "Teaching passage",
+    titleHi: "शिक्षा-समूह",
+    themeEn: "A lived moment that mirrors this teaching",
+    themeHi: "इस शिक्षा को छूता हुआ जीवन-क्षण",
+  };
 }
 
 const SEARCH_ALIASES: Record<string, string[]> = {

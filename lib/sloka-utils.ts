@@ -8,6 +8,16 @@ export type TeachingPassage = {
   verses: Sloka[];
   focus: Sloka;
   label: string;
+  /** First verse id — shared story cache key for the whole unit */
+  anchorId: number;
+  unitId: string;
+  mode: "teaching" | "scene";
+  titleEn: string;
+  titleHi: string;
+  themeEn: string;
+  themeHi: string;
+  sceneEn?: string;
+  sceneHi?: string;
 };
 
 export const SEARCH_SUGGESTIONS = [

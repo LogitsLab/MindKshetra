@@ -15,7 +15,11 @@ type SearchPayload = {
   didYouMean?: string[];
 };
 
-export default function ExploreSearch() {
+type Props = {
+  onActiveChange?: (active: boolean) => void;
+};
+
+export default function ExploreSearch({ onActiveChange }: Props) {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const initialQ = searchParams.get("q") ?? "";
@@ -29,6 +33,10 @@ export default function ExploreSearch() {
     const fromUrl = searchParams.get("q") ?? "";
     setQuery(fromUrl);
   }, [searchParams]);
+
+  useEffect(() => {
+    onActiveChange?.(Boolean(query.trim()));
+  }, [query, onActiveChange]);
 
   useEffect(() => {
     const q = query.trim();

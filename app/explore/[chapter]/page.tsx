@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import ChapterPageClient from "@/components/ChapterPageClient";
+import ChapterProgressBridge from "@/components/ChapterProgressBridge";
 import { getChapterMeta } from "@/lib/chapters";
 import { getChapters, getSlokasByChapter } from "@/lib/slokas";
 
@@ -13,7 +13,7 @@ export default async function ChapterPage({ params }: Props) {
   }
 
   return (
-    <ChapterPageClient
+    <ChapterProgressBridge
       chapter={chapter}
       meta={getChapterMeta(chapter)}
       slokas={await getSlokasByChapter(chapter)}

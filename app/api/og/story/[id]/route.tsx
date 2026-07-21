@@ -34,13 +34,20 @@ export async function GET(
           fontFamily: "serif",
         }}
       >
-        <div style={{ fontSize: 28, color: "#c9a227" }}>
+        <div style={{ display: "flex", fontSize: 28, color: "#c9a227" }}>
           MindKshetra · {ref} reflection
         </div>
-        <div style={{ fontSize: 26, lineHeight: 1.55, color: "#eef2f7" }}>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 26,
+            lineHeight: 1.55,
+            color: "#eef2f7",
+          }}
+        >
           {excerpt}
         </div>
-        <div style={{ fontSize: 20, color: "#9aa8bc" }}>
+        <div style={{ display: "flex", fontSize: 20, color: "#9aa8bc" }}>
           A modern story from the Gita
         </div>
       </div>

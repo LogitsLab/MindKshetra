@@ -1,5 +1,6 @@
 import type { Sloka } from "@/lib/types";
 import { formatVerseRef } from "@/lib/slokas";
+import { hasCommentary } from "@/lib/verseDisplay";
 
 export const GROQ_MODEL =
   process.env.GROQ_MODEL?.trim() || "qwen/qwen3.6-27b";
@@ -42,9 +43,18 @@ export function buildMadhavSystemPrompt(
         lang === "hi"
           ? v.hindi_meaning?.trim()
           : v.english_meaning?.trim();
+      const meaningFallback =
+        lang === "hi"
+          ? v.english_meaning?.trim()
+          : v.hindi_meaning?.trim();
+      const usableMeaning = hasCommentary(meaning)
+        ? meaning
+        : hasCommentary(meaningFallback)
+          ? meaningFallback
+          : "";
       const meaningLine =
-        meaning && meaning !== "."
-          ? `\n  Meaning: ${truncateAtWord(meaning, 280)}`
+        usableMeaning
+          ? `\n  Meaning: ${truncateAtWord(usableMeaning, 280)}`
           : "";
       return `- ${formatVerseRef(v)}: ${translation}${meaningLine}`;
     })
@@ -171,7 +181,14 @@ export async function createGroqCompletion(messages: ChatTurn[]): Promise<string
   return stripThinkBlocks(data.choices?.[0]?.message?.content ?? "");
 }
 
-export function buildStoryPrompt(passage: Sloka[], focus: Sloka): string {
+export function buildStoryPrompt(
+  passage: Sloka[],
+  focus: Sloka,
+  meta?: {
+    title?: string;
+    theme?: string;
+  }
+): string {
   const tags = Array.from(
     new Set(passage.flatMap((s) => s.tags.map((t) => t.replace(/_/g, " "))))
   ).join(", ");
@@ -188,31 +205,71 @@ export function buildStoryPrompt(passage: Sloka[], focus: Sloka): string {
       ? formatVerseRef(focus)
       : `${formatVerseRef(passage[0])}–${passage[passage.length - 1].verse_number}`;
 
-  return `You are writing a short modern reflection (180-280 words) for a Bhagavad Gita reading app.
+  const title = meta?.title?.trim() || "Teaching passage";
+  const theme = meta?.theme?.trim() || "a lived human struggle";
 
-This is NOT a retelling of the Mahabharata or Kurukshetra. It is a contemporary scene whose emotional truth mirrors a short teaching unit from the Gita — several consecutive verses that form one idea (as teachers often explain them together).
+  return `You write short modern reflections for MindKshetra, a Bhagavad Gita reading app.
 
-Teaching passage ${span}:
+Unit: ${title} (${span})
+Life theme to feel: ${theme}
+
+Passage (for YOUR understanding only — do NOT quote these lines, do NOT write "Verse X.Y", do NOT paste translations into the story):
 ${verseBlock}
 
 Theme tags: ${tags}
 
-Write the story in natural English.
+Write ONE contemporary scene (160–260 words) in natural English that a tired, sincere adult can feel in their body — a student, parent, nurse, founder, sibling, caregiver, etc. Make it specific (place, gesture, small sensory detail). The emotional arc should mirror the FULL unit’s teaching, not only the focus line.
 
-Write ONE modern, relatable scenario (a student, parent, employee, etc.) whose arc reflects the FULL passage — not only the focus line in isolation. Without naming verses, quoting Sanskrit, or being preachy. End with a single quiet line that lands the teaching. Keep it under 280 words. No title.
+Hard rules:
+- NOT a Mahabharata / Kurukshetra retelling
+- No Sanskrit, no chapter.verse citations, no "the Gita says"
+- Not preachy, not a worksheet, not bullet advice disguised as story
+- No template openers like "On an ordinary weekday" or "It feels a lot like…"
+- End with one quiet line the reader can carry
 
-Do not include <think> tags or chain-of-thought — only the story text.`;
+No title. No <think> tags — only the story.`;
+}
+
+export function buildSceneNotePrompt(
+  passage: Sloka[],
+  focus: Sloka,
+  meta: { title: string; theme: string }
+): string {
+  const verseBlock = passage
+    .slice(0, 8)
+    .map((s) => `${formatVerseRef(s)}: ${s.english_translation}`)
+    .join("\n");
+
+  const span =
+    passage.length === 1
+      ? formatVerseRef(focus)
+      : `${formatVerseRef(passage[0])}–${passage[passage.length - 1].verse_number}`;
+
+  return `You write brief scene notes for MindKshetra when a Gita passage is narrative setup / vision / closing — NOT a modern parable.
+
+Unit: ${meta.title} (${span})
+Tone theme: ${meta.theme}
+
+Context verses (do not quote long stretches):
+${verseBlock}
+
+Write 120–180 words in natural English that:
+1) Explain what is happening in the Gita at this point (clear, human, not academic)
+2) Say why a reader today might pause here even if it is not "advice"
+3) End with one gentle invitation (look, wait, listen) — not a self-help checklist
+
+No Mahabharata fan-fiction. No "Verse X.Y meets…". No title. No <think> tags.`;
 }
 
 function buildTranslateStoryPrompt(englishStory: string): string {
-  return `Translate the following reflective story into natural Hindi (Devanagari).
+  return `Translate the following reflective text into natural Hindi (Devanagari).
 
-Keep the SAME story: same characters, setting, events, and ending. Do not invent a new plot. Only change the language. No title, no preface.
+Keep the SAME content: same characters, setting, events, and ending. Do not invent a new plot. Only change the language. No title, no preface.
 
-Story:
+Text:
 ${englishStory}
 
-Do not include <think> tags or chain-of-thought — only the Hindi story text.`;
+Do not include <think> tags or chain-of-thought — only the Hindi text.`;
 }
 
 async function completeStory(prompt: string, temperature: number): Promise<string> {
@@ -237,10 +294,18 @@ async function completeStory(prompt: string, temperature: number): Promise<strin
 /** Generate one story in English, then the same story in Hindi. */
 export async function generateBilingualStory(
   passage: Sloka[],
-  focus: Sloka
+  focus: Sloka,
+  meta?: { title?: string; theme?: string; mode?: "teaching" | "scene" }
 ): Promise<{ en: string; hi: string }> {
   const verses = passage.length > 0 ? passage : [focus];
-  const en = await completeStory(buildStoryPrompt(verses, focus), 0.85);
+  const prompt =
+    meta?.mode === "scene"
+      ? buildSceneNotePrompt(verses, focus, {
+          title: meta.title || "Scene",
+          theme: meta.theme || "pause and see",
+        })
+      : buildStoryPrompt(verses, focus, meta);
+  const en = await completeStory(prompt, meta?.mode === "scene" ? 0.55 : 0.85);
   const hi = await completeStory(buildTranslateStoryPrompt(en), 0.3);
   return { en, hi };
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import { useProgress } from "@/components/ProgressProvider";
 
 const fieldClass =
   "w-full border border-[var(--line)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)] outline-none transition placeholder:text-[var(--text-muted)]/55 focus:border-[var(--brass)]/55";
@@ -23,6 +24,7 @@ export default function AccountPageClient() {
     signOut,
   } = useAuth();
   const { t } = useLanguage();
+  const { continueSlokaId } = useProgress();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -225,6 +227,11 @@ export default function AccountPageClient() {
       } else {
         setPreferredLanguage("");
       }
+      try {
+        window.dispatchEvent(new Event("mindkshetra:prefs"));
+      } catch {
+        /* ignore */
+      }
       setProfileStatus("saved");
       window.setTimeout(() => setProfileStatus("idle"), 2000);
     } catch {
@@ -262,7 +269,16 @@ export default function AccountPageClient() {
     const initial = (name || user.email || "?").slice(0, 1).toUpperCase();
 
     const paths = [
-      { href: "/verse-of-the-day", label: t("homeVotdLink"), accent: true },
+      ...(continueSlokaId
+        ? [
+            {
+              href: `/sloka/${continueSlokaId}`,
+              label: t("continueReading"),
+              accent: true,
+            },
+          ]
+        : []),
+      { href: "/verse-of-the-day", label: t("homeVotdLink"), accent: !continueSlokaId },
       { href: "/favorites", label: t("favorites"), accent: false },
       { href: "/account/reflections", label: t("myReflections"), accent: false },
       { href: "/madhav", label: t("navMadhav"), accent: false },
@@ -567,6 +583,14 @@ export default function AccountPageClient() {
               ? t("upgradeAccountBlurb")
               : t("accountSignInBlurb")}
           </p>
+          {continueSlokaId ? (
+            <Link
+              href={`/sloka/${continueSlokaId}`}
+              className="inline-flex min-h-11 items-center bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+            >
+              {t("continueReading")}
+            </Link>
+          ) : null}
         </header>
 
         <div className="relative mt-8 space-y-6">

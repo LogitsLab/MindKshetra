@@ -34,6 +34,66 @@ function isPlaceholder(text) {
   return false;
 }
 
+/** Padārtha / word-gloss dump mistakenly stored as prose commentary. */
+function isGlossDump(text) {
+  const t = (text || "").trim();
+  if (!t || t === ".") return false;
+  const hasDev = /[\u0900-\u097F]/.test(t);
+  const semis = (t.match(/;/g) || []).length;
+  const opens = (t.match(/\(/g) || []).length;
+  const closes = (t.match(/\)/g) || []).length;
+  if (opens > closes) return true;
+  if (/^By Swami Sivananda\.?$/i.test(t)) return true;
+  if (hasDev && semis >= 2 && t.length < 250) return true;
+  if (
+    /^[\u0900-\u097F]/.test(t) &&
+    /\b(O |the |an |a |of |in |to |by |eager |arrayed)\b/i.test(t) &&
+    semis >= 1 &&
+    t.length < 300
+  ) {
+    return true;
+  }
+  const tokens = t.split(/;\s*/);
+  if (
+    tokens.length >= 3 &&
+    t.length < 300 &&
+    tokens.every((p) => p.length < 70) &&
+    (hasDev || /^(the |O |an |a )/i.test(tokens[0]))
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isTruncatedCommentary(text) {
+  const t = (text || "").trim();
+  if (!t) return false;
+  if (/\([^)]*$/.test(t)) return true;
+  if (/[;:,]\s*$/.test(t)) return true;
+  if (
+    t.length >= 80 &&
+    !/[.!?।॥]$/.test(t) &&
+    /\b(to|the|and|of|a|for|in)$/i.test(t)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function needsEnglishRepair(text) {
+  return (
+    isPlaceholder(text) || isGlossDump(text) || isTruncatedCommentary(text)
+  );
+}
+
+function needsHindiRepair(text) {
+  return (
+    isPlaceholder(text) ||
+    /No commentary/i.test(text || "") ||
+    isTruncatedCommentary(text)
+  );
+}
+
 /** Turn Sivananda padaccheda `word? gloss` lines into readable English. */
 function formatWordGloss(ec) {
   const body = (ec || "")
@@ -92,8 +152,9 @@ function cleanRamsukhdasHc(hc) {
   if (!hc) return "";
   let t = hc
     .replace(/\u00a0/g, " ")
-    .replace(/^[\d.]+\s*/u, "")
-    .replace(/व्याख्या--\s*/u, "")
+    .replace(/^Hindi Commentary By[^\u0900-\u097F]*/i, "")
+    .replace(/^[\d.|।\s]+/u, "")
+    .replace(/व्याख्या\s*--?\s*/u, "")
     .replace(/\s+/g, " ")
     .trim();
   if (/No\s*commentary/i.test(t) && t.length < 40) return "";
@@ -115,14 +176,23 @@ function sleep(ms) {
 async function main() {
   const slokas = JSON.parse(fs.readFileSync(DATA, "utf8"));
   const placeholders = slokas.filter(
-    (s) =>
-      isPlaceholder(s.english_meaning) ||
-      isPlaceholder(s.hindi_meaning) ||
-      /No commentary/i.test(s.hindi_meaning || "")
+    (s) => needsEnglishRepair(s.english_meaning) || needsHindiRepair(s.hindi_meaning)
   );
 
   console.log(`Corpus: ${slokas.length} verses`);
-  console.log(`Placeholder / missing meanings: ${placeholders.length}`);
+  console.log(
+    `Meanings needing repair (placeholder / gloss-dump / truncated): ${placeholders.length}`
+  );
+
+  const glossOnly = slokas.filter((s) => isGlossDump(s.english_meaning));
+  if (glossOnly.length) {
+    console.log(
+      `EN gloss dumps: ${glossOnly.length} → ${glossOnly
+        .slice(0, 12)
+        .map((s) => `${s.chapter}.${s.verse_number}`)
+        .join(", ")}${glossOnly.length > 12 ? "…" : ""}`
+    );
+  }
 
   console.log("\n== Spot-check vs Sivananda (sample) ==");
   let sampleOk = 0;
@@ -138,7 +208,7 @@ async function main() {
         cleanEnglishCommentary(remote.siva?.ec || "") ||
         cleanPrabhupadaEc(remote.prabhu?.ec || "");
       const localEn = (local.english_meaning || "").trim();
-      const localOk = !isPlaceholder(localEn) && localEn.length > 20;
+      const localOk = !needsEnglishRepair(localEn) && localEn.length > 20;
       let overlap = false;
       if (cleaned && localOk) {
         const needle = cleaned.slice(0, 48).toLowerCase();
@@ -150,7 +220,7 @@ async function main() {
         ? overlap || !cleaned
           ? "OK"
           : "DIVERGE"
-        : "EMPTY";
+        : "EMPTY/BAD";
       if (status === "OK" || (status === "DIVERGE" && localOk)) sampleOk++;
       console.log(
         status,
@@ -166,39 +236,54 @@ async function main() {
   console.log(`Sample usable: ${sampleOk}/${SAMPLE_COMPARE.length}`);
 
   if (!FIX) {
-    console.log("\nRun with --fix to fill placeholder meanings from source.");
+    console.log(
+      "\nRun with --fix to repair placeholder / gloss-dump / truncated meanings from source."
+    );
     return;
   }
 
-  console.log("\n== Repairing placeholders ==");
+  console.log("\n== Repairing meanings ==");
   let fixedEn = 0;
   let fixedHi = 0;
+  let clearedEn = 0;
   let skipped = 0;
 
   for (const s of placeholders) {
     try {
       const remote = await fetchSlok(s.chapter, s.verse_number);
       const sivaEc = remote.siva?.ec || "";
-      const sivaHasProse = /Commentary\b/i.test(sivaEc) && !/No\s*Commentary\.?/i.test(
-        (sivaEc.match(/Commentary[\s\S]*/i) || [""])[0]
-      );
-      const en = sivaHasProse
+      const sivaHasProse =
+        /Commentary\b/i.test(sivaEc) &&
+        !/No\s*Commentary\.?/i.test(
+          (sivaEc.match(/Commentary[\s\S]*/i) || [""])[0]
+        );
+      let en = sivaHasProse
         ? cleanEnglishCommentary(sivaEc)
         : cleanPrabhupadaEc(remote.prabhu?.ec || "") ||
           cleanEnglishCommentary(sivaEc);
+      // Never re-store gloss dumps as prose commentary
+      if (en && (isGlossDump(en) || isTruncatedCommentary(en))) {
+        en = cleanPrabhupadaEc(remote.prabhu?.ec || "");
+      }
+      if (en && (isGlossDump(en) || isTruncatedCommentary(en))) {
+        en = "";
+      }
       const hi = cleanRamsukhdasHc(remote.rams?.hc || "");
 
       let changed = false;
-      if (isPlaceholder(s.english_meaning) && en) {
-        s.english_meaning = en;
-        fixedEn++;
-        changed = true;
+      if (needsEnglishRepair(s.english_meaning)) {
+        if (en && !needsEnglishRepair(en)) {
+          s.english_meaning = en;
+          fixedEn++;
+          changed = true;
+        } else if (isGlossDump(s.english_meaning) || isTruncatedCommentary(s.english_meaning)) {
+          // Clear bad EN so UI falls back to Hindi commentary
+          s.english_meaning = "";
+          clearedEn++;
+          changed = true;
+        }
       }
-      if (
-        (isPlaceholder(s.hindi_meaning) ||
-          /No commentary/i.test(s.hindi_meaning || "")) &&
-        hi
-      ) {
+      if (needsHindiRepair(s.hindi_meaning) && hi) {
         s.hindi_meaning = hi;
         fixedHi++;
         changed = true;
@@ -213,7 +298,9 @@ async function main() {
   }
 
   fs.writeFileSync(DATA, JSON.stringify(slokas, null, 2) + "\n");
-  console.log(`\nFixed EN=${fixedEn} HI=${fixedHi} skipped=${skipped}`);
+  console.log(
+    `\nFixed EN=${fixedEn} cleared-bad-EN=${clearedEn} HI=${fixedHi} skipped=${skipped}`
+  );
   console.log("Wrote", DATA);
 }
 

@@ -17,6 +17,8 @@ export async function GET() {
     { data: streak },
     { data: sessions },
     { data: prefs },
+    { data: cursorRow },
+    { data: completionRows },
   ] = await Promise.all([
     supabase
       .from("favorites")
@@ -46,6 +48,16 @@ export async function GET() {
       )
       .eq("user_id", userId)
       .maybeSingle(),
+    supabase
+      .from("reading_cursor")
+      .select("last_sloka_id, last_chapter, updated_at")
+      .eq("user_id", userId)
+      .maybeSingle(),
+    supabase
+      .from("verse_completions")
+      .select("sloka_id, completed_at")
+      .eq("user_id", userId)
+      .order("completed_at", { ascending: false }),
   ]);
 
   const favorites = [];
@@ -108,6 +120,19 @@ export async function GET() {
     favorites,
     reflections,
     chats,
+    readingProgress: {
+      cursor: cursorRow?.last_sloka_id
+        ? {
+            slokaId: cursorRow.last_sloka_id,
+            chapter: cursorRow.last_chapter,
+            updatedAt: cursorRow.updated_at,
+          }
+        : null,
+      completed: (completionRows ?? []).map((row) => ({
+        slokaId: row.sloka_id,
+        completedAt: row.completed_at,
+      })),
+    },
   };
 
   return new NextResponse(JSON.stringify(payload, null, 2), {

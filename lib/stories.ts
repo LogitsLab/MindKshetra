@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import seedStories from "@/data/stories-seed.json";
 import { isDbContentEnabled } from "@/lib/content/source";
+import { isLowQualityStorySeed } from "@/lib/passages";
 import { redisEnabled, redisGet, redisSet } from "@/lib/redis";
 
 export type StoryLanguage = "en" | "hi";
@@ -40,6 +41,9 @@ function cacheKey(slokaId: number): string {
 function getSeedEntry(slokaId: number): StoryEntry | null {
   const pair = seedMap[cacheKey(slokaId)];
   if (!pair?.en?.trim() || !pair?.hi?.trim()) return null;
+  if (isLowQualityStorySeed(pair.en) || isLowQualityStorySeed(pair.hi)) {
+    return null;
+  }
   return {
     stories: [{ en: pair.en, hi: pair.hi }],
     lastIndex: 0,
@@ -146,14 +150,21 @@ async function saveEntryToDb(slokaId: number, entry: StoryEntry): Promise<void> 
 
 async function loadEntryLocal(slokaId: number): Promise<StoryEntry | null> {
   const key = cacheKey(slokaId);
-  if (memoryCache[key]) return memoryCache[key];
+  if (memoryCache[key]) {
+    const entry = memoryCache[key];
+    if (entry.stories.some((s) => isLowQualityStorySeed(s.en))) {
+      delete memoryCache[key];
+    } else {
+      return entry;
+    }
+  }
 
   if (redisEnabled()) {
     const raw = await redisGet(`${REDIS_PREFIX}${key}`);
     if (raw) {
       try {
         const entry = normalizeEntry(JSON.parse(raw));
-        if (entry) {
+        if (entry && !entry.stories.some((s) => isLowQualityStorySeed(s.en))) {
           memoryCache[key] = entry;
           return entry;
         }
@@ -164,7 +175,14 @@ async function loadEntryLocal(slokaId: number): Promise<StoryEntry | null> {
   }
 
   await hydrateFromDisk();
-  if (memoryCache[key]) return memoryCache[key];
+  if (memoryCache[key]) {
+    const entry = memoryCache[key];
+    if (entry.stories.some((s) => isLowQualityStorySeed(s.en))) {
+      delete memoryCache[key];
+    } else {
+      return entry;
+    }
+  }
 
   return getSeedEntry(slokaId);
 }

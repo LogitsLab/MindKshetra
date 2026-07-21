@@ -53,11 +53,69 @@ export function cleanCommentary(text: string): string {
     .trim();
 }
 
-/** True when commentary is real content (not empty / placeholder "."). */
+/**
+ * Word-gloss / padārtha fragments that were mistakenly stored as prose meaning.
+ * These should never be shown in the Meaning panel (word-by-word already covers them).
+ */
+export function isGlossDumpCommentary(text?: string | null): boolean {
+  if (!text) return false;
+  const t = text.trim();
+  if (!t || t === ".") return false;
+  const hasDev = /[\u0900-\u097F]/.test(t);
+  const semis = (t.match(/;/g) || []).length;
+  const opens = (t.match(/\(/g) || []).length;
+  const closes = (t.match(/\)/g) || []).length;
+  if (opens > closes) return true;
+  if (/^By Swami Sivananda\.?$/i.test(t)) return true;
+  if (/^By Swami Sivananda/i.test(t) && hasDev) return true;
+  if (/^\d+\.\d+\s/.test(t) && hasDev) return true;
+  const parenGloss = (t.match(/[\u0900-\u097F]+\s*\([^)]{2,40}\)/g) || [])
+    .length;
+  if (parenGloss >= 3) return true;
+  if (hasDev && semis >= 2 && t.length < 250) return true;
+  if (
+    /^[\u0900-\u097F]/.test(t) &&
+    /\b(O |the |an |a |of |in |to |by |eager |arrayed)\b/i.test(t) &&
+    semis >= 1 &&
+    t.length < 300
+  ) {
+    return true;
+  }
+  const tokens = t.split(/;\s*/);
+  if (
+    tokens.length >= 3 &&
+    t.length < 300 &&
+    tokens.every((p) => p.length < 70) &&
+    (hasDev || /^(the |O |an |a )/i.test(tokens[0]))
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function isTruncatedCommentary(text?: string | null): boolean {
+  if (!text) return false;
+  const t = text.trim();
+  if (/\([^)]*$/.test(t)) return true;
+  if (/[;:,]\s*$/.test(t)) return true;
+  if (
+    t.length >= 80 &&
+    !/[.!?।॥]$/.test(t) &&
+    /\b(to|the|and|of|a|for|in)$/i.test(t)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/** True when commentary is real prose (not empty, gloss dump, or truncated). */
 export function hasCommentary(text?: string | null): boolean {
   if (!text) return false;
   const cleaned = cleanCommentary(text);
-  return cleaned.length > 1 && cleaned !== ".";
+  if (cleaned.length <= 1 || cleaned === ".") return false;
+  if (isGlossDumpCommentary(cleaned)) return false;
+  if (isTruncatedCommentary(cleaned)) return false;
+  return true;
 }
 
 /** Traditional inline padārtha: word—meaning; word—meaning */

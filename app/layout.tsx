@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Sora } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
 import { LanguageProvider } from "@/components/LanguageProvider";
+import { ProgressProvider } from "@/components/ProgressProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Nav from "@/components/Nav";
 import "./globals.css";
@@ -61,11 +62,13 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <LanguageProvider>
-              <div className="site-atmosphere" aria-hidden />
-              <Nav />
-              <main className="relative mx-auto min-h-[calc(100dvh-4rem)] w-full max-w-6xl px-4 pb-12 pt-5 sm:px-6 sm:pb-16 sm:pt-8">
-                {children}
-              </main>
+              <ProgressProvider>
+                <div className="site-atmosphere" aria-hidden />
+                <Nav />
+                <main className="relative mx-auto min-h-[calc(100dvh-4rem)] w-full max-w-6xl px-4 pb-12 pt-5 sm:px-6 sm:pb-16 sm:pt-8">
+                  {children}
+                </main>
+              </ProgressProvider>
             </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>

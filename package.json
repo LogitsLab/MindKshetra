@@ -10,6 +10,7 @@
     "eval": "node scripts/eval-retrieve.cjs",
     "eval:hybrid": "EVAL_HYBRID=1 node scripts/eval-retrieve.cjs --hybrid",
     "qa:commentary": "node scripts/qa-commentary.cjs",
+    "qa:passages": "node scripts/assert-passage-coverage.cjs",
     "db:migrate": "node scripts/db-migrate.cjs",
     "db:seed": "node scripts/seed-slokas.cjs && node scripts/seed-stories.cjs",
     "db:embeddings": "node scripts/seed-embeddings.cjs",

@@ -31,3 +31,13 @@ export async function getAuthUserId(): Promise<string | null> {
   } = await supabase.auth.getUser();
   return user?.id ?? null;
 }
+
+/** Signed-in non-anonymous user id (favorites / progress / journal style). */
+export async function getSignedInUserId(): Promise<string | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user || user.is_anonymous) return null;
+  return user.id;
+}

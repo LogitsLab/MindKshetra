@@ -1,7 +1,7 @@
 import { ImageResponse } from "@vercel/og";
 import { getSlokaById } from "@/lib/slokas";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export async function GET(
   _request: Request,
@@ -14,8 +14,8 @@ export async function GET(
   }
 
   const ref = `${sloka.chapter}.${sloka.verse_number}`;
-  const sanskrit = sloka.sanskrit_devanagari.slice(0, 120);
-  const english = sloka.english_translation.slice(0, 180);
+  const sanskrit = (sloka.sanskrit_devanagari ?? "").slice(0, 120);
+  const english = (sloka.english_translation ?? "").slice(0, 180);
 
   return new ImageResponse(
     (
@@ -32,11 +32,28 @@ export async function GET(
           fontFamily: "serif",
         }}
       >
-        <div style={{ fontSize: 28, color: "#c9a227" }}>MindKshetra · {ref}</div>
-        <div style={{ fontSize: 36, lineHeight: 1.4, textAlign: "center" }}>
+        <div style={{ display: "flex", fontSize: 28, color: "#c9a227" }}>
+          MindKshetra · {ref}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 36,
+            lineHeight: 1.4,
+            textAlign: "center",
+            justifyContent: "center",
+          }}
+        >
           {sanskrit}
         </div>
-        <div style={{ fontSize: 22, lineHeight: 1.5, color: "#9aa8bc" }}>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 22,
+            lineHeight: 1.5,
+            color: "#9aa8bc",
+          }}
+        >
           {english}
         </div>
       </div>
