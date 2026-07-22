@@ -1,0 +1,2 @@
+# Optional Swiss Ephemeris .se1 files (sepl_18.se1, semo_18.se1).
+# When absent, the engine uses the built-in Moshier ephemeris.

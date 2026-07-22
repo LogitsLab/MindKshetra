@@ -18,6 +18,7 @@ export default function Nav() {
   const links = [
     { href: "/explore", label: t("navExplore") },
     { href: "/mood", label: t("navMood") },
+    { href: "/astrology", label: t("navAstrology") },
     { href: "/madhav", label: t("navMadhav") },
   ];
 

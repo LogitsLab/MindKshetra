@@ -62,6 +62,13 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       image: "/images/paths/madhav.jpg",
       icon: "/icons/paths/madhav.jpg",
     },
+    {
+      href: "/astrology",
+      title: t("homeAstroTitle"),
+      blurb: t("homeAstroBlurb"),
+      image: "/images/paths/explore.jpg",
+      icon: "/icons/paths/explore.svg",
+    },
   ];
 
   const translation = lang === "hi" ? featured.hindi : featured.english;

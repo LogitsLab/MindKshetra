@@ -2,6 +2,7 @@
   "name": "mindkshetra",
   "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,6 +12,7 @@
     "eval:hybrid": "EVAL_HYBRID=1 node scripts/eval-retrieve.cjs --hybrid",
     "qa:commentary": "node scripts/qa-commentary.cjs",
     "qa:passages": "node scripts/assert-passage-coverage.cjs",
+    "qa:astrology": "node scripts/qa-astrology-golden.cjs",
     "db:migrate": "node scripts/db-migrate.cjs",
     "db:seed": "node scripts/seed-slokas.cjs && node scripts/seed-stories.cjs",
     "db:embeddings": "node scripts/seed-embeddings.cjs",
@@ -20,12 +22,16 @@
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.7",
     "@vercel/og": "^0.11.1",
+    "geo-tz": "^8.1.8",
     "groq-sdk": "^0.12.0",
+    "luxon": "^3.7.2",
     "next": "14.2.35",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "sweph": "^2.10.3-7"
   },
   "devDependencies": {
+    "@types/luxon": "^3.7.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

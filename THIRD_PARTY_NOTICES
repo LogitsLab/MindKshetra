@@ -1,0 +1,18 @@
+# Third-party notices
+
+## Swiss Ephemeris
+
+This software uses the Swiss Ephemeris, developed by Astrodienst AG.
+
+Copyright (C) 1997 - 2021 Astrodienst AG, Switzerland. All rights reserved.
+
+The Swiss Ephemeris is licensed under the GNU Affero General Public License
+version 3 (or later), or under a commercial license from Astrodienst AG.
+See: https://www.astro.com/swisseph/
+
+MindKshetra is distributed under the GNU Affero General Public License v3
+to comply with the Swiss Ephemeris AGPL terms when using the open-source
+edition of the library.
+
+Binding used: `sweph` (https://github.com/timotejroiko/sweph), which wraps
+the official Swiss Ephemeris C library.
