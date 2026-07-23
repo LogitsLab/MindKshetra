@@ -51,27 +51,36 @@ type Props = {
   chart: ChartPayload;
   className?: string;
   legend?: string;
+  /** Override placements (e.g. Navamsa) — skips tobUnknown gate when set */
+  override?: {
+    ascendant: ChartPayload["ascendant"];
+    planets: ChartPayload["planets"];
+  };
 };
 
 export default function NorthIndianChart({
   chart,
   className = "",
   legend,
+  override,
 }: Props) {
+  const ascendant = override?.ascendant ?? chart.ascendant;
+  const planets = override?.planets ?? chart.planets;
+
   const byHouse: Record<number, string[]> = {};
   for (let h = 1; h <= 12; h++) byHouse[h] = [];
 
-  if (chart.ascendant?.house) {
-    byHouse[chart.ascendant.house].push("As");
+  if (ascendant?.house) {
+    byHouse[ascendant.house].push("As");
   }
-  for (const p of chart.planets) {
+  for (const p of planets) {
     if (p.house) {
       const g = SHORT[p.id] || p.id.slice(0, 2);
       byHouse[p.house].push(p.retrograde ? `${g}ʳ` : g);
     }
   }
 
-  if (chart.tobUnknown) {
+  if (!override && chart.tobUnknown) {
     return (
       <div
         className={`flex aspect-square max-w-md items-center justify-center border border-[var(--line)] bg-[var(--panel)] p-6 text-center text-sm text-[var(--text-muted)] ${className}`}
@@ -79,6 +88,10 @@ export default function NorthIndianChart({
         Birth time unknown — Ascendant and house chart are disabled.
       </div>
     );
+  }
+
+  if (!ascendant && !override) {
+    return null;
   }
 
   return (
@@ -112,7 +125,7 @@ export default function NorthIndianChart({
         />
 
         {/* Lagna house emphasis */}
-        {chart.ascendant?.house === 1 ? (
+        {ascendant?.house === 1 ? (
           <polygon
             points="50,0 75,25 50,50 25,25"
             fill="var(--brass)"
@@ -157,7 +170,7 @@ export default function NorthIndianChart({
         })}
 
         <title>
-          {chart.planets
+          {planets
             .map(
               (p) =>
                 `${PLANET_LABELS[p.id].en} H${p.house ?? "—"} ${p.sign}${p.retrograde ? " R" : ""}`

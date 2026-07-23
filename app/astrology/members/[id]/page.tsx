@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ChartHub from "@/components/astrology/ChartHub";
@@ -33,21 +34,42 @@ export default function AstrologyMemberHubPage() {
   }, [load]);
 
   if (error) {
-    return <p className="py-12 text-center text-red-400">{error}</p>;
+    return (
+      <div className="space-y-4 py-16 text-center">
+        <p className="text-red-400">{error}</p>
+        <Link
+          href="/astrology/members"
+          className="text-sm text-[var(--brass-soft)] underline-offset-4 hover:underline"
+        >
+          ← {t("astroMembersTitle")}
+        </Link>
+      </div>
+    );
   }
   if (!chart) {
     return (
-      <p className="py-12 text-center text-[var(--text-muted)]">{t("loading")}</p>
+      <p className="py-20 text-center text-sm text-[var(--text-muted)]">
+        {t("loading")}
+      </p>
     );
   }
 
   return (
-    <div className="py-8 sm:py-12">
+    <div className="animate-fade py-8 sm:py-10">
+      <div className="mx-auto mb-6 flex max-w-3xl">
+        <Link
+          href="/astrology/members"
+          className="text-xs text-[var(--text-muted)] underline-offset-4 transition hover:text-[var(--brass-soft)] hover:underline"
+        >
+          ← {t("astroMembersTitle")}
+        </Link>
+      </div>
       <ChartHub
         chart={chart}
         title={title}
         subtitle={`${chart.birth.dob} · ${chart.birth.placeLabel}`}
         memberId={id}
+        showGuidedPath
         onRequestPredictions={async (force) => {
           const res = await fetch("/api/astrology/predictions", {
             method: "POST",

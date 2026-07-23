@@ -13,6 +13,7 @@
     "qa:commentary": "node scripts/qa-commentary.cjs",
     "qa:passages": "node scripts/assert-passage-coverage.cjs",
     "qa:astrology": "node scripts/qa-astrology-golden.cjs",
+    "fetch:ephe": "node scripts/fetch-ephe.cjs",
     "db:migrate": "node scripts/db-migrate.cjs",
     "db:seed": "node scripts/seed-slokas.cjs && node scripts/seed-stories.cjs",
     "db:embeddings": "node scripts/seed-embeddings.cjs",

@@ -214,6 +214,25 @@ export function buildVedicVerdicts(
     const tensions = tensionsFromFacts(lifeArea, houseDetails);
     const narrativeBullets = houseDetails.map(describeHouse);
 
+    if (lifeArea === "marriage" && chart.vargas?.d9) {
+      const d9 = chart.vargas.d9;
+      const d9Venus = d9.planets.find((p) => p.id === "venus");
+      const d9Moon = d9.planets.find((p) => p.id === "moon");
+      if (d9.ascendant?.sign) {
+        narrativeBullets.push(
+          `Navamsa lagna in ${d9.ascendant.sign} colours partnership temperament.`
+        );
+      }
+      if (d9Venus?.house != null) {
+        strengths.push(
+          `Venus in Navamsa house ${d9Venus.house} supports relationship themes.`
+        );
+      }
+      if (d9Moon?.sign) {
+        narrativeBullets.push(`Navamsa Moon in ${d9Moon.sign}.`);
+      }
+    }
+
     const occupants = houseDetails.flatMap((h) => h.occupants);
     const lords = houseDetails
       .map((h) => h.lord)
@@ -483,6 +502,18 @@ export function buildChartChatContext(chart: ChartPayload): string {
     `Current antardasha: ${summarizeDasha(chart.overview.currentAntar)}`,
     `Current pratyantardasha: ${summarizeDasha(chart.overview.currentPratyantar)}`,
     `Ayanamsa (Lahiri): ${chart.ayanamsa.toFixed(4)}°`,
+    chart.panchang
+      ? `Birth panchang: ${chart.panchang.tithi}; ${chart.panchang.nakshatra} p${chart.panchang.pada}; yoga ${chart.panchang.yoga}; karana ${chart.panchang.karana}; ${chart.panchang.vaar}`
+      : null,
+    chart.vargas?.d9
+      ? `Navamsa lagna: ${chart.vargas.d9.ascendant?.sign ?? "—"}; Navamsa Moon: ${chart.vargas.d9.planets.find((p) => p.id === "moon")?.sign ?? "—"}`
+      : null,
+    chart.transits?.hits?.length
+      ? `Transit hits as of ${chart.asOfDate}: ${chart.transits.hits
+          .slice(0, 6)
+          .map((h) => `${h.transitPlanet}→${h.natalPlanet} (${h.orb}°)`)
+          .join("; ")}`
+      : `Transit hits as of ${chart.asOfDate}: none within orb`,
     "",
     "Planets:",
     planets,
@@ -492,5 +523,7 @@ export function buildChartChatContext(chart: ChartPayload): string {
     "",
     "Life-area analysis:",
     areas,
-  ].join("\n");
+  ]
+    .filter((line) => line != null)
+    .join("\n");
 }

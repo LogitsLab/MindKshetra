@@ -137,9 +137,25 @@ export async function POST(request: NextRequest) {
         );
         return NextResponse.json({ sessionId, chart, cached: false });
       }
+      // Cache miss (e.g. server restart) — recompute from birth if provided
+      const birthFromSession = parseBirthBody(body.birth ?? body);
+      if (birthFromSession) {
+        chart = liveChart(computeChart(birthFromSession));
+        chart.predictionsText = await writePredictions(chart, language);
+        await cacheSet(
+          `astro:incog:${sessionId}`,
+          JSON.stringify(chart),
+          60 * 60 * 6
+        );
+        return NextResponse.json({ sessionId, chart, cached: false });
+      }
+      return NextResponse.json(
+        { error: "Session expired — cast the chart again" },
+        { status: 404 }
+      );
     }
 
-    const birth = parseBirthBody(body);
+    const birth = parseBirthBody(body.birth ?? body);
     if (!birth) {
       return NextResponse.json(
         { error: "Provide memberId, sessionId, or birth payload" },

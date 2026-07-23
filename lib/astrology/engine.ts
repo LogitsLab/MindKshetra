@@ -1,12 +1,16 @@
 import { DateTime } from "luxon";
 import { buildAllVerdicts } from "@/lib/astrology/blend";
 import { buildVimshottariTree, findCurrentDasha } from "@/lib/astrology/dasha";
+import { planetDignity } from "@/lib/astrology/dignities";
 import { parseUtcIso, resolveBirthInstant } from "@/lib/astrology/geo";
 import {
   enrichKpCusps,
   enrichKpPlanets,
   houseSignificators,
+  placidusHouseOf,
 } from "@/lib/astrology/kp";
+import { buildLalKitabReport } from "@/lib/astrology/lalkitab";
+import { computeBirthPanchang } from "@/lib/astrology/panchang";
 import {
   longitudeToNakshatra,
   longitudeToSign,
@@ -17,8 +21,10 @@ import {
   calcPlacidusCusps,
   calcPlanetLongitude,
   calcTrueNode,
+  getEphemerisMode,
   utcPartsToJd,
 } from "@/lib/astrology/swe";
+import { computeTransits } from "@/lib/astrology/transits";
 import { ENGINE_VERSION } from "@/lib/astrology/types";
 import type {
   BirthInput,
@@ -27,6 +33,7 @@ import type {
   PlanetId,
   PlanetPosition,
 } from "@/lib/astrology/types";
+import { buildNavamsaChart } from "@/lib/astrology/vargas";
 import { detectYogas } from "@/lib/astrology/yogas";
 
 const CLASSICAL: Exclude<PlanetId, "ascendant" | "ketu" | "rahu">[] = [
@@ -64,6 +71,28 @@ function toPosition(
   };
 }
 
+function toKpPosition(
+  id: PlanetId,
+  longitude: number,
+  speed: number,
+  cuspLongitudes: number[]
+): PlanetPosition {
+  const { sign, signIndex, degreeInSign } = longitudeToSign(longitude);
+  const nak = longitudeToNakshatra(longitude);
+  return {
+    id,
+    longitude,
+    sign,
+    signIndex,
+    degreeInSign,
+    nakshatra: nak.nakshatra,
+    nakshatraIndex: nak.nakshatraIndex,
+    pada: nak.pada,
+    house: placidusHouseOf(longitude, cuspLongitudes),
+    retrograde: speed < 0,
+  };
+}
+
 export function computeChart(birth: BirthInput): ChartPayload {
   const resolved = resolveBirthInstant({
     dob: birth.dob,
@@ -85,27 +114,29 @@ export function computeChart(birth: BirthInput): ChartPayload {
     utc.second
   );
 
-  const ayanamsa = calcAyanamsa(jdUt);
+  const ephemerisMode = getEphemerisMode();
+  const ayanamsa = calcAyanamsa(jdUt, "lahiri");
   const tobUnknown = birth.tobUnknown;
 
   let placidusCusps: HouseCusp[] | null = null;
   let wholeSignHouses: HouseCusp[] | null = null;
   let ascendant: PlanetPosition | null = null;
   let ascSignIndex: number | null = null;
+  let ayanamsaKp: number | null = null;
+  let kpCuspLongitudes: number[] | null = null;
+  let kpAscLon: number | null = null;
 
   if (!tobUnknown) {
-    const { cusps, ascmc } = calcPlacidusCusps(jdUt, birth.lat, birth.lng);
-    ascSignIndex = longitudeToSign(ascmc[0]).signIndex;
-    ascendant = toPosition("ascendant", ascmc[0], 0, ascSignIndex);
-    placidusCusps = cusps.map((longitude, i) => {
-      const meta = longitudeToSign(longitude);
-      return {
-        house: i + 1,
-        longitude,
-        sign: meta.sign,
-        signIndex: meta.signIndex,
-      };
-    });
+    // Vedic Asc / whole-sign from Lahiri Placidus Asc degree
+    const { ascmc: lahiriAsc } = calcPlacidusCusps(
+      jdUt,
+      birth.lat,
+      birth.lng,
+      "lahiri"
+    );
+    ascSignIndex = longitudeToSign(lahiriAsc[0]).signIndex;
+    ascendant = toPosition("ascendant", lahiriAsc[0], 0, ascSignIndex);
+
     wholeSignHouses = Array.from({ length: 12 }, (_, i) => {
       const signIndex = (ascSignIndex! + i) % 12;
       const longitude = signIndex * 30;
@@ -116,14 +147,35 @@ export function computeChart(birth: BirthInput): ChartPayload {
         signIndex,
       };
     });
+
+    // KP path: Krishnamurti ayanamsa + Placidus cusps
+    ayanamsaKp = calcAyanamsa(jdUt, "krishnamurti");
+    const { cusps: kpCuspsRaw, ascmc: kpAscmc } = calcPlacidusCusps(
+      jdUt,
+      birth.lat,
+      birth.lng,
+      "krishnamurti"
+    );
+    kpCuspLongitudes = kpCuspsRaw;
+    kpAscLon = kpAscmc[0];
+    placidusCusps = kpCuspsRaw.map((longitude, i) => {
+      const meta = longitudeToSign(longitude);
+      return {
+        house: i + 1,
+        longitude,
+        sign: meta.sign,
+        signIndex: meta.signIndex,
+      };
+    });
   }
 
+  // Vedic planet positions (Lahiri) — whole-sign houses
   const planets: PlanetPosition[] = [];
   for (const id of CLASSICAL) {
-    const { longitude, speed } = calcPlanetLongitude(jdUt, id);
+    const { longitude, speed } = calcPlanetLongitude(jdUt, id, "lahiri");
     planets.push(toPosition(id, longitude, speed, ascSignIndex));
   }
-  const nodes = calcTrueNode(jdUt);
+  const nodes = calcTrueNode(jdUt, "lahiri");
   planets.push(toPosition("rahu", nodes.rahu, nodes.rahuSpeed, ascSignIndex));
   planets.push(toPosition("ketu", nodes.ketu, -nodes.rahuSpeed, ascSignIndex));
 
@@ -139,20 +191,64 @@ export function computeChart(birth: BirthInput): ChartPayload {
   const current = findCurrentDasha(tree, asOfDate);
 
   const yogas = detectYogas(planets, ascSignIndex);
+  const panchang = computeBirthPanchang(
+    sun.longitude,
+    moon.longitude,
+    resolved.utcIso
+  );
+  const dignities = planets
+    .filter((p) => p.id !== "rahu" && p.id !== "ketu")
+    .map((p) => planetDignity(p.id, p.sign));
+
+  const d9 = buildNavamsaChart(planets, ascendant);
+  const transits = computeTransits(asOfDate, planets);
+  const lalKitab = buildLalKitabReport(planets);
 
   let kp: ChartPayload["kp"] = null;
   let significators = null;
-  if (placidusCusps && ascSignIndex != null) {
+  if (placidusCusps && kpCuspLongitudes && kpAscLon != null) {
+    const kpPlanetsRaw: PlanetPosition[] = [];
+    for (const id of CLASSICAL) {
+      const { longitude, speed } = calcPlanetLongitude(
+        jdUt,
+        id,
+        "krishnamurti"
+      );
+      kpPlanetsRaw.push(
+        toKpPosition(id, longitude, speed, kpCuspLongitudes)
+      );
+    }
+    const kpNodes = calcTrueNode(jdUt, "krishnamurti");
+    kpPlanetsRaw.push(
+      toKpPosition("rahu", kpNodes.rahu, kpNodes.rahuSpeed, kpCuspLongitudes)
+    );
+    kpPlanetsRaw.push(
+      toKpPosition(
+        "ketu",
+        kpNodes.ketu,
+        -kpNodes.rahuSpeed,
+        kpCuspLongitudes
+      )
+    );
+
     const kpCusps = enrichKpCusps(placidusCusps);
-    const kpPlanets = enrichKpPlanets(planets);
-    kp = { cusps: kpCusps, planets: kpPlanets };
-    significators = houseSignificators(kpCusps, planets, ascSignIndex);
+    const kpPlanets = enrichKpPlanets(kpPlanetsRaw);
+    significators = houseSignificators(
+      kpCusps,
+      kpPlanets,
+      kpCuspLongitudes
+    );
+    kp = { cusps: kpCusps, planets: kpPlanets, significators };
   }
+
+  // Restore Lahiri as default sidereal mode for any later calcs
+  calcAyanamsa(jdUt, "lahiri");
 
   const base: ChartPayload = {
     engineVersion: ENGINE_VERSION,
     computedAt: DateTime.utc().toISO()!,
     asOfDate,
+    ephemerisMode,
     birth: {
       ...birth,
       ianaTz: resolved.ianaTz,
@@ -160,6 +256,7 @@ export function computeChart(birth: BirthInput): ChartPayload {
     },
     jdUt,
     ayanamsa,
+    ayanamsaKp,
     tobUnknown,
     planets,
     ascendant,
@@ -176,6 +273,11 @@ export function computeChart(birth: BirthInput): ChartPayload {
     dasha: { balanceAtBirthDays: balanceDays, tree },
     yogas,
     kp,
+    panchang,
+    dignities,
+    vargas: { d9 },
+    transits,
+    lalKitab,
     verdicts: { vedic: [], kp: [], blended: [] },
   };
 
@@ -190,16 +292,17 @@ export function healthSunLongitude(): {
   sunLongitude: number;
   ayanamsa: number;
   engine: string;
+  ephemeris: "swiss" | "moshier";
 } {
-  // 1990-06-15 06:30:00 UTC
   const { jdUt } = utcPartsToJd(1990, 6, 15, 6, 30, 0);
-  const { longitude } = calcPlanetLongitude(jdUt, "sun");
-  const ayanamsa = calcAyanamsa(jdUt);
+  const { longitude } = calcPlanetLongitude(jdUt, "sun", "lahiri");
+  const ayanamsa = calcAyanamsa(jdUt, "lahiri");
   return {
     ok: true,
     jdUt,
     sunLongitude: longitude,
     ayanamsa,
     engine: ENGINE_VERSION,
+    ephemeris: getEphemerisMode(),
   };
 }

@@ -15,7 +15,6 @@ import type {
 /**
  * KP uses the same Vimshottari proportions to subdivide each nakshatra (13°20')
  * into 9 sub-lord zones (the 249-division table).
- * Total years = 120 → each planet's arc = (years/120) * (360/27).
  */
 
 const NAK_SPAN = 360 / 27;
@@ -39,7 +38,6 @@ export function longitudeToSubLords(lon: number): {
   const withinNak = normalized - nakStart;
 
   const table = subLordTable();
-  // Sub-lord: start from star lord in Vimshottari order
   const startIdx = VIMSHOTTARI_ORDER.indexOf(starLord);
   let remaining = withinNak;
   let subLord: PlanetId = starLord;
@@ -48,7 +46,6 @@ export function longitudeToSubLords(lon: number): {
     const arc = table.find((t) => t.lord === lord)!.arc;
     if (remaining < arc) {
       subLord = lord;
-      // Sub-sub within this sub arc, starting from subLord
       let rem2 = remaining;
       const subStartIdx = VIMSHOTTARI_ORDER.indexOf(subLord);
       for (let j = 0; j < 9; j++) {
@@ -82,8 +79,30 @@ export function enrichKpPlanets(planets: PlanetPosition[]): KpPlanet[] {
 }
 
 /**
- * Simplified KP significators for a house: cusp star/sub lords + planets
- * occupying the house (whole-sign) and their star lords.
+ * Placidus house occupancy: planet belongs to house H if lon lies in
+ * [cusp H, cusp H+1) going zodiacally (wrap-aware).
+ */
+export function placidusHouseOf(
+  longitude: number,
+  cusps: number[]
+): number {
+  const lon = ((longitude % 360) + 360) % 360;
+  for (let h = 0; h < 12; h++) {
+    const a = cusps[h];
+    const b = cusps[(h + 1) % 12];
+    if (a <= b) {
+      if (lon >= a && lon < b) return h + 1;
+    } else {
+      // wrap across 0°
+      if (lon >= a || lon < b) return h + 1;
+    }
+  }
+  return 1;
+}
+
+/**
+ * KP significators: cusp star/sub + planets occupying the house via Placidus
+ * (not whole-sign) and their star lords.
  */
 export type HouseSignificators = {
   house: number;
@@ -92,22 +111,20 @@ export type HouseSignificators = {
 
 export function houseSignificators(
   kpCusps: KpCusp[],
-  planets: PlanetPosition[],
-  ascSignIndex: number
+  kpPlanets: KpPlanet[],
+  cuspLongitudes: number[]
 ): HouseSignificators[] {
   return kpCusps.map((cusp) => {
     const set = new Set<PlanetId>();
     set.add(cusp.starLord);
     set.add(cusp.subLord);
-    for (const p of planets) {
+    for (const p of kpPlanets) {
       if (p.id === "ascendant") continue;
       const house =
-        p.house ??
-        ((p.signIndex - ascSignIndex + 12) % 12) + 1;
+        p.house ?? placidusHouseOf(p.longitude, cuspLongitudes);
       if (house === cusp.house) {
         set.add(p.id);
-        const sub = longitudeToSubLords(p.longitude);
-        set.add(sub.starLord);
+        set.add(p.starLord);
       }
     }
     return { house: cusp.house, significators: Array.from(set) };

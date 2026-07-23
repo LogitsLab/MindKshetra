@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = "1.2.0";
+export const ENGINE_VERSION = "2.0.0";
 
 export type Relationship =
   | "self"
@@ -158,14 +158,86 @@ export type AreaPrediction = {
   guidance: string;
 };
 
+export type BirthPanchang = {
+  tithi: string;
+  tithiIndex: number;
+  nakshatra: string;
+  pada: number;
+  yoga: string;
+  yogaIndex: number;
+  karana: string;
+  vaar: string;
+  vaarIndex: number;
+};
+
+export type DignityKind =
+  | "exalted"
+  | "debilitated"
+  | "own"
+  | "mooltrikona"
+  | "neutral";
+
+export type PlanetDignity = {
+  planet: PlanetId;
+  kind: DignityKind;
+  label: { en: string; hi: string };
+};
+
+export type VargaChart = {
+  ascendant: PlanetPosition | null;
+  planets: PlanetPosition[];
+};
+
+export type TransitHit = {
+  transitPlanet: PlanetId;
+  natalPlanet: PlanetId;
+  orb: number;
+  aspect: "conjunction";
+};
+
+export type TransitSnapshot = {
+  asOfDate: string;
+  planets: Array<{
+    id: PlanetId;
+    longitude: number;
+    sign: SignId;
+    degreeInSign: number;
+    retrograde: boolean;
+  }>;
+  hits: TransitHit[];
+};
+
+export type LalKitabDebt = {
+  house: number;
+  title: { en: string; hi: string };
+  note: { en: string; hi: string };
+  remedy: { en: string; hi: string };
+  severity: "info" | "caution";
+};
+
+export type LalKitabReport = {
+  fixedHouses: Array<{
+    house: number;
+    sign: SignId;
+    occupants: PlanetId[];
+  }>;
+  debts: LalKitabDebt[];
+  remedies: Array<{ en: string; hi: string; sourceHouse: number }>;
+};
+
 export type ChartPayload = {
   engineVersion: string;
   computedAt: string;
   /** Calendar date (UTC YYYY-MM-DD) used to resolve "current" dasha for this payload. */
   asOfDate: string;
+  /** swiss | moshier — which ephemeris actually ran */
+  ephemerisMode: "swiss" | "moshier";
   birth: BirthInput;
   jdUt: number;
+  /** Lahiri ayanamsa (Vedic display path) */
   ayanamsa: number;
+  /** Krishnamurti ayanamsa used for KP module (null if tob unknown) */
+  ayanamsaKp: number | null;
   tobUnknown: boolean;
   planets: PlanetPosition[];
   ascendant: PlanetPosition | null;
@@ -187,7 +259,15 @@ export type ChartPayload = {
   kp: {
     cusps: KpCusp[];
     planets: KpPlanet[];
+    significators: Array<{ house: number; significators: PlanetId[] }>;
   } | null;
+  panchang: BirthPanchang | null;
+  dignities: PlanetDignity[];
+  vargas: {
+    d9: VargaChart | null;
+  };
+  transits: TransitSnapshot | null;
+  lalKitab: LalKitabReport | null;
   verdicts: {
     vedic: EngineVerdict[];
     kp: EngineVerdict[];

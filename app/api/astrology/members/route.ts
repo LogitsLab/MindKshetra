@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mapMemberRow } from "@/lib/astrology/members";
 import { resolveBirthInstant } from "@/lib/astrology/geo";
+import { ENGINE_VERSION } from "@/lib/astrology/types";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 
@@ -26,8 +27,31 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  const members = (data || []).map(mapMemberRow);
+  const ids = members.map((m) => m.id);
+  let mahaByMember: Record<string, string | null> = {};
+
+  if (ids.length) {
+    const { data: caches } = await supabase
+      .from("astrology_chart_cache")
+      .select("member_id, payload, engine_version")
+      .in("member_id", ids)
+      .eq("engine_version", ENGINE_VERSION);
+
+    for (const row of caches || []) {
+      const payload = row.payload as {
+        overview?: { currentMaha?: { lord?: string } | null };
+      } | null;
+      mahaByMember[row.member_id] =
+        payload?.overview?.currentMaha?.lord ?? null;
+    }
+  }
+
   return NextResponse.json({
-    members: (data || []).map(mapMemberRow),
+    members: members.map((m) => ({
+      ...m,
+      currentMahaLord: mahaByMember[m.id] ?? null,
+    })),
   });
 }
 

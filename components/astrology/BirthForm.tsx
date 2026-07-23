@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { GeocodeResult, Relationship, Gender } from "@/lib/astrology/types";
 import { useLanguage } from "@/components/LanguageProvider";
 
@@ -35,7 +35,10 @@ const RELATIONS: Relationship[] = [
 ];
 
 const fieldClass =
-  "w-full border border-[var(--line)] bg-transparent px-3 py-2.5 text-[var(--text)] outline-none transition focus:border-[var(--brass)]/55";
+  "w-full border border-[var(--line)] bg-[var(--input-bg)] px-3 py-3 text-[var(--text)] outline-none transition placeholder:text-[var(--text-muted)]/45 focus:border-[var(--brass)]/70";
+
+const selectClass =
+  "w-full appearance-none border border-[var(--line)] bg-[var(--input-bg)] px-3 py-3 text-[var(--text)] outline-none transition focus:border-[var(--brass)]/70";
 
 export default function BirthForm({
   mode,
@@ -68,24 +71,47 @@ export default function BirthForm({
   const [searching, setSearching] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const placeRequestId = useRef(0);
 
-  async function searchPlace() {
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  async function searchPlace(query: string) {
+    const q = query.trim();
+    if (q.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    const reqId = ++placeRequestId.current;
     setSearching(true);
     setError(null);
     try {
       const res = await fetch("/api/astrology/geocode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: placeQuery }),
+        body: JSON.stringify({ query: q }),
       });
       const data = await res.json();
+      if (reqId !== placeRequestId.current) return;
       if (!res.ok) throw new Error(data.error || "Geocode failed");
       setSuggestions(data.results || []);
     } catch (err) {
+      if (reqId !== placeRequestId.current) return;
       setError(err instanceof Error ? err.message : "Geocode failed");
     } finally {
-      setSearching(false);
+      if (reqId === placeRequestId.current) setSearching(false);
     }
+  }
+
+  function onPlaceChange(value: string) {
+    setPlaceQuery(value);
+    setSelected(null);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => searchPlace(value), 380);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -123,12 +149,12 @@ export default function BirthForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`space-y-5 ${compact ? "max-w-none" : "mx-auto max-w-lg"}`}
+      className={`space-y-6 ${compact ? "max-w-none" : "mx-auto max-w-lg"}`}
     >
       {mode === "member" ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block space-y-1.5">
-            <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className="block space-y-2">
+            <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
               {t("astroName")}
             </span>
             <input
@@ -138,8 +164,8 @@ export default function BirthForm({
               className={fieldClass}
             />
           </label>
-          <label className="block space-y-1.5">
-            <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+          <label className="block space-y-2">
+            <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
               {t("astroRelationship")}
             </span>
             <select
@@ -147,7 +173,7 @@ export default function BirthForm({
               onChange={(e) =>
                 setRelationship(e.target.value as Relationship)
               }
-              className={fieldClass}
+              className={selectClass}
             >
               {RELATIONS.map((r) => (
                 <option key={r} value={r}>
@@ -158,8 +184,8 @@ export default function BirthForm({
           </label>
         </div>
       ) : (
-        <label className="block space-y-1.5">
-          <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+        <label className="block space-y-2">
+          <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
             {t("astroNameOptional")}
           </span>
           <input
@@ -171,9 +197,9 @@ export default function BirthForm({
         </label>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block space-y-1.5">
-          <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="block space-y-2">
+          <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
             {t("astroDob")}
           </span>
           <input
@@ -187,8 +213,8 @@ export default function BirthForm({
           />
         </label>
         <div className="space-y-2">
-          <label className="block space-y-1.5">
-            <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+          <label className="block space-y-2">
+            <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
               {t("astroTob")}
             </span>
             <input
@@ -200,26 +226,27 @@ export default function BirthForm({
               className={`${fieldClass} disabled:opacity-40`}
             />
           </label>
-          <label className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm text-[var(--text-muted)]">
             <input
               type="checkbox"
               checked={tobUnknown}
               onChange={(e) => setTobUnknown(e.target.checked)}
+              className="accent-[var(--brass)]"
             />
             {t("astroTobUnknown")}
           </label>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block space-y-1.5 sm:col-span-1">
-          <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="block space-y-2">
+          <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
             {t("astroGender")}
           </span>
           <select
             value={gender}
             onChange={(e) => setGender(e.target.value as Gender | "")}
-            className={fieldClass}
+            className={selectClass}
           >
             <option value="">{t("astroGenderSkip")}</option>
             <option value="female">{t("astroGenderFemale")}</option>
@@ -228,63 +255,61 @@ export default function BirthForm({
           </select>
         </label>
 
-        <div className="space-y-2 sm:col-span-1">
-          <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
-            {t("astroPlace")}
-          </span>
-          <div className="flex gap-2">
+        <div className="relative space-y-2">
+          <label className="block space-y-2">
+            <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              {t("astroPlace")}
+              {searching ? (
+                <span className="ml-2 normal-case tracking-normal text-[var(--brass-soft)]">
+                  …
+                </span>
+              ) : null}
+            </span>
             <input
               value={placeQuery}
-              onChange={(e) => {
-                setPlaceQuery(e.target.value);
-                setSelected(null);
-              }}
+              onChange={(e) => onPlaceChange(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  searchPlace();
+                  if (debounceRef.current) clearTimeout(debounceRef.current);
+                  searchPlace(placeQuery);
                 }
               }}
               placeholder={t("astroPlacePh")}
-              className={`min-w-0 flex-1 ${fieldClass}`}
+              autoComplete="off"
+              className={fieldClass}
             />
-            <button
-              type="button"
-              onClick={searchPlace}
-              disabled={searching || placeQuery.trim().length < 2}
-              className="shrink-0 border border-[var(--brass)]/40 px-3 py-2.5 text-sm text-[var(--brass-soft)] transition hover:bg-[var(--brass)]/10 disabled:opacity-40"
-            >
-              {searching ? "…" : t("astroSearch")}
-            </button>
-          </div>
+          </label>
+          {suggestions.length > 0 && !selected ? (
+            <ul className="absolute z-20 mt-1 max-h-48 w-full overflow-auto border border-[var(--line)] bg-[var(--panel-strong)] shadow-lg backdrop-blur-xl">
+              {suggestions.map((s) => (
+                <li key={`${s.lat},${s.lng},${s.label}`}>
+                  <button
+                    type="button"
+                    className="w-full px-3 py-2.5 text-left text-sm text-[var(--text)] transition hover:bg-[var(--brass)]/10"
+                    onClick={() => {
+                      setSelected(s);
+                      setPlaceQuery(s.label);
+                      setSuggestions([]);
+                    }}
+                  >
+                    {s.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       </div>
 
       {selected ? (
-        <p className="text-sm text-[var(--brass-soft)]">
+        <p className="animate-fade text-sm text-[var(--brass-soft)]">
           {selected.label}
           <span className="text-[var(--text-muted)]"> · {selected.ianaTz}</span>
         </p>
-      ) : null}
-      {suggestions.length > 0 ? (
-        <ul className="max-h-44 overflow-auto border border-[var(--line)]">
-          {suggestions.map((s) => (
-            <li key={`${s.lat},${s.lng},${s.label}`}>
-              <button
-                type="button"
-                className="w-full px-3 py-2.5 text-left text-sm text-[var(--text)] transition hover:bg-[var(--brass)]/10"
-                onClick={() => {
-                  setSelected(s);
-                  setPlaceQuery(s.label);
-                  setSuggestions([]);
-                }}
-              >
-                {s.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      ) : (
+        <p className="text-xs text-[var(--text-muted)]">{t("astroPlaceHint")}</p>
+      )}
 
       {error ? (
         <p className="text-sm text-red-400" role="alert">
@@ -295,7 +320,7 @@ export default function BirthForm({
       <button
         type="submit"
         disabled={busy}
-        className="w-full bg-[var(--brass)] px-4 py-3.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
+        className="mt-2 w-full bg-[var(--brass)] px-4 py-3.5 text-sm font-medium tracking-wide text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
       >
         {busy ? t("astroWorking") : submitLabel}
       </button>

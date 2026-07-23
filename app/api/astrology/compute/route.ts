@@ -68,6 +68,21 @@ export async function POST(request: NextRequest) {
           persisted: false,
         });
       }
+      // Rehydrate after server restart if client still has birth
+      const birth = parseBirthBody(body.birth ?? body);
+      if (birth) {
+        const chart = liveChart(computeChart(birth));
+        await cacheSet(
+          `astro:incog:${body.sessionId}`,
+          JSON.stringify(chart),
+          INCOGNITO_TTL_SEC
+        );
+        return NextResponse.json({
+          sessionId: body.sessionId,
+          chart,
+          persisted: false,
+        });
+      }
       return NextResponse.json({ error: "Session expired" }, { status: 404 });
     }
 

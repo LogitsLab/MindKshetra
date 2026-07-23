@@ -4,7 +4,8 @@ import {
   VIMSHOTTARI_ORDER,
   longitudeToNakshatra,
 } from "@/lib/astrology/signs";
-import type { DashaPeriod, PlanetId } from "@/lib/astrology/types";
+import { computeTransits } from "@/lib/astrology/transits";
+import type { ChartPayload, DashaPeriod, PlanetId } from "@/lib/astrology/types";
 
 const DAYS_PER_YEAR = 365.2425;
 
@@ -192,18 +193,21 @@ export function findCurrentDasha(
 }
 
 /**
- * Re-resolve current dasha against today's date without recomputing planets.
+ * Re-resolve current dasha (+ transits) against today's date without recomputing natal planets.
  * Mutates and returns the chart for convenience.
  */
 export function refreshCurrentDasha(
-  chart: import("@/lib/astrology/types").ChartPayload,
+  chart: ChartPayload,
   asOfDate = DateTime.utc().toISODate()!
-): import("@/lib/astrology/types").ChartPayload {
+): ChartPayload {
   const current = findCurrentDasha(chart.dasha.tree, asOfDate);
   chart.asOfDate = asOfDate;
   chart.overview.currentMaha = current.maha;
   chart.overview.currentAntar = current.antar;
   chart.overview.currentPratyantar = current.pratyantar;
+  if (chart.planets?.length) {
+    chart.transits = computeTransits(asOfDate, chart.planets);
+  }
   return chart;
 }
 

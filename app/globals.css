@@ -263,6 +263,19 @@ body {
   color: var(--watermark);
 }
 
+@keyframes zodiac-drift {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.astro-zodiac-ring {
+  animation: zodiac-drift 120s linear infinite;
+}
+
 .surface {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -320,6 +333,7 @@ body {
   .animate-rise-delay-3,
   .animate-fade,
   .watermark-sanskrit,
+  .astro-zodiac-ring,
   .site-atmosphere::before {
     animation: none !important;
   }

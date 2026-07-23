@@ -1,2 +1,3 @@
-# Optional Swiss Ephemeris .se1 files (sepl_18.se1, semo_18.se1).
-# When absent, the engine uses the built-in Moshier ephemeris.
+# Swiss Ephemeris files (sepl_18.se1, semo_18.se1, seas_18.se1).
+# Fetch with: npm run fetch:ephe
+# When present, engine uses SEFLG_SWIEPH; otherwise Moshier fallback.

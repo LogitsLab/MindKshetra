@@ -8,6 +8,7 @@ type Msg = { role: "user" | "assistant"; content: string };
 type Props = {
   memberId?: string;
   sessionId?: string;
+  birth?: Record<string, unknown>;
   starters?: string[];
   contextLine?: string;
 };
@@ -15,6 +16,7 @@ type Props = {
 export default function AstroChat({
   memberId,
   sessionId,
+  birth,
   starters,
   contextLine,
 }: Props) {
@@ -61,6 +63,7 @@ export default function AstroChat({
           language: lang,
           memberId,
           sessionId,
+          birth,
         }),
       });
 

@@ -77,6 +77,29 @@ export async function writePredictions(
       detail: y.detail,
       severity: y.severity,
     })),
+    transits: chart.transits
+      ? {
+          asOfDate: chart.transits.asOfDate,
+          hits: chart.transits.hits.slice(0, 8).map((h) => ({
+            transit: h.transitPlanet,
+            natal: h.natalPlanet,
+            orb: h.orb,
+          })),
+          sample: chart.transits.planets.slice(0, 5).map((p) => ({
+            id: p.id,
+            sign: p.sign,
+            degree: Number(p.degreeInSign.toFixed(1)),
+          })),
+        }
+      : null,
+    navamsa: chart.vargas?.d9
+      ? {
+          asc: chart.vargas.d9.ascendant?.sign ?? null,
+          moon: chart.vargas.d9.planets.find((p) => p.id === "moon")?.sign ?? null,
+          venusHouse:
+            chart.vargas.d9.planets.find((p) => p.id === "venus")?.house ?? null,
+        }
+      : null,
     areas: chart.verdicts.blended.map((b) => ({
       lifeArea: b.lifeArea,
       label: AREA_LABEL[b.lifeArea],
@@ -105,8 +128,9 @@ You receive deterministic chart FACTS only. Your job is prose — never invent p
 DATE RULES (mandatory):
 - Today / report date is facts.asOfDate (${asOfDate}). Anchor every "now" and "near term" statement to this date.
 - Do NOT invent vague year phrases like "early 2026" or "late 2025" unless those exact months fall inside the provided dasha start/end or nearTermWindow.
-- "now" = the CURRENT mahadasha/antardasha/pratyantar using the given start/end dates, as of asOfDate.
+- "now" = the CURRENT mahadasha/antardasha/pratyantar using the given start/end dates, as of asOfDate. If facts.transits.hits exist, weave 1–2 transit conjunction hits into "now" (cite planet pairs + orb); do not invent transit dates beyond asOfDate.
 - "nearTerm" = ONLY the window facts.nearTermWindow.start → facts.nearTermWindow.end (asOfDate through +12 months). Cite that window explicitly once.
+- For marriage/relationship areas, you may gently reference navamsa (facts.navamsa) without naming technical school jargon.
 
 Voice:
 - Specific and concrete, not vague horoscope filler ("changes are coming").
