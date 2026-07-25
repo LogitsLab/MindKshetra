@@ -8,8 +8,9 @@ const path = require("path");
 const runner = `
 import { computeChart, healthSunLongitude } from "./lib/astrology/engine.ts";
 import { getEphemerisMode } from "./lib/astrology/swe.ts";
-import { longitudeToNavamsa } from "./lib/astrology/vargas.ts";
+import { longitudeToNavamsa, longitudeToDashamsa } from "./lib/astrology/vargas.ts";
 import { longitudeToSubLords } from "./lib/astrology/kp.ts";
+import { findCurrentDasha } from "./lib/astrology/dasha.ts";
 
 function assert(cond, msg) {
   if (!cond) throw new Error(msg);
@@ -22,7 +23,7 @@ function near(a, b, tol, label) {
 const h = healthSunLongitude();
 assert(h.ok, "health failed");
 assert(h.ephemeris === "swiss" || h.ephemeris === "moshier", "bad ephemeris mode");
-assert(h.engine.startsWith("2."), "engine should be 2.x, got " + h.engine);
+assert(h.engine.startsWith("2.1"), "engine should be 2.1.x, got " + h.engine);
 assert(getEphemerisMode() === h.ephemeris, "mode mismatch");
 
 // Fixed JD Sun: 1990-06-15 06:30 UTC Lahiri
@@ -42,7 +43,7 @@ const delhi = {
 };
 
 const chart = computeChart(delhi);
-assert(chart.engineVersion.startsWith("2."), "chart engine");
+assert(chart.engineVersion.startsWith("2.1"), "chart engine");
 assert(chart.ephemerisMode === h.ephemeris, "chart ephemeris");
 assert(chart.ascendant, "missing ascendant");
 assert(chart.dasha.tree.length, "missing dasha");
@@ -52,7 +53,10 @@ assert(chart.verdicts.blended.length === 6, "blend count");
 assert(chart.panchang?.tithi, "missing panchang");
 assert(chart.dignities?.length >= 7, "missing dignities");
 assert(chart.vargas?.d9?.planets?.length >= 9, "missing D9");
+assert(chart.vargas?.d10?.planets?.length >= 9, "missing D10");
+assert(Array.isArray(chart.aspects), "missing aspects");
 assert(chart.transits?.asOfDate === chart.asOfDate, "transit asOf");
+assert(Array.isArray(chart.transits?.emphasis), "transit emphasis");
 assert(chart.lalKitab?.debts?.length, "missing lal kitab");
 assert(chart.ayanamsaKp != null, "missing KP ayanamsa");
 assert(Math.abs(chart.ayanamsa - chart.ayanamsaKp) > 0.01, "Lahiri vs KP should differ");
@@ -64,25 +68,34 @@ near(moon.longitude, 318.578, 0.05, "chart moon lon");
 assert(chart.overview.ascendantSign === "leo", "asc should be Leo, got " + chart.overview.ascendantSign);
 near(chart.ascendant.longitude, 145.7, 0.5, "asc lon");
 
-// Whole-sign vs Placidus occupancy should be independently set
 assert(moon.house != null, "vedic moon house");
 const kpMoon = chart.kp.planets.find((p) => p.id === "moon");
 assert(kpMoon?.house != null, "kp moon house");
 
-// Dasha lord at birth for this Moon (Aquarius / Purva Bhadrapada-ish → Jupiter)
 assert(chart.dasha.tree[0]?.lord, "first maha");
 
-// KP cusp 1 sub-lord fixture (stable under Swiss)
 const c1 = chart.kp.cusps[0];
 const subs = longitudeToSubLords(c1.longitude);
 assert(subs.subLord === c1.subLord, "sub lord consistency");
 assert(c1.starLord && c1.subLord && c1.subSubLord, "cusp sub lords");
 
-// Navamsa mapping sanity: 0° Aries → Aries navamsa 1
 const n0 = longitudeToNavamsa(0);
 assert(n0.signIndex === 0, "0° Aries D9");
-const n15 = longitudeToNavamsa(15); // 5th navamsa of Aries → Leo
+const n15 = longitudeToNavamsa(15);
 assert(n15.signIndex === 4, "15° Aries D9 should be Leo, got " + n15.signIndex);
+
+const d10_0 = longitudeToDashamsa(0);
+assert(d10_0.signIndex === 0, "0° Aries D10");
+
+// Local vaar: 1990-06-15 12:00 Asia/Kolkata is Friday
+assert(chart.panchang.vaar === "Friday", "local vaar Friday, got " + chart.panchang.vaar);
+
+// Yogas catalog depth
+assert(chart.yogas.length >= 8, "expected ≥8 yoga rules, got " + chart.yogas.length);
+
+// Transit houses from natal Asc
+const jupT = chart.transits.planets.find((p) => p.id === "jupiter");
+assert(jupT?.house != null, "transit jupiter house");
 
 // Second reference: Mumbai evening
 const mumbai = computeChart({
@@ -97,6 +110,54 @@ const mumbai = computeChart({
 assert(mumbai.ascendant, "mumbai asc");
 const mSun = mumbai.planets.find((p) => p.id === "sun");
 near(mSun.longitude, 276.0, 1.0, "mumbai sun ~Capricorn band");
+assert(mumbai.overview.ascendantSign, "mumbai asc sign");
+assert(mumbai.vargas.d9.ascendant?.sign, "mumbai d9 asc");
+
+// Third: early morning Kolkata
+const kolkata = computeChart({
+  ...delhi,
+  name: "Kolkata dawn",
+  dob: "2000-03-21",
+  tob: "06:15:00",
+  placeLabel: "Kolkata",
+  lat: 22.5726,
+  lng: 88.3639,
+});
+assert(kolkata.ascendant, "kolkata asc");
+near(kolkata.planets.find((p) => p.id === "sun").longitude, 336.5, 1.5, "kolkata sun");
+
+// Fourth: night Chennai
+const chennai = computeChart({
+  ...delhi,
+  name: "Chennai night",
+  dob: "1975-11-08",
+  tob: "22:40:00",
+  placeLabel: "Chennai",
+  lat: 13.0827,
+  lng: 80.2707,
+});
+assert(chennai.ascendant, "chennai asc");
+assert(chennai.aspects.length > 0, "chennai aspects");
+
+// Fifth: London (UTC) — vaar local
+const london = computeChart({
+  ...delhi,
+  name: "London",
+  dob: "1990-06-15",
+  tob: "01:00:00",
+  placeLabel: "London",
+  lat: 51.5074,
+  lng: -0.1278,
+  ianaTz: "Europe/London",
+  utcOffsetMinutes: 60,
+});
+// 1990-06-15 01:00 BST ≈ Thursday local
+assert(london.panchang.vaar === "Friday" || london.panchang.vaar === "Thursday", "london vaar local");
+
+// Fixed-date dasha lord on Delhi chart
+const asOf = "2020-01-01";
+const cur = findCurrentDasha(chart.dasha.tree, asOf);
+assert(cur.maha?.lord, "dasha lord on 2020-01-01");
 
 // Unknown TOB: no KP / no Asc
 const notob = computeChart({
@@ -107,6 +168,7 @@ const notob = computeChart({
 assert(!notob.ascendant, "tob unknown should lack asc");
 assert(notob.kp == null, "tob unknown should lack KP");
 assert(notob.planets.find((p) => p.id === "sun"), "still has luminaries");
+assert(notob.vargas.d10, "d10 without asc still builds planets");
 
 console.log("qa:astrology OK", {
   ephemeris: chart.ephemerisMode,
@@ -119,6 +181,11 @@ console.log("qa:astrology OK", {
   engine: chart.engineVersion,
   kpSub1: c1.subLord,
   d9asc: chart.vargas.d9.ascendant?.sign,
+  d10asc: chart.vargas.d10.ascendant?.sign,
+  yogas: chart.yogas.length,
+  aspects: chart.aspects.length,
+  vaar: chart.panchang.vaar,
+  dasha2020: cur.maha?.lord,
 });
 `;
 

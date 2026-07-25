@@ -10,10 +10,24 @@ import { useLanguage } from "@/components/LanguageProvider";
 import type { ChartPayload } from "@/lib/astrology/types";
 
 const SESSION_KEY = "mindkshetra-astro-incognito";
+const PENDING_SAVE_KEY = "mindkshetra-astro-pending-save";
 
 type StoredSession = {
   sessionId: string;
   birth?: ChartPayload["birth"];
+};
+
+type PendingSave = {
+  name: string;
+  relationship: string;
+  dob: string;
+  tob: string | null;
+  tobUnknown: boolean;
+  gender: string | null;
+  placeLabel: string;
+  lat: number;
+  lng: number;
+  ianaTz: string;
 };
 
 function readStoredSession(): StoredSession | null {
@@ -129,6 +143,47 @@ export default function AstrologyLanding() {
       .finally(() => setRestoring(false));
   }, []);
 
+  useEffect(() => {
+    if (!signedIn) return;
+    let pending: PendingSave | null = null;
+    try {
+      const raw = sessionStorage.getItem(PENDING_SAVE_KEY);
+      if (!raw) return;
+      pending = JSON.parse(raw) as PendingSave;
+    } catch {
+      sessionStorage.removeItem(PENDING_SAVE_KEY);
+      return;
+    }
+    if (!pending?.dob) return;
+
+    let cancelled = false;
+    setSaveBusy(true);
+    fetch("/api/astrology/members", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pending),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Save failed");
+        sessionStorage.removeItem(PENDING_SAVE_KEY);
+        sessionStorage.removeItem(SESSION_KEY);
+        if (!cancelled) {
+          router.push(`/astrology/members/${data.member.id}`);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Save failed");
+          setSaveBusy(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [signedIn, router]);
+
   function clearSession() {
     sessionStorage.removeItem(SESSION_KEY);
     setSessionId(null);
@@ -136,9 +191,35 @@ export default function AstrologyLanding() {
     setError(null);
   }
 
+  async function postMemberSave(payload: PendingSave) {
+    const res = await fetch("/api/astrology/members", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Save failed");
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(PENDING_SAVE_KEY);
+    router.push(`/astrology/members/${data.member.id}`);
+  }
+
   async function saveAsMember() {
     if (!chart) return;
+    const payload: PendingSave = {
+      name: chart.birth.name?.trim() || t("astroGuestChart"),
+      relationship: "self",
+      dob: chart.birth.dob,
+      tob: chart.birth.tob,
+      tobUnknown: chart.tobUnknown,
+      gender: chart.birth.gender || null,
+      placeLabel: chart.birth.placeLabel,
+      lat: chart.birth.lat,
+      lng: chart.birth.lng,
+      ianaTz: chart.birth.ianaTz,
+    };
     if (!signedIn) {
+      sessionStorage.setItem(PENDING_SAVE_KEY, JSON.stringify(payload));
       setError(t("astroSaveGuestNeedAuth"));
       router.push("/account");
       return;
@@ -146,26 +227,7 @@ export default function AstrologyLanding() {
     setSaveBusy(true);
     setError(null);
     try {
-      const res = await fetch("/api/astrology/members", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: chart.birth.name?.trim() || t("astroGuestChart"),
-          relationship: "self",
-          dob: chart.birth.dob,
-          tob: chart.birth.tob,
-          tobUnknown: chart.tobUnknown,
-          gender: chart.birth.gender || null,
-          placeLabel: chart.birth.placeLabel,
-          lat: chart.birth.lat,
-          lng: chart.birth.lng,
-          ianaTz: chart.birth.ianaTz,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Save failed");
-      sessionStorage.removeItem(SESSION_KEY);
-      router.push(`/astrology/members/${data.member.id}`);
+      await postMemberSave(payload);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {
@@ -211,6 +273,21 @@ export default function AstrologyLanding() {
           showGuidedPath
           onSaveAsMember={saveAsMember}
           saveBusy={saveBusy}
+          onAsOfDateChange={async (asOfDate) => {
+            const res = await fetch("/api/astrology/compute", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                sessionId,
+                birth: chart.birth,
+                asOfDate,
+              }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed");
+            setChart(data.chart);
+            return data.chart;
+          }}
           onRequestPredictions={async (force) => {
             const res = await fetch("/api/astrology/predictions", {
               method: "POST",

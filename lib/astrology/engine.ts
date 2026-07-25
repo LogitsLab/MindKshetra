@@ -24,6 +24,7 @@ import {
   getEphemerisMode,
   utcPartsToJd,
 } from "@/lib/astrology/swe";
+import { computeGrahaDrishti } from "@/lib/astrology/aspects";
 import { computeTransits } from "@/lib/astrology/transits";
 import { ENGINE_VERSION } from "@/lib/astrology/types";
 import type {
@@ -33,7 +34,10 @@ import type {
   PlanetId,
   PlanetPosition,
 } from "@/lib/astrology/types";
-import { buildNavamsaChart } from "@/lib/astrology/vargas";
+import {
+  buildDashamsaChart,
+  buildNavamsaChart,
+} from "@/lib/astrology/vargas";
 import { detectYogas } from "@/lib/astrology/yogas";
 
 const CLASSICAL: Exclude<PlanetId, "ascendant" | "ketu" | "rahu">[] = [
@@ -191,17 +195,20 @@ export function computeChart(birth: BirthInput): ChartPayload {
   const current = findCurrentDasha(tree, asOfDate);
 
   const yogas = detectYogas(planets, ascSignIndex);
+  const aspects = computeGrahaDrishti(planets);
   const panchang = computeBirthPanchang(
     sun.longitude,
     moon.longitude,
-    resolved.utcIso
+    resolved.utcIso,
+    resolved.ianaTz
   );
   const dignities = planets
     .filter((p) => p.id !== "rahu" && p.id !== "ketu")
-    .map((p) => planetDignity(p.id, p.sign));
+    .map((p) => planetDignity(p.id, p.sign, p.degreeInSign));
 
   const d9 = buildNavamsaChart(planets, ascendant);
-  const transits = computeTransits(asOfDate, planets);
+  const d10 = buildDashamsaChart(planets, ascendant);
+  const transits = computeTransits(asOfDate, planets, ascSignIndex);
   const lalKitab = buildLalKitabReport(planets);
 
   let kp: ChartPayload["kp"] = null;
@@ -272,10 +279,11 @@ export function computeChart(birth: BirthInput): ChartPayload {
     },
     dasha: { balanceAtBirthDays: balanceDays, tree },
     yogas,
+    aspects,
     kp,
     panchang,
     dignities,
-    vargas: { d9 },
+    vargas: { d9, d10 },
     transits,
     lalKitab,
     verdicts: { vedic: [], kp: [], blended: [] },

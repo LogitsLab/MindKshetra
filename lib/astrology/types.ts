@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = "2.0.0";
+export const ENGINE_VERSION = "2.1.0";
 
 export type Relationship =
   | "self"
@@ -82,6 +82,7 @@ export type YogaFlag = {
   present: boolean;
   severity?: "info" | "caution" | "positive";
   detail: string;
+  housesInvolved?: number[];
 };
 
 export type KpSubLord = {
@@ -195,6 +196,14 @@ export type TransitHit = {
   aspect: "conjunction";
 };
 
+export type GrahaAspect = {
+  from: PlanetId;
+  to: PlanetId;
+  housesApart: number;
+  kind: "full" | "special";
+  label: string;
+};
+
 export type TransitSnapshot = {
   asOfDate: string;
   planets: Array<{
@@ -203,8 +212,12 @@ export type TransitSnapshot = {
     sign: SignId;
     degreeInSign: number;
     retrograde: boolean;
+    /** Whole-sign house from natal Asc when Asc known */
+    house?: number;
   }>;
   hits: TransitHit[];
+  /** Emphasis lines for slow planets */
+  emphasis: string[];
 };
 
 export type LalKitabDebt = {
@@ -265,7 +278,9 @@ export type ChartPayload = {
   dignities: PlanetDignity[];
   vargas: {
     d9: VargaChart | null;
+    d10: VargaChart | null;
   };
+  aspects: GrahaAspect[];
   transits: TransitSnapshot | null;
   lalKitab: LalKitabReport | null;
   verdicts: {

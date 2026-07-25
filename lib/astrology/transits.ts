@@ -4,7 +4,7 @@ import {
   calcTrueNode,
   utcPartsToJd,
 } from "@/lib/astrology/swe";
-import { longitudeToSign } from "@/lib/astrology/signs";
+import { longitudeToSign, wholeSignHouse } from "@/lib/astrology/signs";
 import type { PlanetId, PlanetPosition, SignId } from "@/lib/astrology/types";
 
 const CLASSICAL: Exclude<PlanetId, "ascendant" | "ketu" | "rahu">[] = [
@@ -32,15 +32,16 @@ export type TransitSnapshot = {
     sign: SignId;
     degreeInSign: number;
     retrograde: boolean;
+    house?: number;
   }>;
   hits: TransitHit[];
+  emphasis: string[];
 };
 
 const ORB_DEG = 2.5;
 
 function angleDiff(a: number, b: number): number {
-  const d = Math.abs(((a - b + 180) % 360) - 180);
-  return d;
+  return Math.abs(((a - b + 180) % 360) - 180);
 }
 
 function toJdFromDate(asOfDate: string): number {
@@ -62,7 +63,8 @@ function toJdFromDate(asOfDate: string): number {
 
 export function computeTransits(
   asOfDate: string,
-  natalPlanets: PlanetPosition[]
+  natalPlanets: PlanetPosition[],
+  natalAscSignIndex: number | null = null
 ): TransitSnapshot {
   const jdUt = toJdFromDate(asOfDate);
   const positions: TransitSnapshot["planets"] = [];
@@ -70,31 +72,37 @@ export function computeTransits(
   for (const id of CLASSICAL) {
     const { longitude, speed } = calcPlanetLongitude(jdUt, id, "lahiri");
     const meta = longitudeToSign(longitude);
+    const house =
+      natalAscSignIndex != null
+        ? wholeSignHouse(meta.signIndex, natalAscSignIndex)
+        : undefined;
     positions.push({
       id,
       longitude,
       sign: meta.sign,
       degreeInSign: meta.degreeInSign,
       retrograde: speed < 0,
+      house,
     });
   }
   const nodes = calcTrueNode(jdUt, "lahiri");
-  const rahuMeta = longitudeToSign(nodes.rahu);
-  const ketuMeta = longitudeToSign(nodes.ketu);
-  positions.push({
-    id: "rahu",
-    longitude: nodes.rahu,
-    sign: rahuMeta.sign,
-    degreeInSign: rahuMeta.degreeInSign,
-    retrograde: nodes.rahuSpeed < 0,
-  });
-  positions.push({
-    id: "ketu",
-    longitude: nodes.ketu,
-    sign: ketuMeta.sign,
-    degreeInSign: ketuMeta.degreeInSign,
-    retrograde: true,
-  });
+  for (const [id, lon, retro] of [
+    ["rahu", nodes.rahu, nodes.rahuSpeed < 0] as const,
+    ["ketu", nodes.ketu, true] as const,
+  ]) {
+    const meta = longitudeToSign(lon);
+    positions.push({
+      id,
+      longitude: lon,
+      sign: meta.sign,
+      degreeInSign: meta.degreeInSign,
+      retrograde: retro,
+      house:
+        natalAscSignIndex != null
+          ? wholeSignHouse(meta.signIndex, natalAscSignIndex)
+          : undefined,
+    });
+  }
 
   const hits: TransitHit[] = [];
   for (const t of positions) {
@@ -113,5 +121,24 @@ export function computeTransits(
   }
   hits.sort((a, b) => a.orb - b.orb);
 
-  return { asOfDate, planets: positions, hits: hits.slice(0, 12) };
+  const emphasis: string[] = [];
+  const jup = positions.find((p) => p.id === "jupiter");
+  const sat = positions.find((p) => p.id === "saturn");
+  if (jup?.house != null) {
+    emphasis.push(
+      `Transit Jupiter in house ${jup.house} (${jup.sign})${jup.retrograde ? " R" : ""}`
+    );
+  }
+  if (sat?.house != null) {
+    emphasis.push(
+      `Transit Saturn in house ${sat.house} (${sat.sign})${sat.retrograde ? " R" : ""}`
+    );
+  }
+
+  return {
+    asOfDate,
+    planets: positions,
+    hits: hits.slice(0, 12),
+    emphasis,
+  };
 }

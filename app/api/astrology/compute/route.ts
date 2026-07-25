@@ -23,8 +23,12 @@ async function cacheSet(key: string, value: string, ttl: number): Promise<void> 
   if (!ok) memorySet(key, value, ttl);
 }
 
-function liveChart(chart: ChartPayload): ChartPayload {
-  return refreshCurrentDasha(chart, DateTime.utc().toISODate()!);
+function liveChart(chart: ChartPayload, asOfDate?: string): ChartPayload {
+  const date =
+    asOfDate && /^\d{4}-\d{2}-\d{2}$/.test(asOfDate)
+      ? asOfDate
+      : DateTime.utc().toISODate()!;
+  return refreshCurrentDasha(chart, date);
 }
 
 export const runtime = "nodejs";
@@ -48,15 +52,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
+  const asOfDate =
+    typeof body.asOfDate === "string" ? body.asOfDate : undefined;
+
   try {
     if (body.memberId) {
-      return await computeForMember(String(body.memberId));
+      return await computeForMember(String(body.memberId), asOfDate);
     }
 
     if (body.sessionId && typeof body.sessionId === "string" && !body.dob) {
       const cached = await cacheGet(`astro:incog:${body.sessionId}`);
       if (cached) {
-        const chart = liveChart(JSON.parse(cached) as ChartPayload);
+        const chart = liveChart(JSON.parse(cached) as ChartPayload, asOfDate);
         await cacheSet(
           `astro:incog:${body.sessionId}`,
           JSON.stringify(chart),
@@ -71,7 +78,7 @@ export async function POST(request: NextRequest) {
       // Rehydrate after server restart if client still has birth
       const birth = parseBirthBody(body.birth ?? body);
       if (birth) {
-        const chart = liveChart(computeChart(birth));
+        const chart = liveChart(computeChart(birth), asOfDate);
         await cacheSet(
           `astro:incog:${body.sessionId}`,
           JSON.stringify(chart),
@@ -91,7 +98,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid birth payload" }, { status: 400 });
     }
 
-    const chart = liveChart(computeChart(birth));
+    const chart = liveChart(computeChart(birth), asOfDate);
     const sessionId = String(body.sessionId || randomUUID());
     await cacheSet(
       `astro:incog:${sessionId}`,
@@ -111,7 +118,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function computeForMember(memberId: string) {
+async function computeForMember(memberId: string, asOfDate?: string) {
   const userId = await getSignedInUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
@@ -140,7 +147,7 @@ async function computeForMember(memberId: string) {
     .maybeSingle();
 
   if (cached?.payload) {
-    const chart = liveChart(cached.payload as ChartPayload);
+    const chart = liveChart(cached.payload as ChartPayload, asOfDate);
     await supabase.from("astrology_chart_cache").upsert(
       {
         member_id: memberId,
@@ -158,7 +165,7 @@ async function computeForMember(memberId: string) {
     });
   }
 
-  const chart = liveChart(computeChart(memberToBirthInput(member)));
+  const chart = liveChart(computeChart(memberToBirthInput(member)), asOfDate);
 
   await supabase.from("astrology_chart_cache").upsert(
     {

@@ -233,6 +233,43 @@ export function buildVedicVerdicts(
       }
     }
 
+    if (lifeArea === "career" && chart.vargas?.d10) {
+      const d10 = chart.vargas.d10;
+      const d10Sun = d10.planets.find((p) => p.id === "sun");
+      const d10Sat = d10.planets.find((p) => p.id === "saturn");
+      if (d10.ascendant?.sign) {
+        narrativeBullets.push(
+          `Dashamsa (D10) lagna in ${d10.ascendant.sign} colours vocation style.`
+        );
+      }
+      if (d10Sun?.house != null) {
+        strengths.push(
+          `Sun in Dashamsa house ${d10Sun.house} supports career visibility.`
+        );
+      }
+      if (d10Sat?.house != null) {
+        narrativeBullets.push(
+          `Saturn in Dashamsa house ${d10Sat.house} shapes work endurance.`
+        );
+      }
+    }
+
+    if (chart.aspects?.length) {
+      const tense = chart.aspects.filter(
+        (a) =>
+          (a.from === "saturn" || a.from === "mars") &&
+          houses.some((h) => {
+            const target = chart.planets.find((p) => p.id === a.to);
+            return target?.house === h;
+          })
+      );
+      for (const a of tense.slice(0, 2)) {
+        tensions.push(
+          `${a.from} aspects ${a.to} (${a.housesApart}th) — pressure on this area's planets.`
+        );
+      }
+    }
+
     const occupants = houseDetails.flatMap((h) => h.occupants);
     const lords = houseDetails
       .map((h) => h.lord)
@@ -467,61 +504,72 @@ export function summarizeDasha(period: DashaPeriod | null): string {
   return `${period.lord} (${period.start} → ${period.end})`;
 }
 
-/** Compact factual pack for chat system prompt — no system labels. */
+/** Prioritized factual pack for chat — short enough to stay in focus. */
 export function buildChartChatContext(chart: ChartPayload): string {
+  const moon = chart.planets.find((p) => p.id === "moon");
   const planets = chart.planets
+    .filter((p) => p.id !== "ascendant")
     .map(
       (p) =>
-        `${p.id}: ${p.sign} ${p.degreeInSign.toFixed(1)}° / ${p.nakshatra} pada ${p.pada}` +
-        (p.house != null ? ` / house ${p.house}` : "") +
-        (p.retrograde ? " (R)" : "")
+        `${p.id}: ${p.sign} ${p.degreeInSign.toFixed(1)}°` +
+        (p.house != null ? `, house ${p.house}` : "") +
+        `, ${p.nakshatra} p${p.pada}` +
+        (p.retrograde ? " R" : "")
     )
     .join("\n");
 
   const yogas = chart.yogas
     .filter((y) => y.present)
-    .map((y) => `${y.name}: ${y.detail}`)
+    .slice(0, 5)
+    .map((y) => `${y.name} — ${y.detail}`)
     .join("\n");
 
   const areas = chart.verdicts.blended
-    .map(
-      (b) =>
-        `## ${b.lifeArea} (confidence ${b.confidence})\nTheme: ${b.theme}\nTiming: ${b.timing}\nStrengths: ${b.strengths.join("; ") || "—"}\nWatch: ${b.tensions.join("; ") || "—"}\nFacts:\n- ${b.narrativeBullets.join("\n- ")}`
-    )
-    .join("\n\n");
+    .map((b) => {
+      const cite = [
+        ...b.strengths.slice(0, 2),
+        ...b.tensions.slice(0, 1),
+      ].join(" | ");
+      return `${b.lifeArea} [${b.confidence}${b.dashaSupports ? ", dasha-active" : ""}]: ${b.timing}${cite ? `\n  anchors: ${cite}` : ""}`;
+    })
+    .join("\n");
 
   return [
+    "## Snapshot",
     `Name: ${chart.birth.name || "Native"}`,
-    `Report date (as of): ${chart.asOfDate}`,
-    `DOB: ${chart.birth.dob}${chart.birth.tob ? ` ${chart.birth.tob}` : ""} (${chart.birth.placeLabel})`,
-    `TZ: ${chart.birth.ianaTz} (offset ${chart.birth.utcOffsetMinutes} min)`,
+    `As of: ${chart.asOfDate}`,
+    `Birth: ${chart.birth.dob}${chart.birth.tob ? ` ${chart.birth.tob}` : ""} · ${chart.birth.placeLabel}`,
     `TOB unknown: ${chart.tobUnknown}`,
-    `Ascendant: ${chart.overview.ascendantSign ?? "unknown"}`,
-    `Sun: ${chart.overview.sunSign}; Moon: ${chart.overview.moonSign}`,
-    `Current mahadasha: ${summarizeDasha(chart.overview.currentMaha)}`,
-    `Current antardasha: ${summarizeDasha(chart.overview.currentAntar)}`,
-    `Current pratyantardasha: ${summarizeDasha(chart.overview.currentPratyantar)}`,
-    `Ayanamsa (Lahiri): ${chart.ayanamsa.toFixed(4)}°`,
-    chart.panchang
-      ? `Birth panchang: ${chart.panchang.tithi}; ${chart.panchang.nakshatra} p${chart.panchang.pada}; yoga ${chart.panchang.yoga}; karana ${chart.panchang.karana}; ${chart.panchang.vaar}`
-      : null,
-    chart.vargas?.d9
-      ? `Navamsa lagna: ${chart.vargas.d9.ascendant?.sign ?? "—"}; Navamsa Moon: ${chart.vargas.d9.planets.find((p) => p.id === "moon")?.sign ?? "—"}`
-      : null,
-    chart.transits?.hits?.length
-      ? `Transit hits as of ${chart.asOfDate}: ${chart.transits.hits
-          .slice(0, 6)
-          .map((h) => `${h.transitPlanet}→${h.natalPlanet} (${h.orb}°)`)
-          .join("; ")}`
-      : `Transit hits as of ${chart.asOfDate}: none within orb`,
+    `Asc: ${chart.overview.ascendantSign ?? "unknown"} · Sun: ${chart.overview.sunSign} · Moon: ${chart.overview.moonSign}${
+      moon ? ` (${moon.nakshatra} p${moon.pada})` : ""
+    }`,
     "",
-    "Planets:",
+    "## Dasha now",
+    `Maha: ${summarizeDasha(chart.overview.currentMaha)}`,
+    `Antar: ${summarizeDasha(chart.overview.currentAntar)}`,
+    `Pratyantar: ${summarizeDasha(chart.overview.currentPratyantar)}`,
+    "",
+    "## Planets",
     planets,
     "",
-    "Active yogas/doshas:",
-    yogas || "none flagged",
+    yogas ? `## Yogas present\n${yogas}` : null,
+    chart.vargas?.d9
+      ? `Navamsa lagna: ${chart.vargas.d9.ascendant?.sign ?? "—"}; D9 Moon: ${chart.vargas.d9.planets.find((p) => p.id === "moon")?.sign ?? "—"}`
+      : null,
+    chart.vargas?.d10
+      ? `Dashamsa lagna: ${chart.vargas.d10.ascendant?.sign ?? "—"}; D10 Sun house: ${chart.vargas.d10.planets.find((p) => p.id === "sun")?.house ?? "—"}`
+      : null,
+    chart.transits?.emphasis?.length
+      ? `Transits: ${chart.transits.emphasis.join("; ")}`
+      : null,
+    chart.transits?.hits?.length
+      ? `Transit hits: ${chart.transits.hits
+          .slice(0, 4)
+          .map((h) => `${h.transitPlanet}→${h.natalPlanet} (${h.orb}°)`)
+          .join("; ")}`
+      : null,
     "",
-    "Life-area analysis:",
+    "## Life areas (use these anchors)",
     areas,
   ]
     .filter((line) => line != null)

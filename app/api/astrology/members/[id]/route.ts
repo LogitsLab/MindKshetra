@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mapMemberRow } from "@/lib/astrology/members";
 import { resolveBirthInstant } from "@/lib/astrology/geo";
+import { ENGINE_VERSION } from "@/lib/astrology/types";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -101,8 +102,12 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Invalidate chart cache on birth edit
-  await supabase.from("astrology_chart_cache").delete().eq("member_id", params.id);
+  // Invalidate chart cache for this engine on birth edit
+  await supabase
+    .from("astrology_chart_cache")
+    .delete()
+    .eq("member_id", params.id)
+    .eq("engine_version", ENGINE_VERSION);
 
   return NextResponse.json({
     member: mapMemberRow(data),

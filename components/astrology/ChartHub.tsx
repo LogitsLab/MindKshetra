@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import AstroChat from "@/components/astrology/AstroChat";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import AstroChat, { type AstroChatMessage } from "@/components/astrology/AstroChat";
 import DashaTimeline from "@/components/astrology/DashaTimeline";
 import NorthIndianChart from "@/components/astrology/NorthIndianChart";
+import PlanetDetailSheet from "@/components/astrology/PlanetDetailSheet";
+import SouthIndianChart from "@/components/astrology/SouthIndianChart";
 import { useLanguage } from "@/components/LanguageProvider";
 import {
   PLANET_LABELS,
@@ -11,6 +13,8 @@ import {
   longitudeToNakshatra,
 } from "@/lib/astrology/signs";
 import type {
+  AreaPrediction,
+  BlendedVerdict,
   ChartPayload,
   DashaPeriod,
   LifeArea,
@@ -27,6 +31,10 @@ type Tab =
   | "predictions"
   | "chat";
 
+type ChartStyle = "north" | "south";
+type VargaKind = "d9" | "d10";
+type PredDetail = "simple" | "detailed";
+
 type Props = {
   chart: ChartPayload;
   title: string;
@@ -35,6 +43,8 @@ type Props = {
   memberId?: string;
   sessionId?: string;
   onRequestPredictions?: (force?: boolean) => Promise<ChartPayload>;
+  onAsOfDateChange?: (asOfDate: string) => Promise<ChartPayload>;
+  onEditBirth?: () => void;
   onSaveAsMember?: () => Promise<void>;
   saveBusy?: boolean;
   showGuidedPath?: boolean;
@@ -49,6 +59,48 @@ const AREA_KEYS: LifeArea[] = [
   "travel",
 ];
 
+const CONF_RANK: Record<BlendedVerdict["confidence"], number> = {
+  high: 3,
+  medium: 2,
+  low: 1,
+};
+
+type GlossTab = "dasha" | "timing" | "navamsa" | "remedies";
+
+const GLOSS_TABS: GlossTab[] = ["dasha", "timing", "navamsa", "remedies"];
+
+const GLOSS_KEYS = {
+  dasha: "astroGlossDasha",
+  timing: "astroGlossTiming",
+  navamsa: "astroGlossNavamsa",
+  remedies: "astroGlossRemedies",
+} as const;
+
+function topBlended(blended: BlendedVerdict[]): BlendedVerdict | undefined {
+  return [...blended].sort(
+    (a, b) => CONF_RANK[b.confidence] - CONF_RANK[a.confidence]
+  )[0];
+}
+
+function areaCitations(blended?: BlendedVerdict): string[] {
+  if (!blended) return [];
+  const preferred = [
+    ...blended.strengths.slice(0, 1),
+    blended.timing,
+    ...blended.tensions.slice(0, 1),
+  ].filter(Boolean) as string[];
+  if (preferred.length) return preferred.slice(0, 2);
+  return blended.narrativeBullets.slice(0, 2);
+}
+
+function resolvePlanet(
+  chart: ChartPayload,
+  id: string
+): ChartPayload["planets"][number] | ChartPayload["ascendant"] | null {
+  if (id === "ascendant") return chart.ascendant;
+  return chart.planets.find((p) => p.id === id) ?? null;
+}
+
 export default function ChartHub({
   chart: initial,
   title,
@@ -57,25 +109,74 @@ export default function ChartHub({
   memberId,
   sessionId,
   onRequestPredictions,
+  onAsOfDateChange,
+  onEditBirth,
   onSaveAsMember,
   saveBusy,
   showGuidedPath = true,
 }: Props) {
   const { t, lang } = useLanguage();
+  const storageId = sessionId || memberId || "anon";
+
   const [tab, setTab] = useState<Tab>("overview");
   const [chart, setChart] = useState(initial);
   const [predBusy, setPredBusy] = useState(false);
   const [predError, setPredError] = useState<string | null>(null);
+  const [asOfBusy, setAsOfBusy] = useState(false);
   const [showCusps, setShowCusps] = useState(false);
   const [showVerdictDrawer, setShowVerdictDrawer] = useState(false);
   const [yogasPresentOnly, setYogasPresentOnly] = useState(true);
   const [openMahas, setOpenMahas] = useState<Record<string, boolean>>({});
-  const [guidedDismissed, setGuidedDismissed] = useState(false);
+  const [guidedDismissed, setGuidedDismissed] = useState(true);
+  const [glossDismissed, setGlossDismissed] = useState<Record<string, boolean>>(
+    {}
+  );
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [chartStyle, setChartStyle] = useState<ChartStyle>("north");
+  const [showBirthDetails, setShowBirthDetails] = useState(false);
+  const [focusArea, setFocusArea] = useState<LifeArea | null>(null);
+  const [predDetail, setPredDetail] = useState<PredDetail>("simple");
+  const [vargaKind, setVargaKind] = useState<VargaKind>("d9");
+  const [selectedPlanetId, setSelectedPlanetId] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<AstroChatMessage[]>([]);
 
   useEffect(() => {
     setChart(initial);
   }, [initial]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setGuidedDismissed(
+      sessionStorage.getItem(`mk-astro-guided:${storageId}`) === "1"
+    );
+    const dismissed: Record<string, boolean> = {};
+    for (const glossTab of GLOSS_TABS) {
+      if (
+        sessionStorage.getItem(`mk-astro-gloss:${storageId}:${glossTab}`) ===
+        "1"
+      ) {
+        dismissed[glossTab] = true;
+      }
+    }
+    setGlossDismissed(dismissed);
+  }, [storageId]);
+
+  const dismissGuided = useCallback(() => {
+    setGuidedDismissed(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(`mk-astro-guided:${storageId}`, "1");
+    }
+  }, [storageId]);
+
+  const dismissGloss = useCallback(
+    (glossTab: Tab) => {
+      setGlossDismissed((s) => ({ ...s, [glossTab]: true }));
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(`mk-astro-gloss:${storageId}:${glossTab}`, "1");
+      }
+    },
+    [storageId]
+  );
 
   const primaryTabs: { id: Tab; label: string }[] = [
     { id: "overview", label: t("astroTabOverview") },
@@ -108,6 +209,24 @@ export default function ChartHub({
     }
   }
 
+  async function handleAsOfChange(nextDate: string) {
+    if (!onAsOfDateChange || nextDate === chart.asOfDate) return;
+    setAsOfBusy(true);
+    try {
+      const next = await onAsOfDateChange(nextDate);
+      setChart(next);
+    } catch {
+      /* parent may surface errors */
+    } finally {
+      setAsOfBusy(false);
+    }
+  }
+
+  function goToPredictions(area?: LifeArea) {
+    if (area) setFocusArea(area);
+    setTab("predictions");
+  }
+
   const labelSign = (s: string | null | undefined) => {
     if (!s) return "—";
     const row = SIGN_LABELS[s as keyof typeof SIGN_LABELS];
@@ -124,26 +243,65 @@ export default function ChartHub({
   const yogasToShow = yogasPresentOnly ? presentYogas : chart.yogas;
   const dignityOf = (id: string) =>
     chart.dignities?.find((d) => d.planet === id);
+  const aspects = chart.aspects ?? [];
+  const transitEmphasis = chart.transits?.emphasis ?? [];
+
+  const glanceVerdict = useMemo(
+    () => topBlended(chart.verdicts.blended),
+    [chart.verdicts.blended]
+  );
+
+  const featuredArea = useMemo(() => {
+    if (focusArea) return focusArea;
+    return topBlended(chart.verdicts.blended)?.lifeArea ?? "career";
+  }, [focusArea, chart.verdicts.blended]);
+
+  const otherAreas = useMemo(
+    () => AREA_KEYS.filter((a) => a !== featuredArea),
+    [featuredArea]
+  );
+
+  const blendedByArea = useMemo(() => {
+    const map = new Map<LifeArea, BlendedVerdict>();
+    for (const b of chart.verdicts.blended) map.set(b.lifeArea, b);
+    return map;
+  }, [chart.verdicts.blended]);
 
   const chatStarters = useMemo(() => {
-    const starters: string[] = [];
+    const maha = chart.overview.currentMaha?.lord;
+    const top = topBlended(chart.verdicts.blended);
     if (lang === "hi") {
-      starters.push(
-        `आज (${chart.asOfDate}) मेरी दशा क्या कहती है?`,
-        "करियर भाव कैसे दिखता है?"
-      );
-      if (presentYogas[0]) starters.push(`${presentYogas[0].name} का क्या अर्थ है?`);
-    } else {
-      starters.push(
-        `As of ${chart.asOfDate}, what does my current dasha emphasize?`,
-        "How does career read in this chart?"
-      );
-      if (presentYogas[0]) {
-        starters.push(`What does ${presentYogas[0].name} mean here?`);
-      }
+      return [
+        maha
+          ? `${chart.asOfDate} को ${maha} महादशा मेरे लिए क्या खोल रही है?`
+          : `${chart.asOfDate} को मेरी वर्तमान दशा क्या कहती है?`,
+        top
+          ? `${t(`astroArea_${top.lifeArea}` as "astroArea_career")} इस कुंडली में कैसे दिखता है?`
+          : "करियर इस कुंडली में कैसे दिखता है?",
+        presentYogas[0]
+          ? `${presentYogas[0].name} का यहाँ क्या अर्थ है?`
+          : "इस कुंडली में रिश्ते भाव कैसे पढ़ें?",
+      ].slice(0, 3);
     }
-    return starters.slice(0, 3);
-  }, [chart.asOfDate, lang, presentYogas]);
+    return [
+      maha
+        ? `As of ${chart.asOfDate}, what is my ${maha} mahadasha asking of me?`
+        : `As of ${chart.asOfDate}, what does my current dasha emphasize?`,
+      top
+        ? `How does ${top.lifeArea} read in this chart, with citations?`
+        : "How does career read in this chart, with citations?",
+      presentYogas[0]
+        ? `What does ${presentYogas[0].name} mean in this chart specifically?`
+        : "How should I read relationships from this chart?",
+    ].slice(0, 3);
+  }, [
+    chart.asOfDate,
+    chart.overview.currentMaha?.lord,
+    chart.verdicts.blended,
+    lang,
+    presentYogas,
+    t,
+  ]);
 
   function periodKey(p: DashaPeriod) {
     return `${p.lord}-${p.start}`;
@@ -152,6 +310,22 @@ export default function ChartHub({
   function isActive(p: DashaPeriod) {
     return chart.asOfDate >= p.start && chart.asOfDate < p.end;
   }
+
+  const chartCommonProps = {
+    chart,
+    emptyLabel: t("astroChartEmptyTob"),
+    onPlanetClick: (id: string) => setSelectedPlanetId(id),
+  };
+
+  const activeVarga =
+    vargaKind === "d9" ? chart.vargas?.d9 : chart.vargas?.d10;
+
+  const selectedPlanet = selectedPlanetId
+    ? resolvePlanet(chart, selectedPlanetId)
+    : null;
+  const selectedDignity = selectedPlanetId
+    ? dignityOf(selectedPlanetId)
+    : undefined;
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 animate-fade">
@@ -171,9 +345,35 @@ export default function ChartHub({
             ) : null}
           </div>
           <div className="flex flex-col items-end gap-2">
-            <p className="text-xs tracking-wide text-[var(--brass-soft)]">
-              {t("astroAsOf")} {chart.asOfDate}
-            </p>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {onAsOfDateChange ? (
+                <label className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                  <span className="text-[var(--brass-soft)]">
+                    {t("astroAsOfPicker")}
+                  </span>
+                  <input
+                    type="date"
+                    value={chart.asOfDate}
+                    disabled={asOfBusy}
+                    onChange={(e) => handleAsOfChange(e.target.value)}
+                    className="border border-[var(--line)] bg-[var(--panel)] px-2 py-1 text-xs text-[var(--text)] outline-none focus:border-[var(--brass)]/45 disabled:opacity-50"
+                  />
+                </label>
+              ) : (
+                <p className="text-xs tracking-wide text-[var(--brass-soft)]">
+                  {t("astroAsOf")} {chart.asOfDate}
+                </p>
+              )}
+              {onEditBirth ? (
+                <button
+                  type="button"
+                  onClick={onEditBirth}
+                  className="border border-[var(--line)] px-2.5 py-1 text-xs text-[var(--text-muted)] transition hover:border-[var(--brass)]/40 hover:text-[var(--brass-soft)]"
+                >
+                  {t("astroEditBirth")}
+                </button>
+              ) : null}
+            </div>
             {onSaveAsMember ? (
               <button
                 type="button"
@@ -244,7 +444,7 @@ export default function ChartHub({
               </button>
               <button
                 type="button"
-                onClick={() => setGuidedDismissed(true)}
+                onClick={dismissGuided}
                 className="px-3 py-2.5 text-xs text-[var(--text-muted)] underline-offset-2 hover:underline"
               >
                 {t("astroGuidedDismiss")}
@@ -306,20 +506,48 @@ export default function ChartHub({
         ) : null}
       </nav>
 
+      {GLOSS_TABS.includes(tab as GlossTab) && !glossDismissed[tab] ? (
+        <GlossaryBanner
+          text={t(GLOSS_KEYS[tab as GlossTab])}
+          dismissLabel={t("astroGlossDismiss")}
+          onDismiss={() => dismissGloss(tab)}
+        />
+      ) : null}
+
       {tab === "overview" ? (
         <section className="animate-fade space-y-10">
           <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-            <button
-              type="button"
-              onClick={() => setTab("chart")}
-              className="group max-w-sm text-left transition"
-            >
-              <NorthIndianChart
-                chart={chart}
-                className="transition group-hover:opacity-90"
-                legend={t("astroOpenChart")}
+            <div className="space-y-3">
+              <ChartStyleToggle
+                chartStyle={chartStyle}
+                onChange={setChartStyle}
+                northLabel={t("astroChartStyleNorth")}
+                southLabel={t("astroChartStyleSouth")}
               />
-            </button>
+              <button
+                type="button"
+                onClick={() => setTab("chart")}
+                className="group max-w-sm text-left transition"
+              >
+                {chartStyle === "north" ? (
+                  <NorthIndianChart
+                    {...chartCommonProps}
+                    className="transition group-hover:opacity-90"
+                    legend={t("astroOpenChart")}
+                    showAbbrLegend
+                  />
+                ) : (
+                  <SouthIndianChart
+                    {...chartCommonProps}
+                    className="transition group-hover:opacity-90"
+                    legend={t("astroOpenChart")}
+                  />
+                )}
+              </button>
+              <p className="text-xs text-[var(--text-muted)]">
+                {t("astroPlanetLegend")}
+              </p>
+            </div>
 
             <div className="space-y-8">
               <div className="grid gap-6 sm:grid-cols-2">
@@ -378,62 +606,121 @@ export default function ChartHub({
             </div>
           </div>
 
-          {chart.panchang ? (
-            <div className="flex flex-wrap gap-x-6 gap-y-2 border-y border-[var(--hairline)] py-4 text-xs text-[var(--text-muted)]">
-              <span>
-                <span className="text-[var(--brass-soft)]">{t("astroTithi")}</span>{" "}
-                {chart.panchang.tithi}
-              </span>
-              <span>
-                <span className="text-[var(--brass-soft)]">{t("astroNakshatra")}</span>{" "}
-                {chart.panchang.nakshatra}
-              </span>
-              <span>
-                <span className="text-[var(--brass-soft)]">{t("astroYoga")}</span>{" "}
-                {chart.panchang.yoga}
-              </span>
-              <span>
-                <span className="text-[var(--brass-soft)]">{t("astroKarana")}</span>{" "}
-                {chart.panchang.karana}
-              </span>
-              <span>
-                <span className="text-[var(--brass-soft)]">{t("astroVaar")}</span>{" "}
-                {chart.panchang.vaar}
-              </span>
-            </div>
-          ) : null}
-
-          {chart.transits && chart.transits.hits.length > 0 ? (
-            <div className="text-sm">
-              <p className="text-[0.65rem] uppercase tracking-[0.18em] text-[var(--text-muted)]">
-                {t("astroTransitHits")} · {chart.asOfDate}
+          {glanceVerdict ? (
+            <div className="border border-[var(--brass)]/25 bg-[var(--brass)]/5 px-4 py-4">
+              <p className="text-[0.65rem] uppercase tracking-[0.18em] text-[var(--brass-soft)]">
+                {t("astroAtAGlance")}
               </p>
-              <ul className="mt-2 space-y-1 text-[var(--text-muted)]">
-                {chart.transits.hits.slice(0, 5).map((h) => (
-                  <li key={`${h.transitPlanet}-${h.natalPlanet}-${h.orb}`}>
-                    {labelPlanet(h.transitPlanet)} → {labelPlanet(h.natalPlanet)}{" "}
-                    ({h.orb}°)
-                  </li>
-                ))}
-              </ul>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--text)]">
+                {glanceVerdict.theme}
+              </p>
+              <p className="mt-2 text-sm text-[var(--text-muted)]">
+                {glanceVerdict.timing}
+              </p>
             </div>
           ) : null}
 
-          {presentYogas.length > 0 ? (
-            <p className="text-sm text-[var(--text-muted)]">
-              <span className="text-[var(--brass-soft)]">
-                {t("astroPresentYogas")}:{" "}
-              </span>
-              {presentYogas.map((y) => y.name).join(" · ")}
-            </p>
-          ) : null}
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowBirthDetails((v) => !v)}
+              className="text-sm text-[var(--brass-soft)] underline-offset-2 hover:underline"
+            >
+              {showBirthDetails
+                ? t("astroHideBirthDetails")
+                : t("astroBirthDetails")}
+            </button>
+            {showBirthDetails ? (
+              <div className="mt-4 space-y-6">
+                {chart.panchang ? (
+                  <div className="flex flex-wrap gap-x-6 gap-y-2 border-y border-[var(--hairline)] py-4 text-xs text-[var(--text-muted)]">
+                    <span>
+                      <span className="text-[var(--brass-soft)]">
+                        {t("astroTithi")}
+                      </span>{" "}
+                      {chart.panchang.tithi}
+                    </span>
+                    <span>
+                      <span className="text-[var(--brass-soft)]">
+                        {t("astroNakshatra")}
+                      </span>{" "}
+                      {chart.panchang.nakshatra}
+                    </span>
+                    <span>
+                      <span className="text-[var(--brass-soft)]">
+                        {t("astroYoga")}
+                      </span>{" "}
+                      {chart.panchang.yoga}
+                    </span>
+                    <span>
+                      <span className="text-[var(--brass-soft)]">
+                        {t("astroKarana")}
+                      </span>{" "}
+                      {chart.panchang.karana}
+                    </span>
+                    <span>
+                      <span className="text-[var(--brass-soft)]">
+                        {t("astroVaar")}
+                      </span>{" "}
+                      {chart.panchang.vaar}
+                    </span>
+                  </div>
+                ) : null}
+
+                {chart.transits && chart.transits.hits.length > 0 ? (
+                  <div className="text-sm">
+                    <p className="text-[0.65rem] uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                      {t("astroTransitHits")} · {chart.asOfDate}
+                    </p>
+                    <ul className="mt-2 space-y-1 text-[var(--text-muted)]">
+                      {chart.transits.hits.slice(0, 5).map((h) => (
+                        <li key={`${h.transitPlanet}-${h.natalPlanet}-${h.orb}`}>
+                          {labelPlanet(h.transitPlanet)} →{" "}
+                          {labelPlanet(h.natalPlanet)} ({h.orb}°)
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {transitEmphasis.length > 0 ? (
+                  <ul className="space-y-1 text-sm text-[var(--text-muted)]">
+                    {transitEmphasis.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                {presentYogas.length > 0 ? (
+                  <p className="text-sm text-[var(--text-muted)]">
+                    <span className="text-[var(--brass-soft)]">
+                      {t("astroPresentYogas")}:{" "}
+                    </span>
+                    {presentYogas.map((y) => y.name).join(" · ")}
+                  </p>
+                ) : null}
+
+                <div className="flex flex-wrap gap-2">
+                  {chart.verdicts.blended.map((b) => (
+                    <span
+                      key={b.lifeArea}
+                      className="border border-[var(--line)] px-3 py-1.5 text-xs text-[var(--text-muted)]"
+                    >
+                      {t(`astroArea_${b.lifeArea}` as "astroArea_career")} ·{" "}
+                      {t(`astroConf_${b.confidence}` as "astroConf_high")}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
 
           <div className="flex flex-wrap gap-2">
             {chart.verdicts.blended.map((b) => (
               <button
                 key={b.lifeArea}
                 type="button"
-                onClick={() => setTab("predictions")}
+                onClick={() => goToPredictions(b.lifeArea)}
                 className="border border-[var(--line)] px-3 py-1.5 text-xs text-[var(--text-muted)] transition hover:border-[var(--brass)]/40 hover:text-[var(--brass-soft)]"
               >
                 {t(`astroArea_${b.lifeArea}` as "astroArea_career")} ·{" "}
@@ -446,53 +733,69 @@ export default function ChartHub({
 
       {tab === "chart" ? (
         <section className="space-y-6">
-          <NorthIndianChart chart={chart} legend={t("astroChartLegend")} />
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[40rem] text-left text-sm">
-              <thead>
-                <tr className="border-b border-[var(--hairline)] text-[var(--text-muted)]">
-                  <th className="py-2 pr-3 font-medium">{t("astroPlanet")}</th>
-                  <th className="py-2 pr-3 font-medium">{t("astroSign")}</th>
-                  <th className="py-2 pr-3 font-medium">{t("astroDegree")}</th>
-                  <th className="py-2 pr-3 font-medium">{t("astroLon")}</th>
-                  <th className="py-2 pr-3 font-medium">{t("astroNakshatra")}</th>
-                  <th className="py-2 pr-3 font-medium">{t("astroNakLord")}</th>
-                  <th className="py-2 pr-3 font-medium">{t("astroHouse")}</th>
-                  <th className="py-2 pr-3 font-medium">{t("astroDignity")}</th>
-                  <th className="py-2 font-medium">R</th>
-                </tr>
-              </thead>
-              <tbody>
-                {chart.ascendant ? (
-                  <PlanetRow
-                    label={labelPlanet("ascendant")}
-                    p={chart.ascendant}
-                    labelSign={labelSign}
-                    labelPlanet={labelPlanet}
-                  />
-                ) : null}
-                {chart.planets.map((p) => {
-                  const dig = dignityOf(p.id);
-                  return (
-                    <PlanetRow
-                      key={p.id}
-                      label={labelPlanet(p.id)}
-                      p={p}
-                      labelSign={labelSign}
-                      labelPlanet={labelPlanet}
-                      dignity={
-                        dig && dig.kind !== "neutral"
-                          ? lang === "hi"
-                            ? dig.label.hi
-                            : dig.label.en
-                          : undefined
-                      }
-                    />
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <ChartStyleToggle
+            chartStyle={chartStyle}
+            onChange={setChartStyle}
+            northLabel={t("astroChartStyleNorth")}
+            southLabel={t("astroChartStyleSouth")}
+          />
+          {chartStyle === "north" ? (
+            <NorthIndianChart
+              {...chartCommonProps}
+              legend={t("astroChartLegend")}
+              showAbbrLegend
+            />
+          ) : (
+            <SouthIndianChart
+              {...chartCommonProps}
+              legend={t("astroChartLegend")}
+            />
+          )}
+          <p className="text-xs text-[var(--text-muted)]">
+            {t("astroPlanetLegend")}
+          </p>
+
+          <PlanetTable
+            chart={chart}
+            labelSign={labelSign}
+            labelPlanet={labelPlanet}
+            dignityOf={dignityOf}
+            lang={lang}
+            t={t}
+          />
+
+          {aspects.length > 0 ? (
+            <div>
+              <h3 className="mb-2 text-sm font-medium text-[var(--text)]">
+                {t("astroAspects")}
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[24rem] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--hairline)] text-[var(--text-muted)]">
+                      <th className="py-2 pr-3 font-medium">{t("astroPlanet")}</th>
+                      <th className="py-2 pr-3 font-medium">→</th>
+                      <th className="py-2 pr-3 font-medium">{t("astroPlanet")}</th>
+                      <th className="py-2 font-medium">{t("astroHouse")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {aspects.map((a, i) => (
+                      <tr
+                        key={`${a.from}-${a.to}-${i}`}
+                        className="border-b border-[var(--hairline)] text-[var(--text)]"
+                      >
+                        <td className="py-2 pr-3">{labelPlanet(a.from)}</td>
+                        <td className="py-2 pr-3 text-[var(--text-muted)]">→</td>
+                        <td className="py-2 pr-3">{labelPlanet(a.to)}</td>
+                        <td className="py-2">{a.housesApart}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
 
           {chart.placidusCusps && !chart.tobUnknown ? (
             <div>
@@ -731,17 +1034,65 @@ export default function ChartHub({
 
       {tab === "navamsa" ? (
         <section className="space-y-6">
-          <p className="text-sm text-[var(--text-muted)]">{t("astroNavamsaBlurb")}</p>
-          {chart.vargas?.d9 ? (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setVargaKind("d9")}
+              className={`px-3 py-1.5 text-sm transition ${
+                vargaKind === "d9"
+                  ? "bg-[var(--brass)] text-[var(--on-brass)]"
+                  : "border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/40"
+              }`}
+            >
+              {t("astroVargaD9")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setVargaKind("d10")}
+              className={`px-3 py-1.5 text-sm transition ${
+                vargaKind === "d10"
+                  ? "bg-[var(--brass)] text-[var(--on-brass)]"
+                  : "border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/40"
+              }`}
+            >
+              {t("astroVargaD10")}
+            </button>
+          </div>
+
+          {activeVarga ? (
             <>
-              <NorthIndianChart
-                chart={chart}
-                override={{
-                  ascendant: chart.vargas.d9.ascendant,
-                  planets: chart.vargas.d9.planets,
-                }}
-                legend={t("astroNavamsaLegend")}
-              />
+              {chartStyle === "north" ? (
+                <NorthIndianChart
+                  chart={chart}
+                  override={{
+                    ascendant: activeVarga.ascendant,
+                    planets: activeVarga.planets,
+                  }}
+                  legend={
+                    vargaKind === "d9"
+                      ? t("astroNavamsaLegend")
+                      : t("astroVargaD10")
+                  }
+                  emptyLabel={t("astroChartEmptyTob")}
+                  onPlanetClick={(id) => setSelectedPlanetId(id)}
+                />
+              ) : (
+                <SouthIndianChart
+                  chart={chart}
+                  override={{
+                    ascendant: activeVarga.ascendant,
+                    planets: activeVarga.planets,
+                  }}
+                  legend={
+                    vargaKind === "d9"
+                      ? t("astroNavamsaLegend")
+                      : t("astroVargaD10")
+                  }
+                  emptyLabel={t("astroChartEmptyTob")}
+                  onPlanetClick={(id) => setSelectedPlanetId(id)}
+                />
+              )}
+
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[28rem] text-left text-sm">
                   <thead>
@@ -749,35 +1100,51 @@ export default function ChartHub({
                       <th className="py-2 pr-3">{t("astroPlanet")}</th>
                       <th className="py-2 pr-3">{t("astroSign")}</th>
                       <th className="py-2 pr-3">{t("astroHouse")}</th>
-                      <th className="py-2">{t("astroNakshatra")}</th>
+                      <th className="py-2 pr-3">{t("astroNakshatra")}</th>
+                      {chart.transits?.planets.some((p) => p.house != null) ? (
+                        <th className="py-2">{t("astroTransitHouse")}</th>
+                      ) : null}
                     </tr>
                   </thead>
                   <tbody>
-                    {chart.vargas.d9.ascendant ? (
+                    {activeVarga.ascendant ? (
                       <tr className="border-b border-[var(--hairline)] text-[var(--text)]">
                         <td className="py-2 pr-3">{labelPlanet("ascendant")}</td>
                         <td className="py-2 pr-3">
-                          {labelSign(chart.vargas.d9.ascendant.sign)}
+                          {labelSign(activeVarga.ascendant.sign)}
                         </td>
                         <td className="py-2 pr-3">1</td>
-                        <td className="py-2">
-                          {chart.vargas.d9.ascendant.nakshatra}
+                        <td className="py-2 pr-3">
+                          {activeVarga.ascendant.nakshatra}
                         </td>
+                        {chart.transits?.planets.some((p) => p.house != null) ? (
+                          <td className="py-2">—</td>
+                        ) : null}
                       </tr>
                     ) : null}
-                    {chart.vargas.d9.planets.map((p) => (
-                      <tr
-                        key={p.id}
-                        className="border-b border-[var(--hairline)] text-[var(--text)]"
-                      >
-                        <td className="py-2 pr-3">{labelPlanet(p.id)}</td>
-                        <td className="py-2 pr-3">{labelSign(p.sign)}</td>
-                        <td className="py-2 pr-3">{p.house ?? "—"}</td>
-                        <td className="py-2">
-                          {p.nakshatra} ({p.pada})
-                        </td>
-                      </tr>
-                    ))}
+                    {activeVarga.planets.map((p) => {
+                      const transit = chart.transits?.planets.find(
+                        (tp) => tp.id === p.id
+                      );
+                      return (
+                        <tr
+                          key={p.id}
+                          className="border-b border-[var(--hairline)] text-[var(--text)]"
+                        >
+                          <td className="py-2 pr-3">{labelPlanet(p.id)}</td>
+                          <td className="py-2 pr-3">{labelSign(p.sign)}</td>
+                          <td className="py-2 pr-3">{p.house ?? "—"}</td>
+                          <td className="py-2 pr-3">
+                            {p.nakshatra} ({p.pada})
+                          </td>
+                          {chart.transits?.planets.some(
+                            (tp) => tp.house != null
+                          ) ? (
+                            <td className="py-2">{transit?.house ?? "—"}</td>
+                          ) : null}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -794,6 +1161,9 @@ export default function ChartHub({
                           <th className="py-2 pr-3">{t("astroPlanet")}</th>
                           <th className="py-2 pr-3">{t("astroSign")}</th>
                           <th className="py-2 pr-3">{t("astroDegree")}</th>
+                          {chart.transits.planets.some((p) => p.house != null) ? (
+                            <th className="py-2 pr-3">{t("astroTransitHouse")}</th>
+                          ) : null}
                           <th className="py-2">R</th>
                         </tr>
                       </thead>
@@ -808,6 +1178,11 @@ export default function ChartHub({
                             <td className="py-2 pr-3">
                               {p.degreeInSign.toFixed(1)}°
                             </td>
+                            {chart.transits!.planets.some(
+                              (tp) => tp.house != null
+                            ) ? (
+                              <td className="py-2 pr-3">{p.house ?? "—"}</td>
+                            ) : null}
                             <td className="py-2">{p.retrograde ? "R" : ""}</td>
                           </tr>
                         ))}
@@ -828,6 +1203,13 @@ export default function ChartHub({
                       {t("astroNoTransitHits")}
                     </p>
                   )}
+                  {transitEmphasis.length > 0 ? (
+                    <ul className="mt-3 space-y-1 text-sm text-[var(--text-muted)]">
+                      {transitEmphasis.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </div>
               ) : null}
             </>
@@ -875,6 +1257,11 @@ export default function ChartHub({
                   <p className="mt-1 text-sm text-[var(--text-muted)]">
                     {y.detail}
                   </p>
+                  {y.housesInvolved && y.housesInvolved.length > 0 ? (
+                    <p className="mt-2 text-xs text-[var(--text-muted)]">
+                      {t("astroHouse")}: {y.housesInvolved.join(", ")}
+                    </p>
+                  ) : null}
                 </div>
               ))
             )}
@@ -884,6 +1271,9 @@ export default function ChartHub({
 
       {tab === "remedies" ? (
         <section className="space-y-6">
+          <p className="border-l-2 border-amber-500/60 pl-3 text-sm text-[var(--text-muted)]">
+            {t("astroRemediesDisclaimer")}
+          </p>
           <p className="text-sm text-[var(--text-muted)]">{t("astroLalKitabBlurb")}</p>
           {chart.lalKitab ? (
             <>
@@ -931,7 +1321,7 @@ export default function ChartHub({
 
       {tab === "predictions" ? (
         <section className="space-y-6">
-          <div className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <button
               type="button"
               onClick={() => setShowVerdictDrawer((v) => !v)}
@@ -941,61 +1331,68 @@ export default function ChartHub({
                 ? t("astroHideVerdicts")
                 : t("astroShowVerdicts")}
             </button>
-            {showVerdictDrawer ? (
-              <div className="space-y-2">
-                {chart.verdicts.blended.map((b) => (
-                  <div
-                    key={b.lifeArea}
-                    className="border border-[var(--line)] px-3 py-2 text-sm"
-                  >
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <span className="font-medium text-[var(--text)]">
-                        {t(`astroArea_${b.lifeArea}` as "astroArea_career")}
-                      </span>
-                      <span className="text-xs text-[var(--brass-soft)]">
-                        {t(`astroConf_${b.confidence}` as "astroConf_high")}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-[var(--text-muted)]">{b.timing}</p>
-                    {b.strengths.length ? (
-                      <ul className="mt-2 list-disc pl-4 text-xs text-[var(--text-muted)]">
-                        {b.strengths.map((s) => (
-                          <li key={s}>{s}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                    {b.tensions.length ? (
-                      <ul className="mt-1 list-disc pl-4 text-xs text-[var(--text-muted)]">
-                        {b.tensions.map((s) => (
-                          <li key={s}>{s}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </div>
-                ))}
+            {chart.predictionsText ? (
+              <div className="flex gap-1 border border-[var(--line)] p-0.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setPredDetail("simple")}
+                  className={`px-3 py-1.5 transition ${
+                    predDetail === "simple"
+                      ? "bg-[var(--brass)] text-[var(--on-brass)]"
+                      : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                  }`}
+                >
+                  {t("astroSimple")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPredDetail("detailed")}
+                  className={`px-3 py-1.5 transition ${
+                    predDetail === "detailed"
+                      ? "bg-[var(--brass)] text-[var(--on-brass)]"
+                      : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                  }`}
+                >
+                  {t("astroDetailed")}
+                </button>
               </div>
-            ) : (
-              <div className="space-y-2">
-                {chart.verdicts.blended.map((b) => (
-                  <div
-                    key={b.lifeArea}
-                    className="border border-[var(--line)] px-3 py-2 text-sm"
-                  >
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <span className="font-medium text-[var(--text)]">
-                        {t(`astroArea_${b.lifeArea}` as "astroArea_career")}
-                      </span>
-                      <span className="text-xs text-[var(--brass-soft)]">
-                        {t(`astroConf_${b.confidence}` as "astroConf_high")}
-                        {b.dashaSupports ? ` · ${t("astroDashaActive")}` : ""}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-[var(--text-muted)]">{b.timing}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+            ) : null}
           </div>
+
+          {showVerdictDrawer ? (
+            <div className="space-y-2">
+              {chart.verdicts.blended.map((b) => (
+                <div
+                  key={b.lifeArea}
+                  className="border border-[var(--line)] px-3 py-2 text-sm"
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="font-medium text-[var(--text)]">
+                      {t(`astroArea_${b.lifeArea}` as "astroArea_career")}
+                    </span>
+                    <span className="text-xs text-[var(--brass-soft)]">
+                      {t(`astroConf_${b.confidence}` as "astroConf_high")}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[var(--text-muted)]">{b.timing}</p>
+                  {b.strengths.length ? (
+                    <ul className="mt-2 list-disc pl-4 text-xs text-[var(--text-muted)]">
+                      {b.strengths.map((s) => (
+                        <li key={s}>{s}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  {b.tensions.length ? (
+                    <ul className="mt-1 list-disc pl-4 text-xs text-[var(--text-muted)]">
+                      {b.tensions.map((s) => (
+                        <li key={s}>{s}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
 
           {!chart.predictionsText ? (
             <div className="space-y-3">
@@ -1030,97 +1427,65 @@ export default function ChartHub({
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--text)]">
                   {chart.predictionsText.portrait}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => loadPredictions(true)}
-                  disabled={predBusy}
-                  className="text-xs text-[var(--brass-soft)] underline-offset-2 hover:underline disabled:opacity-50"
-                >
-                  {predBusy ? t("astroWorking") : t("astroRegeneratePred")}
-                </button>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <button
+                    type="button"
+                    onClick={() => loadPredictions(true)}
+                    disabled={predBusy}
+                    className="text-xs text-[var(--brass-soft)] underline-offset-2 hover:underline disabled:opacity-50"
+                  >
+                    {predBusy ? t("astroWorking") : t("astroRegeneratePred")}
+                  </button>
+                  <span className="text-[0.7rem] text-[var(--text-muted)]">
+                    {t("astroPredRegenerateHint")}
+                  </span>
+                </div>
               </article>
 
-              {AREA_KEYS.map((area) => {
-                const row = chart.predictionsText!.areas[area];
-                return (
-                  <article
-                    key={area}
-                    className="space-y-4 border-t border-[var(--hairline)] pt-8"
-                  >
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
-                        {t(`astroArea_${area}` as "astroArea_career")}
-                      </p>
-                      <h3 className="mt-1 font-display text-2xl text-[var(--text)]">
-                        {row.headline}
-                      </h3>
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--text)]">
-                      {row.overview}
-                    </p>
-                    {row.strengths.length ? (
-                      <div>
-                        <h4 className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
-                          {t("astroStrengths")}
-                        </h4>
-                        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--text)]">
-                          {row.strengths.map((s) => (
-                            <li key={s}>{s}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-                    {row.watchouts.length ? (
-                      <div>
-                        <h4 className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
-                          {t("astroWatchouts")}
-                        </h4>
-                        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--text-muted)]">
-                          {row.watchouts.map((s) => (
-                            <li key={s}>{s}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-                    <div className="space-y-2">
-                      <h4 className="text-xs uppercase tracking-wider text-[var(--brass-soft)]">
-                        {t("astroNowPeriod")}
-                      </h4>
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--text)]">
-                        {row.now}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <h4 className="text-xs uppercase tracking-wider text-[var(--brass-soft)]">
-                        {t("astroNearTerm")}
-                      </h4>
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--text-muted)]">
-                        {row.nearTerm}
-                      </p>
-                    </div>
-                    <div className="space-y-2 border border-[var(--line)] px-3 py-3">
-                      <h4 className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
-                        {t("astroGuidance")}
-                      </h4>
-                      <p className="text-sm leading-relaxed text-[var(--text)]">
-                        {row.guidance}
-                      </p>
-                    </div>
-                  </article>
-                );
-              })}
+              <AreaPredictionBlock
+                area={featuredArea}
+                row={chart.predictionsText.areas[featuredArea]}
+                blended={blendedByArea.get(featuredArea)}
+                predDetail={predDetail}
+                featured
+                t={t}
+              />
+
+              <details className="group border border-[var(--line)]">
+                <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-[var(--text)] transition hover:bg-[var(--brass)]/5">
+                  {t("astroOtherAreas")}
+                  <span className="ml-2 text-xs text-[var(--text-muted)]">
+                    ({otherAreas.length})
+                  </span>
+                </summary>
+                <div className="space-y-8 border-t border-[var(--hairline)] px-4 py-6">
+                  {otherAreas.map((area) => (
+                    <AreaPredictionBlock
+                      key={area}
+                      area={area}
+                      row={chart.predictionsText!.areas[area]}
+                      blended={blendedByArea.get(area)}
+                      predDetail={predDetail}
+                      t={t}
+                    />
+                  ))}
+                </div>
+              </details>
             </div>
           )}
         </section>
       ) : null}
 
       {tab === "chat" ? (
-        <section>
+        <section className="min-h-[70vh]">
           <AstroChat
             memberId={memberId}
             sessionId={sessionId}
             birth={chart.birth as unknown as Record<string, unknown>}
             starters={chatStarters}
+            messages={chatMessages}
+            onMessagesChange={setChatMessages}
+            className="min-h-[70vh]"
             contextLine={`${labelSign(chart.overview.ascendantSign)} Asc · ${labelSign(chart.overview.moonSign)} Moon · ${
               chart.overview.currentMaha
                 ? labelPlanet(chart.overview.currentMaha.lord)
@@ -1133,6 +1498,83 @@ export default function ChartHub({
           />
         </section>
       ) : null}
+
+      <PlanetDetailSheet
+        open={selectedPlanetId !== null}
+        onClose={() => setSelectedPlanetId(null)}
+        planet={selectedPlanet}
+        dignityLabel={
+          selectedDignity && selectedDignity.kind !== "neutral"
+            ? lang === "hi"
+              ? selectedDignity.label.hi
+              : selectedDignity.label.en
+            : undefined
+        }
+        labelPlanet={labelPlanet}
+        labelSign={labelSign}
+      />
+    </div>
+  );
+}
+
+function GlossaryBanner({
+  text,
+  dismissLabel,
+  onDismiss,
+}: {
+  text: string;
+  dismissLabel: string;
+  onDismiss: () => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-3 border border-[var(--brass)]/30 bg-[var(--brass)]/5 px-4 py-3 text-sm">
+      <p className="text-[var(--text-muted)]">{text}</p>
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="shrink-0 text-xs text-[var(--brass-soft)] underline-offset-2 hover:underline"
+      >
+        {dismissLabel}
+      </button>
+    </div>
+  );
+}
+
+function ChartStyleToggle({
+  chartStyle,
+  onChange,
+  northLabel,
+  southLabel,
+}: {
+  chartStyle: ChartStyle;
+  onChange: (s: ChartStyle) => void;
+  northLabel: string;
+  southLabel: string;
+}) {
+  return (
+    <div className="flex gap-1 border border-[var(--line)] p-0.5 text-xs w-fit">
+      <button
+        type="button"
+        onClick={() => onChange("north")}
+        className={`px-3 py-1.5 transition ${
+          chartStyle === "north"
+            ? "bg-[var(--brass)] text-[var(--on-brass)]"
+            : "text-[var(--text-muted)] hover:text-[var(--text)]"
+        }`}
+      >
+        {northLabel}
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("south")}
+        className={`px-3 py-1.5 transition ${
+          chartStyle === "south"
+            ? "bg-[var(--brass)] text-[var(--on-brass)]"
+            : "text-[var(--text-muted)] hover:text-[var(--text)]"
+        }`}
+      >
+        {southLabel}
+      </button>
     </div>
   );
 }
@@ -1158,6 +1600,93 @@ function Stat({
         <p className="mt-1 text-xs text-[var(--text-muted)]">{detail}</p>
       ) : null}
     </div>
+  );
+}
+
+function PlanetTable({
+  chart,
+  labelSign,
+  labelPlanet,
+  dignityOf,
+  lang,
+  t,
+}: {
+  chart: ChartPayload;
+  labelSign: (s: string) => string;
+  labelPlanet: (id: string) => string;
+  dignityOf: (id: string) => ChartPayload["dignities"][number] | undefined;
+  lang: string;
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
+  const rows: Array<{
+    label: string;
+    p: ChartPayload["planets"][number] | NonNullable<ChartPayload["ascendant"]>;
+    dignity?: string;
+  }> = [];
+
+  if (chart.ascendant) {
+    rows.push({ label: labelPlanet("ascendant"), p: chart.ascendant });
+  }
+  for (const p of chart.planets) {
+    const dig = dignityOf(p.id);
+    rows.push({
+      label: labelPlanet(p.id),
+      p,
+      dignity:
+        dig && dig.kind !== "neutral"
+          ? lang === "hi"
+            ? dig.label.hi
+            : dig.label.en
+          : undefined,
+    });
+  }
+
+  return (
+    <>
+      <div className="hidden overflow-x-auto md:block">
+        <table className="w-full min-w-[40rem] text-left text-sm">
+          <thead>
+            <tr className="border-b border-[var(--hairline)] text-[var(--text-muted)]">
+              <th className="py-2 pr-3 font-medium">{t("astroPlanet")}</th>
+              <th className="py-2 pr-3 font-medium">{t("astroSign")}</th>
+              <th className="py-2 pr-3 font-medium">{t("astroDegree")}</th>
+              <th className="py-2 pr-3 font-medium">{t("astroLon")}</th>
+              <th className="py-2 pr-3 font-medium">{t("astroNakshatra")}</th>
+              <th className="py-2 pr-3 font-medium">{t("astroNakLord")}</th>
+              <th className="py-2 pr-3 font-medium">{t("astroHouse")}</th>
+              <th className="py-2 pr-3 font-medium">{t("astroDignity")}</th>
+              <th className="py-2 font-medium">R</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ label, p, dignity }) => (
+              <PlanetRow
+                key={p.id}
+                label={label}
+                p={p}
+                labelSign={labelSign}
+                labelPlanet={labelPlanet}
+                dignity={dignity}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="space-y-3 md:hidden">
+        {rows.map(({ label, p, dignity }) => (
+          <PlanetCard
+            key={p.id}
+            label={label}
+            p={p}
+            labelSign={labelSign}
+            labelPlanet={labelPlanet}
+            dignity={dignity}
+            t={t}
+          />
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -1189,5 +1718,183 @@ function PlanetRow({
       <td className="py-2 pr-3 text-[var(--text-muted)]">{dignity ?? "—"}</td>
       <td className="py-2">{p.retrograde ? "R" : ""}</td>
     </tr>
+  );
+}
+
+function PlanetCard({
+  label,
+  p,
+  labelSign,
+  labelPlanet,
+  dignity,
+  t,
+}: {
+  label: string;
+  p: ChartPayload["planets"][number] | NonNullable<ChartPayload["ascendant"]>;
+  labelSign: (s: string) => string;
+  labelPlanet: (id: string) => string;
+  dignity?: string;
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
+  const nakLord = longitudeToNakshatra(p.longitude).lord;
+  return (
+    <div className="border border-[var(--line)] px-3 py-3 text-sm">
+      <p className="font-medium text-[var(--text)]">
+        {label}
+        {p.retrograde ? (
+          <span className="ml-1 text-xs text-[var(--text-muted)]">R</span>
+        ) : null}
+      </p>
+      <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-[var(--text-muted)]">
+        <div>
+          <dt>{t("astroSign")}</dt>
+          <dd className="text-[var(--text)]">{labelSign(p.sign)}</dd>
+        </div>
+        <div>
+          <dt>{t("astroDegree")}</dt>
+          <dd className="text-[var(--text)]">{p.degreeInSign.toFixed(1)}°</dd>
+        </div>
+        <div>
+          <dt>{t("astroHouse")}</dt>
+          <dd className="text-[var(--text)]">{p.house ?? "—"}</dd>
+        </div>
+        <div>
+          <dt>{t("astroNakshatra")}</dt>
+          <dd className="text-[var(--text)]">
+            {p.nakshatra} ({p.pada})
+          </dd>
+        </div>
+        <div>
+          <dt>{t("astroNakLord")}</dt>
+          <dd className="text-[var(--text)]">{labelPlanet(nakLord)}</dd>
+        </div>
+        <div>
+          <dt>{t("astroDignity")}</dt>
+          <dd className="text-[var(--text)]">{dignity ?? "—"}</dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+function AreaPredictionBlock({
+  area,
+  row,
+  blended,
+  predDetail,
+  featured,
+  t,
+}: {
+  area: LifeArea;
+  row: AreaPrediction;
+  blended?: BlendedVerdict;
+  predDetail: PredDetail;
+  featured?: boolean;
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
+  const citations = areaCitations(blended);
+  const overviewSimple =
+    predDetail === "simple"
+      ? row.overview.split(/\n\n+/).filter(Boolean)[0] || row.overview
+      : row.overview;
+
+  return (
+    <article className="space-y-5 border-t border-[var(--hairline)] pt-8 first:border-t-0 first:pt-0">
+      <div>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <p className="text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
+            {featured
+              ? t("astroFeaturedArea")
+              : t(`astroArea_${area}` as "astroArea_career")}
+          </p>
+          {blended ? (
+            <span className="text-[0.65rem] uppercase tracking-[0.14em] text-[var(--text-muted)]">
+              {t(`astroConf_${blended.confidence}` as "astroConf_high")}
+              {blended.dashaSupports ? ` · ${t("astroDashaActive")}` : ""}
+            </span>
+          ) : null}
+        </div>
+        <h3 className="mt-1 font-display text-2xl text-[var(--text)]">
+          {row.headline}
+        </h3>
+      </div>
+
+      {citations.length > 0 ? (
+        <div className="border-l-2 border-[var(--brass)]/40 pl-3">
+          <p className="text-[0.65rem] uppercase tracking-[0.18em] text-[var(--text-muted)]">
+            {t("astroCitations")}
+          </p>
+          <ul className="mt-1.5 space-y-1.5 text-sm text-[var(--text-muted)]">
+            {citations.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <div className="space-y-2">
+        <h4 className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+          {t("astroPredWhatChartSays")}
+        </h4>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--text)]">
+          {overviewSimple}
+        </p>
+      </div>
+
+      {predDetail === "detailed" && row.strengths.length ? (
+        <div>
+          <h4 className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+            {t("astroStrengths")}
+          </h4>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--text)]">
+            {row.strengths.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {predDetail === "detailed" && row.watchouts.length ? (
+        <div>
+          <h4 className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+            {t("astroWatchouts")}
+          </h4>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--text-muted)]">
+            {row.watchouts.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <div className="space-y-2">
+        <h4 className="text-xs uppercase tracking-wider text-[var(--brass-soft)]">
+          {t("astroNowPeriod")}
+        </h4>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--text)]">
+          {row.now}
+        </p>
+      </div>
+
+      {predDetail === "detailed" ? (
+        <div className="space-y-2">
+          <h4 className="text-xs uppercase tracking-wider text-[var(--brass-soft)]">
+            {t("astroNearTerm")}
+          </h4>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--text-muted)]">
+            {row.nearTerm}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="space-y-2 border-l-2 border-[var(--brass)]/30 pl-3">
+        <h4 className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
+          {t("astroPredTryThis")}
+        </h4>
+        <p className="text-sm leading-relaxed text-[var(--text)]">
+          {row.guidance}
+        </p>
+      </div>
+    </article>
   );
 }

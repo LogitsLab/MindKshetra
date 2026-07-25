@@ -57,15 +57,20 @@ export default function DashaTimeline({
                 <div
                   key={`${antar.lord}-${antar.start}`}
                   title={`${labelPlanet(antar.lord)} ${antar.start}→${antar.end}`}
-                  className={`relative flex items-center justify-center border-r border-[var(--void)]/40 text-[10px] leading-tight transition ${
+                  aria-label={`${labelPlanet(antar.lord)} ${antar.start} to ${antar.end}`}
+                  tabIndex={0}
+                  className={`relative flex items-center justify-center border-r border-[var(--void)]/40 text-[10px] leading-tight transition focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--brass)] ${
                     active
                       ? "bg-[var(--brass)]/50 text-[var(--text)]"
                       : "bg-[var(--brass)]/15 text-[var(--text-muted)]"
                   }`}
                   style={{ width: `${Math.max(w, 0.8)}%` }}
                 >
-                  <span className="truncate px-0.5">
+                  <span className="truncate px-0.5 sm:hidden">
                     {labelPlanet(antar.lord).slice(0, 3)}
+                  </span>
+                  <span className="hidden truncate px-0.5 sm:inline">
+                    {labelPlanet(antar.lord)}
                   </span>
                 </div>
               );

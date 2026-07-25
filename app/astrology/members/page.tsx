@@ -41,6 +41,7 @@ export default function AstrologyMembersPage() {
   }, [loading, signedIn, router, load]);
 
   async function remove(id: string) {
+    if (!window.confirm(t("astroDeleteConfirm"))) return;
     const res = await fetch(`/api/astrology/members/${id}`, { method: "DELETE" });
     if (res.ok) setMembers((m) => m.filter((x) => x.id !== id));
   }

@@ -206,7 +206,11 @@ export function refreshCurrentDasha(
   chart.overview.currentAntar = current.antar;
   chart.overview.currentPratyantar = current.pratyantar;
   if (chart.planets?.length) {
-    chart.transits = computeTransits(asOfDate, chart.planets);
+    chart.transits = computeTransits(
+      asOfDate,
+      chart.planets,
+      chart.ascendant?.signIndex ?? null
+    );
   }
   return chart;
 }

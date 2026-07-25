@@ -3,7 +3,7 @@
 import type { ChartPayload, PlanetId } from "@/lib/astrology/types";
 import { PLANET_LABELS } from "@/lib/astrology/signs";
 
-const SHORT: Partial<Record<PlanetId, string>> = {
+export const SHORT: Partial<Record<PlanetId, string>> = {
   sun: "Su",
   moon: "Mo",
   mars: "Ma",
@@ -47,6 +47,21 @@ const HOUSE_NUM: Record<number, { x: number; y: number }> = {
   12: { x: 18, y: 52 },
 };
 
+const ABBR_LEGEND_ORDER: PlanetId[] = [
+  "sun",
+  "moon",
+  "mars",
+  "mercury",
+  "jupiter",
+  "venus",
+  "saturn",
+  "rahu",
+  "ketu",
+  "ascendant",
+];
+
+type HouseGlyph = { id: PlanetId | "ascendant"; glyph: string };
+
 type Props = {
   chart: ChartPayload;
   className?: string;
@@ -56,6 +71,10 @@ type Props = {
     ascendant: ChartPayload["ascendant"];
     planets: ChartPayload["planets"];
   };
+  emptyLabel?: string;
+  onPlanetClick?: (id: PlanetId | "ascendant") => void;
+  /** Show Su=Sun etc. abbreviation key under the chart */
+  showAbbrLegend?: boolean;
 };
 
 export default function NorthIndianChart({
@@ -63,20 +82,26 @@ export default function NorthIndianChart({
   className = "",
   legend,
   override,
+  emptyLabel,
+  onPlanetClick,
+  showAbbrLegend = false,
 }: Props) {
   const ascendant = override?.ascendant ?? chart.ascendant;
   const planets = override?.planets ?? chart.planets;
 
-  const byHouse: Record<number, string[]> = {};
+  const byHouse: Record<number, HouseGlyph[]> = {};
   for (let h = 1; h <= 12; h++) byHouse[h] = [];
 
   if (ascendant?.house) {
-    byHouse[ascendant.house].push("As");
+    byHouse[ascendant.house].push({ id: "ascendant", glyph: "As" });
   }
   for (const p of planets) {
     if (p.house) {
       const g = SHORT[p.id] || p.id.slice(0, 2);
-      byHouse[p.house].push(p.retrograde ? `${g}ʳ` : g);
+      byHouse[p.house].push({
+        id: p.id,
+        glyph: p.retrograde ? `${g}ʳ` : g,
+      });
     }
   }
 
@@ -85,7 +110,8 @@ export default function NorthIndianChart({
       <div
         className={`flex aspect-square max-w-md items-center justify-center border border-[var(--line)] bg-[var(--panel)] p-6 text-center text-sm text-[var(--text-muted)] ${className}`}
       >
-        Birth time unknown — Ascendant and house chart are disabled.
+        {emptyLabel ??
+          "Birth time unknown — Ascendant and house chart are disabled."}
       </div>
     );
   }
@@ -148,25 +174,38 @@ export default function NorthIndianChart({
           </text>
         ))}
 
-        {Object.entries(byHouse).map(([house, glyphs]) => {
+        {Object.entries(byHouse).map(([house, items]) => {
           const c = CENTROIDS[Number(house)];
-          if (!c || glyphs.length === 0) return null;
+          if (!c || items.length === 0) return null;
           const isLagna = Number(house) === 1;
-          return (
+          const lineH = 3.4;
+          const startY = c.y - ((items.length - 1) * lineH) / 2;
+          return items.map((item, i) => (
             <text
-              key={house}
+              key={`${house}-${item.id}-${i}`}
               x={c.x}
-              y={c.y}
+              y={startY + i * lineH}
               textAnchor="middle"
               dominantBaseline="middle"
               fontSize="3.1"
               fontWeight={isLagna ? 600 : 400}
               fill="var(--brass-soft)"
-              style={{ fontFamily: "var(--font-body), sans-serif" }}
+              style={{
+                fontFamily: "var(--font-body), sans-serif",
+                cursor: onPlanetClick ? "pointer" : undefined,
+              }}
+              onClick={
+                onPlanetClick
+                  ? (e) => {
+                      e.stopPropagation();
+                      onPlanetClick(item.id);
+                    }
+                  : undefined
+              }
             >
-              {glyphs.join(" ")}
+              {item.glyph}
             </text>
-          );
+          ));
         })}
 
         <title>
@@ -180,6 +219,15 @@ export default function NorthIndianChart({
       </svg>
       {legend ? (
         <p className="mt-2 text-xs text-[var(--text-muted)]">{legend}</p>
+      ) : null}
+      {showAbbrLegend ? (
+        <p className="mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[0.65rem] text-[var(--text-muted)]">
+          {ABBR_LEGEND_ORDER.map((id) => (
+            <span key={id}>
+              {SHORT[id]}={PLANET_LABELS[id].en}
+            </span>
+          ))}
+        </p>
       ) : null}
     </div>
   );

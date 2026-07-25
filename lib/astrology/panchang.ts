@@ -110,12 +110,14 @@ function norm(lon: number): number {
 }
 
 /**
- * Classical panchang elements from Sun/Moon sidereal longitudes + birth UTC.
+ * Classical panchang elements from Sun/Moon sidereal longitudes + birth instant.
+ * Vaar uses local civil weekday at birth IANA timezone (not UTC).
  */
 export function computeBirthPanchang(
   sunLon: number,
   moonLon: number,
-  utcIso: string
+  utcIso: string,
+  ianaTz = "UTC"
 ): BirthPanchang {
   const sun = norm(sunLon);
   const moon = norm(moonLon);
@@ -132,16 +134,15 @@ export function computeBirthPanchang(
   const yogaIndex = Math.floor(norm(sun + moon) / (360 / 27)) % 27;
   const yoga = YOGAS[yogaIndex];
 
-  // Karana: half-tithi (6°). Fixed karanas at ends of month.
   const karanaSlot = Math.floor(elongation / 6); // 0–59
   let karana: string;
-  if (karanaSlot === 0) karana = KARANAS[10]; // Kimstughna
-  else if (karanaSlot >= 57) karana = KARANAS[7 + (karanaSlot - 57)]; // Shakuni…Naga
+  if (karanaSlot === 0) karana = KARANAS[10];
+  else if (karanaSlot >= 57) karana = KARANAS[7 + (karanaSlot - 57)];
   else karana = KARANAS[(karanaSlot - 1) % 7];
 
-  const dt = DateTime.fromISO(utcIso, { zone: "utc" });
-  // Luxon weekday: 1=Mon … 7=Sun → convert to Sunday=0
-  const vaarIndex = dt.weekday === 7 ? 0 : dt.weekday;
+  const local = DateTime.fromISO(utcIso, { zone: "utc" }).setZone(ianaTz);
+  // Luxon weekday: 1=Mon … 7=Sun → Sunday=0
+  const vaarIndex = local.weekday === 7 ? 0 : local.weekday;
 
   return {
     tithi: tithiName,

@@ -145,10 +145,12 @@ export async function POST(request: NextRequest) {
     })),
   ];
 
+  const chatOpts = { temperature: 0.4, max_tokens: 1100 };
+
   try {
-    const groqRes = await createGroqChatStream(history);
+    const groqRes = await createGroqChatStream(history, chatOpts);
     if (!groqRes.ok || !groqRes.body) {
-      const fallback = await createGroqCompletion(history);
+      const fallback = await createGroqCompletion(history, chatOpts);
       const text = stripThinkBlocks(fallback) || "I could not form a reply just now.";
       const encoder = new TextEncoder();
       const stream = new ReadableStream({

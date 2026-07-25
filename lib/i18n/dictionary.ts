@@ -335,12 +335,15 @@ export const dictionary = {
     astroGuidance: "Guidance",
     astroRegeneratePred: "Regenerate detailed reading",
     astroPredBlurb:
-      "Generate a full reading — portrait plus career, relationships, health, finance, education, and travel — grounded in this chart’s houses, lords, and current dasha.",
+      "Generate a reading grounded in this chart — portrait, then life areas with placements and the current dasha (not generic horoscope text).",
     astroChatTitle: "Ask about this chart",
     astroChatBlurb:
-      "Answers stay grounded in this birth chart’s computed facts — not general horoscope talk.",
+      "Ask a specific question. Answers cite this chart’s placements and dasha — not general horoscope talk.",
     astroChatStarters: "Try a question",
-    astroChatPlaceholder: "Ask about dasha, career, houses…",
+    astroChatPlaceholder: "e.g. What does my current dasha mean for work?",
+    astroPredWhatChartSays: "What the chart says",
+    astroPredTryThis: "Try this",
+    astroPredRegenerateHint: "Not landing? Regenerate for a fresher write-up from the same facts.",
     astroChatSend: "Send",
     astroChatEmpty: "I couldn’t form a reply — try again in a moment.",
     astroIntroNew:
@@ -380,7 +383,7 @@ export const dictionary = {
     astroGenerated: "Generated",
     astroChatClear: "Clear",
     astroTabTiming: "Timing factors",
-    astroTabNavamsa: "Navamsa & transits",
+    astroTabNavamsa: "Vargas & transits",
     astroTabRemedies: "Remedies",
     astroEpheSwiss: "Swiss Ephemeris",
     astroEpheMoshier: "Moshier fallback",
@@ -434,6 +437,42 @@ export const dictionary = {
     astroTabMore: "More",
     astroIncognitoShort: "Session only",
     astroOpenChart: "Open full chart →",
+    astroAtAGlance: "At a glance",
+    astroBirthDetails: "Details for this birth",
+    astroHideBirthDetails: "Hide birth details",
+    astroGlossDasha:
+      "Dasha is a planetary period clock — which planet is currently “running” your timing.",
+    astroGlossTiming:
+      "Timing factors use cusp star/sub lords for finer event windows — separate from whole-sign houses.",
+    astroGlossNavamsa:
+      "Navamsa (D9) refines partnership temperament; Dashamsa (D10) colours vocation.",
+    astroGlossRemedies:
+      "Remedies here are cultural practices for reflection — not medical or financial prescriptions.",
+    astroGlossDismiss: "Got it",
+    astroSimple: "Simple",
+    astroDetailed: "Detailed",
+    astroFeaturedArea: "Featured area",
+    astroOtherAreas: "Other life areas",
+    astroCitations: "From the chart",
+    astroChartStyleNorth: "North Indian",
+    astroChartStyleSouth: "South Indian",
+    astroChartEmptyTob:
+      "Birth time unknown — Ascendant and house chart are disabled.",
+    astroPlanetLegend: "Tap a planet glyph for details",
+    astroAspects: "Aspects (Graha Drishti)",
+    astroVargaD9: "Navamsa (D9)",
+    astroVargaD10: "Dashamsa (D10)",
+    astroDeleteConfirm: "Remove this saved chart? This cannot be undone.",
+    astroEditBirth: "Edit birth details",
+    astroEditBirthWarn:
+      "Updating birth data clears the cached chart. Predictions will need regenerating.",
+    astroSaveBirth: "Save birth details",
+    astroAsOfPicker: "Report date",
+    astroTransitHouse: "Transit house",
+    astroRemediesDisclaimer:
+      "These notes are cultural and educational only. They are not medical, legal, or financial advice — and they do not replace professional care.",
+    astroPlaceConfirm: "Using this place",
+    astroConfirmPlaceCast: "Confirm place & cast",
   },
   hi: {
     navExplore: "अन्वेषण",
@@ -769,12 +808,16 @@ export const dictionary = {
     astroGuidance: "मार्गदर्शन",
     astroRegeneratePred: "विस्तृत पठन फिर बनाएँ",
     astroPredBlurb:
-      "पूरा पठन बनाएँ — चित्र तथा करियर, संबंध, स्वास्थ्य, वित्त, शिक्षा और यात्रा — इसी कुंडली के भाव, स्वामी और वर्तमान दशा पर आधारित।",
+      "इसी कुंडली पर आधारित पठन बनाएँ — चित्र, फिर जीवन क्षेत्र; भाव व वर्तमान दशा सहित (सामान्य राशिफल नहीं)।",
     astroChatTitle: "इस कुंडली के बारे में पूछें",
     astroChatBlurb:
-      "उत्तर इसी जन्म कुंडली के गणना तथ्यों पर आधारित रहते हैं — सामान्य राशिफल नहीं।",
+      "स्पष्ट प्रश्न पूछें। उत्तर इसी कुंडली के भाव और दशा उद्धृत करते हैं — सामान्य राशिफल नहीं।",
     astroChatStarters: "एक प्रश्न आज़माएँ",
-    astroChatPlaceholder: "दशा, करियर, भाव के बारे में पूछें…",
+    astroChatPlaceholder: "जैसे: वर्तमान दशा करियर के लिए क्या कहती है?",
+    astroPredWhatChartSays: "कुंडली क्या कहती है",
+    astroPredTryThis: "यह आज़माएँ",
+    astroPredRegenerateHint:
+      "ठीक नहीं लग रहा? उन्हीं तथ्यों से नया लेखन बनाएँ।",
     astroChatSend: "भेजें",
     astroChatEmpty: "उत्तर नहीं बन पाया — थोड़ी देर बाद फिर कोशिश करें।",
     astroIntroNew:
@@ -814,7 +857,7 @@ export const dictionary = {
     astroGenerated: "बनाया",
     astroChatClear: "साफ़ करें",
     astroTabTiming: "समय कारक",
-    astroTabNavamsa: "नवमांश व गोचर",
+    astroTabNavamsa: "वर्ग व गोचर",
     astroTabRemedies: "उपाय",
     astroEpheSwiss: "स्विस एफमेरिस",
     astroEpheMoshier: "मोशियर विकल्प",
@@ -868,6 +911,42 @@ export const dictionary = {
     astroTabMore: "और",
     astroIncognitoShort: "केवल सत्र",
     astroOpenChart: "पूर्ण कुंडली खोलें →",
+    astroAtAGlance: "एक नज़र में",
+    astroBirthDetails: "इस जन्म का विवरण",
+    astroHideBirthDetails: "विवरण छिपाएँ",
+    astroGlossDasha:
+      "दशा एक ग्रहीय समय-घड़ी है — अभी कौन-सा ग्रह आपकी समय-रेखा चला रहा है।",
+    astroGlossTiming:
+      "समय कारक cusp के तारा/उप स्वामियों से बारीक खिड़कियाँ देते हैं — पूर्ण-राशि भावों से अलग।",
+    astroGlossNavamsa:
+      "नवमांश (D9) संबंध स्वभाव गहरा करता है; दशमांश (D10) व्यवसाय रंग देता है।",
+    astroGlossRemedies:
+      "यहाँ उपाय सांस्कृतिक अभ्यास हैं — चिकित्सकीय या वित्तीय नुस्खे नहीं।",
+    astroGlossDismiss: "समझ गया",
+    astroSimple: "सरल",
+    astroDetailed: "विस्तृत",
+    astroFeaturedArea: "मुख्य क्षेत्र",
+    astroOtherAreas: "अन्य जीवन क्षेत्र",
+    astroCitations: "कुंडली से",
+    astroChartStyleNorth: "उत्तर भारतीय",
+    astroChartStyleSouth: "दक्षिण भारतीय",
+    astroChartEmptyTob:
+      "जन्म समय अज्ञात — लग्न और भाव कुंडली बंद हैं।",
+    astroPlanetLegend: "विवरण के लिए ग्रह पर टैप करें",
+    astroAspects: "दृष्टि (ग्रह दृष्टि)",
+    astroVargaD9: "नवमांश (D9)",
+    astroVargaD10: "दशमांश (D10)",
+    astroDeleteConfirm: "यह सहेजी कुंडली हटाएँ? यह वापस नहीं होगा।",
+    astroEditBirth: "जन्म विवरण संपादित करें",
+    astroEditBirthWarn:
+      "जन्म डेटा बदलने पर कैश साफ़ होगा। भविष्यवाणियाँ फिर बनानी होंगी।",
+    astroSaveBirth: "जन्म विवरण सहेजें",
+    astroAsOfPicker: "रिपोर्ट तिथि",
+    astroTransitHouse: "गोचर भाव",
+    astroRemediesDisclaimer:
+      "ये नोट सांस्कृतिक और शैक्षिक हैं। चिकित्सकीय, कानूनी या वित्तीय सलाह नहीं — और पेशेवर देखभाल का विकल्प नहीं।",
+    astroPlaceConfirm: "यह स्थान उपयोग होगा",
+    astroConfirmPlaceCast: "स्थान पुष्टि कर कुंडली बनाएँ",
   },
 } as const;
 

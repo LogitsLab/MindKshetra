@@ -155,10 +155,18 @@ async function groqRequest(
   return res;
 }
 
-export async function createGroqChatStream(messages: ChatTurn[]): Promise<Response> {
+export type GroqChatOptions = {
+  temperature?: number;
+  max_tokens?: number;
+};
+
+export async function createGroqChatStream(
+  messages: ChatTurn[],
+  options: GroqChatOptions = {}
+): Promise<Response> {
   return groqRequest({
-    temperature: 0.7,
-    max_tokens: 900,
+    temperature: options.temperature ?? 0.7,
+    max_tokens: options.max_tokens ?? 900,
     stream: true,
     // Qwen3 otherwise spends the budget inside <think> and returns an empty reply
     reasoning_effort: "none",
@@ -167,10 +175,13 @@ export async function createGroqChatStream(messages: ChatTurn[]): Promise<Respon
 }
 
 /** Non-stream completion — used as a fallback when the stream yields no visible text. */
-export async function createGroqCompletion(messages: ChatTurn[]): Promise<string> {
+export async function createGroqCompletion(
+  messages: ChatTurn[],
+  options: GroqChatOptions = {}
+): Promise<string> {
   const res = await groqRequest({
-    temperature: 0.7,
-    max_tokens: 900,
+    temperature: options.temperature ?? 0.7,
+    max_tokens: options.max_tokens ?? 900,
     stream: false,
     reasoning_effort: "none",
     messages,

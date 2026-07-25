@@ -69,6 +69,9 @@ export default function BirthForm({
   );
   const [suggestions, setSuggestions] = useState<GeocodeResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [placeConfirmed, setPlaceConfirmed] = useState(
+    Boolean(initial?.lat != null && initial?.placeLabel)
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -110,6 +113,7 @@ export default function BirthForm({
   function onPlaceChange(value: string) {
     setPlaceQuery(value);
     setSelected(null);
+    setPlaceConfirmed(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => searchPlace(value), 380);
   }
@@ -118,6 +122,10 @@ export default function BirthForm({
     e.preventDefault();
     setError(null);
     if (!selected) {
+      setError(t("astroPlaceRequired"));
+      return;
+    }
+    if (!placeConfirmed) {
       setError(t("astroPlaceRequired"));
       return;
     }
@@ -291,6 +299,7 @@ export default function BirthForm({
                       setSelected(s);
                       setPlaceQuery(s.label);
                       setSuggestions([]);
+                      setPlaceConfirmed(false);
                     }}
                   >
                     {s.label}
@@ -303,10 +312,24 @@ export default function BirthForm({
       </div>
 
       {selected ? (
-        <p className="animate-fade text-sm text-[var(--brass-soft)]">
-          {selected.label}
-          <span className="text-[var(--text-muted)]"> · {selected.ianaTz}</span>
-        </p>
+        <div className="animate-fade space-y-3 border border-[var(--brass)]/25 bg-[var(--brass)]/5 px-3 py-3">
+          <p className="text-sm text-[var(--brass-soft)]">
+            <span className="text-[var(--text-muted)]">
+              {t("astroPlaceConfirm")}:{" "}
+            </span>
+            {selected.label}
+            <span className="text-[var(--text-muted)]"> · {selected.ianaTz}</span>
+          </p>
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm text-[var(--text)]">
+            <input
+              type="checkbox"
+              checked={placeConfirmed}
+              onChange={(e) => setPlaceConfirmed(e.target.checked)}
+              className="accent-[var(--brass)]"
+            />
+            {t("astroConfirmPlaceCast")}
+          </label>
+        </div>
       ) : (
         <p className="text-xs text-[var(--text-muted)]">{t("astroPlaceHint")}</p>
       )}
@@ -319,7 +342,7 @@ export default function BirthForm({
 
       <button
         type="submit"
-        disabled={busy}
+        disabled={busy || !selected || !placeConfirmed}
         className="mt-2 w-full bg-[var(--brass)] px-4 py-3.5 text-sm font-medium tracking-wide text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
       >
         {busy ? t("astroWorking") : submitLabel}

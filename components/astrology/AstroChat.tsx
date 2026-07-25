@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 
-type Msg = { role: "user" | "assistant"; content: string };
+export type AstroChatMessage = { role: "user" | "assistant"; content: string };
 
 type Props = {
   memberId?: string;
@@ -11,6 +11,10 @@ type Props = {
   birth?: Record<string, unknown>;
   starters?: string[];
   contextLine?: string;
+  /** Controlled message list — when set with onMessagesChange, parent owns history */
+  messages?: AstroChatMessage[];
+  onMessagesChange?: (messages: AstroChatMessage[]) => void;
+  className?: string;
 };
 
 export default function AstroChat({
@@ -19,26 +23,39 @@ export default function AstroChat({
   birth,
   starters,
   contextLine,
+  messages: controlledMessages,
+  onMessagesChange,
+  className = "",
 }: Props) {
   const { t, lang } = useLanguage();
-  const [messages, setMessages] = useState<Msg[]>([]);
+  const [internalMessages, setInternalMessages] = useState<AstroChatMessage[]>(
+    []
+  );
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const controlled = controlledMessages !== undefined && onMessagesChange;
+  const messages = controlled ? controlledMessages : internalMessages;
+
+  function setMessages(next: AstroChatMessage[]) {
+    if (controlled) onMessagesChange!(next);
+    else setInternalMessages(next);
+  }
+
   const defaultStarters =
     starters ||
     (lang === "hi"
       ? [
-          "मेरी वर्तमान दशा क्या कहती है?",
-          "करियर के लिए इस कुंडली में क्या मजबूत है?",
-          "विवाह भाव कैसे दिखता है?",
+          "मेरी वर्तमान दशा अभी क्या खोल रही है?",
+          "करियर के लिए इस कुंडली में क्या मजबूत है — भाव सहित बताएँ?",
+          "रिश्ते भाव को इस कुंडली से कैसे पढ़ें?",
         ]
       : [
-          "What does my current dasha emphasize?",
-          "What supports career in this chart?",
-          "How does the 7th house read for relationships?",
+          "What is my current dasha asking of me right now?",
+          "What supports career in this chart — cite the houses?",
+          "How should I read relationships from this chart?",
         ]);
 
   useEffect(() => {
@@ -49,7 +66,10 @@ export default function AstroChat({
     const content = text.trim();
     if (!content || busy) return;
     setError(null);
-    const nextMessages: Msg[] = [...messages, { role: "user", content }];
+    const nextMessages: AstroChatMessage[] = [
+      ...messages,
+      { role: "user", content },
+    ];
     setMessages(nextMessages);
     setInput("");
     setBusy(true);
@@ -122,7 +142,9 @@ export default function AstroChat({
   }
 
   return (
-    <div className="flex min-h-[28rem] flex-col border border-[var(--line)]">
+    <div
+      className={`flex min-h-[28rem] flex-col border border-[var(--line)] ${className}`}
+    >
       <div className="border-b border-[var(--hairline)] px-4 py-3">
         <div className="flex items-start justify-between gap-3">
           <div>
