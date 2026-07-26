@@ -48,7 +48,15 @@ export async function POST(request: NextRequest) {
   let body: ChatBody;
   try {
     body = await request.json();
-  } catch {
+  } catch (err) {
+    // SyntaxError from JSON.parse, or a TypeError if the stream aborted
+    // mid-body. Both are client-side problems, hence 400 — but log which,
+    // because "Invalid JSON body" alone can't distinguish a malformed payload
+    // from a connection that died halfway.
+    console.warn(
+      "[chat] request body parse failed:",
+      err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+    );
     return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
@@ -212,6 +220,10 @@ export async function POST(request: NextRequest) {
               try {
                 parsed = JSON.parse(data);
               } catch {
+                // Intentional swallow: SSE frames can split across reads, so a
+                // partial chunk is expected traffic, not an error. Skipping it
+                // lets the next read complete the frame. Not logged because it
+                // would be noisy on every normal stream.
                 continue;
               }
 

@@ -104,7 +104,11 @@ export async function POST(request: NextRequest) {
   let body: Body;
   try {
     body = await request.json();
-  } catch {
+  } catch (err) {
+    console.warn(
+      "[astro-chat] request body parse failed:",
+      err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+    );
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
@@ -265,7 +269,10 @@ export async function POST(request: NextRequest) {
                   void cleaned;
                 }
               } catch {
-                /* ignore partial */
+                // Intentional swallow: SSE frames can split across reads, so a
+                // partial chunk is expected traffic, not an error. The next read
+                // completes the frame. Not logged — it would be noisy on every
+                // normal stream.
               }
             }
           }
