@@ -66,6 +66,11 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       href: "/astrology",
       title: t("homeAstroTitle"),
       blurb: t("homeAstroBlurb"),
+      // PLACEHOLDER (des/D15). These are Explore's assets. There is no
+      // astrology image or icon anywhere in public/, so the half this product
+      // calls its moat is represented on the first screen by another section's
+      // photograph. Needs a commissioned illustration — not something a code
+      // change can supply. Tracked in TODOS.md.
       image: "/images/paths/explore.jpg",
       icon: "/icons/paths/explore.svg",
     },
@@ -162,7 +167,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
         <p className="mb-8 text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
           {t("homePaths")}
         </p>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {entries.map((entry, i) => (
             <Link
               key={entry.href}

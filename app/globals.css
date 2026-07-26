@@ -374,3 +374,36 @@ body {
     transition: none !important;
   }
 }
+
+/*
+ * des/D14 — the eyebrow label, extracted.
+ *
+ * `text-[11px] uppercase tracking-[0.16em] text-[var(--brass-soft)]` was pasted
+ * as a string literal across ChatWindow, ChapterPageClient and AccountPageClient
+ * (where it was already a named const at line 14). New code uses .eyebrow.
+ */
+.eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+/*
+ * des/D13 — Devanagari must not be uppercased or letter-spaced.
+ *
+ * Devanagari has no letter case, so `text-transform: uppercase` is a no-op at
+ * best. Letter-spacing is actively destructive: it pulls matras away from their
+ * base consonants and breaks conjunct ligatures, so "गीता से" renders as loose
+ * disconnected glyphs rather than words.
+ *
+ * LanguageProvider already sets document.documentElement.lang, so this one rule
+ * corrects every eyebrow in the app — 46 call sites — without touching a single
+ * component. Kept as an attribute selector on :root so it beats Tailwind's
+ * utility specificity without !important on every property.
+ */
+html[lang="hi"] .eyebrow,
+html[lang="hi"] [class*="tracking-["],
+html[lang="hi"] [class*="uppercase"] {
+  text-transform: none;
+  letter-spacing: normal;
+}

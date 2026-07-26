@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  lint-and-eval:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,6 +16,39 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npx tsc --noEmit
-      - run: npm run lint
-      - run: npm run eval
+
+      - name: Types
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      # eng/E13 — the astrology golden check was never in CI, so changes to the
+      # exact-math half could land unverified.
+      #
+      # It also cannot detect an ephemeris downgrade on its own: its assertion is
+      # `ephemeris === "swiss" || "moshier"` (true either way) and the sun
+      # longitude it checks is IDENTICAL under both engines for the fixture date.
+      # The unit suite pins the mode and uses the moon as the canary; this step
+      # guards the wider golden payload.
+      - name: Astrology golden fixtures
+        run: npm run qa:astrology
+
+      # Without this, a checkout missing the .se1 files would run every astrology
+      # test against Moshier numbers and pass.
+      - name: Ephemeris files present
+        run: |
+          test -s ephemeris/sepl_18.se1 || { echo "::error::ephemeris/sepl_18.se1 missing or empty"; exit 1; }
+          test -s ephemeris/semo_18.se1 || { echo "::error::ephemeris/semo_18.se1 missing or empty"; exit 1; }
+
+      - name: Retrieval eval
+        run: npm run eval
+
+      - name: Passage coverage
+        run: npm run qa:passages
+
+      - name: Commentary QA
+        run: npm run qa:commentary
