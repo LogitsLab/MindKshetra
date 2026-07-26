@@ -62,6 +62,27 @@ Only the rename belongs in Wave 0; the gating half has nothing to gate until Wav
 
 ### Found while shipping Wave 0 (new, not from the reviews)
 
+- **`eng/E16` (NEW, P1): the in-memory cache is not a working fallback for incognito
+  charts.** All three reviews treated `lib/astrology/memory-cache.ts` as a degraded-but-
+  functional Redis substitute. It isn't. `/api/astrology/compute` writes the chart and
+  `/api/astrology/chat` reads it, and those are separate module instances — so with Redis
+  unreachable the write lands somewhere the reader cannot see and incognito chat returns
+  `404 Chart not found`, always. In production each route is a separate Lambda, so this is
+  worse there, not better.
+
+  Verified by controlled comparison against the pre-change code (worktree at `cd83f74`,
+  Redis reporting `configured: false`): mint → resume 200 → hit the chat route → 404 →
+  resume 404. Identical on both code versions, so **pre-existing, not a Wave 0
+  regression**. The bounded-LRU fix (`eng/E5`) is still correct and still needed; it
+  addresses the memory leak, not this.
+
+  Fix options: (a) require Redis for the incognito path and fail loudly with a clear
+  message instead of a bare 404, (b) have the chat route recompute from `body.birth` when
+  the cache misses — the branch already exists and is what makes the flow work today, so
+  make it the documented path rather than an accident, or (c) persist incognito charts in
+  Supabase with a TTL. **(a)+(b) together is the honest minimum.**
+  Depends on: nothing. Should land before Wave 3 merges the routes.
+
 - **`eng/E13` is confirmed necessary, with a concrete example.** With `ephemeris/` hidden,
   the sun longitude for the golden fixture date came out **identical** to the Swiss value
   (60.183). So `scripts/qa-astrology-golden.cjs`'s `swiss || moshier` assertion passes in
