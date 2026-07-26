@@ -407,3 +407,46 @@ html[lang="hi"] [class*="uppercase"] {
   text-transform: none;
   letter-spacing: normal;
 }
+
+/*
+ * des/D11 — light theme for the two-voice reply.
+ *
+ * Light mode sets `--void: transparent` and `filter: none` on .site-atmosphere,
+ * so reading surfaces sit at 55% white over a FULL-CONTRAST photograph. Dark
+ * mode gets away with a 4% fill; light mode does not. The reply was never
+ * wireframed in light, which is how it stayed unaddressed.
+ */
+[data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px) saturate(1.05);
+  -webkit-backdrop-filter: blur(18px) saturate(1.05);
+}
+
+/* The chart epigraph has no panel behind it by design, so in light mode it is
+   reading directly off the photograph. The rule carries a touch more weight and
+   the text takes full --text to hold contrast. */
+[data-theme="light"] .chart-epigraph {
+  border-left-width: 2px;
+  border-left-color: var(--brass);
+}
+
+/*
+ * des/D12 — mobile. The reply grew an epigraph and a context line, so it is
+ * materially taller than the single-voice version it replaced.
+ *
+ * Not "stacked on mobile": the epigraph is the piece that must survive a narrow
+ * column, because it is the differentiator and it is the first thing read. It
+ * keeps display type and full contrast, and only sheds indent and leading.
+ */
+@media (max-width: 640px) {
+  .chart-epigraph {
+    padding-left: 0.9rem;
+    /* 2 lines at 17px/1.45 — the des/D1 prompt cap is what makes a fixed
+       reservation safe here. Without the cap this would clip. */
+    min-height: 3rem;
+  }
+  .chart-epigraph p {
+    font-size: 17px;
+    line-height: 1.45;
+  }
+}

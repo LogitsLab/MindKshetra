@@ -6,9 +6,9 @@
  * export shape is unchanged, so no component needed touching.
  */
 export const en = {
-  homeEyebrow: "Bhagavad Gita companion",
+  homeEyebrow: "Gita companion · Vedic chart reader",
   homeTagline: "Clarity from the Gita, for the battlefield of the mind.",
-  homeBody: "When duty and doubt collide, step into the field — browse every verse, match your mood, or speak with Madhav.",
+  homeBody: "Browse all 701 verses, find the ones that meet how you feel, cast a real Vedic chart, or speak with Madhav — who can read both.",
   homeCtaMadhav: "Ask Madhav",
   homeCtaExplore: "Explore verses",
   homePaths: "Paths into",
@@ -32,7 +32,7 @@ export const en = {
   homeMoodsTitle: "Begin with a mood",
   homeMoodsBlurb: "Pick a state of mind — we’ll gather verses that meet you there.",
   homeMoodsAll: "See all moods",
-  homeCloseLine: "The field is the mind.",
+  homeCloseLine: "Scripture that knows who is asking.",
   homeCloseCta: "Speak with Madhav",
   exploreEyebrow: "18 chapters · 701 verses",
   exploreTitle: "Explore",
@@ -127,9 +127,9 @@ export const en = {
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
-  homeEyebrow: "भगवद्गीता साथी",
+  homeEyebrow: "गीता साथी · वैदिक कुंडली",
   homeTagline: "गीता से स्पष्टता — मन के कुरुक्षेत्र के लिए।",
-  homeBody: "जब कर्तव्य और संशय टकराएँ, क्षेत्र में कदम रखें — श्लोक पढ़ें, मनोदशा मिलाएँ, या माधव से बात करें।",
+  homeBody: "सभी 701 श्लोक पढ़ें, अपनी मनोदशा से मेल खाते श्लोक पाएँ, वास्तविक वैदिक कुंडली बनाएँ, या माधव से बात करें — जो दोनों पढ़ सकते हैं।",
   homeCtaMadhav: "माधव से पूछें",
   homeCtaExplore: "श्लोक देखें",
   homePaths: "मार्ग",
@@ -153,7 +153,7 @@ export const hi: Record<keyof typeof en, string> = {
   homeMoodsTitle: "मनोदशा से आरंभ करें",
   homeMoodsBlurb: "अपनी अवस्था चुनें — हम उससे जुड़े श्लोक लाएँगे।",
   homeMoodsAll: "सभी मनोदशाएँ देखें",
-  homeCloseLine: "क्षेत्र मन ही है।",
+  homeCloseLine: "वह शास्त्र जो जानता है कि कौन पूछ रहा है।",
   homeCloseCta: "माधव से बात करें",
   exploreEyebrow: "१८ अध्याय · ७०१ श्लोक",
   exploreTitle: "अन्वेषण",

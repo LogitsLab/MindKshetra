@@ -204,7 +204,7 @@ export default function AstroChat({
                 G1: no reading -> nothing renders, so an empty labelled block
                 cannot exist. */}
             {m.role === "assistant" && m.reading ? (
-              <div className="mb-2 flex min-h-[2.6rem] items-center border-l border-[var(--line)] pl-4">
+              <div className="chart-epigraph mb-2 flex min-h-[2.6rem] items-center border-l border-[var(--line)] pl-4">
                 <p className="font-display text-[16px] leading-[1.5] text-[var(--text)]">
                   {m.reading}
                 </p>

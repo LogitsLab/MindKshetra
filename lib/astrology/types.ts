@@ -1,3 +1,18 @@
+/**
+ * Bump ONLY when computed values change.
+ *
+ * eng/E14 — this string is part of every chart cache key
+ * (astrology_chart_cache.engine_version, and the astro:incog Redis payloads).
+ * Bumping it invalidates every cached chart at once, so the first request per
+ * member afterwards pays a full native computeChart. At current traffic that is
+ * survivable; it is the kind of thing that bites precisely when a launch brings
+ * the first real spike.
+ *
+ * So: refactors, comments, renames and prompt edits must NOT bump this. Only a
+ * change that would produce different numbers for the same birth data should.
+ * If you do bump it, warm the cache for active members rather than letting
+ * organic traffic recompute them all simultaneously.
+ */
 export const ENGINE_VERSION = "2.1.0";
 
 export type Relationship =

@@ -1016,7 +1016,7 @@ export default function ChatWindow({
               There is no empty labelled block to design because one cannot exist.
             */}
             {msg.role === "assistant" && msg.reading ? (
-              <div className="mb-3 min-h-[3.4rem] border-l border-[var(--line)] pl-5 flex items-center">
+              <div className="chart-epigraph mb-3 flex min-h-[3.4rem] items-center border-l border-[var(--line)] pl-5">
                 <p className="font-display text-[18px] leading-[1.5] text-[var(--text)] sm:text-[19px]">
                   {msg.reading}
                 </p>
