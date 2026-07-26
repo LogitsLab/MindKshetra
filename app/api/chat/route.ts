@@ -192,6 +192,10 @@ export async function POST(request: NextRequest) {
     const response = crisisResponse(language);
     if (sessionId) {
       await saveChatMessage(sessionId, "user", lastUser.content);
+      // des/D6 + 4A — NO voices on a crisis reply, deliberately. The chart is
+      // suppressed entirely: a deterministic "Saturn holds this house until
+      // 2028" beside a helpline reads as confirmation that things are fated to
+      // stay bad. Persisting one would resurrect it on reload.
       await saveChatMessage(sessionId, "assistant", response, []);
     }
 
@@ -277,7 +281,18 @@ export async function POST(request: NextRequest) {
           max_tokens: prompts.READING_MAX_TOKENS,
         }
       );
-      const cleaned = stripThinkBlocks(raw).trim();
+      let cleaned = stripThinkBlocks(raw).trim();
+
+      // des/D7 — the chart guide may decline an off-chart question ("I can only
+      // speak to your chart..."). That is a refusal, not a reading, and it must
+      // never render as a labelled voice above the teaching. Suppressing it here
+      // routes it through the same path as an empty chart, so the reply simply
+      // degrades to single-voice.
+      const DECLINE = /(only (speak|answer|comment).{0,24}chart|off[- ]chart|cannot (answer|help) with that|not (something|a question) (i|the chart) can)/i;
+      if (DECLINE.test(cleaned)) {
+        console.warn("[chat] chart voice declined — suppressing the epigraph");
+        cleaned = "";
+      }
       // Only the reading is verifiable; the teaching is not falsifiable.
       const verified = verifyChartClaims(cleaned, chart);
       reading = verified.text.trim() || null;
@@ -433,12 +448,10 @@ export async function POST(request: NextRequest) {
 
             if (sessionId) {
               await saveChatMessage(sessionId, "user", lastUser.content);
-              await saveChatMessage(
-                sessionId,
-                "assistant",
-                visibleSent,
-                citedIds
-              );
+              await saveChatMessage(sessionId, "assistant", visibleSent, citedIds, {
+                reading,
+                chartContext: contextLineText,
+              });
             }
 
             send({ type: "done" });
@@ -459,12 +472,10 @@ export async function POST(request: NextRequest) {
             }
             if (sessionId) {
               await saveChatMessage(sessionId, "user", lastUser.content);
-              await saveChatMessage(
-                sessionId,
-                "assistant",
-                visibleSent,
-                citedIds
-              );
+              await saveChatMessage(sessionId, "assistant", visibleSent, citedIds, {
+                reading,
+                chartContext: contextLineText,
+              });
             }
             send({ type: "done" });
           } else {

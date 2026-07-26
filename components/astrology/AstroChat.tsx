@@ -2,8 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
+import { postChat, readChatStream } from "@/lib/chat-stream";
 
-export type AstroChatMessage = { role: "user" | "assistant"; content: string };
+export type AstroChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+  /** Chart epigraph (des/D2). Rendered above the teaching, never spoken. */
+  reading?: string;
+  /** Reply-level provenance (des/D4). Context, never causation. */
+  chartContext?: string;
+};
 
 type Props = {
   memberId?: string;
@@ -76,59 +84,50 @@ export default function AstroChat({
     setBusy(true);
 
     try {
-      const res = await fetch("/api/astrology/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: nextMessages,
-          language: lang,
-          memberId,
-          chartSessionId,
-          birth,
-        }),
+      // ceo/T6a — one backend. This used to POST to /api/astrology/chat, which
+      // no longer exists: /api/chat now produces the two-voice reply when any of
+      // memberId / chartSessionId / birth is present.
+      const res = await postChat({
+        messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
+        language: lang,
+        memberId,
+        chartSessionId,
+        birth,
+        // Embedded chart chat is ephemeral by design — ChartHub owns the
+        // history and nothing here should write chat_sessions rows.
+        incognito: true,
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Chat failed");
-      }
-
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error("No stream");
-
-      const decoder = new TextDecoder();
-      let buffer = "";
       let assistant = "";
-      setMessages([...nextMessages, { role: "assistant", content: "" }]);
+      let reading: string | undefined;
+      let chartContext: string | undefined;
+      const paint = () =>
+        setMessages([
+          ...nextMessages,
+          { role: "assistant", content: assistant, reading, chartContext },
+        ]);
+      paint();
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split("\n\n");
-        buffer = parts.pop() || "";
-        for (const part of parts) {
-          const line = part.trim();
-          if (!line.startsWith("data:")) continue;
-          try {
-            const payload = JSON.parse(line.slice(5).trim()) as {
-              type: string;
-              content?: string;
-            };
-            if (payload.type === "token" && payload.content) {
-              assistant += payload.content;
-              setMessages([
-                ...nextMessages,
-                { role: "assistant", content: assistant },
-              ]);
-            }
-          } catch {
-            /* ignore */
-          }
+      for await (const ev of readChatStream(res.body!)) {
+        if (ev.type === "reading") {
+          reading = ev.content;
+          paint();
+        } else if (ev.type === "chartContext") {
+          chartContext = ev.content;
+          paint();
+        } else if (ev.type === "token" && ev.content) {
+          assistant += ev.content;
+          paint();
+        } else if (ev.type === "replace" && ev.content) {
+          // Emitted after citation verification rewrites the reply.
+          assistant = ev.content;
+          paint();
+        } else if (ev.type === "error") {
+          throw new Error(ev.error);
         }
       }
 
-      if (!assistant.trim()) {
+      if (!assistant.trim() && !reading) {
         setMessages([
           ...nextMessages,
           { role: "assistant", content: t("astroChatEmpty") },
@@ -198,15 +197,34 @@ export default function AstroChat({
         ) : null}
 
         {messages.map((m, i) => (
-          <div
-            key={`${m.role}-${i}`}
-            className={`max-w-[90%] whitespace-pre-wrap text-sm leading-relaxed ${
-              m.role === "user"
-                ? "ml-auto bg-[var(--brass)]/15 px-3 py-2 text-[var(--text)]"
-                : "text-[var(--text)]"
-            }`}
-          >
-            {m.content || (busy && i === messages.length - 1 ? "…" : "")}
+          <div key={`${m.role}-${i}`} className="max-w-[90%]">
+            {/* des/D2 + 5A — chart epigraph. Display type at full --text,
+                upright, brass rule, no label. min-height reserves the slot so
+                the teaching below never jumps when the reading lands.
+                G1: no reading -> nothing renders, so an empty labelled block
+                cannot exist. */}
+            {m.role === "assistant" && m.reading ? (
+              <div className="mb-2 flex min-h-[2.6rem] items-center border-l border-[var(--line)] pl-4">
+                <p className="font-display text-[16px] leading-[1.5] text-[var(--text)]">
+                  {m.reading}
+                </p>
+              </div>
+            ) : null}
+            <div
+              className={`whitespace-pre-wrap text-sm leading-relaxed ${
+                m.role === "user"
+                  ? "ml-auto bg-[var(--brass)]/15 px-3 py-2 text-[var(--text)]"
+                  : "text-[var(--text)]"
+              }`}
+            >
+              {m.content || (busy && i === messages.length - 1 ? "…" : "")}
+            </div>
+            {/* des/D4 — context, never causation. */}
+            {m.role === "assistant" && m.chartContext ? (
+              <p className="mt-2 text-[11px] text-[var(--text-muted)]">
+                {m.chartContext}
+              </p>
+            ) : null}
           </div>
         ))}
         <div ref={bottomRef} />

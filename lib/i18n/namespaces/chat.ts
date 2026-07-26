@@ -45,9 +45,19 @@ export const en = {
   incognito: "Incognito",
   incognitoOn: "Incognito on",
   incognitoHint: "This chat is not saved to history.",
+  chartInviteTitle: "Madhav can read your chart too",
+  chartInviteBody:
+    "Add a birth date and place, and the teaching arrives alongside what your chart is carrying.",
+  chartInviteCta: "Add your birth details",
+  chartInviteDismiss: "Not now",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
+  chartInviteTitle: "माधव आपकी कुंडली भी पढ़ सकते हैं",
+  chartInviteBody:
+    "जन्म तिथि और स्थान जोड़ें, और शिक्षा के साथ यह भी जानें कि आपकी कुंडली क्या कह रही है।",
+  chartInviteCta: "जन्म विवरण जोड़ें",
+  chartInviteDismiss: "अभी नहीं",
   askMadhavAbout: "इस पर माधव से पूछें",
   askMadhavLink: "माधव से पूछें",
   madhavEyebrow: "आधारित मार्गदर्शन",

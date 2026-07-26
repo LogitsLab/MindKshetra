@@ -16,6 +16,10 @@ export type StoredChatMessage = {
   role: "user" | "assistant";
   content: string;
   cited_sloka_ids: number[];
+  /** Chart epigraph. NULL on single-voice replies (eng/E10, migration 008). */
+  reading: string | null;
+  /** Reply-level provenance line. NULL on single-voice replies. */
+  chart_context: string | null;
   created_at: string;
 };
 
@@ -48,11 +52,18 @@ export async function createChatSession(
   return data.id as string;
 }
 
+/**
+ * @param voices eng/E10 — the chart epigraph and context line, when the reply
+ *   had them. Persisted separately from `content` so a reloaded conversation
+ *   renders the same way the live one did; storing only the teaching would make
+ *   the same message look different before and after a refresh.
+ */
 export async function saveChatMessage(
   sessionId: string,
   role: "user" | "assistant",
   content: string,
-  citedSlokaIds: number[] = []
+  citedSlokaIds: number[] = [],
+  voices?: { reading?: string | null; chartContext?: string | null }
 ): Promise<void> {
   const db = await getDb();
   if (!db) return;
@@ -62,6 +73,8 @@ export async function saveChatMessage(
     role,
     content,
     cited_sloka_ids: citedSlokaIds,
+    reading: voices?.reading ?? null,
+    chart_context: voices?.chartContext ?? null,
   });
 
   const now = new Date().toISOString();
@@ -102,7 +115,10 @@ export async function getChatSession(
 
   const { data, error } = await db
     .from("chat_messages")
-    .select("id, role, content, cited_sloka_ids, created_at")
+    // reading / chart_context added by migration 008 (eng/E10). Without them
+    // a reloaded conversation would render single-voice while the live one
+    // rendered two — same message, two visual grammars.
+    .select("id, role, content, cited_sloka_ids, reading, chart_context, created_at")
     .eq("session_id", sessionId)
     .order("created_at");
 

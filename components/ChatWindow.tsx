@@ -13,6 +13,9 @@ import {
 } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { CHAT_SESSION_KEY } from "@/components/AuthProvider";
+
+/** des/D8 — "invited once, never nagged". Dismissal survives reloads. */
+const CHART_INVITE_KEY = "mindkshetra-chart-invite-dismissed";
 import ChatMarkdown from "@/components/ChatMarkdown";
 import SpeakButton from "@/components/SpeakButton";
 import { stopSpeaking } from "@/lib/tts";
@@ -129,6 +132,25 @@ export default function ChatWindow({
   const [listening, setListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  /**
+   * des/D8 — the chart invitation. /madhav is currently chart-silent: neither
+   * madhavIntro, nor any starter, nor the eyebrow mentions a chart, so the
+   * feature is undiscoverable from the surface most people land on.
+   *
+   * Shown ONCE. Dismissal is persisted in localStorage alongside the existing
+   * chat keys — "invited once, never nagged" is the whole point, and a banner
+   * that returns every session is worse than no banner.
+   */
+  const [chartInviteDismissed, setChartInviteDismissed] = useState(true);
+
+  useEffect(() => {
+    try {
+      setChartInviteDismissed(localStorage.getItem(CHART_INVITE_KEY) === "1");
+    } catch {
+      // Private-mode storage denial. Staying hidden is the safe default: this
+      // is an upsell, not functionality.
+    }
+  }, []);
   const [recentSessions, setRecentSessions] = useState<ChatSessionSummary[]>(
     []
   );
@@ -1097,6 +1119,49 @@ export default function ChatWindow({
           </div>
         ))}
 
+        {/* des/D8 — uses the EmptyState idiom (ornament, display title, muted
+            body) rather than a new banner pattern. Sits in the starters area
+            because that is the only moment the user is not mid-conversation. */}
+        {showStarters && !chartInviteDismissed && (
+          <div className="mb-4 flex flex-col items-center border border-[var(--hairline)] px-6 py-6 text-center">
+            <Image
+              src="/ornaments/empty.svg"
+              alt=""
+              width={44}
+              height={44}
+              className="opacity-70"
+            />
+            <p className="mt-3 font-display text-base text-[var(--text)]">
+              {t("chartInviteTitle")}
+            </p>
+            <p className="mt-1.5 max-w-sm text-sm font-light leading-relaxed text-[var(--text-soft)]">
+              {t("chartInviteBody")}
+            </p>
+            <div className="mt-4 flex items-center gap-4">
+              <Link
+                href="/astrology"
+                className="border border-[var(--brass)]/45 px-4 py-2 text-[13px] text-[var(--brass-soft)] transition hover:bg-[var(--surface)]"
+              >
+                {t("chartInviteCta")}
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setChartInviteDismissed(true);
+                  try {
+                    localStorage.setItem(CHART_INVITE_KEY, "1");
+                  } catch {
+                    // Dismissal is best-effort; the banner reappearing is a far
+                    // smaller problem than a thrown error in the chat view.
+                  }
+                }}
+                className="text-[13px] text-[var(--text-muted)] underline-offset-4 hover:underline"
+              >
+                {t("chartInviteDismiss")}
+              </button>
+            </div>
+          </div>
+        )}
         {showStarters && (
           <div className="flex flex-wrap gap-3 pt-2">
             {starters.map((starter) => (
