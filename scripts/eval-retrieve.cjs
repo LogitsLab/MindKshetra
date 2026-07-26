@@ -237,9 +237,11 @@ function inferredTags(query) {
   return hits;
 }
 
-function retrieveSlokas(query, limit = 8) {
+function retrieveSlokas(query, limit = 8, extraTags = []) {
   const tokens = tokenize(query);
-  const tags = inferredTags(query);
+  // Mirrors lib/retrieve.ts: extraTags join the tag set, they do NOT become
+  // query tokens. Token scoring stays driven by what the user actually typed.
+  const tags = Array.from(new Set([...inferredTags(query), ...extraTags]));
   const tagSet = new Set(tags);
   const tagFreq = new Map();
   for (const s of slokas) {
@@ -383,6 +385,90 @@ for (const tag of need) {
   const ok = n >= 20;
   console.log(ok ? "PASS" : "FAIL", `tag ${tag} count=${n}`);
   if (!ok) failed++;
+}
+
+// ——— Chart-tag A/B (eng/E3) ———
+//
+// The integration plan's premise is that a user's birth chart changes which
+// verses they are shown. This block MEASURES that instead of assuming it.
+//
+// Method: run each probe twice — once as the user typed it, once with the
+// chart-derived tags for a life area injected as extraTags — and report how
+// much the top-5 actually moved.
+//
+// Calibration context: lib/retrieve.ts weights tag hits at `* 0.3` and vector
+// similarity at `* 0.7 * 10`, so in production (with embeddings on) the chart
+// arm is even weaker than it looks here in tag-only mode. Whatever movement
+// this block reports is therefore an UPPER BOUND on the chart's real influence.
+console.log("\n== Chart-tag A/B (does the chart move retrieval?) ==");
+
+// Mirrors LIFE_AREA_TAGS in lib/bridge/chart-to-verse.ts. Kept as a literal so
+// the eval stays dependency-free; if the bridge changes, this must too.
+const LIFE_AREA_TAGS = {
+  career: ["duty_responsibility", "overwhelm_burnout", "action_without_attachment"],
+  marriage: ["relationships_conflict", "attachment_desire", "jealousy_comparison"],
+  health: ["impermanence_mortality", "control_of_mind", "equanimity"],
+  finance: ["attachment_desire", "detachment", "success_ambition"],
+  education: ["discipline_habit", "purpose_meaning"],
+  travel: ["detachment", "courage"],
+};
+
+const AB_CASES = [
+  { q: "I feel stuck and I don't know what to do", area: "career" },
+  { q: "things have been hard lately", area: "marriage" },
+  { q: "I am worried about the future", area: "finance" },
+  { q: "I keep second guessing myself", area: "education" },
+  { q: "everything feels heavy", area: "health" },
+  { q: "I want to make a change", area: "travel" },
+];
+
+const ref = (s) => `${s.chapter}.${s.verse_number}`;
+let abMoved = 0;
+let abPrimaryChanged = 0;
+let abOverlapTotal = 0;
+
+for (const c of AB_CASES) {
+  const withoutChart = retrieveSlokas(c.q, 5).map(ref);
+  const withChart = retrieveSlokas(c.q, 5, LIFE_AREA_TAGS[c.area]).map(ref);
+  const overlap = withoutChart.filter((r) => withChart.includes(r)).length;
+  const moved = overlap < withoutChart.length;
+  const primaryChanged = withoutChart[0] !== withChart[0];
+  if (moved) abMoved++;
+  if (primaryChanged) abPrimaryChanged++;
+  abOverlapTotal += overlap;
+  console.log(
+    `  ${moved ? "MOVED " : "SAME  "} [${c.area}] "${c.q}"`
+  );
+  console.log(`      without chart: ${withoutChart.join(", ")}`);
+  console.log(`      with chart:    ${withChart.join(", ")}`);
+  console.log(
+    `      overlap ${overlap}/5, primary verse ${primaryChanged ? "CHANGED" : "unchanged"}`
+  );
+}
+
+const abAvgOverlap = (abOverlapTotal / AB_CASES.length).toFixed(1);
+console.log(
+  `\n  SUMMARY: ${abMoved}/${AB_CASES.length} probes moved, ` +
+    `${abPrimaryChanged}/${AB_CASES.length} changed the primary verse, ` +
+    `avg overlap ${abAvgOverlap}/5`
+);
+
+// This is a REPORT, not a pass/fail gate, and deliberately so.
+//
+// A gate here would encode an assumption we have not earned: we do not yet know
+// whether a chart SHOULD move retrieval a lot, a little, or not at all. What we
+// do know is that a silent change in this number means the bridge's behaviour
+// shifted, so it belongs in docs/eval-baseline.md and must be diffed on every
+// change to retrieve.ts or chart-to-verse.ts.
+//
+// It becomes a gate once product decides a target. Until then, failing the build
+// on an unvalidated number would be cargo-culting rigor.
+if (abMoved === 0) {
+  console.log(
+    "  NOTE: the chart changed nothing on any probe. The bridge is inert at\n" +
+      "  current weights — treat chart-driven verse selection as a non-feature\n" +
+      "  and lean on the chart-reading voice instead (see docs/designs)."
+  );
 }
 
 async function voyageEmbedQueries(queries, apiKey) {

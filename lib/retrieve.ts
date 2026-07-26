@@ -114,10 +114,15 @@ export function buildRetrievalQuery(messages: ChatMessage[]): string {
 async function tagScoreSlokas(
   query: string,
   all: Sloka[],
-  limit: number
+  limit: number,
+  extraTags: string[] = []
 ): Promise<Array<{ sloka: Sloka; score: number }>> {
   const tokens = tokenize(query);
-  const tags = inferredTags(query);
+  // extraTags are a SUPPORTING signal (e.g. chart-derived themes). They join the
+  // same tag set as inferred tags rather than being concatenated into the query
+  // string — explicit over clever, and it keeps token scoring driven purely by
+  // what the user actually typed.
+  const tags = Array.from(new Set([...inferredTags(query), ...extraTags]));
   const tagSet = new Set(tags);
   const tagFreq = new Map<string, number>();
   for (const s of all) {
@@ -206,15 +211,24 @@ function diversifiedFallbacks(
     .slice(0, limit);
 }
 
+/**
+ * @param extraTags supporting tags from outside the message (chart themes via
+ *   lib/bridge/chart-to-verse). These enter the tag arm, which is weighted
+ *   `* 0.3` against a vector arm at `* 0.7 * 10` — so they nudge the tail of the
+ *   top-5 and rarely displace the primary verse. That asymmetry is measured by
+ *   the chart-tag A/B case in scripts/eval-retrieve.cjs; do not assume it is
+ *   larger than it is.
+ */
 export async function retrieveSlokas(
   query: string,
-  limit = 5
+  limit = 5,
+  extraTags: string[] = []
 ): Promise<Sloka[]> {
   const all = await getAllSlokas();
-  const tags = inferredTags(query);
+  const tags = Array.from(new Set([...inferredTags(query), ...extraTags]));
   const merged = new Map<number, { sloka: Sloka; score: number }>();
 
-  const tagResults = await tagScoreSlokas(query, all, limit * 2);
+  const tagResults = await tagScoreSlokas(query, all, limit * 2, extraTags);
   for (const { sloka, score } of tagResults) {
     merged.set(sloka.id, {
       sloka,
