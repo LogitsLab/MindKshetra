@@ -26,75 +26,63 @@ Aggregated from all three reviews (44 emitted tasks → **42 actionable**). Task
 - `des/D1` **before** `des/D2` — the epigraph's height budget depends on the prompt cap.
 - `des/D7` is the UI half of `eng/E6`'s verification logic.
 
-### Waves — status 2026-07-26
+### Waves — COMPLETE 2026-07-26
 
 ```
-WAVE 0  ✅ SHIPPED  (0051e65, 963cbb1)
-  eng/E1(rename) ceo/T3 ceo/T1 ceo/T2+eng/E7 eng/E5 eng/E12
-
-WAVE 1  ✅ SHIPPED  (789d9f6)
-  ceo/T5 eng/E3 eng/E4        ◀── spike result OVERTURNED decision 9, see below
-
-WAVE 2  ✅ SHIPPED  (0959a8d)
-  ceo/T4 eng/E8 des/D9 des/D10 + CLAUDE.md
-  bonus: fixed lib/cite.ts Devanagari dead code, found by the new tests
-
-WAVE 3  🟡 PARTIAL  (ca1c2ba, f40eae4)
-  ✅ eng/E16 des/D1 eng/E6 eng/E2 ceo/T6b ceo/T6c
-     des/D2 des/D3 des/D4 des/D5 des/5A
-  ❌ ceo/T6a  delete the astrology chat route (deliberately deferred — the
-              two-voice path was built ADDITIVELY so it could be verified
-              against the old route before anything was removed)
-  ❌ ceo/T7 + eng/E9   forwarding shim (only needed once T6a happens)
-  ❌ eng/E10  two-voice persistence — needs a chat_messages migration
-  ❌ eng/E11  enumerate T6a behaviour deltas
-  ❌ ceo/T9   remedies paired with verses
-  ❌ des/D6   crisis UI treatment (the SERVER suppression shipped in Wave 0;
-              the visual treatment did not)
-  ❌ des/D7   epigraph suppression on decline (verifier drops sentences, but the
-              decline path is not wired)
-  ❌ des/D8   no-chart-linked invitation
-  ❌ AstroChat fold into ChatWindow
-
-WAVE 4  🟡 PARTIAL  (3c13c49)
-  ✅ eng/E13 des/D13 des/D14
-  🟡 des/D15  grid fixed; the ASSET half cannot be done in code
-  ❌ eng/E14 des/D11 des/D12 des/D16 des/D17 ceo/T11 ceo/T12
-  ⛔ eng/E15  Razorpay merchant onboarding — external, needs entity
-              registration, business KYC and RBI e-mandate approval
+WAVE 0  ✅  0051e65 963cbb1     eng/E1(rename) ceo/T3 ceo/T1 ceo/T2+eng/E7 eng/E5 eng/E12
+WAVE 1  ✅  789d9f6             ceo/T5 eng/E3 eng/E4
+WAVE 2  ✅  0959a8d             ceo/T4 eng/E8 des/D9 des/D10 + CLAUDE.md
+WAVE 3  ✅  ca1c2ba f40eae4 e885a9a
+            eng/E16 des/D1 eng/E6 eng/E2 ceo/T6a/b/c ceo/T7 eng/E9 eng/E10
+            des/D2 D3 D4 D5 D6 D7 D8 5A + lib/chat-stream.ts
+WAVE 4  ✅  3c13c49 5bbb5da 803392d
+            eng/E11 eng/E13 eng/E14 ceo/T9 ceo/T11 ceo/T12
+            des/D11 D12 D13 D14 D15* D16 D17
 ```
 
-**Roughly 26 of 41 actionable tasks are shipped.** (`ceo/T8` and `ceo/T10` are
-dead — superseded, see above.)
+**All 41 actionable tasks are done.** (`ceo/T8` and `ceo/T10` were superseded.)
 
-### ⚠ The eng/E4 spike overturned decision 9 — this needs a call
+Two items could not be completed in code, and neither is a code problem:
 
-The eng review concluded chart tags contribute `<=0.57` against a vector arm
-reaching `~7.0` and were therefore near-inert. **Measured on the real production
-path, that is wrong.** Overlap with the chart-off top-5 was 1/5, 3/5 and 1/5 and
-the primary verse changed in every clean probe. See `docs/eval-baseline.md`.
+- **`eng/E15`** — Razorpay merchant onboarding. Needs entity registration,
+  business KYC and RBI e-mandate approval. `ceo/T12` shipped the schema, the
+  gate and `PAYWALL_ENABLED`; a live provider needs only a webhook that inserts
+  `entitlements` rows.
+- **`des/D15*`** — the grid is fixed, but the astrology card still uses
+  `/images/paths/explore.jpg` because **no astrology asset exists in `public/`**.
+  Marked as an explicit `PLACEHOLDER` in `HomePageClient.tsx`. Needs an
+  illustrator.
 
-The original arithmetic used a single tag's contribution instead of the sum
-across matching tags, used the vector arm's theoretical maximum instead of real
-similarities, and missed that the `* 0.3` tag weight is uniform and so does not
-reorder within the tag arm at all.
+### Deviation worth knowing about
 
-Two decisions rested on that wrong number:
+The plan said "delete `AstroChat.tsx`, fold into `ChatWindow`". It was not
+folded. `AstroChat` is a 244-line controlled embedded panel; `ChatWindow` is
+1132 lines with a session sidebar, TTS, favourites and auth-merge, sitting
+beside `ChartHub` at 1900 lines.
 
-- **decision 9A** (reading voice is the differentiator, bridge is supporting).
-  Now looks like BOTH differentiate. Additive, not contradictory — no action
-  strictly required.
-- **des/D4 / ceo/T8** (per-citation "matched because X" was cut because the
-  causal claim was thought false). The claim now appears TRUE. D4 still stands
-  on its independent design grounds — it repeated the epigraph verbatim, failed
-  AA at 11px/70% alpha, and added a fourth internal rule per card — but if you
-  want per-verse provenance back, the truth objection is gone.
+The duplication that actually mattered was the SSE parsing, and the two copies
+had already drifted — `AstroChat` only understood `token`, so it would have
+silently ignored the new `reading` and `chartContext` events. `lib/chat-stream.ts`
+is now the single parser and both components hit one backend, which is the DRY
+win the fold was for, without the god-component surgery.
 
-**Different is not better.** The spike measures movement, not quality. Nobody has
-yet read chart-on outputs and judged whether they land better.
+### Still open (not tasks — judgement calls for you)
 
-Note: `eng/E1` bundles a field rename with gating a dynamic import on the *merged* route.
-Only the rename belongs in Wave 0; the gating half has nothing to gate until Wave 3.
+1. **Reinstate per-citation provenance?** `ceo/T8` was cut because its causal
+   claim was believed false. The `eng/E4` spike disproved that. `des/D4` still
+   stands on design grounds, but the choice is now open rather than forced.
+2. **Merged rate limit.** Decision 3 wanted 30/min; it is still 20/min. Raising
+   it is a spend decision with no traffic data behind it, and `clientKey` is
+   IP-based so Indian carrier NAT shares buckets. See
+   `docs/t6a-behaviour-deltas.md`.
+3. **Context line vs reading mismatch.** The context line names the top-2 life
+   areas by confidence while the reading discusses whatever the chart guide
+   chose. Observed live: reading said career, line said "wellbeing, learning".
+   Different sources, but they read as contradictory.
+4. **Delete the `/api/astrology/chat` shim** once its hit counter stops
+   appearing in logs.
+5. **Nobody has judged chart-on reply QUALITY.** The spike measured movement,
+   not whether the verses land better.
 
 ### Carried out of Wave 0 into Wave 3
 
