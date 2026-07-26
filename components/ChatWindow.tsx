@@ -31,6 +31,19 @@ type UiMessage = {
   role: "user" | "assistant";
   content: string;
   citations?: Citation[];
+  /**
+   * Chart epigraph (des/D2). One or two sentences, rendered ABOVE the teaching
+   * in display type at full contrast — not muted, not italic. The first draft
+   * styled it small + grey + italic, which is this app's disclaimer register,
+   * and that meant the product's differentiator looked like fine print.
+   */
+  reading?: string;
+  /**
+   * Reply-level provenance (des/D4). States what context was read, never why a
+   * verse won: per-citation "matched because X" was cut because it asserts a
+   * causal claim, repeated the epigraph verbatim, and failed AA at 11px/70%.
+   */
+  chartContext?: string;
 };
 
 type Props = {
@@ -395,6 +408,20 @@ export default function ChatWindow({
                 localStorage.setItem(CHAT_SESSION_KEY, payload.sessionId);
                 void loadRecentSessions();
               }
+            } else if (payload.type === "reading" && payload.content) {
+              const readingText = payload.content;
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId ? { ...m, reading: readingText } : m
+                )
+              );
+            } else if (payload.type === "chartContext" && payload.content) {
+              const ctx = payload.content;
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId ? { ...m, chartContext: ctx } : m
+                )
+              );
             } else if (payload.type === "citations" && payload.citations) {
               citations = payload.citations;
               setMessages((prev) =>
@@ -953,6 +980,26 @@ export default function ChatWindow({
                 : "mr-auto max-w-[min(100%,52rem)]"
             }`}
           >
+            {/*
+              des/D2 — chart epigraph. Fraunces at full --text, upright, brass
+              left rule, no panel, no label, no glyph: the sentence names the
+              chart by content, so a "CHART READING" label above it would be
+              pure chrome. One face in the reply.
+
+              des/5A — min-height reserves the slot so the two calls cannot
+              reflow text the reader is mid-sentence on. ChatWindow auto-scrolls
+              during streaming, which makes a late-filling upper block jump.
+
+              G1 is closed structurally: no reading -> nothing renders at all.
+              There is no empty labelled block to design because one cannot exist.
+            */}
+            {msg.role === "assistant" && msg.reading ? (
+              <div className="mb-3 min-h-[3.4rem] border-l border-[var(--line)] pl-5 flex items-center">
+                <p className="font-display text-[18px] leading-[1.5] text-[var(--text)] sm:text-[19px]">
+                  {msg.reading}
+                </p>
+              </div>
+            ) : null}
             <div
               className={`mb-2 flex items-center gap-2 ${
                 msg.role === "user" ? "justify-end" : "justify-start"
@@ -977,6 +1024,12 @@ export default function ChatWindow({
                 {msg.role === "user" ? t("you") : t("madhav")}
               </p>
               {msg.role === "assistant" && msg.content.trim() ? (
+                /* des/D5 — teaching only. `msg.content` is the teaching; the
+                   chart epigraph lives in `msg.reading` and is deliberately NOT
+                   spoken. One browser voice cannot carry two speakers, and
+                   lib/tts.ts collapses the paragraph break into ". ", so reading
+                   both would slide an astrologer's technical claim straight into
+                   Krishna's voice with no audible seam. */
                 <SpeakButton
                   text={msg.content}
                   lang={lang}
@@ -992,7 +1045,7 @@ export default function ChatWindow({
               className={`px-5 py-5 text-base font-light leading-[1.8] break-words [overflow-wrap:anywhere] sm:px-6 sm:py-6 sm:text-[17px] sm:leading-[1.85] ${
                 msg.role === "user"
                   ? "bg-[rgba(201,162,39,0.14)] text-[var(--text)] whitespace-pre-wrap"
-                  : "border border-[var(--line)] bg-[var(--surface)] text-[var(--text)]"
+                  : "glass text-[var(--text)]"
               }`}
             >
               {msg.content ? (
@@ -1007,6 +1060,18 @@ export default function ChatWindow({
                 ""
               )}
             </div>
+            {/* des/D4 — ONE reply-level provenance line, above the citations.
+                Replaces per-citation "matched because X": that asserted a causal
+                claim, repeated the epigraph verbatim two lines later, added a
+                fourth internal rule to every card, and rendered at 11px/70%
+                alpha over an animated photo — failing AA on the one element
+                whose entire job is to be believed. This states CONTEXT, so it
+                cannot contradict whatever the retrieval weights actually do. */}
+            {msg.role === "assistant" && msg.chartContext ? (
+              <p className="mt-4 text-[12px] tracking-[0.01em] text-[var(--text-muted)]">
+                {msg.chartContext}
+              </p>
+            ) : null}
             {msg.role === "assistant" &&
               msg.citations &&
               msg.citations.length > 0 && (
@@ -1015,10 +1080,14 @@ export default function ChatWindow({
                     <Link
                       key={c.id}
                       href={`/sloka/${c.id}`}
-                      className="block border border-[var(--line)] bg-[var(--input-bg)] px-4 py-4 text-[15px] transition hover:border-[var(--brass)]/40 sm:text-base"
+                      /* des/D9 border hierarchy: --line is for containing
+                         surfaces, --hairline for internal division. Citations
+                         used --line, making them visual PEERS of the reply
+                         panel — which is what read as card soup. */
+                      className="block border-t border-[var(--hairline)] bg-transparent px-1 py-3 text-[15px] transition hover:bg-[var(--surface)] sm:text-base"
                     >
                       <span className="text-[var(--brass-soft)]">{c.ref}</span>
-                      <span className="mt-1 block line-clamp-2 font-light leading-relaxed text-[var(--text-muted)]">
+                      <span className="mt-1 block line-clamp-2 font-light leading-relaxed text-[var(--text-soft)]">
                         {lang === "hi" && c.hindi ? c.hindi : c.english}
                       </span>
                     </Link>
