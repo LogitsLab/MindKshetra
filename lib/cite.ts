@@ -22,9 +22,22 @@ const VERSE_COUNTS: Record<number, number> = {
   18: 78,
 };
 
-/** Context that suggests a Gita citation rather than a time/ratio. */
+/**
+ * Context that suggests a Gita citation rather than a time/ratio.
+ *
+ * The Devanagari terms are deliberately OUTSIDE the `\b` group. JavaScript
+ * defines `\b` via `\w` = [A-Za-z0-9_], so there is no word boundary after a
+ * Devanagari character — `/श्लोक\b/.test("श्लोक 2:47")` is false. Keeping them
+ * inside the original single `\b`-terminated alternation made all three dead
+ * code, which silently dropped every colon-form citation in Hindi replies
+ * (`"श्लोक 2:47 में"` extracted nothing), so verifyAndFixCitations then treated
+ * the verse as uncited and appended a redundant "(See X.)".
+ *
+ * Latin terms keep `\b` so "seen"/"verses" do not match. Devanagari terms match
+ * as substrings, which is safe: they are distinctive enough not to false-positive.
+ */
 const CITE_CONTEXT =
-  /(?:verse|śloka|sloka|chapter|gita|गीता|श्लोक|अध्याय|bg\.?|see|from)\b/i;
+  /(?:(?:verse|śloka|sloka|chapter|gita|bg\.?|see|from)\b|गीता|श्लोक|अध्याय)/i;
 
 /**
  * Find Gita-style chapter.verse citations with context gating.

@@ -8,6 +8,13 @@
   --field: #0e1420;
   --mist: #182234;
   --text: #eef2f7;
+  /* Secondary READING copy. Sits between --text and --text-muted because the
+     gap between them was too wide: --text-muted (#9aa8bc) was serving 17px body
+     intro copy, 15px verse translations, 11px disclaimers AND placeholders at
+     60% alpha. With only one dim token available, any secondary content ended
+     up styled like fine print. Reserve --text-muted for chrome; use this for
+     prose the reader is meant to actually read. (des/D9) */
+  --text-soft: #c3ccd9;
   --text-muted: #9aa8bc;
   --brass: #c9a227;
   --brass-soft: #e2c45a;
@@ -49,6 +56,7 @@
   --field: rgba(220, 229, 239, 0.25);
   --mist: rgba(197, 208, 222, 0.3);
   --text: #0c1220;
+  --text-soft: #2b3a4f;
   --text-muted: #334155;
   --brass: #c9a227;
   --brass-soft: #8a6410;
@@ -326,7 +334,29 @@ body {
   transform: translateX(-50%);
 }
 
+/*
+ * des/D10 — reduced motion.
+ *
+ * This used to be an explicit class ALLOWLIST, which meant every new animation
+ * shipped unguarded until someone remembered to add it here. That is a rule
+ * nobody can reliably follow: the failure is silent and only affects users who
+ * already asked not to see motion.
+ *
+ * Inverted: kill all animation by default inside the query, then opt back in
+ * anything that genuinely must keep moving (nothing does today). New animations
+ * are now guarded automatically. The explicit list is kept below purely so the
+ * intent stays greppable — it is redundant with the wildcard, not load-bearing.
+ */
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
   .animate-rise,
   .animate-rise-delay-1,
   .animate-rise-delay-2,
