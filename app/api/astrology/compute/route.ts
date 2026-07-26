@@ -9,9 +9,14 @@ import {
 import { ENGINE_VERSION, type ChartPayload } from "@/lib/astrology/types";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
 import { memoryGet, memorySet } from "@/lib/astrology/memory-cache";
+import {
+  INCOGNITO_TTL_SEC,
+  incognitoKey,
+  mintChartSessionId,
+  readChartSessionId,
+} from "@/lib/astrology/incognito";
 import { redisGet, redisSet } from "@/lib/redis";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
-import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
 async function cacheGet(key: string): Promise<string | null> {
@@ -34,7 +39,7 @@ function liveChart(chart: ChartPayload, asOfDate?: string): ChartPayload {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const INCOGNITO_TTL_SEC = 60 * 60 * 6;
+/** Contract lives in lib/astrology/incognito.ts — shared with predictions + chat. */
 
 export async function POST(request: NextRequest) {
   const rl = await rateLimit(`astro:compute:${clientKey(request)}`, 20, 60_000);
@@ -55,37 +60,42 @@ export async function POST(request: NextRequest) {
   const asOfDate =
     typeof body.asOfDate === "string" ? body.asOfDate : undefined;
 
+  const session = readChartSessionId(body, "astrology/compute");
+  if (!session.ok) {
+    return NextResponse.json(
+      { error: "Invalid chartSessionId" },
+      { status: 400 }
+    );
+  }
+
   try {
     if (body.memberId) {
       return await computeForMember(String(body.memberId), asOfDate);
     }
 
-    if (body.sessionId && typeof body.sessionId === "string" && !body.dob) {
-      const cached = await cacheGet(`astro:incog:${body.sessionId}`);
+    if (session.id && !body.dob) {
+      const key = incognitoKey(session.id);
+      const cached = await cacheGet(key);
       if (cached) {
         const chart = liveChart(JSON.parse(cached) as ChartPayload, asOfDate);
-        await cacheSet(
-          `astro:incog:${body.sessionId}`,
-          JSON.stringify(chart),
-          INCOGNITO_TTL_SEC
-        );
+        await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
         return NextResponse.json({
-          sessionId: body.sessionId,
+          chartSessionId: session.id,
+          sessionId: session.id, // deprecated alias, drop after one deploy
           chart,
           persisted: false,
         });
       }
-      // Rehydrate after server restart if client still has birth
+      // Rehydrate after cache expiry if the client still holds birth details.
+      // Safe to write under session.id here: it passed the uuid v4 shape check,
+      // so it cannot be a guessable key another client would collide with.
       const birth = parseBirthBody(body.birth ?? body);
       if (birth) {
         const chart = liveChart(computeChart(birth), asOfDate);
-        await cacheSet(
-          `astro:incog:${body.sessionId}`,
-          JSON.stringify(chart),
-          INCOGNITO_TTL_SEC
-        );
+        await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
         return NextResponse.json({
-          sessionId: body.sessionId,
+          chartSessionId: session.id,
+          sessionId: session.id, // deprecated alias, drop after one deploy
           chart,
           persisted: false,
         });
@@ -99,15 +109,17 @@ export async function POST(request: NextRequest) {
     }
 
     const chart = liveChart(computeChart(birth), asOfDate);
-    const sessionId = String(body.sessionId || randomUUID());
+    // Always server-minted. Never derived from the request body.
+    const chartSessionId = mintChartSessionId();
     await cacheSet(
-      `astro:incog:${sessionId}`,
+      incognitoKey(chartSessionId),
       JSON.stringify(chart),
       INCOGNITO_TTL_SEC
     );
 
     return NextResponse.json({
-      sessionId,
+      chartSessionId,
+      sessionId: chartSessionId, // deprecated alias, drop after one deploy
       chart,
       persisted: false,
     });

@@ -12,6 +12,11 @@ import type { ChartPayload } from "@/lib/astrology/types";
 const SESSION_KEY = "mindkshetra-astro-incognito";
 const PENDING_SAVE_KEY = "mindkshetra-astro-pending-save";
 
+/**
+ * sessionStorage shape. The field stays `sessionId` deliberately: renaming it
+ * would invalidate every live incognito chart on deploy for zero benefit. The
+ * WIRE field is `chartSessionId` (see lib/astrology/incognito.ts).
+ */
 type StoredSession = {
   sessionId: string;
   birth?: ChartPayload["birth"];
@@ -105,7 +110,7 @@ export default function AstrologyLanding() {
   const { user } = useAuth();
   const router = useRouter();
   const signedIn = Boolean(user && !user.is_anonymous);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [chartSessionId, setChartSessionId] = useState<string | null>(null);
   const [chart, setChart] = useState<ChartPayload | null>(null);
   const [restoring, setRestoring] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +126,7 @@ export default function AstrologyLanding() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        sessionId: existing.sessionId,
+        chartSessionId: existing.sessionId,
         ...(existing.birth ? { birth: existing.birth } : {}),
       }),
     })
@@ -131,10 +136,12 @@ export default function AstrologyLanding() {
           return;
         }
         const data = await res.json();
-        setSessionId(data.sessionId);
+        // Accept either name while the previous server build may still be live.
+        const id = data.chartSessionId ?? data.sessionId;
+        setChartSessionId(id);
         setChart(data.chart);
         if (data.chart?.birth) {
-          writeStoredSession(data.sessionId, data.chart.birth);
+          writeStoredSession(id, data.chart.birth);
         }
       })
       .catch(() => {
@@ -186,7 +193,7 @@ export default function AstrologyLanding() {
 
   function clearSession() {
     sessionStorage.removeItem(SESSION_KEY);
-    setSessionId(null);
+    setChartSessionId(null);
     setChart(null);
     setError(null);
   }
@@ -243,7 +250,7 @@ export default function AstrologyLanding() {
     );
   }
 
-  if (chart && sessionId) {
+  if (chart && chartSessionId) {
     return (
       <div className="animate-fade py-6 sm:py-10">
         <div className="mx-auto mb-6 flex max-w-3xl flex-wrap items-center justify-between gap-3">
@@ -269,7 +276,7 @@ export default function AstrologyLanding() {
           title={chart.birth.name || t("astroGuestChart")}
           subtitle={`${chart.birth.dob} · ${chart.birth.placeLabel}`}
           incognito
-          sessionId={sessionId}
+          chartSessionId={chartSessionId}
           showGuidedPath
           onSaveAsMember={saveAsMember}
           saveBusy={saveBusy}
@@ -278,7 +285,7 @@ export default function AstrologyLanding() {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                sessionId,
+                chartSessionId,
                 birth: chart.birth,
                 asOfDate,
               }),
@@ -293,7 +300,7 @@ export default function AstrologyLanding() {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                sessionId,
+                chartSessionId,
                 language: lang,
                 force,
                 birth: chart.birth,
@@ -430,8 +437,9 @@ export default function AstrologyLanding() {
               });
               const data = await res.json();
               if (!res.ok) throw new Error(data.error || "Compute failed");
-              writeStoredSession(data.sessionId, data.chart.birth);
-              setSessionId(data.sessionId);
+              const id = data.chartSessionId ?? data.sessionId;
+              writeStoredSession(id, data.chart.birth);
+              setChartSessionId(id);
               setChart(data.chart);
             }}
           />

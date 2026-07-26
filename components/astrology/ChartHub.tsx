@@ -41,7 +41,8 @@ type Props = {
   subtitle?: string;
   incognito?: boolean;
   memberId?: string;
-  sessionId?: string;
+  /** Incognito chart session id (see lib/astrology/incognito.ts). */
+  chartSessionId?: string;
   onRequestPredictions?: (force?: boolean) => Promise<ChartPayload>;
   onAsOfDateChange?: (asOfDate: string) => Promise<ChartPayload>;
   onEditBirth?: () => void;
@@ -107,7 +108,7 @@ export default function ChartHub({
   subtitle,
   incognito,
   memberId,
-  sessionId,
+  chartSessionId,
   onRequestPredictions,
   onAsOfDateChange,
   onEditBirth,
@@ -116,7 +117,7 @@ export default function ChartHub({
   showGuidedPath = true,
 }: Props) {
   const { t, lang } = useLanguage();
-  const storageId = sessionId || memberId || "anon";
+  const storageId = chartSessionId || memberId || "anon";
 
   const [tab, setTab] = useState<Tab>("overview");
   const [chart, setChart] = useState(initial);
@@ -1480,7 +1481,7 @@ export default function ChartHub({
         <section className="min-h-[70vh]">
           <AstroChat
             memberId={memberId}
-            sessionId={sessionId}
+            chartSessionId={chartSessionId}
             birth={chart.birth as unknown as Record<string, unknown>}
             starters={chatStarters}
             messages={chatMessages}

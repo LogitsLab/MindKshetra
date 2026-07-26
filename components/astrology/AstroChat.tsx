@@ -7,7 +7,8 @@ export type AstroChatMessage = { role: "user" | "assistant"; content: string };
 
 type Props = {
   memberId?: string;
-  sessionId?: string;
+  /** Incognito chart session. See lib/astrology/incognito.ts for the naming. */
+  chartSessionId?: string;
   birth?: Record<string, unknown>;
   starters?: string[];
   contextLine?: string;
@@ -19,7 +20,7 @@ type Props = {
 
 export default function AstroChat({
   memberId,
-  sessionId,
+  chartSessionId,
   birth,
   starters,
   contextLine,
@@ -82,7 +83,7 @@ export default function AstroChat({
           messages: nextMessages,
           language: lang,
           memberId,
-          sessionId,
+          chartSessionId,
           birth,
         }),
       });

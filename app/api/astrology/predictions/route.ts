@@ -10,6 +10,11 @@ import { writePredictions } from "@/lib/astrology/predictions";
 import { ENGINE_VERSION, type ChartPayload } from "@/lib/astrology/types";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
 import { memoryGet, memorySet } from "@/lib/astrology/memory-cache";
+import {
+  INCOGNITO_TTL_SEC,
+  incognitoKey,
+  readChartSessionId,
+} from "@/lib/astrology/incognito";
 import { redisGet, redisSet } from "@/lib/redis";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 import { DateTime } from "luxon";
@@ -112,9 +117,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ chart, cached: false });
     }
 
-    sessionId = body.sessionId ? String(body.sessionId) : null;
+    const session = readChartSessionId(body, "astrology/predictions");
+    if (!session.ok) {
+      return NextResponse.json(
+        { error: "Invalid chartSessionId" },
+        { status: 400 }
+      );
+    }
+    sessionId = session.id;
     if (sessionId) {
-      const cached = await cacheGet(`astro:incog:${sessionId}`);
+      const key = incognitoKey(sessionId);
+      // `sessionId` is echoed back under both names for one deploy; see
+      // lib/astrology/incognito.ts for why the field was renamed.
+      const echo = { chartSessionId: sessionId, sessionId };
+      const cached = await cacheGet(key);
       if (cached) {
         chart = liveChart(JSON.parse(cached) as ChartPayload);
         if (
@@ -122,32 +138,21 @@ export async function POST(request: NextRequest) {
           chart.predictionsText?.portrait &&
           chart.predictionsText.language === language
         ) {
-          await cacheSet(
-            `astro:incog:${sessionId}`,
-            JSON.stringify(chart),
-            60 * 60 * 6
-          );
-          return NextResponse.json({ sessionId, chart, cached: true });
+          await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
+          return NextResponse.json({ ...echo, chart, cached: true });
         }
         chart.predictionsText = await writePredictions(chart, language);
-        await cacheSet(
-          `astro:incog:${sessionId}`,
-          JSON.stringify(chart),
-          60 * 60 * 6
-        );
-        return NextResponse.json({ sessionId, chart, cached: false });
+        await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
+        return NextResponse.json({ ...echo, chart, cached: false });
       }
-      // Cache miss (e.g. server restart) — recompute from birth if provided
+      // Cache miss (e.g. TTL expiry) — recompute from birth if provided.
+      // Safe to write under sessionId: it passed the uuid v4 shape check.
       const birthFromSession = parseBirthBody(body.birth ?? body);
       if (birthFromSession) {
         chart = liveChart(computeChart(birthFromSession));
         chart.predictionsText = await writePredictions(chart, language);
-        await cacheSet(
-          `astro:incog:${sessionId}`,
-          JSON.stringify(chart),
-          60 * 60 * 6
-        );
-        return NextResponse.json({ sessionId, chart, cached: false });
+        await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
+        return NextResponse.json({ ...echo, chart, cached: false });
       }
       return NextResponse.json(
         { error: "Session expired — cast the chart again" },
@@ -158,7 +163,7 @@ export async function POST(request: NextRequest) {
     const birth = parseBirthBody(body.birth ?? body);
     if (!birth) {
       return NextResponse.json(
-        { error: "Provide memberId, sessionId, or birth payload" },
+        { error: "Provide memberId, chartSessionId, or birth payload" },
         { status: 400 }
       );
     }

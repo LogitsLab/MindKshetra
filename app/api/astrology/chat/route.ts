@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import { buildChartChatContext } from "@/lib/astrology/blend";
+import { crisisResponse, detectCrisis } from "@/lib/crisis";
+import { incognitoKey, readChartSessionId } from "@/lib/astrology/incognito";
 import { refreshCurrentDasha } from "@/lib/astrology/dasha";
 import { computeChart } from "@/lib/astrology/engine";
 import {
@@ -29,6 +31,8 @@ type Body = {
   messages?: { role: "user" | "assistant"; content: string }[];
   language?: "en" | "hi";
   memberId?: string;
+  /** See lib/astrology/incognito.ts. `sessionId` is a deprecated alias. */
+  chartSessionId?: string;
   sessionId?: string;
   birth?: Record<string, unknown>;
 };
@@ -62,8 +66,12 @@ async function loadChart(body: Body): Promise<ChartPayload | null> {
     return live(computeChart(memberToBirthInput(mapMemberRow(row))));
   }
 
-  if (body.sessionId) {
-    const key = `astro:incog:${body.sessionId}`;
+  const session = readChartSessionId(
+    body as unknown as Record<string, unknown>,
+    "astro-chat"
+  );
+  if (session.ok && session.id) {
+    const key = incognitoKey(session.id);
     const raw = (await redisGet(key)) ?? memoryGet(key);
     if (raw) return live(JSON.parse(raw) as ChartPayload);
   }
@@ -125,6 +133,50 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  const language = body.language === "hi" ? "hi" : "en";
+
+  // Crisis intercept. Deliberately BEFORE loadChart:
+  //
+  //   message ──▶ detectCrisis ──┬─▶ detected ──▶ helplines, stream, return
+  //                              │                (no chart loaded, no Groq call,
+  //                              │                 no native computeChart burned)
+  //                              └─▶ clear    ──▶ loadChart ──▶ chart guide
+  //
+  // This route previously had no crisis check at all, while /api/chat did. Worse,
+  // buildAstrologyChatSystemPrompt instructs the model to "briefly decline and
+  // steer back" on off-chart questions — so someone writing "I don't want to live
+  // anymore" got a confident reply about their 8th house and no phone number.
+  //
+  // The chart voice is suppressed entirely rather than added to: a deterministic
+  // "Saturn holds this house until 2028" beside a helpline reads as confirmation
+  // that things are fated to stay bad, which is materially more dangerous than
+  // the helpline alone.
+  const crisis = detectCrisis(lastUser.content);
+  if (crisis.detected) {
+    console.warn("[astro-chat] crisis pattern detected");
+    const response = crisisResponse(language);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        const send = (payload: unknown) => {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
+          );
+        };
+        // `token` + `done` only — matches what AstroChat.tsx parses.
+        send({ type: "token", content: response });
+        send({ type: "done" });
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+      },
+    });
+  }
+
   const chart = await loadChart(body);
   if (!chart) {
     return new Response(
@@ -133,7 +185,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const language = body.language === "hi" ? "hi" : "en";
   const context = buildChartChatContext(chart);
   const system = buildAstrologyChatSystemPrompt(chart, language, context);
 
