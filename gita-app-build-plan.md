@@ -1,3 +1,8 @@
+> **SUPERSEDED (2026-07-26).** This is the original pre-naming brief. The app
+> shipped as MindKshetra on Groq rather than the Claude API, and its Phase 7 items
+> (share cards, journal, streaks, verse-of-the-day) are all done. Current source of
+> truth: [docs/designs/gita-jyotish-integration.md](docs/designs/gita-jyotish-integration.md).
+
 # Gita companion app — build plan for Claude Code
 
 > Save this file as `PLAN.md` (or `CLAUDE.md`) at your repo root. Work through

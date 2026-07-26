@@ -20,6 +20,11 @@ todos:
 isProject: false
 ---
 
+> **SUPERSEDED (2026-07-26).** This plan is historical. Its Excluded column lists
+> auth, TTS, Supabase, streaks and persisted chat history — all five have since
+> shipped, and it does not mention the astrology engine at all. Current source of
+> truth: [docs/designs/gita-jyotish-integration.md](docs/designs/gita-jyotish-integration.md).
+
 # MindKshetra — barebones webapp plan
 
 Cut down from [gita-app-build-plan.md](gita-app-build-plan.md), then expanded to cover full corpus, search, i18n, and verse stories while keeping auth/TTS/Supabase out.
