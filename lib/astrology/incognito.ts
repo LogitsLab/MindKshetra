@@ -46,6 +46,32 @@ export function mintChartSessionId(): string {
   return randomUUID();
 }
 
+/**
+ * eng/E16 — the in-memory cache is NOT a working cross-route fallback.
+ *
+ *   compute (lambda A)          chat (lambda B)
+ *     memorySet(key, chart) ─┐   ┌─ memoryGet(key) -> null, ALWAYS
+ *                            │   │
+ *                     [separate module instances]
+ *
+ * With Redis unreachable, a chart written by /api/astrology/compute is invisible
+ * to /api/astrology/chat, so the incognito flow 404s every time. Verified by
+ * controlled comparison against pre-change code — pre-existing, not new.
+ *
+ * The cache is therefore an OPTIMISATION, never a source of truth. The chart is
+ * fully derivable from `birth`, which the client already holds in sessionStorage,
+ * so every incognito route must be able to recompute from `birth` on a miss.
+ * That path already existed by accident; it is now the documented contract.
+ *
+ * Callers use this to tell the client WHY a lookup missed, so it can re-send
+ * birth instead of showing a dead-end "session expired".
+ */
+export type IncognitoMissReason = "expired" | "cache-unavailable";
+
+export function incognitoMissReason(redisReachable: boolean): IncognitoMissReason {
+  return redisReachable ? "expired" : "cache-unavailable";
+}
+
 export type ChartSessionRead =
   | { ok: true; id: string | null }
   | { ok: false; reason: "malformed" };

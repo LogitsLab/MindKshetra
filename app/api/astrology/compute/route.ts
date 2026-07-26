@@ -12,10 +12,11 @@ import { memoryGet, memorySet } from "@/lib/astrology/memory-cache";
 import {
   INCOGNITO_TTL_SEC,
   incognitoKey,
+  incognitoMissReason,
   mintChartSessionId,
   readChartSessionId,
 } from "@/lib/astrology/incognito";
-import { redisGet, redisSet } from "@/lib/redis";
+import { redisEnabled, redisGet, redisSet } from "@/lib/redis";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 import { DateTime } from "luxon";
 
@@ -100,7 +101,29 @@ export async function POST(request: NextRequest) {
           persisted: false,
         });
       }
-      return NextResponse.json({ error: "Session expired" }, { status: 404 });
+      // eng/E16: distinguish "the TTL elapsed" from "there is no shared cache at
+      // all". Without Redis the write went to one lambda's memory and this read
+      // is in another, so the chart was never findable — telling the user their
+      // session "expired" would be a lie and leaves them stuck. `recoverable`
+      // tells the client to re-send `birth`, which it holds in sessionStorage.
+      const reason = incognitoMissReason(redisEnabled());
+      if (reason === "cache-unavailable") {
+        console.warn(
+          "[astrology/compute] incognito lookup missed with no shared cache — " +
+            "Redis is unreachable, so charts cannot survive across routes."
+        );
+      }
+      return NextResponse.json(
+        {
+          error:
+            reason === "cache-unavailable"
+              ? "Chart cache unavailable — resend birth details"
+              : "Session expired",
+          reason,
+          recoverable: true,
+        },
+        { status: 404 }
+      );
     }
 
     const birth = parseBirthBody(body);
