@@ -54,7 +54,11 @@ Enable **Anonymous**, **Google**, and **Email (magic link)** providers in Supaba
 
 ### Auth providers (optional setup)
 
-**Email magic link** — enable Email provider in Supabase. For reliable delivery in production, configure custom SMTP under Auth → SMTP (Resend, Postmark, etc.). Locally, Supabase’s default sender is fine for testing; check spam. Links must be opened on the **same browser/device** that requested them (PKCE). Add these Redirect URLs in Supabase → Authentication → URL Configuration:
+**Email magic link** — enable Email provider in Supabase. For reliable delivery in production, configure custom SMTP under Auth → SMTP (Resend, Postmark, etc.). Locally, Supabase’s default sender is fine for testing; check spam. Links must be opened on the **same browser/device** that requested them (PKCE).
+
+In Supabase → Authentication → URL Configuration:
+- **Site URL** can stay as the app origin (`http://localhost:3000` or `https://mind.logitslab.com`).
+- **Redirect URLs** must include the callback paths below (without these, Supabase falls back to Site URL with `?code=` on `/` — the app forwards that to `/auth/callback`, but allowlisting is still required for a clean flow):
 
 - `http://localhost:3000/auth/callback`
 - `https://mind.logitslab.com/auth/callback`

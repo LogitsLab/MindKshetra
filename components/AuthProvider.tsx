@@ -61,10 +61,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Supabase Site URL failures land on / with ?error= / #error= (e.g. otp_expired).
-    // Send the user to Account with a clear message instead of a broken home URL.
+    // Supabase Site URL failures land on / with ?code= / ?error= / #error=.
+    // Middleware usually catches ?code=; this is the client-side safety net.
     const url = new URL(window.location.href);
     if (url.pathname.startsWith("/auth/callback")) return;
+
+    const code = url.searchParams.get("code");
+    if (code) {
+      const callback = new URL("/auth/callback", window.location.origin);
+      url.searchParams.forEach((value, key) => {
+        callback.searchParams.set(key, value);
+      });
+      if (!callback.searchParams.has("next")) {
+        callback.searchParams.set("next", "/account");
+      }
+      window.location.replace(callback.toString());
+      return;
+    }
 
     const hashParams = new URLSearchParams(url.hash.replace(/^#/, ""));
     const errorCode =

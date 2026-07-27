@@ -14,6 +14,8 @@ Anonymous chat sessions work without auth; pass `sessionId` from the chat stream
 
 Magic links and OAuth return to `/auth/callback`, which exchanges the PKCE `code` for a session cookie, then redirects to `/account` (or `?next=`).
 
+If Supabase falls back to Site URL (missing Redirect URL allowlist entry), the app may see `/?code=…`. Middleware forwards that to `/auth/callback` automatically.
+
 Configure these Redirect URLs in Supabase → Authentication → URL Configuration:
 
 - `http://localhost:3000/auth/callback`

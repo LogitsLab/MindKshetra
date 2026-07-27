@@ -24,6 +24,22 @@ export async function middleware(request: NextRequest) {
     return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
   }
 
+  // Supabase often lands PKCE ?code= on Site URL (/) when Redirect URLs
+  // don't match emailRedirectTo. Forward to /auth/callback to exchange.
+  const authCode = request.nextUrl.searchParams.get("code");
+  if (
+    authCode &&
+    !isApi &&
+    !request.nextUrl.pathname.startsWith("/auth/callback")
+  ) {
+    const callback = request.nextUrl.clone();
+    callback.pathname = "/auth/callback";
+    if (!callback.searchParams.has("next")) {
+      callback.searchParams.set("next", "/account");
+    }
+    return NextResponse.redirect(callback);
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) {
