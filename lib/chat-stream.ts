@@ -73,11 +73,18 @@ export type ChatRequestBody = {
   birth?: Record<string, unknown>;
 };
 
-export async function postChat(body: ChatRequestBody): Promise<Response> {
+export async function postChat(
+  body: ChatRequestBody,
+  signal?: AbortSignal
+): Promise<Response> {
   const res = await fetch("/api/chat", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+    },
     body: JSON.stringify(body),
+    signal,
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));

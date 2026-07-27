@@ -266,6 +266,34 @@ body {
   animation: fade-in 1.2s ease both;
 }
 
+@keyframes nav-progress-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.nav-progress-indeterminate {
+  animation: nav-progress-slide 1.05s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes stream-caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+.stream-caret {
+  animation: stream-caret 1s steps(1, end) infinite;
+}
+
 .watermark-sanskrit {
   animation: soft-pulse 8s ease-in-out infinite;
   color: var(--watermark);
@@ -362,6 +390,8 @@ body {
   .animate-rise-delay-2,
   .animate-rise-delay-3,
   .animate-fade,
+  .nav-progress-indeterminate,
+  .stream-caret,
   .watermark-sanskrit,
   .astro-zodiac-ring,
   .site-atmosphere::before {

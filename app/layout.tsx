@@ -6,6 +6,7 @@ import { ProgressProvider } from "@/components/ProgressProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Nav from "@/components/Nav";
 import MainShell from "@/components/MainShell";
+import NavigationProgress from "@/components/NavigationProgress";
 import "./globals.css";
 
 const display = Fraunces({
@@ -65,6 +66,7 @@ export default function RootLayout({
             <LanguageProvider>
               <ProgressProvider>
                 <div className="site-atmosphere" aria-hidden />
+                <NavigationProgress />
                 <Nav />
                 <MainShell>{children}</MainShell>
               </ProgressProvider>

@@ -19,6 +19,14 @@ import { getAuthUserId } from "@/lib/supabase/server";
 import type { ChatMessage } from "@/lib/types";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const SSE_HEADERS = {
+  "Content-Type": "text/event-stream; charset=utf-8",
+  "Cache-Control": "no-cache, no-transform",
+  Connection: "keep-alive",
+  "X-Accel-Buffering": "no",
+} as const;
 
 type ChatBody = {
   messages?: ChatMessage[];
@@ -215,11 +223,7 @@ export async function POST(request: NextRequest) {
     });
 
     return new Response(stream, {
-      headers: {
-        "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-      },
+      headers: SSE_HEADERS,
     });
   }
 
@@ -265,175 +269,148 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const retrievalQuery = buildRetrievalQuery(messages);
-  const cited = await retrieveSlokas(retrievalQuery || lastUser.content, 5);
-  const systemPrompt = buildMadhavSystemPrompt(cited, language);
+  // Open the SSE response immediately so the client can stream. Retrieval and
+  // Groq run inside the stream — awaiting them first buffered the whole reply
+  // behind a silent wait (looked like chat was not streaming).
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
 
-  const history = messages
-    .filter((m) => m.role === "user" || m.role === "assistant")
-    .slice(-8)
-    .map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content.slice(0, MAX_MESSAGE_CHARS),
-    }));
+  const readable = new ReadableStream({
+    async start(controller) {
+      const send = (payload: unknown) => {
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
+        );
+      };
 
-  const promptMessages = [
-    { role: "system" as const, content: systemPrompt },
-    ...history,
-  ];
+      if (sessionId) send({ type: "session", sessionId });
 
-  try {
-    const groqRes = await createGroqChatStream(promptMessages);
+      try {
+        const retrievalQuery = buildRetrievalQuery(messages);
+        const cited = await retrieveSlokas(retrievalQuery || lastUser.content, 5);
+        const systemPrompt = buildMadhavSystemPrompt(cited, language);
 
-    if (!groqRes.body) {
-      return new Response(JSON.stringify({ error: "Empty Groq stream" }), {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+        const history = messages
+          .filter((m) => m.role === "user" || m.role === "assistant")
+          .slice(-8)
+          .map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content.slice(0, MAX_MESSAGE_CHARS),
+          }));
 
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-    const citations = cited.map((s) => ({
-      id: s.id,
-      ref: formatVerseRef(s),
-      english: s.english_translation,
-      hindi: s.hindi_translation,
-    }));
+        const promptMessages = [
+          { role: "system" as const, content: systemPrompt },
+          ...history,
+        ];
 
-    const upstream = groqRes.body.getReader();
-    const citedIds = cited.map((s) => s.id);
-
-    const readable = new ReadableStream({
-      async start(controller) {
-        const send = (payload: unknown) => {
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
-          );
-        };
-
-        if (sessionId) send({ type: "session", sessionId });
+        const citations = cited.map((s) => ({
+          id: s.id,
+          ref: formatVerseRef(s),
+          english: s.english_translation,
+          hindi: s.hindi_translation,
+        }));
+        const citedIds = cited.map((s) => s.id);
         send({ type: "citations", citations });
 
+        const groqRes = await createGroqChatStream(promptMessages);
+        if (!groqRes.body) {
+          send({ type: "error", error: "Empty Groq stream" });
+          return;
+        }
+
+        const upstream = groqRes.body.getReader();
         let sseBuffer = "";
         let rawAssistant = "";
         let visibleSent = "";
 
-        try {
-          while (true) {
-            const { done, value } = await upstream.read();
-            if (done) break;
+        while (true) {
+          const { done, value } = await upstream.read();
+          if (done) break;
 
-            sseBuffer += decoder.decode(value, { stream: true });
-            const lines = sseBuffer.split("\n");
-            sseBuffer = lines.pop() || "";
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split("\n");
+          sseBuffer = lines.pop() || "";
 
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed.startsWith("data:")) continue;
-              const data = trimmed.slice(5).trim();
-              if (!data || data === "[DONE]") continue;
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data:")) continue;
+            const data = trimmed.slice(5).trim();
+            if (!data || data === "[DONE]") continue;
 
-              let parsed: {
-                choices?: Array<{ delta?: { content?: string } }>;
-              };
-              try {
-                parsed = JSON.parse(data);
-              } catch {
-                continue;
-              }
+            let parsed: {
+              choices?: Array<{ delta?: { content?: string } }>;
+            };
+            try {
+              parsed = JSON.parse(data);
+            } catch {
+              continue;
+            }
 
-              const token = parsed.choices?.[0]?.delta?.content;
-              if (!token) continue;
+            const token = parsed.choices?.[0]?.delta?.content;
+            if (!token) continue;
 
-              rawAssistant += token;
-              const visible = stripThinkBlocks(rawAssistant);
-              if (visible.length > visibleSent.length) {
-                const delta = visible.slice(visibleSent.length);
-                visibleSent = visible;
-                send({ type: "token", content: delta });
-              }
+            rawAssistant += token;
+            const visible = stripThinkBlocks(rawAssistant);
+            if (visible.length > visibleSent.length) {
+              const delta = visible.slice(visibleSent.length);
+              visibleSent = visible;
+              send({ type: "token", content: delta });
             }
           }
-
-          let finalVisible = stripThinkBlocks(rawAssistant);
-          if (finalVisible.length > visibleSent.length) {
-            send({
-              type: "token",
-              content: finalVisible.slice(visibleSent.length),
-            });
-            visibleSent = finalVisible;
-          }
-
-          if (!visibleSent.trim()) {
-            const fallback = await createGroqCompletion(promptMessages);
-            if (fallback) {
-              send({ type: "token", content: fallback });
-              visibleSent = fallback;
-            }
-          }
-
-          if (visibleSent.trim()) {
-            const fixed = verifyAndFixCitations(visibleSent, cited);
-            if (fixed !== visibleSent) {
-              send({ type: "replace", content: fixed });
-              visibleSent = fixed;
-            }
-
-            if (sessionId) {
-              await saveChatMessage(sessionId, "user", lastUser.content);
-              await saveChatMessage(sessionId, "assistant", visibleSent, citedIds);
-            }
-
-            send({ type: "done" });
-          } else {
-            send({
-              type: "error",
-              error: "Madhav could not form a reply. Please try again.",
-            });
-          }
-        } catch (err) {
-          const message =
-            err instanceof Error ? err.message : "Stream failed";
-          if (visibleSent.trim()) {
-            const fixed = verifyAndFixCitations(visibleSent, cited);
-            if (fixed !== visibleSent) {
-              send({ type: "replace", content: fixed });
-              visibleSent = fixed;
-            }
-            if (sessionId) {
-              await saveChatMessage(sessionId, "user", lastUser.content);
-              await saveChatMessage(sessionId, "assistant", visibleSent, citedIds);
-            }
-            send({ type: "done" });
-          } else {
-            send({ type: "error", error: message });
-          }
-        } finally {
-          controller.close();
         }
-      },
-    });
 
-    return new Response(readable, {
-      headers: {
-        "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-      },
-    });
-  } catch (err) {
-    console.error("[chat]", err);
-    return new Response(
-      JSON.stringify({
-        error: "Madhav could not answer just now. Please try again in a moment.",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
+        let finalVisible = stripThinkBlocks(rawAssistant);
+        if (finalVisible.length > visibleSent.length) {
+          send({
+            type: "token",
+            content: finalVisible.slice(visibleSent.length),
+          });
+          visibleSent = finalVisible;
+        }
+
+        if (!visibleSent.trim()) {
+          const fallback = await createGroqCompletion(promptMessages);
+          if (fallback) {
+            send({ type: "token", content: fallback });
+            visibleSent = fallback;
+          }
+        }
+
+        if (visibleSent.trim()) {
+          const fixed = verifyAndFixCitations(visibleSent, cited);
+          if (fixed !== visibleSent) {
+            send({ type: "replace", content: fixed });
+            visibleSent = fixed;
+          }
+
+          if (sessionId) {
+            await saveChatMessage(sessionId, "user", lastUser.content);
+            await saveChatMessage(sessionId, "assistant", visibleSent, citedIds);
+          }
+
+          send({ type: "done" });
+        } else {
+          send({
+            type: "error",
+            error: "Madhav could not form a reply. Please try again.",
+          });
+        }
+      } catch (err) {
+        console.error("[chat]", err);
+        send({
+          type: "error",
+          error:
+            err instanceof Error
+              ? err.message
+              : "Madhav could not answer just now. Please try again in a moment.",
+        });
+      } finally {
+        controller.close();
       }
-    );
-  }
+    },
+  });
+
+  return new Response(readable, { headers: SSE_HEADERS });
 }
 
 const ASTROLOGY_CHAT_TEMPERATURE = 0.4;
@@ -450,186 +427,164 @@ async function streamAstrologyReply(args: {
   const { chart, messages, language, sessionId, lastUserContent, maxMessageChars } =
     args;
 
-  const [{ buildAstrologyChatSystemPrompt }, { buildChartChatContext }, { verifyChartClaims }] =
-    await Promise.all([
-      import("@/lib/astrology/predictions"),
-      import("@/lib/astrology/blend"),
-      import("@/lib/bridge/chart-verify"),
-    ]);
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
 
-  const systemPrompt = buildAstrologyChatSystemPrompt(
-    chart,
-    language,
-    buildChartChatContext(chart)
-  );
+  const readable = new ReadableStream({
+    async start(controller) {
+      const send = (payload: unknown) => {
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
+        );
+      };
 
-  const history = messages
-    .filter((m) => m.role === "user" || m.role === "assistant")
-    .slice(-12)
-    .map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content.slice(0, maxMessageChars),
-    }));
+      if (sessionId) send({ type: "session", sessionId });
+      send({ type: "citations", citations: [] });
 
-  const promptMessages = [
-    { role: "system" as const, content: systemPrompt },
-    ...history,
-  ];
+      let visibleSent = "";
 
-  try {
-    const groqRes = await createGroqChatStream(promptMessages, {
-      temperature: ASTROLOGY_CHAT_TEMPERATURE,
-      max_tokens: ASTROLOGY_CHAT_MAX_TOKENS,
-    });
+      try {
+        const [
+          { buildAstrologyChatSystemPrompt },
+          { buildChartChatContext },
+          { verifyChartClaims },
+        ] = await Promise.all([
+          import("@/lib/astrology/predictions"),
+          import("@/lib/astrology/blend"),
+          import("@/lib/bridge/chart-verify"),
+        ]);
 
-    if (!groqRes.body) {
-      return new Response(JSON.stringify({ error: "Empty Groq stream" }), {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+        const systemPrompt = buildAstrologyChatSystemPrompt(
+          chart,
+          language,
+          buildChartChatContext(chart)
+        );
 
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-    const upstream = groqRes.body.getReader();
+        const history = messages
+          .filter((m) => m.role === "user" || m.role === "assistant")
+          .slice(-12)
+          .map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content.slice(0, maxMessageChars),
+          }));
 
-    const readable = new ReadableStream({
-      async start(controller) {
-        const send = (payload: unknown) => {
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
-          );
-        };
+        const promptMessages = [
+          { role: "system" as const, content: systemPrompt },
+          ...history,
+        ];
 
-        if (sessionId) send({ type: "session", sessionId });
-        // No verse citations on the astrology path.
-        send({ type: "citations", citations: [] });
+        const groqRes = await createGroqChatStream(promptMessages, {
+          temperature: ASTROLOGY_CHAT_TEMPERATURE,
+          max_tokens: ASTROLOGY_CHAT_MAX_TOKENS,
+        });
 
+        if (!groqRes.body) {
+          send({ type: "error", error: "Empty Groq stream" });
+          return;
+        }
+
+        const upstream = groqRes.body.getReader();
         let sseBuffer = "";
         let rawAssistant = "";
-        let visibleSent = "";
 
-        try {
-          while (true) {
-            const { done, value } = await upstream.read();
-            if (done) break;
+        while (true) {
+          const { done, value } = await upstream.read();
+          if (done) break;
 
-            sseBuffer += decoder.decode(value, { stream: true });
-            const lines = sseBuffer.split("\n");
-            sseBuffer = lines.pop() || "";
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split("\n");
+          sseBuffer = lines.pop() || "";
 
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed.startsWith("data:")) continue;
-              const data = trimmed.slice(5).trim();
-              if (!data || data === "[DONE]") continue;
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data:")) continue;
+            const data = trimmed.slice(5).trim();
+            if (!data || data === "[DONE]") continue;
 
-              let parsed: {
-                choices?: Array<{ delta?: { content?: string } }>;
-              };
-              try {
-                parsed = JSON.parse(data);
-              } catch {
-                continue;
-              }
+            let parsed: {
+              choices?: Array<{ delta?: { content?: string } }>;
+            };
+            try {
+              parsed = JSON.parse(data);
+            } catch {
+              continue;
+            }
 
-              const token = parsed.choices?.[0]?.delta?.content;
-              if (!token) continue;
+            const token = parsed.choices?.[0]?.delta?.content;
+            if (!token) continue;
 
-              rawAssistant += token;
-              const visible = stripThinkBlocks(rawAssistant);
-              if (visible.length > visibleSent.length) {
-                const delta = visible.slice(visibleSent.length);
-                visibleSent = visible;
-                send({ type: "token", content: delta });
-              }
+            rawAssistant += token;
+            const visible = stripThinkBlocks(rawAssistant);
+            if (visible.length > visibleSent.length) {
+              const delta = visible.slice(visibleSent.length);
+              visibleSent = visible;
+              send({ type: "token", content: delta });
             }
           }
-
-          let finalVisible = stripThinkBlocks(rawAssistant);
-          if (finalVisible.length > visibleSent.length) {
-            send({
-              type: "token",
-              content: finalVisible.slice(visibleSent.length),
-            });
-            visibleSent = finalVisible;
-          }
-
-          if (!visibleSent.trim()) {
-            const fallback = await createGroqCompletion(promptMessages, {
-              temperature: ASTROLOGY_CHAT_TEMPERATURE,
-              max_tokens: ASTROLOGY_CHAT_MAX_TOKENS,
-            });
-            if (fallback) {
-              send({ type: "token", content: fallback });
-              visibleSent = fallback;
-            }
-          }
-
-          if (visibleSent.trim()) {
-            const verified = verifyChartClaims(visibleSent, chart);
-            if (verified.violations.length > 0) {
-              console.warn(
-                `[chat] astrology reply: ${verified.violations.length} unverifiable claim(s) dropped`
-              );
-            }
-            if (verified.text !== visibleSent) {
-              send({ type: "replace", content: verified.text });
-              visibleSent = verified.text;
-            }
-
-            if (sessionId) {
-              await saveChatMessage(sessionId, "user", lastUserContent);
-              await saveChatMessage(sessionId, "assistant", visibleSent, []);
-            }
-
-            send({ type: "done" });
-          } else {
-            send({
-              type: "error",
-              error: "Could not form a chart reply. Please try again.",
-            });
-          }
-        } catch (err) {
-          const message =
-            err instanceof Error ? err.message : "Stream failed";
-          if (visibleSent.trim()) {
-            const verified = verifyChartClaims(visibleSent, chart);
-            if (verified.text !== visibleSent) {
-              send({ type: "replace", content: verified.text });
-              visibleSent = verified.text;
-            }
-            if (sessionId) {
-              await saveChatMessage(sessionId, "user", lastUserContent);
-              await saveChatMessage(sessionId, "assistant", visibleSent, []);
-            }
-            send({ type: "done" });
-          } else {
-            send({ type: "error", error: message });
-          }
-        } finally {
-          controller.close();
         }
-      },
-    });
 
-    return new Response(readable, {
-      headers: {
-        "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-      },
-    });
-  } catch (err) {
-    console.error("[chat] astrology", err);
-    return new Response(
-      JSON.stringify({
-        error: "Could not answer from this chart just now. Please try again.",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
+        let finalVisible = stripThinkBlocks(rawAssistant);
+        if (finalVisible.length > visibleSent.length) {
+          send({
+            type: "token",
+            content: finalVisible.slice(visibleSent.length),
+          });
+          visibleSent = finalVisible;
+        }
+
+        if (!visibleSent.trim()) {
+          const fallback = await createGroqCompletion(promptMessages, {
+            temperature: ASTROLOGY_CHAT_TEMPERATURE,
+            max_tokens: ASTROLOGY_CHAT_MAX_TOKENS,
+          });
+          if (fallback) {
+            send({ type: "token", content: fallback });
+            visibleSent = fallback;
+          }
+        }
+
+        if (visibleSent.trim()) {
+          const verified = verifyChartClaims(visibleSent, chart);
+          if (verified.violations.length > 0) {
+            console.warn(
+              `[chat] astrology reply: ${verified.violations.length} unverifiable claim(s) dropped`
+            );
+          }
+          if (verified.text !== visibleSent) {
+            send({ type: "replace", content: verified.text });
+            visibleSent = verified.text;
+          }
+
+          if (sessionId) {
+            await saveChatMessage(sessionId, "user", lastUserContent);
+            await saveChatMessage(sessionId, "assistant", visibleSent, []);
+          }
+
+          send({ type: "done" });
+        } else {
+          send({
+            type: "error",
+            error: "Could not form a chart reply. Please try again.",
+          });
+        }
+      } catch (err) {
+        console.error("[chat] astrology", err);
+        if (visibleSent.trim()) {
+          send({ type: "done" });
+        } else {
+          send({
+            type: "error",
+            error:
+              err instanceof Error
+                ? err.message
+                : "Could not answer from this chart just now. Please try again.",
+          });
+        }
+      } finally {
+        controller.close();
       }
-    );
-  }
+    },
+  });
+
+  return new Response(readable, { headers: SSE_HEADERS });
 }

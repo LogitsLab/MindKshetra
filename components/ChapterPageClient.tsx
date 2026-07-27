@@ -5,7 +5,13 @@ import Link from "next/link";
 import EmptyState from "@/components/EmptyState";
 import SlokaCard from "@/components/SlokaCard";
 import { useLanguage } from "@/components/LanguageProvider";
-import { chapterMoral, type ChapterMeta } from "@/lib/chapters";
+import {
+  chapterMoral,
+  chapterSubtitle,
+  chapterSummary,
+  chapterTitle,
+  type ChapterMeta,
+} from "@/lib/chapters";
 import {
   formatUnitRange,
   getUnitsForChapter,
@@ -77,20 +83,18 @@ export default function ChapterPageClient({
           {t("chapter")} {chapter}
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-5xl">
-          {lang === "hi"
-            ? meta?.name_sanskrit ?? `${t("chapter")} ${chapter}`
-            : meta?.name ?? `${t("chapter")} ${chapter}`}
+          {chapterTitle(meta, lang, `${t("chapter")} ${chapter}`)}
         </h1>
-        {meta && (
+        {chapterSubtitle(meta, lang) ? (
           <p className="mt-2 font-display text-xl text-[var(--text-muted)]">
-            {lang === "hi" ? meta.name : meta.name_sanskrit}
+            {chapterSubtitle(meta, lang)}
           </p>
-        )}
-        {meta?.summary && (
+        ) : null}
+        {chapterSummary(meta, lang) ? (
           <p className="mt-4 text-sm font-light leading-relaxed text-[var(--text-muted)]">
-            {meta.summary}
+            {chapterSummary(meta, lang)}
           </p>
-        )}
+        ) : null}
         {chapterMoral(meta, lang) ? (
           <div className="mt-5 border border-[var(--line)] bg-[var(--panel)] p-4">
             <p className="text-[0.7rem] uppercase tracking-[0.18em] text-[var(--brass-soft)]">

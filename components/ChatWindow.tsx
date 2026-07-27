@@ -18,6 +18,7 @@ import { CHAT_SESSION_KEY } from "@/components/AuthProvider";
 const CHART_INVITE_KEY = "mindkshetra-chart-invite-dismissed";
 import ChatMarkdown from "@/components/ChatMarkdown";
 import SpeakButton from "@/components/SpeakButton";
+import { postChat, readChatStream } from "@/lib/chat-stream";
 import { stopSpeaking } from "@/lib/tts";
 
 const INCOGNITO_KEY = "mindkshetra-chat-incognito";
@@ -370,110 +371,71 @@ export default function ChatWindow({
       setLoading(true);
 
       try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
+        const res = await postChat(
+          {
             language: lang,
             incognito: incognito || undefined,
-            sessionId: incognito ? undefined : sessionId ?? undefined,
+            chatSessionId: incognito ? undefined : sessionId ?? undefined,
             messages: nextMessages
               .filter((m) => m.id !== "welcome")
               .map((m) => ({ role: m.role, content: m.content })),
-          }),
-        });
+          },
+          controller.signal
+        );
 
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(
-            typeof data.error === "string"
-              ? data.error
-              : `Request failed (${res.status})`
-          );
-        }
-
-        if (!res.body) throw new Error("No response stream");
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
         let full = "";
         let citations: Citation[] = [];
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const parts = buffer.split("\n\n");
-          buffer = parts.pop() || "";
-
-          for (const part of parts) {
-            const line = part.split("\n").find((l) => l.startsWith("data: "));
-            if (!line) continue;
-            let payload: {
-              type?: string;
-              content?: string;
-              citations?: Citation[];
-              error?: string;
-              sessionId?: string;
-            };
-            try {
-              payload = JSON.parse(line.slice(6));
-            } catch {
-              continue;
+        for await (const payload of readChatStream(res.body!)) {
+          if (payload.type === "session" && payload.sessionId) {
+            if (!incognitoRef.current) {
+              setSessionId(payload.sessionId);
+              localStorage.setItem(CHAT_SESSION_KEY, payload.sessionId);
+              void loadRecentSessions();
             }
-
-            if (payload.type === "session" && payload.sessionId) {
-              if (!incognitoRef.current) {
-                setSessionId(payload.sessionId);
-                localStorage.setItem(CHAT_SESSION_KEY, payload.sessionId);
-                void loadRecentSessions();
-              }
-            } else if (payload.type === "reading" && payload.content) {
-              const readingText = payload.content;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId ? { ...m, reading: readingText } : m
-                )
-              );
-            } else if (payload.type === "chartContext" && payload.content) {
-              const ctx = payload.content;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId ? { ...m, chartContext: ctx } : m
-                )
-              );
-            } else if (payload.type === "citations" && payload.citations) {
-              citations = payload.citations;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId ? { ...m, citations } : m
-                )
-              );
-            } else if (payload.type === "token" && payload.content) {
-              full += payload.content;
-              const snapshot = full;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId
-                    ? { ...m, content: snapshot, citations }
-                    : m
-                )
-              );
-            } else if (payload.type === "replace" && payload.content) {
-              full = payload.content;
-              const snapshot = full;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId
-                    ? { ...m, content: snapshot, citations }
-                    : m
-                )
-              );
-            } else if (payload.type === "error") {
-              throw new Error(payload.error || "Stream error");
-            }
+          } else if (payload.type === "reading" && payload.content) {
+            const readingText = payload.content;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId ? { ...m, reading: readingText } : m
+              )
+            );
+          } else if (payload.type === "chartContext" && payload.content) {
+            const ctx = payload.content;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId ? { ...m, chartContext: ctx } : m
+              )
+            );
+          } else if (payload.type === "citations" && payload.citations) {
+            citations = payload.citations;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId ? { ...m, citations } : m
+              )
+            );
+          } else if (payload.type === "token" && payload.content) {
+            full += payload.content;
+            const snapshot = full;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, content: snapshot, citations }
+                  : m
+              )
+            );
+          } else if (payload.type === "replace" && payload.content) {
+            full = payload.content;
+            const snapshot = full;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, content: snapshot, citations }
+                  : m
+              )
+            );
+          } else if (payload.type === "error") {
+            throw new Error(payload.error || "Stream error");
           }
         }
 
@@ -993,7 +955,12 @@ export default function ChatWindow({
           </div>
         )}
 
-        {messages.map((msg) => (
+        {messages.map((msg, msgIndex) => {
+          const streamingThis =
+            loading &&
+            msg.role === "assistant" &&
+            msgIndex === messages.length - 1;
+          return (
           <div
             key={msg.id}
             className={`break-words ${
@@ -1072,12 +1039,26 @@ export default function ChatWindow({
             >
               {msg.content ? (
                 msg.role === "assistant" ? (
-                  <ChatMarkdown content={msg.content} />
+                  <div>
+                    <ChatMarkdown content={msg.content} />
+                    {streamingThis ? (
+                      <span
+                        className="stream-caret ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.12em] bg-[var(--brass-soft)] align-text-bottom"
+                        aria-hidden
+                      />
+                    ) : null}
+                  </div>
                 ) : (
                   msg.content
                 )
-              ) : loading ? (
-                <span className="text-[var(--text-muted)]">{t("reflecting")}</span>
+              ) : streamingThis ? (
+                <span className="inline-flex items-center gap-2 text-[var(--text-muted)]">
+                  {t("reflecting")}
+                  <span
+                    className="stream-caret inline-block h-[1.05em] w-[2px] bg-[var(--brass-soft)]"
+                    aria-hidden
+                  />
+                </span>
               ) : (
                 ""
               )}
@@ -1117,7 +1098,8 @@ export default function ChatWindow({
                 </div>
               )}
           </div>
-        ))}
+          );
+        })}
 
         {/* des/D8 — uses the EmptyState idiom (ornament, display title, muted
             body) rather than a new banner pattern. Sits in the starters area

@@ -5,7 +5,13 @@ import Link from "next/link";
 import { useState } from "react";
 import ExploreSearch from "@/components/ExploreSearch";
 import { useLanguage } from "@/components/LanguageProvider";
-import type { ChapterMeta } from "@/lib/chapters";
+import {
+  chapterMoral,
+  chapterSubtitle,
+  chapterSummary,
+  chapterTitle,
+  type ChapterMeta,
+} from "@/lib/chapters";
 
 type Props = {
   chapters: ChapterMeta[];
@@ -68,20 +74,24 @@ export default function ExplorePageClient({
                     {t("chapter")} {chapter.number}
                   </p>
                   <h2 className="mt-1 font-display text-xl text-[var(--text)] transition group-hover:text-[var(--brass-soft)]">
-                    {lang === "hi" ? chapter.name_sanskrit : chapter.name}
+                    {chapterTitle(chapter, lang)}
                   </h2>
-                  <p className="mt-1 text-sm text-[var(--text-muted)]">
-                    {lang === "hi" ? chapter.name : chapter.name_sanskrit}
-                  </p>
-                  <p className="mt-3 line-clamp-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
-                    {chapter.summary}
-                  </p>
-                  {(lang === "hi" ? chapter.moral_hi : chapter.moral) ? (
+                  {chapterSubtitle(chapter, lang) ? (
+                    <p className="mt-1 text-sm text-[var(--text-muted)]">
+                      {chapterSubtitle(chapter, lang)}
+                    </p>
+                  ) : null}
+                  {chapterSummary(chapter, lang) ? (
+                    <p className="mt-3 line-clamp-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
+                      {chapterSummary(chapter, lang)}
+                    </p>
+                  ) : null}
+                  {chapterMoral(chapter, lang) ? (
                     <p className="mt-3 line-clamp-3 border-l border-[var(--brass)]/40 pl-3 text-sm leading-snug text-[var(--brass-soft)]">
                       <span className="mb-1 block text-[0.65rem] uppercase tracking-[0.14em] text-[var(--text-muted)]">
                         {t("chapterMoral")}
                       </span>
-                      {lang === "hi" ? chapter.moral_hi : chapter.moral}
+                      {chapterMoral(chapter, lang)}
                     </p>
                   ) : null}
                   <p className="mt-4 text-xs text-[var(--brass)]">
