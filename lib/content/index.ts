@@ -8,11 +8,29 @@ async function db() {
 }
 
 export async function getAllSlokas(): Promise<Sloka[]> {
-  return isDbContentEnabled() ? (await db()).dbGetAllSlokas() : json.jsonGetAllSlokas();
+  if (!isDbContentEnabled()) return json.jsonGetAllSlokas();
+  try {
+    return await (await db()).dbGetAllSlokas();
+  } catch (err) {
+    console.warn(
+      "[content] dbGetAllSlokas failed, falling back to JSON:",
+      err instanceof Error ? err.message : err
+    );
+    return json.jsonGetAllSlokas();
+  }
 }
 
 export async function getSlokaById(id: number): Promise<Sloka | undefined> {
-  return isDbContentEnabled() ? (await db()).dbGetSlokaById(id) : json.jsonGetSlokaById(id);
+  if (!isDbContentEnabled()) return json.jsonGetSlokaById(id);
+  try {
+    return await (await db()).dbGetSlokaById(id);
+  } catch (err) {
+    console.warn(
+      "[content] dbGetSlokaById failed, falling back to JSON:",
+      err instanceof Error ? err.message : err
+    );
+    return json.jsonGetSlokaById(id);
+  }
 }
 
 export async function getSlokasByChapter(chapter: number): Promise<Sloka[]> {
@@ -57,11 +75,29 @@ export async function getAdjacentSlokas(id: number): Promise<{
 }
 
 export async function getAllMoods(): Promise<Mood[]> {
-  return isDbContentEnabled() ? (await db()).dbGetAllMoods() : json.jsonGetAllMoods();
+  if (!isDbContentEnabled()) return json.jsonGetAllMoods();
+  try {
+    return await (await db()).dbGetAllMoods();
+  } catch (err) {
+    console.warn(
+      "[content] dbGetAllMoods failed, falling back to JSON:",
+      err instanceof Error ? err.message : err
+    );
+    return json.jsonGetAllMoods();
+  }
 }
 
 export async function getMoodById(id: string): Promise<Mood | undefined> {
-  return isDbContentEnabled() ? (await db()).dbGetMoodById(id) : json.jsonGetMoodById(id);
+  if (!isDbContentEnabled()) return json.jsonGetMoodById(id);
+  try {
+    return await (await db()).dbGetMoodById(id);
+  } catch (err) {
+    console.warn(
+      "[content] dbGetMoodById failed, falling back to JSON:",
+      err instanceof Error ? err.message : err
+    );
+    return json.jsonGetMoodById(id);
+  }
 }
 
 export async function dbVectorSearch(
