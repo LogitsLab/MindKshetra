@@ -59,6 +59,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [configured]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Supabase Site URL failures land on / with ?error= / #error= (e.g. otp_expired).
+    // Send the user to Account with a clear message instead of a broken home URL.
+    const url = new URL(window.location.href);
+    if (url.pathname.startsWith("/auth/callback")) return;
+
+    const hashParams = new URLSearchParams(url.hash.replace(/^#/, ""));
+    const errorCode =
+      url.searchParams.get("error_code") ||
+      hashParams.get("error_code") ||
+      "";
+    const error =
+      url.searchParams.get("error") || hashParams.get("error") || "";
+
+    if (
+      errorCode === "otp_expired" ||
+      (error === "access_denied" &&
+        (errorCode === "otp_expired" ||
+          (url.searchParams.get("error_description") ||
+            hashParams.get("error_description") ||
+            ""
+          ).toLowerCase().includes("expired")))
+    ) {
+      window.location.replace("/account?auth_error=otp_expired");
+      return;
+    }
+
+    if (error === "access_denied" || errorCode) {
+      window.location.replace("/account?auth_error=auth_failed");
+    }
+  }, []);
+
+  useEffect(() => {
     if (!supabase) {
       setLoading(false);
       return;
@@ -104,18 +138,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return {};
   }, [supabase]);
 
+  const authCallbackUrl = useCallback((next = "/account") => {
+    const url = new URL("/auth/callback", window.location.origin);
+    url.searchParams.set("next", next);
+    return url.toString();
+  }, []);
+
   const signInWithGoogle = useCallback(async (): Promise<AuthResult> => {
     if (!supabase) return { error: "Auth is not configured." };
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/account` },
+      options: { redirectTo: authCallbackUrl("/account") },
     });
     if (error) {
       console.error("[auth] google", error.message);
       return { error: friendlyAuthError(error.message, "google") };
     }
     return {};
-  }, [supabase]);
+  }, [supabase, authCallbackUrl]);
 
   const signInWithEmail = useCallback(
     async (email: string): Promise<AuthResult> => {
@@ -123,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!email.includes("@")) return { error: "Enter a valid email address." };
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${window.location.origin}/account` },
+        options: { emailRedirectTo: authCallbackUrl("/account") },
       });
       if (error) {
         console.error("[auth] email", error.message);
@@ -131,7 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return {};
     },
-    [supabase]
+    [supabase, authCallbackUrl]
   );
 
   const signOut = useCallback(async () => {

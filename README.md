@@ -54,7 +54,11 @@ Enable **Anonymous**, **Google**, and **Email (magic link)** providers in Supaba
 
 ### Auth providers (optional setup)
 
-**Email magic link** — enable Email provider in Supabase. For reliable delivery in production, configure custom SMTP under Auth → SMTP (Resend, Postmark, etc.). Locally, Supabase’s default sender is fine for testing; check spam.
+**Email magic link** — enable Email provider in Supabase. For reliable delivery in production, configure custom SMTP under Auth → SMTP (Resend, Postmark, etc.). Locally, Supabase’s default sender is fine for testing; check spam. Links must be opened on the **same browser/device** that requested them (PKCE). Add these Redirect URLs in Supabase → Authentication → URL Configuration:
+
+- `http://localhost:3000/auth/callback`
+- `https://mind.logitslab.com/auth/callback`
+- `https://mindkshetra.vercel.app/auth/callback`
 
 **Google OAuth** — create an OAuth client in [Google Cloud Console](https://console.cloud.google.com/apis/credentials), then paste Client ID + secret into Supabase → Authentication → Providers → Google. Add your site URL and `/auth/callback` (or Supabase callback URL shown in the dashboard) to authorized redirect URIs.
 

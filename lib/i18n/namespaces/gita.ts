@@ -6,7 +6,6 @@
  * export shape is unchanged, so no component needed touching.
  */
 export const en = {
-  homeEyebrow: "Gita companion · Vedic chart reader",
   homeTagline: "Clarity from the Gita, for the battlefield of the mind.",
   homeBody: "Browse all 701 verses, find the ones that meet how you feel, cast a real Vedic chart, or speak with Madhav about the Gita.",
   homeCtaMadhav: "Ask Madhav",
@@ -127,7 +126,6 @@ export const en = {
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
-  homeEyebrow: "गीता साथी · वैदिक कुंडली",
   homeTagline: "गीता से स्पष्टता — मन के कुरुक्षेत्र के लिए।",
   homeBody: "सभी 701 श्लोक पढ़ें, अपनी मनोदशा से मेल खाते श्लोक पाएँ, वास्तविक वैदिक कुंडली बनाएँ, या गीता पर माधव से बात करें।",
   homeCtaMadhav: "माधव से पूछें",

@@ -101,9 +101,6 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
         </p>
 
         <div className="relative z-10 max-w-3xl">
-          <p className="animate-rise mb-4 font-body text-xs uppercase tracking-[0.28em] text-[var(--brass)] sm:text-sm">
-            {t("homeEyebrow")}
-          </p>
           <h1 className="animate-rise-delay-1 font-display text-[2.75rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-7xl md:text-8xl">
             MindKshetra
           </h1>

@@ -10,6 +10,16 @@ User-specific routes use Supabase session cookies (web) or `Authorization: Beare
 
 Anonymous chat sessions work without auth; pass `sessionId` from the chat stream to restore history.
 
+### Web auth callback
+
+Magic links and OAuth return to `/auth/callback`, which exchanges the PKCE `code` for a session cookie, then redirects to `/account` (or `?next=`).
+
+Configure these Redirect URLs in Supabase → Authentication → URL Configuration:
+
+- `http://localhost:3000/auth/callback`
+- `https://mind.logitslab.com/auth/callback`
+- `https://mindkshetra.vercel.app/auth/callback`
+
 ### Mobile deep links (Supabase Auth)
 
 Configure these redirect URLs in the Supabase dashboard for the Expo app:

@@ -48,6 +48,20 @@ export default function AccountPageClient() {
   >("idle");
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get("auth_error");
+    if (!authError) return;
+    if (authError === "otp_expired") setError(t("authLinkExpired"));
+    else setError(t("authLinkFailed"));
+    params.delete("auth_error");
+    const clean = `${window.location.pathname}${
+      params.toString() ? `?${params}` : ""
+    }`;
+    window.history.replaceState({}, "", clean);
+  }, [t]);
+
+  useEffect(() => {
     if (!user || user.is_anonymous) {
       setStreak(0);
       setVotdConfigured(false);

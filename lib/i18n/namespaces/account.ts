@@ -55,6 +55,9 @@ export const en = {
   upgradeAccountBlurb: "You’re browsing as a guest. Sign in with email to keep favorites, reflections, and chats across devices.",
   accountSignInBlurb: "Save favorites, reflections, and Madhav chats — then pick up on any device.",
   authNotConfigured: "Sign-in isn’t configured for this environment yet.",
+  authLinkExpired:
+    "That sign-in link is invalid or has expired. Request a new one below — open it on this same device.",
+  authLinkFailed: "Sign-in didn’t complete. Request a new email link and try again.",
   authPrivacyNote: "We only use your email to sign you in. No spam, no public profile.",
   favorites: "Favorites",
   favoritesBlurb: "Verses you have bookmarked.",
@@ -123,6 +126,9 @@ export const hi: Record<keyof typeof en, string> = {
   upgradeAccountBlurb: "आप अतिथि के रूप में ब्राउज़ कर रहे हैं। पसंदीदा, चिंतन और वार्ता सभी उपकरणों पर रखने के लिए ईमेल से साइन इन करें।",
   accountSignInBlurb: "पसंदीदा, चिंतन और माधव वार्ता सहेजें — फिर किसी भी उपकरण पर जारी रखें।",
   authNotConfigured: "इस वातावरण में साइन-इन अभी कॉन्फ़िगर नहीं है।",
+  authLinkExpired:
+    "वह साइन-इन लिंक अमान्य है या समाप्त हो गया है। नीचे नया लिंक माँगें — इसे इसी उपकरण पर खोलें।",
+  authLinkFailed: "साइन-इन पूरा नहीं हुआ। नया ईमेल लिंक माँगकर फिर कोशिश करें।",
   authPrivacyNote: "हम आपका ईमेल केवल साइन इन के लिए उपयोग करते हैं। कोई स्पैम नहीं, कोई सार्वजनिक प्रोफ़ाइल नहीं।",
   favorites: "पसंदीदा",
   favoritesBlurb: "आपके द्वारा सहेजे गए श्लोक।",
