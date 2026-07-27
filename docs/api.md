@@ -4,9 +4,21 @@ REST JSON endpoints for web and future mobile clients. Base URL: `NEXT_PUBLIC_SI
 
 ## Auth
 
-User-specific routes use Supabase session cookies (web) or `Authorization: Bearer <access_token>` (mobile).
+User-specific routes use Supabase session cookies (web) or `Authorization: Bearer <access_token>` (mobile). Both are handled in `lib/supabase/server.ts` — when a Bearer token is present it takes precedence over cookies.
+
+`/api/*` responses include CORS headers (`Access-Control-Allow-Origin: *`, `Authorization` allowed) so Expo web and native clients can call the API.
 
 Anonymous chat sessions work without auth; pass `sessionId` from the chat stream to restore history.
+
+### Mobile deep links (Supabase Auth)
+
+Configure these redirect URLs in the Supabase dashboard for the Expo app:
+
+- `mindkshetra://auth/callback`
+- `exp://127.0.0.1:8081/--/auth/callback` (local Expo Go)
+- Production Expo scheme URL once published
+
+Enable Apple Sign-In in Supabase Auth providers when shipping iOS with Google OAuth.
 
 ---
 

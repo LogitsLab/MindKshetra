@@ -1,12 +1,49 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient as createSupabaseClient, type SupabaseClient, type User } from "@supabase/supabase-js";
+import { cookies, headers } from "next/headers";
 
-export async function createClient() {
+function supabaseUrl(): string {
+  return process.env.NEXT_PUBLIC_SUPABASE_URL!;
+}
+
+function supabaseAnonKey(): string {
+  return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+}
+
+/** Mobile clients send `Authorization: Bearer <access_token>`. */
+export function getBearerToken(): string | null {
+  const auth = headers().get("authorization");
+  if (!auth) return null;
+  const match = /^Bearer\s+(.+)$/i.exec(auth.trim());
+  const token = match?.[1]?.trim();
+  return token || null;
+}
+
+function createBearerClient(token: string): SupabaseClient {
+  return createSupabaseClient(supabaseUrl(), supabaseAnonKey(), {
+    global: {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
+/**
+ * Supabase client for the current request.
+ * Prefer Bearer JWT (mobile) when present; otherwise cookie session (web).
+ */
+export async function createClient(): Promise<SupabaseClient> {
+  const token = getBearerToken();
+  if (token) {
+    return createBearerClient(token);
+  }
+
   const cookieStore = cookies();
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  return createServerClient(url, key, {
+  return createServerClient(supabaseUrl(), supabaseAnonKey(), {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -24,20 +61,33 @@ export async function createClient() {
   });
 }
 
-export async function getAuthUserId(): Promise<string | null> {
+async function getRequestUser(): Promise<User | null> {
+  const token = getBearerToken();
+  if (token) {
+    const supabase = createBearerClient(token);
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+    if (error || !user) return null;
+    return user;
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  return user ?? null;
+}
+
+export async function getAuthUserId(): Promise<string | null> {
+  const user = await getRequestUser();
   return user?.id ?? null;
 }
 
 /** Signed-in non-anonymous user id (favorites / progress / journal style). */
 export async function getSignedInUserId(): Promise<string | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getRequestUser();
   if (!user || user.is_anonymous) return null;
   return user.id;
 }

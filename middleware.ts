@@ -1,10 +1,34 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const CORS_HEADERS: Record<string, string> = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Authorization, Content-Type, Accept, X-Requested-With",
+  "Access-Control-Max-Age": "86400",
+};
+
+function withCors(response: NextResponse, isApi: boolean): NextResponse {
+  if (!isApi) return response;
+  for (const [key, value] of Object.entries(CORS_HEADERS)) {
+    response.headers.set(key, value);
+  }
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
+  const isApi = request.nextUrl.pathname.startsWith("/api/");
+
+  if (isApi && request.method === "OPTIONS") {
+    return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return NextResponse.next();
+  if (!url || !key) {
+    return withCors(NextResponse.next(), isApi);
+  }
 
   let response = NextResponse.next({ request });
 
@@ -25,8 +49,12 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
-  return response;
+  // Cookie session refresh for web. Bearer mobile clients skip cookies.
+  if (!request.headers.get("authorization")?.toLowerCase().startsWith("bearer ")) {
+    await supabase.auth.getUser();
+  }
+
+  return withCors(response, isApi);
 }
 
 export const config = {
