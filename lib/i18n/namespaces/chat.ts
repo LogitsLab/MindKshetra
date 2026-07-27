@@ -1,6 +1,6 @@
 /**
  * Madhav chat: personas, starters, session controls, incognito and TTS.
- * The merged two-voice reply adds its labels HERE, not in a prompt.
+ * Chart invite copy points users to Astrology for full Jyotish (kept separate).
  *
  * Split out of the former flat lib/i18n/dictionary.ts (ceo/T4). The composed
  * export shape is unchanged, so no component needed touching.
@@ -45,18 +45,18 @@ export const en = {
   incognito: "Incognito",
   incognitoOn: "Incognito on",
   incognitoHint: "This chat is not saved to history.",
-  chartInviteTitle: "Madhav can read your chart too",
+  chartInviteTitle: "Want a full chart reading?",
   chartInviteBody:
-    "Add a birth date and place, and the teaching arrives alongside what your chart is carrying.",
-  chartInviteCta: "Add your birth details",
+    "Astrology is separate from Madhav. Cast a birth chart for dashas, houses, and detailed Jyotish answers — without Gita verses mixed in.",
+  chartInviteCta: "Open Astrology",
   chartInviteDismiss: "Not now",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
-  chartInviteTitle: "माधव आपकी कुंडली भी पढ़ सकते हैं",
+  chartInviteTitle: "पूरी कुंडली पढ़ना चाहते हैं?",
   chartInviteBody:
-    "जन्म तिथि और स्थान जोड़ें, और शिक्षा के साथ यह भी जानें कि आपकी कुंडली क्या कह रही है।",
-  chartInviteCta: "जन्म विवरण जोड़ें",
+    "ज्योतिष माधव से अलग है। जन्म कुंडली बनाएँ — दशा, भाव और विस्तृत ज्योतिष उत्तर, गीता के श्लोक मिलाए बिना।",
+  chartInviteCta: "ज्योतिष खोलें",
   chartInviteDismiss: "अभी नहीं",
   askMadhavAbout: "इस पर माधव से पूछें",
   askMadhavLink: "माधव से पूछें",

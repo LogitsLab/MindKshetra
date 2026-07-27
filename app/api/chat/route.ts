@@ -27,7 +27,7 @@ type ChatBody = {
   sessionId?: string;
   chatSessionId?: string;
   incognito?: boolean;
-  /** Chart linkage (T6b). Any one of these opts into the two-voice reply. */
+  /** Chart linkage. When present, reply is astrology-only (no Gita verses). */
   memberId?: string;
   chartSessionId?: string;
   birth?: Record<string, unknown>;
@@ -101,9 +101,8 @@ async function loadChartForChat(body: ChatBody) {
       if (birth) return live(computeChart(birth) as never);
     }
   } catch (err) {
-    // Never fail the reply because the chart half broke.
     console.warn(
-      "[chat] chart load failed, continuing Gita-only:",
+      "[chat] chart load failed:",
       err instanceof Error ? err.message : String(err)
     );
   }
@@ -234,97 +233,41 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // ── Chart-aware path (T6b/T6c) ─────────────────────────────────────────────
+  // ── Chart path vs Madhav path ──────────────────────────────────────────────
   //
-  //   no chart linked ──▶ exactly today's behaviour, byte for byte
-  //   chart linked    ──▶ reading call (temp 0.4, 220 tok) resolves FIRST,
-  //                       its themes feed retrieval, then it is passed as
-  //                       context into the teaching stream
+  //   chart linked    ──▶ detailed Jyotish answer only (no Gita verses / Madhav)
+  //   no chart linked ──▶ Madhav + retrieved shlokas (unchanged)
   //
-  // The reading is awaited rather than streamed in parallel for one reason: the
-  // teaching prompt needs it. Streaming both truly concurrently would mean the
-  // teaching could not respond to what the reading said. It is capped at 220
-  // tokens precisely so this wait stays short.
+  // Astrology chat used to be merged into a two-voice reply (short chart epigraph
+  // + Gita teaching). Users asking about a chart were getting scripture instead
+  // of a full reading. Chart requests stay on the astrology prompt.
   //
   // lib/astrology/* is imported DYNAMICALLY and only when a chart is actually
-  // requested. It reaches the native `sweph` addon (engine -> swe, and also
-  // dasha -> transits -> swe), and this is the busiest route in the app: a
-  // chart-less message must not pay for a binary it never calls.
+  // requested — it reaches the native `sweph` addon.
+  const wantsChart = Boolean(body.memberId || body.chartSessionId || body.birth);
   const chart = await loadChartForChat(body);
-  let reading: string | null = null;
-  let chartThemeTags: string[] = [];
-  let contextLineText: string | null = null;
+
+  if (wantsChart && !chart) {
+    return new Response(JSON.stringify({ error: "Chart not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   if (chart) {
-    const [{ chartThemes, contextLine }, { verifyChartClaims }, prompts] =
-      await Promise.all([
-        import("@/lib/bridge/chart-to-verse"),
-        import("@/lib/bridge/chart-verify"),
-        import("@/lib/bridge/merged-prompt"),
-      ]);
-
-    const themes = chartThemes(chart.verdicts?.blended);
-    chartThemeTags = themes.tags;
-    contextLineText = contextLine(themes);
-
-    try {
-      const raw = await createGroqCompletion(
-        [
-          {
-            role: "system",
-            content: prompts.buildReadingPrompt(chart, language),
-          },
-          { role: "user", content: lastUser.content.slice(0, MAX_MESSAGE_CHARS) },
-        ],
-        {
-          temperature: prompts.READING_TEMPERATURE,
-          max_tokens: prompts.READING_MAX_TOKENS,
-        }
-      );
-      let cleaned = stripThinkBlocks(raw).trim();
-
-      // des/D7 — the chart guide may decline an off-chart question ("I can only
-      // speak to your chart..."). That is a refusal, not a reading, and it must
-      // never render as a labelled voice above the teaching. Suppressing it here
-      // routes it through the same path as an empty chart, so the reply simply
-      // degrades to single-voice.
-      const DECLINE = /(only (speak|answer|comment).{0,24}chart|off[- ]chart|cannot (answer|help) with that|not (something|a question) (i|the chart) can)/i;
-      if (DECLINE.test(cleaned)) {
-        console.warn("[chat] chart voice declined — suppressing the epigraph");
-        cleaned = "";
-      }
-      // Only the reading is verifiable; the teaching is not falsifiable.
-      const verified = verifyChartClaims(cleaned, chart);
-      reading = verified.text.trim() || null;
-      if (verified.violations.length > 0) {
-        console.warn(
-          `[chat] chart reading: ${verified.violations.length} unverifiable claim(s) dropped`
-        );
-      }
-    } catch (err) {
-      // A failed reading degrades to Gita-only. It must never take the teaching
-      // down with it — that isolation is why these are separate calls.
-      console.warn(
-        "[chat] chart reading failed, continuing without it:",
-        err instanceof Error ? err.message : String(err)
-      );
-      reading = null;
-    }
+    return streamAstrologyReply({
+      chart,
+      messages,
+      language,
+      sessionId,
+      lastUserContent: lastUser.content,
+      maxMessageChars: MAX_MESSAGE_CHARS,
+    });
   }
 
   const retrievalQuery = buildRetrievalQuery(messages);
-  const cited = await retrieveSlokas(
-    retrievalQuery || lastUser.content,
-    5,
-    chartThemeTags
-  );
-  const systemPrompt = chart
-    ? (await import("@/lib/bridge/merged-prompt")).buildTeachingPrompt(
-        cited,
-        language,
-        reading
-      )
-    : buildMadhavSystemPrompt(cited, language);
+  const cited = await retrieveSlokas(retrievalQuery || lastUser.content, 5);
+  const systemPrompt = buildMadhavSystemPrompt(cited, language);
 
   const history = messages
     .filter((m) => m.role === "user" || m.role === "assistant")
@@ -370,11 +313,6 @@ export async function POST(request: NextRequest) {
         };
 
         if (sessionId) send({ type: "session", sessionId });
-        // Emitted BEFORE citations and before the first teaching token so the
-        // client can reserve the epigraph slot (des/5A) and never reflow text
-        // the reader is mid-sentence on.
-        if (reading) send({ type: "reading", content: reading });
-        if (contextLineText) send({ type: "chartContext", content: contextLineText });
         send({ type: "citations", citations });
 
         let sseBuffer = "";
@@ -402,10 +340,6 @@ export async function POST(request: NextRequest) {
               try {
                 parsed = JSON.parse(data);
               } catch {
-                // Intentional swallow: SSE frames can split across reads, so a
-                // partial chunk is expected traffic, not an error. Skipping it
-                // lets the next read complete the frame. Not logged because it
-                // would be noisy on every normal stream.
                 continue;
               }
 
@@ -448,10 +382,7 @@ export async function POST(request: NextRequest) {
 
             if (sessionId) {
               await saveChatMessage(sessionId, "user", lastUser.content);
-              await saveChatMessage(sessionId, "assistant", visibleSent, citedIds, {
-                reading,
-                chartContext: contextLineText,
-              });
+              await saveChatMessage(sessionId, "assistant", visibleSent, citedIds);
             }
 
             send({ type: "done" });
@@ -472,10 +403,7 @@ export async function POST(request: NextRequest) {
             }
             if (sessionId) {
               await saveChatMessage(sessionId, "user", lastUser.content);
-              await saveChatMessage(sessionId, "assistant", visibleSent, citedIds, {
-                reading,
-                chartContext: contextLineText,
-              });
+              await saveChatMessage(sessionId, "assistant", visibleSent, citedIds);
             }
             send({ type: "done" });
           } else {
@@ -499,6 +427,204 @@ export async function POST(request: NextRequest) {
     return new Response(
       JSON.stringify({
         error: "Madhav could not answer just now. Please try again in a moment.",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+}
+
+const ASTROLOGY_CHAT_TEMPERATURE = 0.4;
+const ASTROLOGY_CHAT_MAX_TOKENS = 1200;
+
+async function streamAstrologyReply(args: {
+  chart: NonNullable<Awaited<ReturnType<typeof loadChartForChat>>>;
+  messages: ChatMessage[];
+  language: "en" | "hi";
+  sessionId: string | undefined;
+  lastUserContent: string;
+  maxMessageChars: number;
+}): Promise<Response> {
+  const { chart, messages, language, sessionId, lastUserContent, maxMessageChars } =
+    args;
+
+  const [{ buildAstrologyChatSystemPrompt }, { buildChartChatContext }, { verifyChartClaims }] =
+    await Promise.all([
+      import("@/lib/astrology/predictions"),
+      import("@/lib/astrology/blend"),
+      import("@/lib/bridge/chart-verify"),
+    ]);
+
+  const systemPrompt = buildAstrologyChatSystemPrompt(
+    chart,
+    language,
+    buildChartChatContext(chart)
+  );
+
+  const history = messages
+    .filter((m) => m.role === "user" || m.role === "assistant")
+    .slice(-12)
+    .map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content.slice(0, maxMessageChars),
+    }));
+
+  const promptMessages = [
+    { role: "system" as const, content: systemPrompt },
+    ...history,
+  ];
+
+  try {
+    const groqRes = await createGroqChatStream(promptMessages, {
+      temperature: ASTROLOGY_CHAT_TEMPERATURE,
+      max_tokens: ASTROLOGY_CHAT_MAX_TOKENS,
+    });
+
+    if (!groqRes.body) {
+      return new Response(JSON.stringify({ error: "Empty Groq stream" }), {
+        status: 502,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    const upstream = groqRes.body.getReader();
+
+    const readable = new ReadableStream({
+      async start(controller) {
+        const send = (payload: unknown) => {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
+          );
+        };
+
+        if (sessionId) send({ type: "session", sessionId });
+        // No verse citations on the astrology path.
+        send({ type: "citations", citations: [] });
+
+        let sseBuffer = "";
+        let rawAssistant = "";
+        let visibleSent = "";
+
+        try {
+          while (true) {
+            const { done, value } = await upstream.read();
+            if (done) break;
+
+            sseBuffer += decoder.decode(value, { stream: true });
+            const lines = sseBuffer.split("\n");
+            sseBuffer = lines.pop() || "";
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed.startsWith("data:")) continue;
+              const data = trimmed.slice(5).trim();
+              if (!data || data === "[DONE]") continue;
+
+              let parsed: {
+                choices?: Array<{ delta?: { content?: string } }>;
+              };
+              try {
+                parsed = JSON.parse(data);
+              } catch {
+                continue;
+              }
+
+              const token = parsed.choices?.[0]?.delta?.content;
+              if (!token) continue;
+
+              rawAssistant += token;
+              const visible = stripThinkBlocks(rawAssistant);
+              if (visible.length > visibleSent.length) {
+                const delta = visible.slice(visibleSent.length);
+                visibleSent = visible;
+                send({ type: "token", content: delta });
+              }
+            }
+          }
+
+          let finalVisible = stripThinkBlocks(rawAssistant);
+          if (finalVisible.length > visibleSent.length) {
+            send({
+              type: "token",
+              content: finalVisible.slice(visibleSent.length),
+            });
+            visibleSent = finalVisible;
+          }
+
+          if (!visibleSent.trim()) {
+            const fallback = await createGroqCompletion(promptMessages, {
+              temperature: ASTROLOGY_CHAT_TEMPERATURE,
+              max_tokens: ASTROLOGY_CHAT_MAX_TOKENS,
+            });
+            if (fallback) {
+              send({ type: "token", content: fallback });
+              visibleSent = fallback;
+            }
+          }
+
+          if (visibleSent.trim()) {
+            const verified = verifyChartClaims(visibleSent, chart);
+            if (verified.violations.length > 0) {
+              console.warn(
+                `[chat] astrology reply: ${verified.violations.length} unverifiable claim(s) dropped`
+              );
+            }
+            if (verified.text !== visibleSent) {
+              send({ type: "replace", content: verified.text });
+              visibleSent = verified.text;
+            }
+
+            if (sessionId) {
+              await saveChatMessage(sessionId, "user", lastUserContent);
+              await saveChatMessage(sessionId, "assistant", visibleSent, []);
+            }
+
+            send({ type: "done" });
+          } else {
+            send({
+              type: "error",
+              error: "Could not form a chart reply. Please try again.",
+            });
+          }
+        } catch (err) {
+          const message =
+            err instanceof Error ? err.message : "Stream failed";
+          if (visibleSent.trim()) {
+            const verified = verifyChartClaims(visibleSent, chart);
+            if (verified.text !== visibleSent) {
+              send({ type: "replace", content: verified.text });
+              visibleSent = verified.text;
+            }
+            if (sessionId) {
+              await saveChatMessage(sessionId, "user", lastUserContent);
+              await saveChatMessage(sessionId, "assistant", visibleSent, []);
+            }
+            send({ type: "done" });
+          } else {
+            send({ type: "error", error: message });
+          }
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+      },
+    });
+  } catch (err) {
+    console.error("[chat] astrology", err);
+    return new Response(
+      JSON.stringify({
+        error: "Could not answer from this chart just now. Please try again.",
       }),
       {
         status: 500,

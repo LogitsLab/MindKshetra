@@ -62,7 +62,7 @@ export async function* readChatStream(
   }
 }
 
-/** Body shape accepted by /api/chat. Chart fields opt into the two-voice reply. */
+/** Body shape accepted by /api/chat. Chart fields opt into astrology-only replies. */
 export type ChatRequestBody = {
   messages: Array<{ role: "user" | "assistant"; content: string }>;
   language: "en" | "hi";

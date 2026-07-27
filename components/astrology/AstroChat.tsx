@@ -7,10 +7,6 @@ import { postChat, readChatStream } from "@/lib/chat-stream";
 export type AstroChatMessage = {
   role: "user" | "assistant";
   content: string;
-  /** Chart epigraph (des/D2). Rendered above the teaching, never spoken. */
-  reading?: string;
-  /** Reply-level provenance (des/D4). Context, never causation. */
-  chartContext?: string;
 };
 
 type Props = {
@@ -84,9 +80,7 @@ export default function AstroChat({
     setBusy(true);
 
     try {
-      // ceo/T6a — one backend. This used to POST to /api/astrology/chat, which
-      // no longer exists: /api/chat now produces the two-voice reply when any of
-      // memberId / chartSessionId / birth is present.
+      // Chart-linked chat → detailed astrology-only reply (no Gita verses).
       const res = await postChat({
         messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
         language: lang,
@@ -99,27 +93,18 @@ export default function AstroChat({
       });
 
       let assistant = "";
-      let reading: string | undefined;
-      let chartContext: string | undefined;
       const paint = () =>
         setMessages([
           ...nextMessages,
-          { role: "assistant", content: assistant, reading, chartContext },
+          { role: "assistant", content: assistant },
         ]);
       paint();
 
       for await (const ev of readChatStream(res.body!)) {
-        if (ev.type === "reading") {
-          reading = ev.content;
-          paint();
-        } else if (ev.type === "chartContext") {
-          chartContext = ev.content;
-          paint();
-        } else if (ev.type === "token" && ev.content) {
+        if (ev.type === "token" && ev.content) {
           assistant += ev.content;
           paint();
         } else if (ev.type === "replace" && ev.content) {
-          // Emitted after citation verification rewrites the reply.
           assistant = ev.content;
           paint();
         } else if (ev.type === "error") {
@@ -127,7 +112,7 @@ export default function AstroChat({
         }
       }
 
-      if (!assistant.trim() && !reading) {
+      if (!assistant.trim()) {
         setMessages([
           ...nextMessages,
           { role: "assistant", content: t("astroChatEmpty") },
@@ -198,18 +183,6 @@ export default function AstroChat({
 
         {messages.map((m, i) => (
           <div key={`${m.role}-${i}`} className="max-w-[90%]">
-            {/* des/D2 + 5A — chart epigraph. Display type at full --text,
-                upright, brass rule, no label. min-height reserves the slot so
-                the teaching below never jumps when the reading lands.
-                G1: no reading -> nothing renders, so an empty labelled block
-                cannot exist. */}
-            {m.role === "assistant" && m.reading ? (
-              <div className="chart-epigraph mb-2 flex min-h-[2.6rem] items-center border-l border-[var(--line)] pl-4">
-                <p className="font-display text-[16px] leading-[1.5] text-[var(--text)]">
-                  {m.reading}
-                </p>
-              </div>
-            ) : null}
             <div
               className={`whitespace-pre-wrap text-sm leading-relaxed ${
                 m.role === "user"
@@ -219,12 +192,6 @@ export default function AstroChat({
             >
               {m.content || (busy && i === messages.length - 1 ? "…" : "")}
             </div>
-            {/* des/D4 — context, never causation. */}
-            {m.role === "assistant" && m.chartContext ? (
-              <p className="mt-2 text-[11px] text-[var(--text-muted)]">
-                {m.chartContext}
-              </p>
-            ) : null}
           </div>
         ))}
         <div ref={bottomRef} />

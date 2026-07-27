@@ -7,12 +7,8 @@ export const dynamic = "force-dynamic";
 /**
  * ceo/T6a + ceo/T7 + eng/E9 — deprecated. Forwards to the merged /api/chat.
  *
- * The chart-guide implementation moved to /api/chat, which now produces the
- * two-voice reply whenever memberId / chartSessionId / birth is present. This
- * shim exists purely for the deploy window: a browser tab holding the previous
- * client bundle still POSTs here, and without it that tab's chat would 404 with
- * no retry and no surfaced error — in the same release that carries the crisis
- * intercept and the ephemeris fixes.
+ * Chart-linked requests get a detailed astrology-only reply (no Gita verses).
+ * This shim exists for clients still POSTing to /api/astrology/chat.
  *
  * It IMPORTS AND INVOKES the merged handler rather than fetching it (eng/E9).
  * A server-side fetch would drop the incoming cookies, so `getSignedInUserId()`
