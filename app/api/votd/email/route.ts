@@ -149,7 +149,12 @@ function buildVotdHtml(opts: {
 }
 
 export async function GET() {
-  const configured = Boolean(process.env.RESEND_API_KEY?.trim());
+  const resendKey = process.env.RESEND_API_KEY?.trim();
+  const from =
+    process.env.RESEND_FROM?.trim() ||
+    "MindKshetra <noreply@mind.logitslab.com>";
+  const configured = Boolean(resendKey);
+  const testingMode = /onboarding@resend\.dev/i.test(from);
   const userId = await getAuthUserId();
   let enabled = true;
 
@@ -165,7 +170,29 @@ export async function GET() {
     }
   }
 
-  return NextResponse.json({ configured, enabled });
+  return NextResponse.json({
+    configured,
+    enabled,
+    testingMode,
+    from,
+    /** When testingMode, Resend only delivers to the Resend account owner. */
+    note: testingMode
+      ? "RESEND_FROM still uses onboarding@resend.dev — only the Resend account email can receive mail. Use RESEND_FROM=MindKshetra <noreply@mind.logitslab.com> (verified domain)."
+      : undefined,
+  });
+}
+
+function parseResendError(status: number, body: string): string {
+  try {
+    const parsed = JSON.parse(body) as { message?: string };
+    if (parsed.message?.trim()) return parsed.message.trim();
+  } catch {
+    /* ignore */
+  }
+  if (status === 403) {
+    return "Email provider rejected the send. Verify your domain in Resend and use a from-address on that domain.";
+  }
+  return "Could not send email. Check RESEND_API_KEY / RESEND_FROM.";
 }
 
 export async function POST(request: Request) {
@@ -204,7 +231,10 @@ export async function POST(request: Request) {
   const email = user?.email;
   if (!email || user?.is_anonymous) {
     return NextResponse.json(
-      { error: "Sign in with email to receive Verse of the Day." },
+      {
+        error:
+          "Sign in with Google (or email) so we have an inbox to send today’s verse to.",
+      },
       { status: 400 }
     );
   }
@@ -251,10 +281,11 @@ export async function POST(request: Request) {
 
   const site =
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "https://mindkshetra.app";
+    "https://mind.logitslab.com";
   const ref = formatVerseRef(sloka);
   const from =
-    process.env.RESEND_FROM?.trim() || "MindKshetra <onboarding@resend.dev>";
+    process.env.RESEND_FROM?.trim() ||
+    "MindKshetra <noreply@mind.logitslab.com>";
 
   const html = buildVotdHtml({
     sloka,
@@ -301,7 +332,7 @@ export async function POST(request: Request) {
     const body = await res.text();
     console.warn("[votd/email] Resend error", res.status, body);
     return NextResponse.json(
-      { error: "Could not send email. Check RESEND_API_KEY / RESEND_FROM." },
+      { error: parseResendError(res.status, body), providerStatus: res.status },
       { status: 502 }
     );
   }

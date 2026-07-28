@@ -27,6 +27,8 @@ export const en = {
   votdEmailOn: "On",
   votdEmailOff: "Off",
   votdEmailNotReady: "Email delivery isn’t set up on this deployment yet — the toggle still saves your preference.",
+  votdEmailTestingMode:
+    "Resend is in test mode (onboarding@resend.dev). Verse emails only reach the Resend account inbox until RESEND_FROM uses noreply@mind.logitslab.com.",
   homeMoodsEyebrow: "How are you arriving?",
   homeMoodsTitle: "Begin with a mood",
   homeMoodsBlurb: "Pick a state of mind — we’ll gather verses that meet you there.",
@@ -147,6 +149,8 @@ export const hi: Record<keyof typeof en, string> = {
   votdEmailOn: "चालू",
   votdEmailOff: "बंद",
   votdEmailNotReady: "इस डिप्लॉयमेंट पर ईमेल अभी सेट अप नहीं है — टॉगल आपकी पसंद फिर भी सहेजता है।",
+  votdEmailTestingMode:
+    "Resend टेस्ट मोड में है (onboarding@resend.dev)। RESEND_FROM में noreply@mind.logitslab.com सेट होने तक श्लोक ईमेल सीमित रहते हैं।",
   homeMoodsEyebrow: "आप कैसे पहुँचे हैं?",
   homeMoodsTitle: "मनोदशा से आरंभ करें",
   homeMoodsBlurb: "अपनी अवस्था चुनें — हम उससे जुड़े श्लोक लाएँगे।",

@@ -35,6 +35,7 @@ export default function AccountPageClient() {
     "idle"
   );
   const [votdConfigured, setVotdConfigured] = useState(false);
+  const [votdTestingMode, setVotdTestingMode] = useState(false);
   const [votdEnabled, setVotdEnabled] = useState(true);
   const [prefsBusy, setPrefsBusy] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -84,6 +85,7 @@ export default function AccountPageClient() {
       .then((r) => r.json())
       .then((d) => {
         setVotdConfigured(Boolean(d.configured));
+        setVotdTestingMode(Boolean(d.testingMode));
         setVotdEnabled(d.enabled !== false);
       })
       .catch(() => setVotdConfigured(false));
@@ -499,6 +501,10 @@ export default function AccountPageClient() {
                 {!votdConfigured ? (
                   <p className="text-xs leading-relaxed text-[var(--text-muted)]/80">
                     {t("votdEmailNotReady")}
+                  </p>
+                ) : votdTestingMode ? (
+                  <p className="text-xs leading-relaxed text-[var(--text-muted)]/80">
+                    {t("votdEmailTestingMode")}
                   </p>
                 ) : null}
               </div>

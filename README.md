@@ -96,22 +96,22 @@ Rate limits and AI story cache need shared storage across serverless instances. 
 
 ### Verse of the Day email (Resend)
 
-Sends today’s verse with Sanskrit, translations, meaning, word meanings, and the reflection story.
+Sends today’s verse with Sanskrit, translations, meaning, word meanings, and the reflection story. **Auth magic links are separate** (Supabase SMTP).
 
-1. Sign up at [resend.com](https://resend.com) → **API Keys** → create a key.
-2. Add to `.env.local` / Vercel:
+1. Sign up at [resend.com](https://resend.com) → **API Keys** → create a **full access** key (send-only cannot manage domains).
+2. Add to `.env` / Vercel:
    ```
    RESEND_API_KEY=re_...
    RESEND_FROM=MindKshetra <onboarding@resend.dev>
    ```
-3. **Local / free tier:** Resend only delivers to the email you used to sign up unless you verify a domain. Keep `onboarding@resend.dev` as From for tests.
-4. **Production:** Resend → Domains → add your domain (DNS records), then set e.g. `RESEND_FROM=MindKshetra <votd@yourdomain.com>`.
-5. Apply `supabase/migrations/004_user_prefs.sql` **and** `005_user_profile.sql` in the Supabase SQL editor (email opt-out + profile fields).
-6. Restart the app. On **Account → Settings**, leave “Verse of the Day emails” **On**, then tap **Email today’s verse**.
+3. **Test mode:** `onboarding@resend.dev` only delivers to the Resend account email. Prefer the verified domain immediately.
+4. **Production:** Domain **`mind.logitslab.com`** is verified in Resend. Set:
+   ```
+   RESEND_FROM=MindKshetra <noreply@mind.logitslab.com>
+   ```
+   in `.env` **and** Vercel, then redeploy. Use the same from-address in Supabase Auth SMTP if you want branded auth mail.
 
-Users can turn emails **Off** anytime in Account settings (the send button hides; the API returns 403 if forced). Profile fields (name, DOB, place, preferred language, about) live in the same Settings section; email is shown from the signed-in account and isn’t edited there.
-
-> Sign-in magic links use **Supabase Auth SMTP** (separate from Resend). Configure Auth → SMTP if magic links need a custom sender.
+Users can turn emails **Off** anytime in Account settings.
 
 ## Run
 
