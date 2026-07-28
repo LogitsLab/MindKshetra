@@ -42,6 +42,8 @@ export const revalidate = 3600;
 export default async function HomePage() {
   const seed = daySeed();
   const featuredId = (seed % SLOKA_COUNT) + 1;
+  // Content layer falls back to JSON on DB timeout (Postgres 57014) so SSG
+  // does not fail the Vercel build.
   const featuredSloka =
     (await getSlokaById(featuredId)) ?? (await getSlokaByRef(2, 47));
 

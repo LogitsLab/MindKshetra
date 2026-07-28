@@ -57,16 +57,18 @@ Enable **Anonymous**, **Google**, and **Email (magic link)** providers in Supaba
 **Email magic link** — enable Email provider in Supabase. For reliable delivery in production, configure custom SMTP under Auth → SMTP (Resend, Postmark, etc.). Locally, Supabase’s default sender is fine for testing; check spam. Links must be opened on the **same browser/device** that requested them (PKCE).
 
 In Supabase → Authentication → URL Configuration:
-- **Site URL** can stay as the app origin (`http://localhost:3000` or `https://mind.logitslab.com`).
-- **Redirect URLs** must include the callback paths below (without these, Supabase falls back to Site URL with `?code=` on `/` — the app forwards that to `/auth/callback`, but allowlisting is still required for a clean flow):
+- **Site URL** must be the production origin: `https://mind.logitslab.com` (not `http://localhost:3000`). If Site URL stays on localhost, magic-link emails fall back there whenever Redirect URLs don’t match — that is why sign-in opens `localhost:3000/?code=…`.
+- **Redirect URLs** must include:
 
 - `http://localhost:3000/auth/callback`
 - `https://mind.logitslab.com/auth/callback`
 - `https://mindkshetra.vercel.app/auth/callback`
+- `mindkshetra://auth/callback`
+- `exp://127.0.0.1:8081/--/auth/callback` (Expo Go local)
 
-**Google OAuth** — create an OAuth client in [Google Cloud Console](https://console.cloud.google.com/apis/credentials), then paste Client ID + secret into Supabase → Authentication → Providers → Google. Add your site URL and `/auth/callback` (or Supabase callback URL shown in the dashboard) to authorized redirect URIs.
+**Google OAuth** — enable in Supabase → Authentication → Providers → Google (Client ID + secret from [Google Cloud Console](https://console.cloud.google.com/apis/credentials)). Google’s authorized redirect URI must be the Supabase callback: `https://<project-ref>.supabase.co/auth/v1/callback`. Web and mobile Account screens both call “Continue with Google”.
 
-**Apple Sign-In** — deferred (mobile later). Not wired in the web app yet.
+**Apple Sign-In** — wired on iOS native via Expo; enable the Apple provider in Supabase when ready. Not shown on web yet.
 
 API contracts: [`docs/api.md`](docs/api.md).
 

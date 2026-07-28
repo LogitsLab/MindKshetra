@@ -39,8 +39,14 @@ function friendlyAuthError(message: string, kind: "anonymous" | "google" | "emai
   ) {
     return "Google sign-in is not set up. Use the email magic link instead.";
   }
-  if (kind === "email" && lower.includes("rate")) {
-    return "Too many attempts. Wait a minute and try again.";
+  if (
+    kind === "email" &&
+    (lower.includes("rate") ||
+      lower.includes("too many") ||
+      lower.includes("security purposes") ||
+      lower.includes("wait a minute"))
+  ) {
+    return "Sign-in email limit reached (default Supabase mail allows only a couple per hour). Check inbox/spam for an earlier link, or wait up to an hour — then try once.";
   }
   return message;
 }
@@ -153,7 +159,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const authCallbackUrl = useCallback((next = "/account") => {
     const url = new URL("/auth/callback", window.location.origin);
-    url.searchParams.set("next", next);
+    // Omit default next so Supabase Redirect URL allowlist can match the
+    // path exactly (`…/auth/callback`). Callback defaults next → /account.
+    if (next && next !== "/account") {
+      url.searchParams.set("next", next);
+    }
     return url.toString();
   }, []);
 

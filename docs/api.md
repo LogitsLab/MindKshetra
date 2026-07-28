@@ -21,6 +21,8 @@ Configure these Redirect URLs in Supabase → Authentication → URL Configurati
 - `http://localhost:3000/auth/callback`
 - `https://mind.logitslab.com/auth/callback`
 - `https://mindkshetra.vercel.app/auth/callback`
+- `mindkshetra://auth/callback`
+- `exp://127.0.0.1:8081/--/auth/callback` (local Expo Go)
 
 ### Mobile deep links (Supabase Auth)
 

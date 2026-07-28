@@ -34,28 +34,58 @@ export async function getSlokaById(id: number): Promise<Sloka | undefined> {
 }
 
 export async function getSlokasByChapter(chapter: number): Promise<Sloka[]> {
-  return isDbContentEnabled()
-    ? (await db()).dbGetSlokasByChapter(chapter)
-    : json.jsonGetSlokasByChapter(chapter);
+  if (!isDbContentEnabled()) return json.jsonGetSlokasByChapter(chapter);
+  try {
+    return await (await db()).dbGetSlokasByChapter(chapter);
+  } catch (err) {
+    console.warn(
+      "[content] dbGetSlokasByChapter failed, falling back to JSON:",
+      err instanceof Error ? err.message : err
+    );
+    return json.jsonGetSlokasByChapter(chapter);
+  }
 }
 
 export async function getChapters(): Promise<number[]> {
-  return isDbContentEnabled() ? (await db()).dbGetChapters() : json.jsonGetChapters();
+  if (!isDbContentEnabled()) return json.jsonGetChapters();
+  try {
+    return await (await db()).dbGetChapters();
+  } catch (err) {
+    console.warn(
+      "[content] dbGetChapters failed, falling back to JSON:",
+      err instanceof Error ? err.message : err
+    );
+    return json.jsonGetChapters();
+  }
 }
 
 export async function getSlokaByRef(
   chapter: number,
   verse: number
 ): Promise<Sloka | undefined> {
-  return isDbContentEnabled()
-    ? (await db()).dbGetSlokaByRef(chapter, verse)
-    : json.jsonGetSlokaByRef(chapter, verse);
+  if (!isDbContentEnabled()) return json.jsonGetSlokaByRef(chapter, verse);
+  try {
+    return await (await db()).dbGetSlokaByRef(chapter, verse);
+  } catch (err) {
+    console.warn(
+      "[content] dbGetSlokaByRef failed, falling back to JSON:",
+      err instanceof Error ? err.message : err
+    );
+    return json.jsonGetSlokaByRef(chapter, verse);
+  }
 }
 
 export async function getSlokasByTags(tags: string[]): Promise<Sloka[]> {
-  return isDbContentEnabled()
-    ? (await db()).dbGetSlokasByTags(tags)
-    : json.jsonGetSlokasByTags(tags);
+  if (!isDbContentEnabled()) return json.jsonGetSlokasByTags(tags);
+  try {
+    return await (await db()).dbGetSlokasByTags(tags);
+  } catch (err) {
+    console.warn(
+      "[content] dbGetSlokasByTags failed, falling back to JSON:",
+      err instanceof Error ? err.message : err
+    );
+    return json.jsonGetSlokasByTags(tags);
+  }
 }
 
 export async function getAdjacentSlokas(id: number): Promise<{
