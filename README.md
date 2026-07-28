@@ -113,7 +113,7 @@ Sends today’s verse with Sanskrit, translations, meaning, word meanings, and t
 
 Users can turn emails **Off** anytime in Account settings.
 
-**Daily schedule:** Vercel Cron hits `/api/cron/votd-email` at **18:55 IST** (`25 13 * * *` UTC). Set `CRON_SECRET` in Vercel (same value Vercel sends as `Authorization: Bearer …`). Subscribers are all non-anonymous users with an email who have not turned VOTD emails off.
+**Daily schedule:** Vercel Cron hits `/api/cron/votd-email` at **08:00 IST** (`30 2 * * *` UTC). Set `CRON_SECRET` in Vercel (same value Vercel sends as `Authorization: Bearer …`). Subscribers are all non-anonymous users with an email who have not turned VOTD emails off.
 
 ## Run
 
