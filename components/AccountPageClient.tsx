@@ -29,6 +29,7 @@ export default function AccountPageClient() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"guest" | "google" | null>(null);
+  const [emailOpen, setEmailOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [votdEmail, setVotdEmail] = useState<"idle" | "sending" | "sent">(
     "idle"
@@ -55,6 +56,7 @@ export default function AccountPageClient() {
     if (!authError) return;
     if (authError === "otp_expired") setError(t("authLinkExpired"));
     else setError(t("authLinkFailed"));
+    setEmailOpen(true);
     params.delete("auth_error");
     const clean = `${window.location.pathname}${
       params.toString() ? `?${params}` : ""
@@ -607,7 +609,49 @@ export default function AccountPageClient() {
           ) : null}
         </header>
 
-        <div className="relative mt-8 space-y-6">
+        <div className="relative mt-8 space-y-5">
+          <button
+            type="button"
+            onClick={() => void onGoogle()}
+            disabled={busy !== null}
+            className="flex w-full min-h-12 items-center justify-center gap-3 bg-[var(--brass)] px-4 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 48 48"
+              aria-hidden
+              className="shrink-0"
+            >
+              <path
+                fill="currentColor"
+                d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.1-2.7-.5-4z"
+              />
+            </svg>
+            {busy === "google" ? t("loading") : t("signInGoogle")}
+          </button>
+
+          {!user ? (
+            <button
+              type="button"
+              onClick={() => void onGuest()}
+              disabled={busy !== null}
+              className="w-full min-h-11 text-sm text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
+            >
+              {busy === "guest" ? t("loading") : t("guest")}
+            </button>
+          ) : null}
+
+          <div className="relative text-center pt-1">
+            <span className="relative z-10 bg-[var(--panel)] px-3 text-xs uppercase tracking-[0.14em] text-[var(--text-muted)]">
+              {t("orDivider")}
+            </span>
+            <span
+              className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-[var(--line)]"
+              aria-hidden
+            />
+          </div>
+
           {status === "sent" ? (
             <div className="space-y-3 border border-[var(--brass)]/35 bg-[var(--brass)]/8 px-4 py-5">
               <p className="text-sm leading-relaxed text-[var(--brass-soft)]">
@@ -622,13 +666,14 @@ export default function AccountPageClient() {
                 onClick={() => {
                   setStatus("idle");
                   setEmail("");
+                  setEmailOpen(true);
                 }}
                 className="text-sm text-[var(--text-muted)] underline-offset-2 hover:text-[var(--brass-soft)] hover:underline"
               >
                 {t("useDifferentEmail")}
               </button>
             </div>
-          ) : (
+          ) : emailOpen ? (
             <form onSubmit={onEmailSubmit} className="space-y-3">
               <label className="block space-y-2">
                 <span className={labelClass}>{t("emailLabel")}</span>
@@ -636,6 +681,7 @@ export default function AccountPageClient() {
                   type="email"
                   required
                   autoComplete="email"
+                  autoFocus
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("emailPlaceholder")}
@@ -645,44 +691,27 @@ export default function AccountPageClient() {
               <button
                 type="submit"
                 disabled={status === "sending" || !email.trim()}
-                className="w-full min-h-12 bg-[var(--brass)] px-4 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
+                className="w-full min-h-12 border border-[var(--line)] px-4 py-3 text-sm text-[var(--text)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
               >
                 {status === "sending" ? t("sendingLink") : t("signInEmail")}
               </button>
-            </form>
-          )}
-
-          <div className="relative text-center">
-            <span className="relative z-10 bg-[var(--panel)] px-3 text-xs uppercase tracking-[0.14em] text-[var(--text-muted)]">
-              {t("orDivider")}
-            </span>
-            <span
-              className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-[var(--line)]"
-              aria-hidden
-            />
-          </div>
-
-          <div className="space-y-3">
-            <button
-              type="button"
-              onClick={() => void onGoogle()}
-              disabled={busy !== null}
-              className="w-full min-h-12 border border-[var(--line)] px-4 py-3 text-sm text-[var(--text)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
-            >
-              {busy === "google" ? t("loading") : t("signInGoogle")}
-            </button>
-
-            {!user ? (
               <button
                 type="button"
-                onClick={() => void onGuest()}
-                disabled={busy !== null}
-                className="w-full min-h-11 text-sm text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
+                onClick={() => setEmailOpen(false)}
+                className="w-full text-center text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
               >
-                {busy === "guest" ? t("loading") : t("guest")}
+                {t("hideEmailSignIn")}
               </button>
-            ) : null}
-          </div>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setEmailOpen(true)}
+              className="w-full min-h-11 border border-[var(--line)] px-4 py-2.5 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/40 hover:text-[var(--brass-soft)]"
+            >
+              {t("useEmailInstead")}
+            </button>
+          )}
 
           {error ? (
             <p

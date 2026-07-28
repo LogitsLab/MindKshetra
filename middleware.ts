@@ -9,12 +9,22 @@ const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Max-Age": "86400",
 };
 
+const PRODUCTION_ORIGIN = "https://mind.logitslab.com";
+
 function withCors(response: NextResponse, isApi: boolean): NextResponse {
   if (!isApi) return response;
   for (const [key, value] of Object.entries(CORS_HEADERS)) {
     response.headers.set(key, value);
   }
   return response;
+}
+
+function configuredProductionOrigin(): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "";
+  if (configured && !/localhost|127\.0\.0\.1/.test(configured)) {
+    return configured;
+  }
+  return PRODUCTION_ORIGIN;
 }
 
 export async function middleware(request: NextRequest) {
@@ -24,14 +34,32 @@ export async function middleware(request: NextRequest) {
     return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
   }
 
-  // Supabase often lands PKCE ?code= on Site URL (/) when Redirect URLs
-  // don't match emailRedirectTo. Forward to /auth/callback to exchange.
+  // Supabase Site URL misconfig lands PKCE ?code= on localhost even when
+  // OAuth started on production (verifier cookie is on the prod host).
   const authCode = request.nextUrl.searchParams.get("code");
   if (
     authCode &&
     !isApi &&
     !request.nextUrl.pathname.startsWith("/auth/callback")
   ) {
+    const isLocalHost = ["localhost", "127.0.0.1"].includes(
+      request.nextUrl.hostname
+    );
+    const hasVerifier = request.cookies
+      .getAll()
+      .some((c) => c.name.includes("code-verifier"));
+
+    if (isLocalHost && !hasVerifier) {
+      const dest = new URL("/auth/callback", configuredProductionOrigin());
+      request.nextUrl.searchParams.forEach((value, key) => {
+        dest.searchParams.set(key, value);
+      });
+      if (!dest.searchParams.has("next")) {
+        dest.searchParams.set("next", "/account");
+      }
+      return NextResponse.redirect(dest);
+    }
+
     const callback = request.nextUrl.clone();
     callback.pathname = "/auth/callback";
     if (!callback.searchParams.has("next")) {

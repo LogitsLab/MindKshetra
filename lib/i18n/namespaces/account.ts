@@ -44,6 +44,8 @@ export const en = {
   signInGoogle: "Continue with Google",
   signInGoogleSoon: "Continue with Google (coming soon)",
   signInEmail: "Email me a sign-in link",
+  useEmailInstead: "Use email instead",
+  hideEmailSignIn: "Hide email sign-in",
   emailLabel: "Email",
   emailPlaceholder: "you@example.com",
   magicLinkSent: "Magic link sent. Open it on this device to finish signing in — links expire after about an hour.",
@@ -52,13 +54,16 @@ export const en = {
   orDivider: "or",
   welcomeBack: "Welcome back",
   upgradeAccount: "Keep what you’ve saved",
-  upgradeAccountBlurb: "You’re browsing as a guest. Sign in with email to keep favorites, reflections, and chats across devices.",
-  accountSignInBlurb: "Save favorites, reflections, and Madhav chats — then pick up on any device.",
+  upgradeAccountBlurb:
+    "You’re browsing as a guest. Continue with Google to keep favorites, reflections, and chats across devices.",
+  accountSignInBlurb:
+    "Continue with Google to save favorites, reflections, and Madhav chats — then pick up on any device.",
   authNotConfigured: "Sign-in isn’t configured for this environment yet.",
   authLinkExpired:
-    "That sign-in link is invalid or has expired. Request a new one below — open it on this same device.",
-  authLinkFailed: "Sign-in didn’t complete. Request a new email link and try again.",
-  authPrivacyNote: "We only use your email to sign you in. No spam, no public profile.",
+    "That sign-in link is invalid or has expired. Try Google, or request a new email link below.",
+  authLinkFailed: "Sign-in didn’t complete. Try Google, or request a new email link.",
+  authPrivacyNote:
+    "Google shares your name and email to sign you in. Magic-link email is only used for sign-in — no spam, no public profile.",
   favorites: "Favorites",
   favoritesBlurb: "Verses you have bookmarked.",
   noFavorites: "No bookmarks yet.",
@@ -115,6 +120,8 @@ export const hi: Record<keyof typeof en, string> = {
   signInGoogle: "Google से जारी रखें",
   signInGoogleSoon: "Google से जारी रखें (जल्द आ रहा है)",
   signInEmail: "ईमेल पर साइन-इन लिंक भेजें",
+  useEmailInstead: "ईमेल से साइन इन करें",
+  hideEmailSignIn: "ईमेल साइन-इन छिपाएँ",
   emailLabel: "ईमेल",
   emailPlaceholder: "you@example.com",
   magicLinkSent: "मैजिक लिंक भेज दिया। साइन इन पूरा करने के लिए इसी उपकरण पर खोलें — लिंक लगभग एक घंटे में समाप्त हो जाता है।",
@@ -123,13 +130,16 @@ export const hi: Record<keyof typeof en, string> = {
   orDivider: "या",
   welcomeBack: "फिर से स्वागत है",
   upgradeAccount: "जो सहेजा है उसे रखें",
-  upgradeAccountBlurb: "आप अतिथि के रूप में ब्राउज़ कर रहे हैं। पसंदीदा, चिंतन और वार्ता सभी उपकरणों पर रखने के लिए ईमेल से साइन इन करें।",
-  accountSignInBlurb: "पसंदीदा, चिंतन और माधव वार्ता सहेजें — फिर किसी भी उपकरण पर जारी रखें।",
+  upgradeAccountBlurb:
+    "आप अतिथि के रूप में ब्राउज़ कर रहे हैं। पसंदीदा, चिंतन और वार्ता सभी उपकरणों पर रखने के लिए Google से जारी रखें।",
+  accountSignInBlurb:
+    "पसंदीदा, चिंतन और माधव वार्ता सहेजने के लिए Google से जारी रखें — फिर किसी भी उपकरण पर आगे बढ़ें।",
   authNotConfigured: "इस वातावरण में साइन-इन अभी कॉन्फ़िगर नहीं है।",
   authLinkExpired:
-    "वह साइन-इन लिंक अमान्य है या समाप्त हो गया है। नीचे नया लिंक माँगें — इसे इसी उपकरण पर खोलें।",
-  authLinkFailed: "साइन-इन पूरा नहीं हुआ। नया ईमेल लिंक माँगकर फिर कोशिश करें।",
-  authPrivacyNote: "हम आपका ईमेल केवल साइन इन के लिए उपयोग करते हैं। कोई स्पैम नहीं, कोई सार्वजनिक प्रोफ़ाइल नहीं।",
+    "वह साइन-इन लिंक अमान्य है या समाप्त हो गया है। Google आज़माएँ, या नीचे नया ईमेल लिंक माँगें।",
+  authLinkFailed: "साइन-इन पूरा नहीं हुआ। Google आज़माएँ, या नया ईमेल लिंक माँगें।",
+  authPrivacyNote:
+    "Google साइन इन के लिए आपका नाम और ईमेल साझा करता है। मैजिक-लिंक ईमेल केवल साइन इन के लिए है — कोई स्पैम नहीं, कोई सार्वजनिक प्रोफ़ाइल नहीं।",
   favorites: "पसंदीदा",
   favoritesBlurb: "आपके द्वारा सहेजे गए श्लोक।",
   noFavorites: "अभी कोई बुकमार्क नहीं।",

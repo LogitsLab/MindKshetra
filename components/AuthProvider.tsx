@@ -74,6 +74,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const code = url.searchParams.get("code");
     if (code) {
+      const isLocalHost = /localhost|127\.0\.0\.1/.test(url.hostname);
+      const hasVerifier = document.cookie.includes("code-verifier");
+      const configured = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(
+        /\/$/,
+        ""
+      );
+      const productionOrigin =
+        configured && !/localhost|127\.0\.0\.1/.test(configured)
+          ? configured
+          : "https://mind.logitslab.com";
+
+      // OAuth started on production but Supabase bounced to localhost.
+      if (isLocalHost && !hasVerifier) {
+        const dest = new URL("/auth/callback", productionOrigin);
+        url.searchParams.forEach((value, key) => {
+          dest.searchParams.set(key, value);
+        });
+        if (!dest.searchParams.has("next")) {
+          dest.searchParams.set("next", "/account");
+        }
+        window.location.replace(dest.toString());
+        return;
+      }
+
       const callback = new URL("/auth/callback", window.location.origin);
       url.searchParams.forEach((value, key) => {
         callback.searchParams.set(key, value);
