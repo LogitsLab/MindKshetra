@@ -18,7 +18,7 @@ function sleep(ms: number) {
 
 /**
  * Daily Verse of the Day broadcast.
- * Schedule: 18:50 IST = 13:20 UTC → vercel.json cron "20 13 * * *"
+ * Schedule: 18:55 IST = 13:25 UTC → vercel.json cron "25 13 * * *"
  *
  * Subscribers = signed-up users with an email who have not opted out
  * (no prefs row, or votd_email_enabled = true).
