@@ -570,7 +570,7 @@ export default function AccountPageClient() {
           </p>
         ) : null}
 
-        <div className="mt-10 border-t border-[var(--hairline)] pt-6">
+        <div className="mt-10 space-y-4 border-t border-[var(--hairline)] pt-6">
           <button
             type="button"
             onClick={() => void signOut()}
@@ -578,6 +578,14 @@ export default function AccountPageClient() {
           >
             {t("signOut")}
           </button>
+          <p>
+            <Link
+              href="/privacy"
+              className="text-xs text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+            >
+              {t("privacyPolicy")}
+            </Link>
+          </p>
         </div>
       </div>
     );
@@ -729,7 +737,13 @@ export default function AccountPageClient() {
           ) : null}
 
           <p className="text-xs leading-relaxed text-[var(--text-muted)]/80">
-            {t("authPrivacyNote")}
+            {t("authPrivacyNote")}{" "}
+            <Link
+              href="/privacy"
+              className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+            >
+              {t("privacyPolicy")}
+            </Link>
           </p>
         </div>
       </div>

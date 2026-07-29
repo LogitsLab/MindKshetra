@@ -64,6 +64,7 @@ export const en = {
   authLinkFailed: "Sign-in didn’t complete. Try Google, or request a new email link.",
   authPrivacyNote:
     "Google shares your name and email to sign you in. Magic-link email is only used for sign-in — no spam, no public profile.",
+  privacyPolicy: "Privacy policy",
   favorites: "Favorites",
   favoritesBlurb: "Verses you have bookmarked.",
   noFavorites: "No bookmarks yet.",
@@ -140,6 +141,7 @@ export const hi: Record<keyof typeof en, string> = {
   authLinkFailed: "साइन-इन पूरा नहीं हुआ। Google आज़माएँ, या नया ईमेल लिंक माँगें।",
   authPrivacyNote:
     "Google साइन इन के लिए आपका नाम और ईमेल साझा करता है। मैजिक-लिंक ईमेल केवल साइन इन के लिए है — कोई स्पैम नहीं, कोई सार्वजनिक प्रोफ़ाइल नहीं।",
+  privacyPolicy: "गोपनीयता नीति",
   favorites: "पसंदीदा",
   favoritesBlurb: "आपके द्वारा सहेजे गए श्लोक।",
   noFavorites: "अभी कोई बुकमार्क नहीं।",

@@ -6,6 +6,7 @@ import { ProgressProvider } from "@/components/ProgressProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Nav from "@/components/Nav";
 import MainShell from "@/components/MainShell";
+import SiteFooter from "@/components/SiteFooter";
 import NavigationProgress from "@/components/NavigationProgress";
 import "./globals.css";
 
@@ -69,6 +70,7 @@ export default function RootLayout({
                 <NavigationProgress />
                 <Nav />
                 <MainShell>{children}</MainShell>
+                <SiteFooter />
               </ProgressProvider>
             </LanguageProvider>
           </AuthProvider>
