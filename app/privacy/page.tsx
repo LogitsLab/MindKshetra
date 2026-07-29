@@ -141,7 +141,14 @@ export default function PrivacyPage() {
           <li>Export your account data from Account (where available)</li>
           <li>Delete saved astrology members or journal content you no longer want</li>
           <li>
-            Request account deletion or data access by emailing{" "}
+            Request account deletion or data access — see{" "}
+            <Link
+              href="/delete-account"
+              className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+            >
+              Delete your account
+            </Link>{" "}
+            or email{" "}
             <a
               href="mailto:info@logitslab.com"
               className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
