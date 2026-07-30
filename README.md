@@ -74,17 +74,33 @@ API contracts: [`docs/api.md`](docs/api.md).
 
 ## Production (Vercel + Supabase)
 
-1. Push to GitHub and import in [Vercel](https://vercel.com).
-2. Set environment variables (Production + Preview):
-   - `GROQ_API_KEY`
-   - `NEXT_PUBLIC_SITE_URL` (your Vercel URL or custom domain)
-   - `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
-   - `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` + `SUPABASE_SERVICE_ROLE_KEY`
-   - `CONTENT_SOURCE=db`
-   - `VOYAGE_API_KEY` (for vector retrieval)
-3. Run `db:migrate` + `db:seed` + `db:embeddings` against your Supabase project (local machine with service role key).
-4. In Supabase → Authentication → URL configuration, add your Vercel domain to redirect URLs.
-5. Deploy. Verify `GET /api/health` shows `database.reachable: true`.
+Production deploys automatically from `main` via GitHub Actions (`.github/workflows/deploy.yml`) to [https://mind.logitslab.com](https://mind.logitslab.com).
+
+### GitHub secrets (required for auto-deploy)
+
+| Secret | Source |
+|--------|--------|
+| `VERCEL_TOKEN` | [vercel.com/account/tokens](https://vercel.com/account/tokens) → create token |
+| `VERCEL_ORG_ID` | Project Settings → General → Project ID section / `.vercel/project.json` `orgId` |
+| `VERCEL_PROJECT_ID` | `.vercel/project.json` `projectId` |
+
+Manual deploy: **Actions → Deploy to Vercel → Run workflow**.
+
+### Environment variables (Vercel Production + Preview)
+
+Set in the Vercel project (or sync from local `.env`):
+
+- `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_PREDICTIONS_MODEL`, `GROQ_PREDICTIONS_REASONING_EFFORT`
+- `NEXT_PUBLIC_SITE_URL=https://mind.logitslab.com`
+- `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` (optional locally; recommended in production)
+- `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` + `SUPABASE_SERVICE_ROLE_KEY`
+- `CONTENT_SOURCE=db`
+- `VOYAGE_API_KEY` (vector retrieval)
+- `RESEND_API_KEY`, `RESEND_FROM`, `CRON_SECRET`
+
+1. Run `db:migrate` + `db:seed` + `db:embeddings` against your Supabase project (local machine with service role key).
+2. In Supabase → Authentication → URL configuration, add your Vercel domain to redirect URLs.
+3. After deploy, verify `GET /api/health` shows `database.reachable: true`.
 
 ### Redis
 
