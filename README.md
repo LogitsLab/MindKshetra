@@ -37,6 +37,10 @@ This is an **open repository**. We welcome:
 Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** before opening a PR.  
 If you are not ready to code, opening a detailed issue with your idea is enough to start a conversation.
 
+## Architecture
+
+Full system design (web + API + mobile + astrology + deploy): **[ARCHITECTURE.md](ARCHITECTURE.md)**.
+
 ## Environment
 
 Copy [`.env.example`](.env.example). Important variables:

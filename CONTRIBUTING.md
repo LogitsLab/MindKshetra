@@ -32,7 +32,8 @@ cp .env.example .env.local
 npm run dev
 ```
 
-See the [README](README.md) for Supabase, Redis, and production env setup.
+See the [README](README.md) for Supabase, Redis, and production env setup.  
+System design: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## What not to commit
 
