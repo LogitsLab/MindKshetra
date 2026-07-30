@@ -29,21 +29,24 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (keep .env.example)
+# env / secrets (keep .env.example)
 .env
 .env.*
 !.env.example
+.env.release
 
-# vercel
+# vercel / deploy local state
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
-# IDE / editor
+# IDE / editor / agents
 .idea/
 .vscode/
+.cursor/
+.claude/
 *.swp
 *.swo
 *~
@@ -51,6 +54,11 @@ next-env.d.ts
 # OS
 .AppleDouble
 .LSOverride
+
+# local / internal planning (not for the public tree)
+*.plan.md
+TODOS.md
+.gstack/
 
 # generated verse stories
 /data/stories-cache.json
