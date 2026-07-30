@@ -3,6 +3,14 @@ name: Auto version bump
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/deploy.yml"
+      - "LICENSE"
+      - "DESIGN.md"
+      - "CLAUDE.md"
 
 permissions:
   contents: read
@@ -11,20 +19,33 @@ jobs:
   bump:
     if: >-
       !contains(github.event.head_commit.message, 'chore: bump version') &&
-      github.event.before != '0000000000000000000000000000000000000000' &&
-      secrets.VERSION_BUMP_TOKEN != ''
+      github.event.before != '0000000000000000000000000000000000000000'
     runs-on: ubuntu-latest
     steps:
+      - name: Require VERSION_BUMP_TOKEN
+        env:
+          VERSION_BUMP_TOKEN: ${{ secrets.VERSION_BUMP_TOKEN }}
+        run: |
+          if [ -z "$VERSION_BUMP_TOKEN" ]; then
+            echo "VERSION_BUMP_TOKEN not set — skipping bump."
+            echo "skip=true" >> "$GITHUB_ENV"
+          else
+            echo "skip=false" >> "$GITHUB_ENV"
+          fi
+
       - uses: actions/checkout@v4
+        if: env.skip != 'true'
         with:
           fetch-depth: 0
           token: ${{ secrets.VERSION_BUMP_TOKEN }}
 
       - uses: actions/setup-node@v4
+        if: env.skip != 'true'
         with:
           node-version: 20
 
-      - name: Bump patch if PR did not change version
+      - name: Bump patch if this push did not change version
+        if: env.skip != 'true'
         id: bump
         env:
           GITHUB_BEFORE_SHA: ${{ github.event.before }}
@@ -41,7 +62,7 @@ jobs:
           fi
 
       - name: Commit and push version bump
-        if: steps.bump.outputs.bumped == 'true'
+        if: env.skip != 'true' && steps.bump.outputs.bumped == 'true'
         env:
           VERSION: ${{ steps.bump.outputs.version }}
         run: |
