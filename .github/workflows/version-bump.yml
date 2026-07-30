@@ -5,19 +5,20 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   bump:
     if: >-
       !contains(github.event.head_commit.message, 'chore: bump version') &&
-      github.event.before != '0000000000000000000000000000000000000000'
+      github.event.before != '0000000000000000000000000000000000000000' &&
+      secrets.VERSION_BUMP_TOKEN != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.VERSION_BUMP_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -39,20 +40,13 @@ jobs:
             exit "$code"
           fi
 
-      - name: Open and merge version bump PR
+      - name: Commit and push version bump
         if: steps.bump.outputs.bumped == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.bump.outputs.version }}
         run: |
-          BRANCH="chore/auto-version-${VERSION}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
           git add package.json package-lock.json
           git commit -m "chore: bump version to v${VERSION}"
-          git push -u origin "$BRANCH"
-          gh pr create --base main --head "$BRANCH" \
-            --title "chore: bump version to v${VERSION}" \
-            --body "Automated patch bump — no version change in the merged PR."
-          gh pr merge --merge --admin --delete-branch
+          git push origin HEAD:main
