@@ -215,10 +215,70 @@ export function refreshCurrentDasha(
   return chart;
 }
 
-export function nearTermWindow(asOfDate: string): { start: string; end: string } {
+export function nearTermWindow(
+  asOfDate: string,
+  chart?: Pick<ChartPayload, "overview" | "dasha">
+): {
+  start: string;
+  end: string;
+  basis: "antar" | "pratyantar" | "calendar";
+  currentAntarLord?: string | null;
+  nextAntarLord?: string | null;
+  nextAntarStart?: string | null;
+  nextAntarEnd?: string | null;
+} {
+  const antar = chart?.overview.currentAntar;
+  const maha = chart?.overview.currentMaha;
+  const pratyantar = chart?.overview.currentPratyantar;
+
+  // Prefer remaining current antar (or pratyantar if antar is long) as the near window.
+  if (antar?.end && antar.end > asOfDate) {
+    let nextAntarLord: string | null = null;
+    let nextAntarStart: string | null = null;
+    let nextAntarEnd: string | null = null;
+    if (maha && chart?.dasha?.tree) {
+      const mahaNode = chart.dasha.tree.find(
+        (p) =>
+          p.level === "maha" &&
+          p.lord === maha.lord &&
+          p.start === maha.start
+      );
+      const children = mahaNode?.children ?? [];
+      const idx = children.findIndex(
+        (a) => a.lord === antar.lord && a.start === antar.start
+      );
+      const next = idx >= 0 ? children[idx + 1] : null;
+      if (next) {
+        nextAntarLord = next.lord;
+        nextAntarStart = next.start;
+        nextAntarEnd = next.end;
+      }
+    }
+
+    const end =
+      pratyantar?.end && pratyantar.end > asOfDate && pratyantar.end < antar.end
+        ? pratyantar.end
+        : antar.end;
+
+    return {
+      start: asOfDate,
+      end,
+      basis: pratyantar?.end && end === pratyantar.end ? "pratyantar" : "antar",
+      currentAntarLord: antar.lord,
+      nextAntarLord,
+      nextAntarStart,
+      nextAntarEnd,
+    };
+  }
+
   const start = DateTime.fromISO(asOfDate);
   return {
     start: asOfDate,
     end: start.plus({ months: 12 }).toISODate()!,
+    basis: "calendar",
+    currentAntarLord: antar?.lord ?? null,
+    nextAntarLord: null,
+    nextAntarStart: null,
+    nextAntarEnd: null,
   };
 }

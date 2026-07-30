@@ -4,6 +4,20 @@ import { hasCommentary } from "@/lib/verseDisplay";
 
 export const GROQ_MODEL =
   process.env.GROQ_MODEL?.trim() || "qwen/qwen3.6-27b";
+
+/** Heavier reasoning model for one-shot astrology predictions (cached). */
+export const GROQ_PREDICTIONS_MODEL =
+  process.env.GROQ_PREDICTIONS_MODEL?.trim() || "openai/gpt-oss-120b";
+
+export type GroqReasoningEffort = "low" | "medium" | "high";
+
+export const GROQ_PREDICTIONS_REASONING_EFFORT: GroqReasoningEffort =
+  process.env.GROQ_PREDICTIONS_REASONING_EFFORT?.trim() === "low"
+    ? "low"
+    : process.env.GROQ_PREDICTIONS_REASONING_EFFORT?.trim() === "high"
+      ? "high"
+      : "medium";
+
 export const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 export type ChatTurn = {
@@ -121,7 +135,8 @@ function getApiKey(): string {
 
 async function groqRequest(
   body: Record<string, unknown>,
-  attempt = 0
+  attempt = 0,
+  model: string = GROQ_MODEL
 ): Promise<Response> {
   const res = await fetch(GROQ_CHAT_URL, {
     method: "POST",
@@ -130,7 +145,7 @@ async function groqRequest(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: GROQ_MODEL,
+      model,
       ...body,
     }),
   });
@@ -159,6 +174,43 @@ export type GroqChatOptions = {
   temperature?: number;
   max_tokens?: number;
 };
+
+function isGptOssModel(model: string): boolean {
+  return model.startsWith("openai/gpt-oss");
+}
+
+function isQwenModel(model: string): boolean {
+  return model.includes("qwen");
+}
+
+/** Structured astrology predictions — GPT-OSS reasoning by default. */
+export async function createGroqPredictionCompletion(
+  messages: ChatTurn[],
+  options: { temperature?: number; max_completion_tokens?: number } = {}
+): Promise<string> {
+  const model = GROQ_PREDICTIONS_MODEL;
+  const body: Record<string, unknown> = {
+    temperature: options.temperature ?? 0.5,
+    max_completion_tokens: options.max_completion_tokens ?? 12_000,
+    response_format: { type: "json_object" },
+    stream: false,
+    messages,
+  };
+
+  if (isGptOssModel(model)) {
+    body.reasoning_effort = GROQ_PREDICTIONS_REASONING_EFFORT;
+    body.include_reasoning = false;
+  } else if (isQwenModel(model)) {
+    body.reasoning_effort = "default";
+    body.reasoning_format = "hidden";
+  }
+
+  const res = await groqRequest(body, 0, model);
+  const data = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  return stripThinkBlocks(data.choices?.[0]?.message?.content ?? "");
+}
 
 export async function createGroqChatStream(
   messages: ChatTurn[],

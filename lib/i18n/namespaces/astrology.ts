@@ -62,7 +62,9 @@ export const en = {
   astroPresent: "Present",
   astroAbsent: "Not present",
   astroGeneratePred: "Generate predictions",
-  astroNearTerm: "Next 6–12 months",
+  astroNearTerm: "Near-term dasha window",
+  astroPredRulesBanner:
+    "This reading used chart rules only (AI write-up unavailable). Regenerate for a fuller prose reading when the service is back.",
   astroArea_career: "Career",
   astroArea_marriage: "Relationships",
   astroArea_health: "Health",
@@ -261,7 +263,9 @@ export const hi: Record<keyof typeof en, string> = {
   astroPresent: "उपस्थित",
   astroAbsent: "अनुपस्थित",
   astroGeneratePred: "भविष्य बनाएँ",
-  astroNearTerm: "अगले ६–१२ महीने",
+  astroNearTerm: "निकट दशा खिड़की",
+  astroPredRulesBanner:
+    "यह पठन केवल चार्ट नियमों से बना (AI लेखन अनुपलब्ध)। सेवा वापस आने पर पूरा गद्य पठन के लिए फिर बनाएँ।",
   astroArea_career: "करियर",
   astroArea_marriage: "संबंध",
   astroArea_health: "स्वास्थ्य",
