@@ -308,6 +308,8 @@ export type ChartPayload = {
     portrait: string;
     areas: Record<LifeArea, AreaPrediction>;
     generatedAt: string;
+    /** How the prose was produced — llm when Groq succeeded, rules on fallback. */
+    source?: "llm" | "rules";
   };
 };
 

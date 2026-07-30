@@ -1,8 +1,4 @@
-import {
-  GROQ_CHAT_URL,
-  GROQ_MODEL,
-  stripThinkBlocks,
-} from "@/lib/groq";
+import { createGroqPredictionCompletion } from "@/lib/groq";
 import { AREA_LABEL, LIFE_AREAS } from "@/lib/astrology/blend";
 import { nearTermWindow } from "@/lib/astrology/dasha";
 import type {
@@ -83,11 +79,78 @@ export function uiCitationsForArea(
   return out.slice(0, 2);
 }
 
-function buildPredictionFacts(chart: ChartPayload) {
+export function buildPredictionFacts(chart: ChartPayload) {
   const asOfDate = chart.asOfDate || DateTime.utc().toISODate()!;
-  const window = nearTermWindow(asOfDate);
+  const window = nearTermWindow(asOfDate, chart);
   const moon = chart.planets.find((p) => p.id === "moon");
   const sun = chart.planets.find((p) => p.id === "sun");
+
+  const aspects = (chart.aspects ?? [])
+    .slice()
+    .sort((a, b) => {
+      if (a.kind !== b.kind) return a.kind === "full" ? -1 : 1;
+      return a.housesApart - b.housesApart;
+    })
+    .slice(0, 8)
+    .map((a) => ({
+      from: a.from,
+      to: a.to,
+      kind: a.kind,
+      label: a.label,
+      housesApart: a.housesApart,
+    }));
+
+  const kpLines: string[] = [];
+  if (chart.kp?.significators?.length) {
+    for (const row of chart.kp.significators.slice(0, 6)) {
+      kpLines.push(
+        `House ${row.house} significators: ${row.significators.join(", ")}`
+      );
+    }
+  }
+
+  const d9Planets =
+    chart.vargas?.d9?.planets
+      ?.filter((p) =>
+        ["sun", "moon", "venus", "jupiter", "mars"].includes(p.id)
+      )
+      .map((p) => ({
+        id: p.id,
+        sign: p.sign,
+        house: p.house ?? null,
+      })) ?? [];
+
+  const d10Planets =
+    chart.vargas?.d10?.planets
+      ?.filter((p) =>
+        ["sun", "moon", "mercury", "jupiter", "saturn", "mars"].includes(p.id)
+      )
+      .map((p) => ({
+        id: p.id,
+        sign: p.sign,
+        house: p.house ?? null,
+      })) ?? [];
+
+  const remedies =
+    chart.lalKitab?.debts
+      ?.filter((d) => d.severity === "caution")
+      .slice(0, 3)
+      .map((d) => ({
+        house: d.house,
+        title: d.title.en,
+        remedy: d.remedy.en,
+      })) ?? [];
+
+  const areaYogas = (lifeArea: LifeArea) => {
+    const present = chart.yogas.filter((y) => y.present);
+    // Prefer yogas whose detail mentions area-relevant houses lightly; else top present.
+    return present.slice(0, 4).map((y) => ({
+      name: y.name,
+      note: y.detail,
+      tone: y.severity,
+      lifeAreaHint: lifeArea,
+    }));
+  };
 
   return {
     asOfDate,
@@ -102,6 +165,14 @@ function buildPredictionFacts(chart: ChartPayload) {
       moonNakshatra: moon ? `${moon.nakshatra} pada ${moon.pada}` : null,
       birthPlace: chart.birth.placeLabel,
       dob: chart.birth.dob,
+      panchang: chart.panchang
+        ? {
+            tithi: chart.panchang.tithi,
+            yoga: chart.panchang.yoga,
+            karana: chart.panchang.karana,
+            vaar: chart.panchang.vaar,
+          }
+        : null,
     },
     dashaNow: {
       maha: chart.overview.currentMaha
@@ -127,6 +198,11 @@ function buildPredictionFacts(chart: ChartPayload) {
             end: chart.overview.currentPratyantar.end,
           }
         : null,
+      upcoming: {
+        nextAntarLord: window.nextAntarLord ?? null,
+        nextAntarStart: window.nextAntarStart ?? null,
+        nextAntarEnd: window.nextAntarEnd ?? null,
+      },
     },
     keyPlanets: chart.planets
       .filter((p) =>
@@ -138,15 +214,28 @@ function buildPredictionFacts(chart: ChartPayload) {
         id: p.id,
         sign: p.sign,
         house: p.house ?? null,
+        degreeInSign:
+          typeof p.degreeInSign === "number"
+            ? Math.round(p.degreeInSign * 10) / 10
+            : null,
         nakshatra: p.nakshatra,
         dignity:
           chart.dignities?.find((d) => d.planet === p.id && d.kind !== "neutral")
             ?.kind ?? null,
         retrograde: Boolean(p.retrograde),
       })),
+    aspects,
+    kpSignificators: kpLines,
+    vargas: {
+      d9Lagna: chart.vargas?.d9?.ascendant?.sign ?? null,
+      d9Planets,
+      d10Lagna: chart.vargas?.d10?.ascendant?.sign ?? null,
+      d10Planets,
+    },
+    remedies,
     presentYogas: chart.yogas
       .filter((y) => y.present)
-      .slice(0, 6)
+      .slice(0, 8)
       .map((y) => ({ name: y.name, note: y.detail, tone: y.severity })),
     transitsNow: chart.transits
       ? {
@@ -164,10 +253,25 @@ function buildPredictionFacts(chart: ChartPayload) {
         lifeArea,
         label: AREA_LABEL[lifeArea],
         confidence: v.confidence,
+        theme: v.theme ?? null,
+        // Structured facts for the model — prefer these over English templates.
+        factAnchors: {
+          houses: v.narrativeBullets
+            .filter((b) => b.startsWith("House "))
+            .slice(0, 3),
+          strengthIds: v.strengths.slice(0, 3),
+          tensionIds: v.tensions.slice(0, 2),
+          mahaLord: v.mahaLord,
+          antarLord: v.antarLord,
+          dashaSupports: v.dashaSupports,
+          mahaWindow: v.mahaWindow,
+          timing: v.timing,
+        },
         mustCite: buildAreaAnchors(chart, lifeArea),
         strengths: v.strengths.slice(0, 3),
         watch: v.tensions.slice(0, 3),
         dashaSupports: v.dashaSupports,
+        yogas: areaYogas(lifeArea).slice(0, 2),
       };
     }),
   };
@@ -179,7 +283,7 @@ export async function writePredictions(
 ): Promise<NonNullable<ChartPayload["predictionsText"]>> {
   const apiKey = process.env.GROQ_API_KEY?.trim();
   const asOfDate = chart.asOfDate || DateTime.utc().toISODate()!;
-  const window = nearTermWindow(asOfDate);
+  const window = nearTermWindow(asOfDate, chart);
 
   if (!apiKey) {
     return fallbackCopy(chart, language);
@@ -191,6 +295,10 @@ export async function writePredictions(
     language === "hi"
       ? "Write the ENTIRE JSON values in natural Hindi (Devanagari). No English paragraphs."
       : "Write the ENTIRE JSON values in warm, precise English.";
+
+  const upcomingNote = window.nextAntarLord
+    ? `After that, next antardasha is ${window.nextAntarLord} (${window.nextAntarStart} → ${window.nextAntarEnd}). You may briefly preview that shift in nearTerm.`
+    : "If no next antar is listed, stay within the current window.";
 
   const system = `You write MindKshetra chart readings — personal, specific, and fact-bound.
 
@@ -205,15 +313,18 @@ READING SHAPE (what “good” means):
 - Ban filler: “changes are coming”, “the stars align”, “interesting period”, “cosmic energy”, “embrace the journey”, “trust the process”.
 - Never name school systems (Vedic, KP, Krishnamurti, etc.). One coherent voice.
 - No fatalism, no medical diagnoses, no death predictions. Health = vitality/stress patterns only.
+- Prefer facts.factAnchors and facts.keyPlanets (with degrees/dignity) over repeating identical English strength templates across charts.
+- When remedies[] is present, fold ONE practical remedy into guidance for a relevant area (do not dump all remedies).
 
 DATE RULES:
 - Report date is ${asOfDate}. Mention it once in the portrait and when discussing “now”.
 - “now” = current maha/antar(/pratyantar) windows in facts.dashaNow only.
-- “nearTerm” = ONLY ${window.start} → ${window.end}. Cite that window once per area.
+- “nearTerm” = ONLY the dasha window ${window.start} → ${window.end} (basis: ${window.basis}). Cite those dates. ${upcomingNote}
 - You may mention transit hits/emphasis from facts.transitsNow; do not invent other transit dates.
+- Use aspects[], kpSignificators, and vargas when they strengthen an area claim.
 
 PER-AREA RULES:
-- Use that area’s mustCite[] — weave at least TWO of those anchors into overview + now (paraphrase OK, do not contradict).
+- Use that area’s mustCite[] AND factAnchors — weave at least TWO anchors into overview + now (paraphrase OK, do not contradict).
 - strengths/watchouts: short bullets, each tied to a placement (not vague advice).
 - guidance: one practical paragraph a person could act on this month — not spiritual platitudes.
 - If tobUnknown: say Asc/houses are limited; lean on Sun/Moon/nakshatra + Moon dasha.
@@ -236,7 +347,7 @@ Area =
   "strengths": ["3 concrete strengths with placements"],
   "watchouts": ["2 gentle cautions with placements"],
   "now": "1 paragraph: what the CURRENT dasha means for this area (cite lords + dates)",
-  "nearTerm": "1 paragraph for ${window.start}→${window.end} only",
+  "nearTerm": "1 paragraph for ${window.start}→${window.end} only (dasha-real timing)",
   "guidance": "1 practical paragraph"
 }`;
 
@@ -247,39 +358,13 @@ Area =
   )}\n\nWrite the JSON report now. Make each area feel different — do not repeat the same dasha sentence in every area.`;
 
   try {
-    const res = await fetch(GROQ_CHAT_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        temperature: 0.35,
-        max_tokens: 9000,
-        response_format: { type: "json_object" },
-        reasoning_effort: "none",
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-      }),
-    });
-
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      console.warn(
-        "[astrology] groq write-up failed",
-        res.status,
-        errText.slice(0, 200)
-      );
-      return fallbackCopy(chart, language);
-    }
-
-    const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const raw = stripThinkBlocks(data.choices?.[0]?.message?.content || "");
+    const raw = await createGroqPredictionCompletion(
+      [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      { temperature: 0.5, max_completion_tokens: 12_000 }
+    );
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const portrait =
       String(parsed.portrait || "").trim() ||
@@ -295,6 +380,7 @@ Area =
       portrait,
       areas,
       generatedAt: new Date().toISOString(),
+      source: "llm",
     };
   } catch (err) {
     console.warn("[astrology] prediction write-up error", err);
@@ -375,7 +461,7 @@ function fallbackArea(
 ): AreaPrediction {
   const v = chart.verdicts.blended.find((b) => b.lifeArea === area)!;
   const anchors = buildAreaAnchors(chart, area);
-  const window = nearTermWindow(chart.asOfDate);
+  const window = nearTermWindow(chart.asOfDate, chart);
   const label = AREA_LABEL[area];
   const maha = v.mahaLord ?? "—";
   const antar = v.antarLord;
@@ -398,7 +484,15 @@ function fallbackArea(
         ? v.tensions.slice(0, 2)
         : ["जहाँ देर लगे, धैर्य रखें"],
       now: `${chart.asOfDate}: ${v.timing}`,
-      nearTerm: `${window.start} → ${window.end}: ${
+      nearTerm: `${window.start} → ${window.end}${
+        window.basis !== "calendar"
+          ? ` (${window.basis}${window.currentAntarLord ? ` · ${window.currentAntarLord}` : ""}${
+              window.nextAntarLord
+                ? ` → next ${window.nextAntarLord}`
+                : ""
+            })`
+          : ""
+      }: ${
         v.dashaSupports
           ? "दशा समर्थन के साथ छोटे ठोस कदम उपयोगी।"
           : "बड़े निर्णयों से पहले आधार मजबूत करें।"
@@ -433,7 +527,19 @@ function fallbackArea(
       ? v.tensions.slice(0, 2)
       : ["Where effort meets delay, prefer steady routines over forced breakthroughs."],
     now: `As of ${chart.asOfDate}: ${v.timing}`,
-    nearTerm: `From ${window.start} to ${window.end}, ${
+    nearTerm: `From ${window.start} to ${window.end}${
+      window.basis !== "calendar"
+        ? ` (${window.basis}${
+            window.currentAntarLord ? ` · ${window.currentAntarLord}` : ""
+          }${
+            window.nextAntarLord
+              ? `; next antar ${window.nextAntarLord}${
+                  window.nextAntarStart ? ` from ${window.nextAntarStart}` : ""
+                }`
+              : ""
+          })`
+        : ""
+    }, ${
       v.dashaSupports
         ? "use the active dasha window for concrete next steps rather than waiting for a perfect opening."
         : "strengthen foundations; save irreversible moves for clearer activation."
@@ -476,6 +582,7 @@ function fallbackCopy(
     portrait: fallbackPortrait(chart, language),
     areas,
     generatedAt: new Date().toISOString(),
+    source: "rules",
   };
 }
 

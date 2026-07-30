@@ -99,7 +99,11 @@ export async function POST(request: NextRequest) {
         chart.predictionsText?.portrait &&
         chart.predictionsText.language === language
       ) {
-        return NextResponse.json({ chart, cached: true });
+        return NextResponse.json({
+          chart,
+          cached: true,
+          source: chart.predictionsText.source ?? "llm",
+        });
       }
 
       chart.predictionsText = await writePredictions(chart, language);
@@ -114,7 +118,11 @@ export async function POST(request: NextRequest) {
         { onConflict: "member_id,engine_version" }
       );
 
-      return NextResponse.json({ chart, cached: false });
+      return NextResponse.json({
+        chart,
+        cached: false,
+        source: chart.predictionsText.source ?? "llm",
+      });
     }
 
     const session = readChartSessionId(body, "astrology/predictions");
@@ -139,11 +147,21 @@ export async function POST(request: NextRequest) {
           chart.predictionsText.language === language
         ) {
           await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
-          return NextResponse.json({ ...echo, chart, cached: true });
+          return NextResponse.json({
+            ...echo,
+            chart,
+            cached: true,
+            source: chart.predictionsText.source ?? "llm",
+          });
         }
         chart.predictionsText = await writePredictions(chart, language);
         await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
-        return NextResponse.json({ ...echo, chart, cached: false });
+        return NextResponse.json({
+          ...echo,
+          chart,
+          cached: false,
+          source: chart.predictionsText.source ?? "llm",
+        });
       }
       // Cache miss (e.g. TTL expiry) — recompute from birth if provided.
       // Safe to write under sessionId: it passed the uuid v4 shape check.
@@ -152,7 +170,12 @@ export async function POST(request: NextRequest) {
         chart = liveChart(computeChart(birthFromSession));
         chart.predictionsText = await writePredictions(chart, language);
         await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
-        return NextResponse.json({ ...echo, chart, cached: false });
+        return NextResponse.json({
+          ...echo,
+          chart,
+          cached: false,
+          source: chart.predictionsText.source ?? "llm",
+        });
       }
       return NextResponse.json(
         { error: "Session expired — cast the chart again" },
@@ -169,7 +192,10 @@ export async function POST(request: NextRequest) {
     }
     chart = liveChart(computeChart(birth));
     chart.predictionsText = await writePredictions(chart, language);
-    return NextResponse.json({ chart });
+    return NextResponse.json({
+      chart,
+      source: chart.predictionsText.source ?? "llm",
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Predictions failed";
     console.error("[astrology/predictions]", message);

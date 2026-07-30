@@ -39,7 +39,9 @@ export default function AstroChat({
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const nearBottom = useRef(true);
 
   const controlled = controlledMessages !== undefined && onMessagesChange;
   const messages = controlled ? controlledMessages : internalMessages;
@@ -64,8 +66,22 @@ export default function AstroChat({
         ]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!nearBottom.current) return;
+    const el = listRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    } else {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   }, [messages, busy]);
+
+  function onListScroll() {
+    const el = listRef.current;
+    if (!el) return;
+    const pad = 72;
+    nearBottom.current =
+      el.scrollTop + el.clientHeight >= el.scrollHeight - pad;
+  }
 
   async function send(text: string) {
     const content = text.trim();
@@ -78,17 +94,15 @@ export default function AstroChat({
     setMessages(nextMessages);
     setInput("");
     setBusy(true);
+    nearBottom.current = true;
 
     try {
-      // Chart-linked chat → detailed astrology-only reply (no Gita verses).
       const res = await postChat({
         messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
         language: lang,
         memberId,
         chartSessionId,
         birth,
-        // Embedded chart chat is ephemeral by design — ChartHub owns the
-        // history and nothing here should write chat_sessions rows.
         incognito: true,
       });
 
@@ -128,9 +142,9 @@ export default function AstroChat({
 
   return (
     <div
-      className={`flex min-h-[28rem] flex-col border border-[var(--line)] ${className}`}
+      className={`flex h-[min(70vh,36rem)] min-h-[28rem] flex-col border border-[var(--line)] ${className}`}
     >
-      <div className="border-b border-[var(--hairline)] px-4 py-3">
+      <div className="shrink-0 border-b border-[var(--hairline)] px-4 py-3">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="font-display text-lg text-[var(--text)]">
@@ -160,7 +174,11 @@ export default function AstroChat({
         ) : null}
       </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+      <div
+        ref={listRef}
+        onScroll={onListScroll}
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4"
+      >
         {messages.length === 0 ? (
           <div className="space-y-2">
             <p className="text-sm text-[var(--text-muted)]">
@@ -198,13 +216,13 @@ export default function AstroChat({
       </div>
 
       {error ? (
-        <p className="px-4 text-sm text-red-400" role="alert">
+        <p className="shrink-0 px-4 text-sm text-red-400" role="alert">
           {error}
         </p>
       ) : null}
 
       <form
-        className="flex gap-2 border-t border-[var(--hairline)] p-3"
+        className="flex shrink-0 gap-2 border-t border-[var(--hairline)] p-3"
         onSubmit={(e) => {
           e.preventDefault();
           send(input);

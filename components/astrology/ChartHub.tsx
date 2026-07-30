@@ -136,7 +136,7 @@ export default function ChartHub({
   const [chartStyle, setChartStyle] = useState<ChartStyle>("north");
   const [showBirthDetails, setShowBirthDetails] = useState(false);
   const [focusArea, setFocusArea] = useState<LifeArea | null>(null);
-  const [predDetail, setPredDetail] = useState<PredDetail>("simple");
+  const [predDetail, setPredDetail] = useState<PredDetail>("detailed");
   const [vargaKind, setVargaKind] = useState<VargaKind>("d9");
   const [selectedPlanetId, setSelectedPlanetId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<AstroChatMessage[]>([]);
@@ -209,6 +209,14 @@ export default function ChartHub({
       setPredBusy(false);
     }
   }
+
+  useEffect(() => {
+    if (tab !== "predictions") return;
+    if (chart.predictionsText?.portrait) return;
+    if (predBusy || !onRequestPredictions) return;
+    void loadPredictions(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, chart.predictionsText?.portrait, onRequestPredictions]);
 
   async function handleAsOfChange(nextDate: string) {
     if (!onAsOfDateChange || nextDate === chart.asOfDate) return;
@@ -462,7 +470,7 @@ export default function ChartHub({
               key={item.id}
               type="button"
               onClick={() => setTab(item.id)}
-              className={`shrink-0 px-3.5 py-3.5 text-sm transition ${
+              className={`shrink-0 px-2.5 py-3 text-[13px] transition sm:px-3.5 sm:py-3.5 sm:text-sm ${
                 tab === item.id
                   ? "border-b-2 border-[var(--brass)] text-[var(--brass-soft)]"
                   : "border-b-2 border-transparent text-[var(--text-muted)] hover:text-[var(--text)]"
@@ -474,7 +482,7 @@ export default function ChartHub({
           <button
             type="button"
             onClick={() => setShowAdvanced((v) => !v)}
-            className={`shrink-0 px-3.5 py-3.5 text-sm transition ${
+            className={`shrink-0 px-2.5 py-3 text-[13px] transition sm:px-3.5 sm:py-3.5 sm:text-sm ${
               isAdvanced || showAdvanced
                 ? "border-b-2 border-[var(--brass)]/60 text-[var(--brass-soft)]"
                 : "border-b-2 border-transparent text-[var(--text-muted)] hover:text-[var(--text)]"
@@ -1398,20 +1406,29 @@ export default function ChartHub({
           {!chart.predictionsText ? (
             <div className="space-y-3">
               <p className="text-[var(--text-muted)]">{t("astroPredBlurb")}</p>
-              <button
-                type="button"
-                onClick={() => loadPredictions(false)}
-                disabled={predBusy || !onRequestPredictions}
-                className="bg-[var(--brass)] px-4 py-2.5 text-sm text-[var(--on-brass)] disabled:opacity-50"
-              >
-                {predBusy ? t("astroWorking") : t("astroGeneratePred")}
-              </button>
+              {predBusy ? (
+                <p className="text-sm text-[var(--brass-soft)]">{t("astroWorking")}</p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => loadPredictions(false)}
+                  disabled={!onRequestPredictions}
+                  className="bg-[var(--brass)] px-4 py-2.5 text-sm text-[var(--on-brass)] disabled:opacity-50"
+                >
+                  {t("astroGeneratePred")}
+                </button>
+              )}
               {predError ? (
                 <p className="text-sm text-red-400">{predError}</p>
               ) : null}
             </div>
           ) : (
             <div className="space-y-10">
+              {chart.predictionsText.source === "rules" ? (
+                <p className="border border-[var(--brass)]/30 bg-[var(--brass)]/5 px-3 py-2 text-sm text-[var(--brass-soft)]">
+                  {t("astroPredRulesBanner")}
+                </p>
+              ) : null}
               <article className="space-y-3 border border-[var(--brass)]/25 bg-[var(--brass)]/5 px-4 py-5">
                 <h2 className="font-display text-2xl text-[var(--text)]">
                   {t("astroPortrait")}
