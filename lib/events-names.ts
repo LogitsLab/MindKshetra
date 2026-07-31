@@ -15,6 +15,9 @@ export const EVENT_NAMES = [
   "chart_cast",
   "predictions_viewed",
   "sadhana_logged",
+  // Gate metrics G1/G2.
+  "reflection_shared",
+  "sangha_attended",
 ] as const;
 
 export type EventName = (typeof EVENT_NAMES)[number];

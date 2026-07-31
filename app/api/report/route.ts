@@ -13,6 +13,13 @@ const CONTENT_TYPES = new Set(["reflection", "profile", "circle_post"]);
  * reporting is an abuse vector on a small moderation team. 20/day per user.
  */
 export async function POST(request: NextRequest) {
+  if (process.env.COMMUNITY_REPORTS_ENABLED === "0") {
+    return NextResponse.json(
+      { error: "Reporting is paused right now." },
+      { status: 503 }
+    );
+  }
+
   const userId = await getSignedInUserId();
   const rl = await rateLimit(
     `report:${principalKey(userId, request)}`,
@@ -41,6 +48,24 @@ export async function POST(request: NextRequest) {
     typeof body?.reason === "string" ? body.reason.trim().slice(0, 500) : null;
 
   const admin = createAdminClient();
+
+  // One open report per (user, content): duplicates are accepted (202) but
+  // never stack queue rows. The 016 partial unique index backstops this
+  // pre-check under concurrency.
+  const { data: existing } = await admin
+    .from("moderation_queue")
+    .select("id")
+    .eq("content_type", contentType)
+    .eq("content_id", contentId.trim())
+    .eq("reported_by", userId)
+    .eq("status", "open")
+    .eq("source", "report")
+    .limit(1)
+    .maybeSingle();
+  if (existing) {
+    return NextResponse.json({ ok: true }, { status: 202 });
+  }
+
   const { error } = await admin.from("moderation_queue").insert({
     content_type: contentType,
     content_id: contentId.trim(),
@@ -49,6 +74,10 @@ export async function POST(request: NextRequest) {
     source: "report",
   });
   if (error) {
+    // 23505 = the 016 unique index caught a concurrent duplicate — success.
+    if (error.code === "23505") {
+      return NextResponse.json({ ok: true }, { status: 202 });
+    }
     console.warn("[report]", error.message);
     return NextResponse.json({ error: "Could not report" }, { status: 500 });
   }
