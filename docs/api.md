@@ -221,7 +221,7 @@ Log a practice session. Body `{ practice, occurredOn?, durationSec?, count?, det
 
 ### `POST /api/sadhana/merge`
 
-Replay a device-local guest log after sign-in. Body `{ sessions: [{practice, occurredOn, durationSec?, count?, clientRef}], timezone? }`. Idempotent via `(user_id, client_ref)`.
+Replay a device-local guest log after sign-in. Body `{ sessions: [{practice, occurredOn, durationSec?, count?, clientRef}], timezone? }` → `{ merged, received, capped, streaks }`. Idempotent via `(user_id, client_ref)` — `merged` counts rows actually written (a replay reports 0); at most 200 sessions are considered per call, so when `capped` is true chunk and resend the remainder. Keep the local log on any non-200.
 
 ### `GET /api/panchang?date&lat&lng`
 

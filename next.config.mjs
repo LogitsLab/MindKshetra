@@ -25,6 +25,7 @@ const nextConfig = {
       "/verse-of-the-day": ["./ephemeris/**"],
       "/api/votd/**": ["./ephemeris/**"],
       "/api/cron/votd-email": ["./ephemeris/**"],
+      "/api/cron/push-dispatch": ["./ephemeris/**"],
       "/api/panchang/**": ["./ephemeris/**"],
     },
   },

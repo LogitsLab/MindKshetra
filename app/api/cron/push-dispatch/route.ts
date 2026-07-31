@@ -29,7 +29,12 @@ export const maxDuration = 60;
  */
 const FALLBACK_TZ = "Asia/Kolkata";
 const STREAK_HOUR = 20;
-const COHORT_CAP = 2000;
+/** Keyset page size for the prefs scan; a flat cap froze out user_ids sorting past it. */
+const PAGE_SIZE = 1000;
+/** Safety ceiling (20k opted-in rows/tick) — hitting it warns instead of looping forever. */
+const MAX_PAGES = 20;
+/** Newest tokens per user actually sent to — bounds the blast radius of one account. */
+const MAX_TOKENS_PER_USER = 3;
 
 function authorizeCron(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -65,19 +70,37 @@ export async function GET(request: NextRequest) {
   const admin = createAdminClient();
   const now = new Date();
 
-  const { data: prefs, error } = await admin
-    .from("user_preferences")
-    .select(
-      "user_id, timezone, preferred_language, notif_daily_verse, notif_daily_verse_hour, notif_streak_reminder"
-    )
-    .or("notif_daily_verse.eq.true,notif_streak_reminder.eq.true")
-    .limit(COHORT_CAP);
+  // Keyset pagination over the opted-in prefs (user_id ascending): each page
+  // resumes after the last id, so growth past any one page never silently
+  // drops the users who sort after it.
+  const rows: PrefRow[] = [];
+  let lastId: string | null = null;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    let filters = admin
+      .from("user_preferences")
+      .select(
+        "user_id, timezone, preferred_language, notif_daily_verse, notif_daily_verse_hour, notif_streak_reminder"
+      )
+      .or("notif_daily_verse.eq.true,notif_streak_reminder.eq.true");
+    if (lastId) filters = filters.gt("user_id", lastId);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const { data: prefs, error } = await filters
+      .order("user_id", { ascending: true })
+      .limit(PAGE_SIZE);
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    const batch = (prefs ?? []) as PrefRow[];
+    rows.push(...batch);
+    if (batch.length < PAGE_SIZE) break;
+    lastId = batch[batch.length - 1].user_id;
+    if (page === MAX_PAGES - 1) {
+      console.warn(
+        `[push-dispatch] hit the ${MAX_PAGES}-page scan ceiling (${rows.length} rows); user_ids beyond ${lastId} were skipped this tick`
+      );
+    }
   }
-
-  const rows = (prefs ?? []) as PrefRow[];
   if (!rows.length) {
     return NextResponse.json({ ok: true, sent: 0, cohorts: {} });
   }
@@ -157,11 +180,15 @@ export async function GET(request: NextRequest) {
       "user_id",
       Array.from(new Set(toSend.map((c) => c.row.user_id)))
     )
-    .is("disabled_at", null);
+    .is("disabled_at", null)
+    .order("last_seen_at", { ascending: false });
 
+  // Rows arrive newest-first, so per-user insertion order preserves that:
+  // keeping the first MAX_TOKENS_PER_USER per user keeps the newest devices.
   const tokensByUser = new Map<string, string[]>();
   for (const t of tokens ?? []) {
     const list = tokensByUser.get(t.user_id) ?? [];
+    if (list.length >= MAX_TOKENS_PER_USER) continue;
     list.push(t.token);
     tokensByUser.set(t.user_id, list);
   }

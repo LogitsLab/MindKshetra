@@ -115,7 +115,7 @@ export async function logSadhanaSession(
       ? input.occurredOn
       : today;
 
-  await supabase.from("sadhana_sessions").upsert(
+  const { error } = await supabase.from("sadhana_sessions").upsert(
     {
       user_id: userId,
       practice: input.practice,
@@ -129,6 +129,12 @@ export async function logSadhanaSession(
     },
     { onConflict: "user_id,client_ref", ignoreDuplicates: true }
   );
+  // A failed insert must never fabricate practice history: surface it before
+  // any streak math runs (the route turns the throw into a non-200 and the
+  // client keeps its local copy to retry).
+  if (error) {
+    throw new Error("Could not record the session: " + error.message);
+  }
 
   const streak = await advancePracticeStreak(userId, input.practice, occurredOn);
   return { ok: true, occurredOn, streak };
@@ -161,7 +167,7 @@ async function advancePracticeStreak(
     return { current: existing.current_streak, longest: existing.longest_streak };
   }
 
-  await supabase.from("sadhana_streaks").upsert(
+  const { error } = await supabase.from("sadhana_streaks").upsert(
     {
       user_id: userId,
       practice,
@@ -173,6 +179,9 @@ async function advancePracticeStreak(
     },
     { onConflict: "user_id,practice" }
   );
+  if (error) {
+    throw new Error("Could not update the streak: " + error.message);
+  }
 
   return {
     current: next.current,
@@ -183,13 +192,26 @@ async function advancePracticeStreak(
 
 const MERGE_CAP = 200;
 
+/**
+ * `merged` counts rows actually written this call — an idempotent replay
+ * reports 0, not the batch size. `received`/`capped` echo what arrived so a
+ * client holding more than MERGE_CAP sessions knows to chunk and resend the
+ * remainder instead of silently losing everything past the cap.
+ */
 export async function mergeGuestSadhana(
   userId: string,
   sessions: unknown,
   timezone?: string
-): Promise<{ merged: number; streaks: PracticeStreak[] }> {
+): Promise<{
+  merged: number;
+  received: number;
+  capped: boolean;
+  streaks: PracticeStreak[];
+}> {
   const supabase = await createClient();
   const today = localDayString(await resolveUserTimezone(userId, timezone));
+
+  const received = Array.isArray(sessions) ? sessions.length : 0;
 
   const rows = (Array.isArray(sessions) ? sessions : [])
     .slice(0, MERGE_CAP)
@@ -220,10 +242,19 @@ export async function mergeGuestSadhana(
       ];
     });
 
+  let merged = 0;
   if (rows.length) {
-    await supabase
+    const { data: inserted, error } = await supabase
       .from("sadhana_sessions")
-      .upsert(rows, { onConflict: "user_id,client_ref", ignoreDuplicates: true });
+      .upsert(rows, { onConflict: "user_id,client_ref", ignoreDuplicates: true })
+      .select("id");
+    // Throwing is what lets the client keep its local log: the route answers
+    // non-200 and the device retries later instead of discarding history.
+    if (error) {
+      throw new Error("Could not merge the practice log: " + error.message);
+    }
+    // ignoreDuplicates returns only the rows this call inserted.
+    merged = inserted?.length ?? 0;
     await recomputeStreaks(
       userId,
       Array.from(new Set(rows.map((r) => r.practice as Practice)))
@@ -231,7 +262,12 @@ export async function mergeGuestSadhana(
   }
 
   const summary = await getSadhanaSummary(userId, timezone);
-  return { merged: rows.length, streaks: summary.streaks };
+  return {
+    merged,
+    received,
+    capped: received > MERGE_CAP,
+    streaks: summary.streaks,
+  };
 }
 
 /**
@@ -245,12 +281,17 @@ async function recomputeStreaks(
 ): Promise<void> {
   const supabase = await createClient();
   for (const practice of practices) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("sadhana_sessions")
       .select("occurred_on")
       .eq("user_id", userId)
       .eq("practice", practice)
       .order("occurred_on", { ascending: true });
+    // A partial read would fold a truncated history into the streak — abort
+    // instead; the merge is idempotent, so a retry recomputes from the top.
+    if (error) {
+      throw new Error("Could not read sessions to recompute streaks: " + error.message);
+    }
 
     const days = Array.from(
       new Set((data ?? []).map((r) => r.occurred_on as string))
@@ -265,7 +306,7 @@ async function recomputeStreaks(
       state = advanceStreak(state, day);
     }
 
-    await supabase.from("sadhana_streaks").upsert(
+    const { error: writeError } = await supabase.from("sadhana_streaks").upsert(
       {
         user_id: userId,
         practice,
@@ -277,5 +318,8 @@ async function recomputeStreaks(
       },
       { onConflict: "user_id,practice" }
     );
+    if (writeError) {
+      throw new Error("Could not update the streak: " + writeError.message);
+    }
   }
 }

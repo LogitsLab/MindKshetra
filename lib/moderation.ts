@@ -25,7 +25,29 @@ export type ScreenResult =
 const URL_PATTERN =
   /(https?:\/\/|www\.|\b[a-z0-9-]+\.(?:com|net|org|io|co|in|app|xyz|me|ly)\b)/i;
 
-const TERMS: string[] = (termsData.terms ?? []).map((t) => t.toLowerCase());
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const ASCII_ONLY = /^[\x00-\x7F]+$/;
+
+/**
+ * Precompiled once at module load. ASCII terms match on \b word boundaries —
+ * plain substring held "grandiose" and "modus operandi" (both contain
+ * "randi"). Terms with non-ASCII stay substring matches: JS \b only knows
+ * [A-Za-z0-9_], so a Devanagari term would never sit "between boundaries"
+ * and word-boundary matching would silently disable it.
+ */
+const COMPILED_TERMS: Array<
+  { kind: "word"; pattern: RegExp } | { kind: "substring"; term: string }
+> = (termsData.terms ?? [])
+  .map((t) => t.toLowerCase())
+  .filter((t) => t.length > 0)
+  .map((term) =>
+    ASCII_ONLY.test(term)
+      ? { kind: "word" as const, pattern: new RegExp(`\\b${escapeRegex(term)}\\b`) }
+      : { kind: "substring" as const, term }
+  );
 
 export function screenText(text: string, maxLen = 1000): ScreenResult {
   const trimmed = text.trim();
@@ -38,8 +60,10 @@ export function screenText(text: string, maxLen = 1000): ScreenResult {
   }
 
   const lower = trimmed.toLowerCase();
-  for (const term of TERMS) {
-    if (term && lower.includes(term)) {
+  for (const t of COMPILED_TERMS) {
+    const hit =
+      t.kind === "word" ? t.pattern.test(lower) : lower.includes(t.term);
+    if (hit) {
       return { verdict: "hold", reason: "terms" };
     }
   }
