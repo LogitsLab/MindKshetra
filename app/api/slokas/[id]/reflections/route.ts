@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient, getAuthUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Shared reflections on a verse. RLS is the boundary (only shared+published
- * rows are visible to anyone but their author); the viewer's block list is
- * an API-layer read filter on top. Authors without a public profile appear
- * as "A seeker" — sharing words never forces sharing identity.
+ * Shared reflections on a verse. Migration 016 dropped the public SELECT
+ * policy on journal_entries, so this read runs on the service role and the
+ * API is the only public read path. The viewer's block list is an API-layer
+ * read filter on top. Authors without a public profile appear as "A seeker"
+ * — sharing words never forces sharing identity.
  */
 export async function GET(
   request: NextRequest,
@@ -25,8 +27,10 @@ export async function GET(
     return NextResponse.json({ error: "Invalid verse" }, { status: 400 });
   }
 
-  const supabase = await createClient();
-  const { data: rows } = await supabase
+  // Service role BYPASSES RLS: the visibility/status filters below are the
+  // security boundary for private journals now — never remove or widen them.
+  const admin = createAdminClient();
+  const { data: rows } = await admin
     .from("journal_entries")
     .select("id, user_id, reflection, shared_at")
     .eq("sloka_id", slokaId)
@@ -43,6 +47,10 @@ export async function GET(
     );
   }
 
+  // Blocks and profiles stay on the request-scoped client: user_blocks RLS
+  // is own-row, and public_profiles keeps its public-read policy (013) — no
+  // reason to widen either read to the service role.
+  const supabase = await createClient();
   const viewerId = await getAuthUserId();
   if (viewerId) {
     const { data: blocks } = await supabase
