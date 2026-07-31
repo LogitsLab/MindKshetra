@@ -10,6 +10,11 @@ export const dynamic = "force-dynamic";
 /**
  * Guest→account replay of a device-local practice log, idempotent via
  * (user_id, client_ref). Mirrors /api/progress/merge.
+ *
+ * 200 → { merged, received, capped, streaks }: `merged` counts rows actually
+ * written (a pure replay reports 0); when `capped` is true only the first 200
+ * of `received` were considered — chunk and resend the remainder. On any
+ * non-200 the client must keep its local log and retry.
  */
 export async function POST(request: NextRequest) {
   const userId = await getSignedInUserId();
