@@ -1,0 +1,56 @@
+name: Deploy dev to Vercel
+
+# The dev integration branch deploys to https://dev-mind.logitslab.com as a
+# Vercel *preview* deployment aliased to a stable domain. Production stays
+# main-only (deploy.yml). Setup steps live in docs/dev-environment.md.
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: mindkshetra-dev
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        # Pinned to match deploy.yml — 58.4.4 fails prebuilt deploys with
+        # "ENOENT: lstat node_modules/styled-jsx/index.js". Bump deliberately.
+        run: npm install -g vercel@58.4.0
+
+      - name: Pull Vercel project config (preview, dev branch env)
+        run: vercel pull --yes --environment=preview --git-branch=dev --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy (preview)
+        id: deploy
+        run: echo "url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})" >> "$GITHUB_OUTPUT"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Alias to dev-mind.logitslab.com
+        run: vercel alias set ${{ steps.deploy.outputs.url }} dev-mind.logitslab.com --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
