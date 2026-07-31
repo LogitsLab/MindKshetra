@@ -31,6 +31,24 @@ describe("screenText", () => {
     });
   });
 
+  it("does not hold innocent words that merely contain a term", () => {
+    // Leading-boundary matching must hold suffixed forms of listed terms —
+    // a trailing \b would let inflected abuse through the screen.
+    expect(screenText("bunch of assholes").verdict).toBe("hold");
+    expect(screenText("chutiyapa band karo").verdict).toBe("hold");
+    // "grandiose" and "operandi" both contain "randi"; word-boundary matching
+    // for ASCII terms lets them through.
+    expect(screenText("grandiose plans")).toEqual({ verdict: "publish" });
+    expect(screenText("modus operandi")).toEqual({ verdict: "publish" });
+  });
+
+  it("still holds Devanagari terms as substrings (no \\b in Devanagari)", () => {
+    expect(screenText("महाचूतिया")).toEqual({
+      verdict: "hold",
+      reason: "terms",
+    });
+  });
+
   it("does not flag ordinary Hindi devotional text", () => {
     expect(
       screenText("आज का श्लोक मन को शांति देता है। धन्यवाद।").verdict

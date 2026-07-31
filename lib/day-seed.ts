@@ -3,18 +3,30 @@ import { getAllSlokas, getSlokaById, getSlokasByTags } from "@/lib/slokas";
 import { NAKSHATRA_TAGS } from "@/lib/nakshatra-tags";
 import type { Sloka } from "@/lib/types";
 
+/** YYYY-MM-DD of the IST calendar day ('en-CA' formats as ISO). */
+function istDay(now: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}
+
 /**
  * Canonical day-of-year seed for the verse-of-the-day rotation. Every surface
  * (home featured verse, /verse-of-the-day, the VOTD email, /api/votd/today)
  * must derive today's verse from this module so they can never disagree.
+ *
+ * Seeded from the IST calendar day — the same boundary the selection cache
+ * and the nakshatra read use. When this used UTC date parts, two lambdas
+ * could serve different verses for the same IST day between 00:00 and
+ * 05:30 IST (UTC was still "yesterday").
  */
 export function daySeed(now = new Date()): number {
-  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
-  const today = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate()
-  );
+  const [y, m, d] = istDay(now).split("-").map(Number);
+  const start = Date.UTC(y, 0, 0);
+  const today = Date.UTC(y, m - 1, d);
   return Math.floor((today - start) / 86_400_000);
 }
 
@@ -37,15 +49,7 @@ export async function getTodaysNakshatra(
 ): Promise<TodaysNakshatra | null> {
   try {
     // The IST calendar date, then 06:00 IST === 00:30 UTC on that date.
-    const [y, m, d] = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Kolkata",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-      .format(now)
-      .split("-")
-      .map(Number);
+    const [y, m, d] = istDay(now).split("-").map(Number);
 
     // Loaded lazily so a missing native sweph build never breaks the
     // whole-corpus fallback path below.
@@ -76,15 +80,6 @@ function orderedByRef(slokas: Sloka[]): Sloka[] {
 // One selection per IST day per process — the home page renders this on every
 // request and must not recompute ephemeris math each time.
 let cached: { day: string; selection: VotdSelection | null } | null = null;
-
-function istDay(now: Date): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(now);
-}
 
 /**
  * Nakshatra-driven verse of the day: today's Moon nakshatra maps to verse

@@ -70,7 +70,15 @@ export function computeMonthPanchang(
 
   const days: MonthPanchang["days"] = [];
   const observances: Observance[] = [];
-  let prevSunSign: string | null = null;
+
+  // Seed the ingress detector from the PREVIOUS month's final sunrise. With a
+  // null seed, an ingress falling between that sunrise and the 1st's sunrise
+  // was invisible to both months: the prior month's loop ended before it, and
+  // this month's first iteration only recorded the sign without comparing.
+  const seedDate = start.minus({ days: 1 }).toISODate()!;
+  let prevSunSign: string = signOf(
+    computeDailyPanchang(seedDate, lat, lng, ianaTz).sunLongitude
+  );
 
   for (let d = 0; d < start.daysInMonth!; d++) {
     const date = start.plus({ days: d }).toISODate()!;
@@ -97,7 +105,7 @@ export function computeMonthPanchang(
     }
 
     const sunSign = signOf(p.sunLongitude);
-    if (prevSunSign && sunSign !== prevSunSign) {
+    if (sunSign !== prevSunSign) {
       observances.push({
         date: p.date,
         kind: "sankranti",

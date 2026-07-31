@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import { moods } from "@/lib/moods-data";
 import { splitVerseLines } from "@/lib/verseDisplay";
@@ -17,7 +18,12 @@ type Sloka = {
 
 type Streak = { current: number; longest: number; graceUsedToday?: boolean };
 
-type Stage = "mood" | "sit" | "reflect" | "done";
+type Stage = "mood" | "sit" | "sitDone" | "reflect" | "done";
+
+type VerseState = "idle" | "loading" | "loaded" | "failed";
+
+/** How today's flow ended up recorded — never pretend, never guess. */
+type LogOutcome = "recorded" | "deviceOnly" | "failed";
 
 function deviceTimezone(): string | undefined {
   try {
@@ -40,40 +46,105 @@ function newClientRef(): string {
   }
 }
 
-async function logPractice(body: Record<string, unknown>): Promise<
-  { ok: true; streak: Streak } | { ok: false; signedOut: boolean }
+/**
+ * Device-local practice log for visitors with no session at all. The
+ * done-stage copy says "counted on this device" — this store is what makes
+ * that sentence true. /api/sadhana/merge replays it (idempotent via
+ * clientRef) the next time this screen mounts with a signed-in user, the
+ * same pattern the mobile app uses in storage/local.ts.
+ */
+const DEVICE_LOG_KEY = "mindkshetra-sadhana-log";
+
+type DeviceSession = {
+  practice: "flow" | "japa";
+  occurredOn: string;
+  durationSec?: number;
+  count?: number;
+  clientRef: string;
+};
+
+function localDayStamp(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function readDeviceLog(): DeviceSession[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(DEVICE_LOG_KEY) ?? "[]");
+    return Array.isArray(parsed) ? (parsed as DeviceSession[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function appendDeviceLog(session: DeviceSession): void {
+  try {
+    const log = [...readDeviceLog(), session].slice(-90);
+    localStorage.setItem(DEVICE_LOG_KEY, JSON.stringify(log));
+  } catch {
+    /* storage unavailable — the copy still points at sign-in */
+  }
+}
+
+function clearDeviceLog(): void {
+  try {
+    localStorage.removeItem(DEVICE_LOG_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+async function logPractice(
+  body: Record<string, unknown>
+): Promise<
+  { ok: true; streak: Streak } | { ok: false; reason: "signedOut" | "failed" }
 > {
   try {
     const res = await fetch("/api/sadhana", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...body,
-        clientRef: newClientRef(),
-        timezone: deviceTimezone(),
-      }),
+      body: JSON.stringify({ timezone: deviceTimezone(), ...body }),
     });
-    if (res.status === 401) return { ok: false, signedOut: true };
-    if (!res.ok) return { ok: false, signedOut: false };
+    if (res.status === 401) return { ok: false, reason: "signedOut" };
+    if (!res.ok) return { ok: false, reason: "failed" };
     const data = await res.json();
     return { ok: true, streak: data.streak as Streak };
   } catch {
-    return { ok: false, signedOut: false };
+    return { ok: false, reason: "failed" };
   }
 }
 
 export default function SadhanaClient() {
   const { lang, t } = useLanguage();
+  const { user } = useAuth();
   const [stage, setStage] = useState<Stage>("mood");
   const [doneToday, setDoneToday] = useState(false);
   const [sloka, setSloka] = useState<Sloka | null>(null);
+  const [verseState, setVerseState] = useState<VerseState>("idle");
   const [minutes, setMinutes] = useState(3);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
   const [reflection, setReflection] = useState("");
+  const [savingReflection, setSavingReflection] = useState(false);
+  const [reflectFailed, setReflectFailed] = useState(false);
   const [streak, setStreak] = useState<Streak | null>(null);
-  const [signedOut, setSignedOut] = useState(false);
-  const startedAtRef = useRef<number | null>(null);
+  const [logOutcome, setLogOutcome] = useState<LogOutcome | null>(null);
+  const [retrying, setRetrying] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
+
+  const moodRef = useRef<string | null>(null);
+  const verseReqRef = useRef(0);
+  // Wall-clock timer: the sit is anchored to real time, not to how often a
+  // (possibly throttled, hidden-tab) interval managed to fire.
+  const totalSecRef = useRef(0);
+  const segmentStartRef = useRef<number | null>(null);
+  const satMsRef = useRef(0);
+  const sitCompletedRef = useRef(false);
+  const prevTitleRef = useRef<string | null>(null);
+  const flowBodyRef = useRef<Record<string, unknown> | null>(null);
+
+  const signedIn = Boolean(user && !user.is_anonymous);
 
   useEffect(() => {
     const tz = deviceTimezone();
@@ -85,71 +156,220 @@ export default function SadhanaClient() {
       .catch(() => {});
   }, []);
 
-  async function pickMood(moodId: string) {
+  // Replay any device-only sessions once a real sign-in exists.
+  useEffect(() => {
+    if (!user || user.is_anonymous) return;
+    const sessions = readDeviceLog();
+    if (sessions.length === 0) return;
+    fetch("/api/sadhana/merge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessions, timezone: deviceTimezone() }),
+    })
+      .then((res) => {
+        if (res.ok) clearDeviceLog();
+      })
+      .catch(() => {});
+  }, [user]);
+
+  const loadVerse = useCallback(async (moodId: string) => {
+    const req = ++verseReqRef.current;
     setSloka(null);
-    setStage("sit");
+    setVerseState("loading");
     try {
       const res = await fetch(`/api/moods/${moodId}/slokas`);
-      if (res.ok) {
-        const data = (await res.json()) as { slokas: Sloka[] };
-        if (data.slokas?.length) {
-          // Stable within the day, different across days.
-          const idx =
-            Math.floor(Date.now() / 86_400_000) % data.slokas.length;
-          setSloka(data.slokas[idx]);
-        }
+      if (!res.ok) throw new Error("verse fetch failed");
+      const data = (await res.json()) as { slokas: Sloka[] };
+      if (verseReqRef.current !== req) return;
+      if (data.slokas?.length) {
+        // Stable within the day, different across days.
+        const idx = Math.floor(Date.now() / 86_400_000) % data.slokas.length;
+        setSloka(data.slokas[idx]);
+        setVerseState("loaded");
+      } else {
+        setVerseState("failed");
       }
     } catch {
-      /* the sit continues without a verse rather than failing the flow */
+      // The sit continues without a verse rather than failing the flow —
+      // but the absence is named, not silent (a quiet retry renders).
+      if (verseReqRef.current === req) setVerseState("failed");
     }
+  }, []);
+
+  function pickMood(moodId: string) {
+    moodRef.current = moodId;
+    setStage("sit");
+    void loadVerse(moodId);
   }
 
+  const haltClock = useCallback(() => {
+    if (segmentStartRef.current !== null) {
+      satMsRef.current += Date.now() - segmentStartRef.current;
+      segmentStartRef.current = null;
+    }
+    setRunning(false);
+  }, []);
+
+  const restoreTitle = useCallback(() => {
+    if (prevTitleRef.current !== null) {
+      document.title = prevTitleRef.current;
+      prevTitleRef.current = null;
+    }
+  }, []);
+
   function begin() {
-    startedAtRef.current = Date.now();
+    totalSecRef.current = minutes * 60;
+    satMsRef.current = 0;
+    segmentStartRef.current = Date.now();
+    sitCompletedRef.current = false;
+    setAnnouncement("");
     setSecondsLeft(minutes * 60);
     setRunning(true);
   }
 
+  function togglePause() {
+    if (running) {
+      haltClock();
+    } else {
+      segmentStartRef.current = Date.now();
+      setRunning(true);
+    }
+  }
+
   useEffect(() => {
     if (!running) return;
-    const id = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s === null) return s;
-        if (s <= 1) {
-          clearInterval(id);
-          setRunning(false);
-          setStage("reflect");
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [running]);
+    const update = () => {
+      const elapsedMs =
+        satMsRef.current +
+        (segmentStartRef.current ? Date.now() - segmentStartRef.current : 0);
+      const left = Math.max(
+        0,
+        totalSecRef.current - Math.floor(elapsedMs / 1000)
+      );
+      setSecondsLeft(left);
+      if (left > 0 || sitCompletedRef.current) return;
+      sitCompletedRef.current = true;
+      haltClock();
+      // A closed-eyes meditator must be able to notice the end without
+      // watching the DOM: a short vibration where supported, the tab title,
+      // and a polite screen-reader announcement. No audio by design.
+      try {
+        navigator.vibrate?.(200);
+      } catch {
+        /* not supported */
+      }
+      if (prevTitleRef.current === null) prevTitleRef.current = document.title;
+      document.title = t("sadhanaSitComplete");
+      setAnnouncement(t("sadhanaSitComplete"));
+      setStage("sitDone");
+    };
+    update();
+    const id = setInterval(update, 500);
+    // Hidden tabs throttle timers; recompute the moment we are visible again.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") update();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [running, haltClock, t]);
+
+  // The changed tab title holds until the person is back: restore on their
+  // next interaction, or when the held screen is left.
+  useEffect(() => {
+    if (stage !== "sitDone") return;
+    window.addEventListener("pointerdown", restoreTitle, { once: true });
+    window.addEventListener("keydown", restoreTitle, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", restoreTitle);
+      window.removeEventListener("keydown", restoreTitle);
+      restoreTitle();
+    };
+  }, [stage, restoreTitle]);
 
   const finishFlow = useCallback(async () => {
-    const elapsed = startedAtRef.current
-      ? Math.round((Date.now() - startedAtRef.current) / 1000)
-      : minutes * 60;
-    const result = await logPractice({
+    const satSec = Math.min(
+      86_400,
+      Math.max(1, Math.round(satMsRef.current / 1000))
+    );
+    // One body per completed sit, clientRef included, so a retry after a
+    // half-failed request can never double-count server-side.
+    const body = flowBodyRef.current ?? {
       practice: "flow",
-      durationSec: Math.min(elapsed, 86_400),
+      durationSec: satSec,
       details: sloka ? { slokaId: sloka.id } : undefined,
-    });
-    if (result.ok) setStreak(result.streak);
-    else setSignedOut(result.signedOut);
+      clientRef: newClientRef(),
+    };
+    flowBodyRef.current = body;
+    const result = await logPractice(body);
+    if (result.ok) {
+      flowBodyRef.current = null;
+      setStreak(result.streak);
+      setLogOutcome("recorded");
+      setDoneToday(true);
+    } else if (result.reason === "signedOut") {
+      appendDeviceLog({
+        practice: "flow",
+        occurredOn: localDayStamp(),
+        durationSec: Number(body.durationSec) || satSec,
+        clientRef: String(body.clientRef),
+      });
+      flowBodyRef.current = null;
+      setLogOutcome("deviceOnly");
+    } else {
+      setLogOutcome("failed");
+    }
     setStage("done");
-  }, [minutes, sloka]);
+  }, [sloka]);
+
+  async function retryLog() {
+    setRetrying(true);
+    await finishFlow();
+    setRetrying(false);
+  }
 
   async function saveReflection() {
-    if (sloka && reflection.trim()) {
-      await fetch("/api/journal", {
+    const text = reflection.trim();
+    if (!sloka || !text) {
+      await finishFlow();
+      return;
+    }
+    setSavingReflection(true);
+    setReflectFailed(false);
+    try {
+      const res = await fetch("/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slokaId: sloka.id, reflection: reflection.trim() }),
-      }).catch(() => {});
+        body: JSON.stringify({ slokaId: sloka.id, reflection: text }),
+      });
+      if (!res.ok) throw new Error("journal save failed");
+      await finishFlow();
+    } catch {
+      // The line stays in the textarea; nothing pretends it was kept.
+      setReflectFailed(true);
+    } finally {
+      setSavingReflection(false);
     }
-    await finishFlow();
+  }
+
+  function resetFlow() {
+    setStage("mood");
+    setSloka(null);
+    setVerseState("idle");
+    setSecondsLeft(null);
+    setRunning(false);
+    setReflection("");
+    setReflectFailed(false);
+    setStreak(null);
+    setLogOutcome(null);
+    setAnnouncement("");
+    flowBodyRef.current = null;
+    satMsRef.current = 0;
+    segmentStartRef.current = null;
+    sitCompletedRef.current = false;
+    restoreTitle();
   }
 
   const translation =
@@ -157,6 +377,10 @@ export default function SadhanaClient() {
 
   return (
     <div className="max-w-2xl">
+      <div aria-live="polite" className="sr-only">
+        {announcement}
+      </div>
+
       {doneToday && stage === "mood" ? (
         <p className="mb-8 border-l-2 border-[var(--brass)]/60 pl-4 text-[15px] text-[var(--text-muted)]">
           {t("sadhanaDoneToday")} · {t("sadhanaAgain")} ↓
@@ -173,7 +397,7 @@ export default function SadhanaClient() {
               <button
                 key={mood.id}
                 type="button"
-                onClick={() => void pickMood(mood.id)}
+                onClick={() => pickMood(mood.id)}
                 className="min-h-10 border border-[var(--line)] px-4 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
               >
                 {lang === "hi" ? mood.labelHi : mood.label}
@@ -185,7 +409,13 @@ export default function SadhanaClient() {
 
       {stage === "sit" ? (
         <section>
-          {sloka ? (
+          {verseState === "loading" ? (
+            <div className="mb-8 border-l-2 border-[var(--hairline)] pl-5" aria-hidden>
+              <div className="h-3 w-40 animate-pulse bg-[var(--hairline)]" />
+              <div className="mt-4 h-5 w-full max-w-md animate-pulse bg-[var(--hairline)]" />
+              <div className="mt-2 h-5 w-2/3 animate-pulse bg-[var(--hairline)]" />
+            </div>
+          ) : sloka ? (
             <div className="mb-8 border-l-2 border-[var(--brass)]/50 pl-5">
               <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
                 {t("sadhanaVersePrompt")} · {sloka.chapter}.{sloka.verse_number}
@@ -204,6 +434,21 @@ export default function SadhanaClient() {
               >
                 {t("sadhanaOpenVerse")} →
               </Link>
+            </div>
+          ) : verseState === "failed" ? (
+            <div className="mb-8 border-l-2 border-[var(--hairline)] pl-5">
+              <p className="text-sm font-light text-[var(--text-soft)]">
+                {t("sadhanaVerseFailed")}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  if (moodRef.current) void loadVerse(moodRef.current);
+                }}
+                className="mt-2 inline-flex min-h-10 items-center px-3 py-2 text-sm text-[var(--brass-soft)] underline-offset-4 hover:underline"
+              >
+                {t("sadhanaRetry")}
+              </button>
             </div>
           ) : null}
 
@@ -250,7 +495,7 @@ export default function SadhanaClient() {
               <div className="mt-8 flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setRunning((r) => !r)}
+                  onClick={togglePause}
                   className="min-h-10 border border-[var(--line)] px-5 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50"
                 >
                   {running ? t("sadhanaPause") : t("sadhanaResume")}
@@ -258,7 +503,7 @@ export default function SadhanaClient() {
                 <button
                   type="button"
                   onClick={() => {
-                    setRunning(false);
+                    haltClock();
                     setStage("reflect");
                   }}
                   className="min-h-10 px-3 py-2 text-sm text-[var(--text-muted)] underline-offset-4 hover:text-[var(--brass-soft)] hover:underline"
@@ -271,34 +516,92 @@ export default function SadhanaClient() {
         </section>
       ) : null}
 
+      {stage === "sitDone" ? (
+        // Held completion screen: the flow waits for the person, it does not
+        // swap a textarea in under closed eyes.
+        <section className="flex flex-col items-center py-10 text-center">
+          <p className="font-display text-2xl text-[var(--text)]">
+            {t("sadhanaSitComplete")}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              restoreTitle();
+              setAnnouncement("");
+              setStage("reflect");
+            }}
+            className="mt-8 min-h-11 bg-[var(--brass)] px-8 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+          >
+            {t("sadhanaContinue")}
+          </button>
+        </section>
+      ) : null}
+
       {stage === "reflect" ? (
         <section>
           <h2 className="font-display text-2xl text-[var(--text)]">
             {t("sadhanaReflectPrompt")}
           </h2>
-          <textarea
-            value={reflection}
-            onChange={(e) => setReflection(e.target.value)}
-            placeholder={t("sadhanaReflectPlaceholder")}
-            rows={3}
-            className="mt-5 w-full border border-[var(--line)] bg-transparent px-4 py-3 text-[15px] text-[var(--text)] placeholder:text-[var(--text-muted)]/60 focus:border-[var(--brass)]/60 focus:outline-none"
-          />
-          <div className="mt-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => void saveReflection()}
-              className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-            >
-              {t("sadhanaSaveReflection")}
-            </button>
-            <button
-              type="button"
-              onClick={() => void finishFlow()}
-              className="min-h-11 px-3 py-3 text-sm text-[var(--text-muted)] underline-offset-4 hover:text-[var(--brass-soft)] hover:underline"
-            >
-              {t("sadhanaSkipReflection")}
-            </button>
-          </div>
+          {signedIn && sloka ? (
+            <>
+              <textarea
+                value={reflection}
+                onChange={(e) => {
+                  setReflection(e.target.value);
+                  setReflectFailed(false);
+                }}
+                placeholder={t("sadhanaReflectPlaceholder")}
+                rows={3}
+                className="mt-5 w-full border border-[var(--line)] bg-transparent px-4 py-3 text-[15px] text-[var(--text)] placeholder:text-[var(--text-muted)]/60 focus:border-[var(--brass)]/60 focus:outline-none"
+              />
+              {reflectFailed ? (
+                <p className="mt-3 border-l-2 border-[var(--brass)]/60 pl-3 text-sm text-[var(--text-soft)]">
+                  {t("sadhanaReflectFailed")}
+                </p>
+              ) : null}
+              <div className="mt-4 flex items-center gap-3">
+                <button
+                  type="button"
+                  disabled={savingReflection}
+                  onClick={() => void saveReflection()}
+                  className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
+                >
+                  {t("sadhanaSaveReflection")}
+                </button>
+                <button
+                  type="button"
+                  disabled={savingReflection}
+                  onClick={() => void finishFlow()}
+                  className="min-h-11 px-3 py-3 text-sm text-[var(--text-muted)] underline-offset-4 hover:text-[var(--brass-soft)] hover:underline disabled:opacity-50"
+                >
+                  {t("sadhanaSkipReflection")}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              {!signedIn ? (
+                // No writable journal here — inviting a line and then
+                // discarding it would be worse than asking to sign in.
+                <p className="mt-4 text-[15px] text-[var(--text-muted)]">
+                  {t("sadhanaSignInHint")}{" "}
+                  <Link
+                    href="/account"
+                    className="text-[var(--brass-soft)] hover:underline"
+                  >
+                    {t("signIn")}
+                  </Link>
+                </p>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => void finishFlow()}
+                className="mt-6 min-h-11 bg-[var(--brass)] px-8 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+              >
+                {t("sadhanaContinue")}
+              </button>
+            </>
+          )}
         </section>
       ) : null}
 
@@ -307,7 +610,8 @@ export default function SadhanaClient() {
           <p className="font-display text-2xl text-[var(--text)]">
             {t("sadhanaComplete")}
           </p>
-          {streak ? (
+
+          {logOutcome === "recorded" && streak ? (
             <p className="mt-3 text-[15px] text-[var(--text-muted)]">
               {t("sadhanaStreakLine").replace("{n}", String(streak.current))}
               {streak.graceUsedToday ? (
@@ -315,9 +619,10 @@ export default function SadhanaClient() {
               ) : null}
             </p>
           ) : null}
-          {signedOut ? (
-            <p className="mt-3 text-[15px] text-[var(--text-muted)]">
-              {t("sadhanaSignInHint")}{" "}
+
+          {logOutcome === "deviceOnly" ? (
+            <p className="mt-3 text-[15px] text-[var(--text-soft)]">
+              {t("sadhanaDeviceOnly")}{" "}
               <Link
                 href="/account"
                 className="text-[var(--brass-soft)] hover:underline"
@@ -326,15 +631,26 @@ export default function SadhanaClient() {
               </Link>
             </p>
           ) : null}
+
+          {logOutcome === "failed" ? (
+            <div className="mt-3">
+              <p className="border-l-2 border-[var(--brass)]/60 pl-3 text-[15px] text-[var(--text-soft)]">
+                {t("sadhanaLogFailed")}
+              </p>
+              <button
+                type="button"
+                disabled={retrying}
+                onClick={() => void retryLog()}
+                className="mt-4 min-h-10 border border-[var(--line)] px-5 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 disabled:opacity-50"
+              >
+                {t("sadhanaRetry")}
+              </button>
+            </div>
+          ) : null}
+
           <button
             type="button"
-            onClick={() => {
-              setStage("mood");
-              setSloka(null);
-              setSecondsLeft(null);
-              setReflection("");
-              setStreak(null);
-            }}
+            onClick={resetFlow}
             className="mt-6 min-h-10 border border-[var(--line)] px-5 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50"
           >
             {t("sadhanaAgain")}
@@ -342,12 +658,12 @@ export default function SadhanaClient() {
         </section>
       ) : null}
 
-      <JapaPanel />
+      <JapaPanel visible={stage === "mood" || stage === "done"} />
     </div>
   );
 }
 
-function JapaPanel() {
+function JapaPanel({ visible }: { visible: boolean }) {
   const { lang, t } = useLanguage();
   const [beads, setBeads] = useState(0);
   const [malas, setMalas] = useState(0);
@@ -355,7 +671,15 @@ function JapaPanel() {
     Array<{ id: string; devanagari: string; iast: string; meaning_en: string; meaning_hi: string }>
   >([]);
   const [mantraIdx, setMantraIdx] = useState(0);
-  const [logged, setLogged] = useState(false);
+  const [outcome, setOutcome] = useState<
+    null | "logged" | "deviceOnly" | "failed"
+  >(null);
+  const [busy, setBusy] = useState(false);
+  // Space only counts beads once the circle has been touched or focused —
+  // never as a global shortcut leaking into someone's sit or reflection.
+  const [engaged, setEngaged] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const japaBodyRef = useRef<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     import("@/data/mantras.json")
@@ -364,7 +688,9 @@ function JapaPanel() {
   }, []);
 
   const tap = useCallback(() => {
-    setLogged(false);
+    setEngaged(true);
+    setOutcome(null);
+    japaBodyRef.current = null; // a changed count is a new attempt
     setBeads((b) => {
       if (b + 1 >= 108) {
         setMalas((m) => m + 1);
@@ -374,32 +700,71 @@ function JapaPanel() {
     });
   }, []);
 
+  // The shortcut must never steal Space from another focused control: a
+  // keyboard user who tabbed to "Sit again" and pressed Space should activate
+  // that button, not count a phantom bead. Only document-body (no focus) or
+  // the japa circle itself count.
   useEffect(() => {
+    if (!visible) {
+      setEngaged(false);
+      return;
+    }
+    if (!(engaged || focused)) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === "Space" && (e.target as HTMLElement)?.tagName !== "TEXTAREA") {
-        e.preventDefault();
-        tap();
-      }
+      if (e.code !== "Space") return;
+      const el = e.target as HTMLElement | null;
+      const onInteractive = el?.closest?.(
+        "button, a, input, select, textarea, [role='button']"
+      );
+      if (onInteractive && !el?.dataset?.japaCircle) return;
+      e.preventDefault();
+      tap();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [tap]);
+  }, [tap, visible, engaged, focused]);
 
   async function finishJapa() {
     const total = malas * 108 + beads;
-    if (total === 0) return;
-    const result = await logPractice({ practice: "japa", count: total });
-    if (result.ok || result.signedOut) {
+    const body =
+      japaBodyRef.current ??
+      (total > 0
+        ? { practice: "japa", count: total, clientRef: newClientRef() }
+        : null);
+    if (!body) return;
+    japaBodyRef.current = body;
+    setBusy(true);
+    const result = await logPractice(body);
+    setBusy(false);
+    if (result.ok) {
+      japaBodyRef.current = null;
       setBeads(0);
       setMalas(0);
-      setLogged(true);
+      setOutcome("logged");
+    } else if (result.reason === "signedOut") {
+      appendDeviceLog({
+        practice: "japa",
+        occurredOn: localDayStamp(),
+        count: Number(body.count) || total,
+        clientRef: String(body.clientRef),
+      });
+      japaBodyRef.current = null;
+      setBeads(0);
+      setMalas(0);
+      setOutcome("deviceOnly");
+    } else {
+      // The count stays on the circle — nothing is reset on a failed record.
+      setOutcome("failed");
     }
   }
 
   const mantra = mantras[mantraIdx];
 
   return (
-    <section className="mt-16 border-t border-[var(--hairline)] pt-10">
+    <section
+      hidden={!visible}
+      className="mt-16 border-t border-[var(--hairline)] pt-10"
+    >
       <h2 className="font-display text-2xl text-[var(--text)]">
         {t("japaTitle")}
       </h2>
@@ -434,7 +799,10 @@ function JapaPanel() {
         <button
           type="button"
           onClick={tap}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           aria-label={t("japaTitle")}
+          data-japa-circle="1"
           className="flex h-56 w-56 items-center justify-center rounded-full border border-[var(--brass)]/40 transition active:scale-[0.98]"
         >
           <span className="font-display text-5xl tabular-nums text-[var(--text)]">
@@ -448,14 +816,41 @@ function JapaPanel() {
         {malas > 0 || beads > 0 ? (
           <button
             type="button"
+            disabled={busy}
             onClick={() => void finishJapa()}
-            className="mt-4 min-h-10 border border-[var(--line)] px-5 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50"
+            className="mt-4 min-h-10 border border-[var(--line)] px-5 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 disabled:opacity-50"
           >
             {t("japaFinish")}
           </button>
         ) : null}
-        {logged ? (
+        {outcome === "logged" ? (
           <p className="mt-3 text-sm text-[var(--brass-soft)]">{t("japaLogged")}</p>
+        ) : null}
+        {outcome === "deviceOnly" ? (
+          <p className="mt-3 text-sm text-[var(--text-soft)]">
+            {t("sadhanaDeviceOnly")}{" "}
+            <Link
+              href="/account"
+              className="text-[var(--brass-soft)] hover:underline"
+            >
+              {t("signIn")}
+            </Link>
+          </p>
+        ) : null}
+        {outcome === "failed" ? (
+          <div className="mt-3 text-center">
+            <p className="text-sm text-[var(--text-soft)]">
+              {t("sadhanaLogFailed")}
+            </p>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void finishJapa()}
+              className="mt-2 text-sm text-[var(--brass-soft)] underline-offset-4 hover:underline disabled:opacity-50"
+            >
+              {t("sadhanaRetry")}
+            </button>
+          </div>
         ) : null}
       </div>
     </section>

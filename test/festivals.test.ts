@@ -33,4 +33,22 @@ describe("computeMonthPanchang", () => {
     );
     expect(amavasya).toBeTruthy();
   }, 30_000);
+
+  it("neither loses nor duplicates a sankranti across a month boundary", () => {
+    // The ingress detector is seeded from the previous month's last sunrise;
+    // an unseeded scan dropped any ingress landing between that sunrise and
+    // the 1st's sunrise from BOTH months. Dec 2025 + Jan 2026 must yield
+    // exactly Dhanu (mid-Dec) + Makara (mid-Jan) — nothing lost at the seam,
+    // nothing double-counted.
+    const dec = computeMonthPanchang("2025-12", DELHI.lat, DELHI.lng, DELHI.tz);
+    const jan = computeMonthPanchang("2026-01", DELHI.lat, DELHI.lng, DELHI.tz);
+    const sankrantis = [...dec.observances, ...jan.observances].filter(
+      (o) => o.kind === "sankranti"
+    );
+    expect(sankrantis).toHaveLength(2);
+    expect(sankrantis.map((o) => o.label).sort()).toEqual([
+      "Dhanu Sankranti",
+      "Makara Sankranti",
+    ]);
+  }, 90_000);
 });

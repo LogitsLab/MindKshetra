@@ -28,6 +28,8 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
   const { user } = useAuth();
   const { continueSlokaId } = useProgress();
   const [streak, setStreak] = useState(0);
+  // null = not known yet; the card shows its invitation and never an error.
+  const [sadhanaDone, setSadhanaDone] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -38,6 +40,36 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       .then((r) => r.json())
       .then((d) => setStreak(Number(d.current) || 0))
       .catch(() => {});
+  }, [user]);
+
+  useEffect(() => {
+    // Signed-out visitors get a guaranteed empty summary from this route —
+    // skip the no-op serverless hit on the highest-traffic page, and refresh
+    // when the session changes so the done-state follows sign-in.
+    if (!user) {
+      setSadhanaDone(null);
+      return;
+    }
+    let cancelled = false;
+    let tz: string | undefined;
+    try {
+      tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+      tz = undefined;
+    }
+    fetch(`/api/sadhana${tz ? `?tz=${encodeURIComponent(tz)}` : ""}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data) {
+          setSadhanaDone(Boolean(data.doneToday?.includes?.("flow")));
+        }
+      })
+      .catch(() => {
+        /* home never shows a practice error — the invitation stands */
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const entries = [
@@ -133,34 +165,12 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
             >
               {t("homeCtaExplore")}
             </Link>
-            {continueSlokaId ? (
-              <Link
-                href="/madhav"
-                className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
-              >
-                {t("homeCtaMadhav")}
-              </Link>
-            ) : null}
             <Link
               href="/verse-of-the-day"
               className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
             >
               {t("homeVotdLink")}
             </Link>
-            <Link
-              href="/sadhana"
-              className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
-            >
-              {t("sadhanaHomeLink")}
-            </Link>
-            {streak > 0 ? (
-              <span
-                className="min-h-11 px-2 py-3 text-sm text-[var(--brass)]"
-                title={t("streakLabel")}
-              >
-                {streak} {t("homeStreakLabel")}
-              </span>
-            ) : null}
           </div>
         </div>
       </section>
@@ -213,18 +223,45 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
         </div>
       </section>
 
+      {/* Today's practice — the flagship entry, and the one streak location */}
+      <section className="border-t border-[var(--hairline)] py-14">
+        <Link
+          href="/sadhana"
+          className="group block border border-[var(--line)] transition hover:border-[var(--brass)]/40"
+        >
+          <div className="border-l-2 border-[var(--brass)]/70 px-6 py-8 sm:px-8 sm:py-9">
+            <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass)]">
+              {t("sadhanaEyebrow")}
+            </p>
+            <h2 className="mt-3 font-display text-3xl text-[var(--text)] transition group-hover:text-[var(--brass-hover)] sm:text-4xl">
+              {t("sadhanaHomeLink")}
+            </h2>
+            <p
+              className={`mt-2 max-w-xl text-sm font-light leading-relaxed sm:text-base ${
+                sadhanaDone === true
+                  ? "text-[var(--brass-soft)]"
+                  : "text-[var(--text-soft)]"
+              }`}
+            >
+              {sadhanaDone === true ? t("sadhanaDoneToday") : t("sadhanaHomeBody")}
+            </p>
+            {streak > 0 ? (
+              <p
+                className="mt-4 text-xs tracking-[0.12em] text-[var(--brass-soft)]"
+                title={t("streakLabel")}
+              >
+                {streak} {t("homeStreakLabel")}
+              </p>
+            ) : null}
+          </div>
+        </Link>
+      </section>
+
       {/* Verse of the day */}
       <section className="border-t border-[var(--hairline)] py-14">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
-            {t("homeFeaturedEyebrow")}
-          </p>
-          {streak > 0 ? (
-            <p className="text-xs tracking-[0.12em] text-[var(--brass-soft)]">
-              {streak} {t("homeStreakLabel")}
-            </p>
-          ) : null}
-        </div>
+        <p className="mb-6 text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
+          {t("homeFeaturedEyebrow")}
+        </p>
         <div className="glass relative overflow-hidden px-6 py-10 sm:px-10 sm:py-12">
           <Image
             src="/ornaments/chapter.svg"

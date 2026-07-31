@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  daySeed,
   getTodaysNakshatra,
   getVerseOfTheDaySelection,
 } from "@/lib/day-seed";
@@ -38,6 +39,29 @@ describe("getTodaysNakshatra", () => {
     const early = await getTodaysNakshatra(new Date("2026-07-30T19:00:00Z"));
     const late = await getTodaysNakshatra(new Date("2026-07-31T17:30:00Z"));
     expect(early).toEqual(late);
+  });
+});
+
+describe("daySeed", () => {
+  it("follows the IST day: one seed and one selection for the whole IST day", async () => {
+    // 2026-07-30T19:30Z === 01:00 IST and 2026-07-31T10:00Z === 15:30 IST,
+    // both on IST 2026-07-31. Before the IST fix the first instant used UTC
+    // 07-30 and could serve yesterday's verse from a fresh lambda.
+    const early = new Date("2026-07-30T19:30:00Z");
+    const late = new Date("2026-07-31T10:00:00Z");
+    expect(daySeed(early)).toBe(daySeed(late));
+
+    const a = await getVerseOfTheDaySelection(early);
+    const b = await getVerseOfTheDaySelection(late);
+    expect(a).not.toBeNull();
+    expect(a!.sloka.id).toBe(b!.sloka.id);
+  });
+
+  it("changes exactly at IST midnight, not UTC midnight", () => {
+    // 17:00Z === 22:30 IST (still 07-31); 19:00Z === 00:30 IST on 08-01.
+    expect(daySeed(new Date("2026-07-31T17:00:00Z"))).not.toBe(
+      daySeed(new Date("2026-07-31T19:00:00Z"))
+    );
   });
 });
 

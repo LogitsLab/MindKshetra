@@ -63,6 +63,26 @@ export async function PUT(request: NextRequest) {
   }
 
   const supabase = await createClient();
+
+  // A request that omits isPublic must keep the stored value — defaulting to
+  // true here would silently re-publicize a hidden profile. True only when
+  // no row exists yet.
+  const { data: existing, error: existingError } = await supabase
+    .from("public_profiles")
+    .select("is_public")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (existingError) {
+    return NextResponse.json(
+      { error: "Could not save profile" },
+      { status: 500 }
+    );
+  }
+  const isPublic =
+    typeof body.isPublic === "boolean"
+      ? body.isPublic
+      : existing?.is_public ?? true;
+
   const { data, error } = await supabase
     .from("public_profiles")
     .upsert(
@@ -72,7 +92,7 @@ export async function PUT(request: NextRequest) {
         display_name: displayName || null,
         bio: bio || null,
         avatar_key: isAvatarKey(body.avatarKey) ? body.avatarKey : "lotus",
-        is_public: body.isPublic !== false,
+        is_public: isPublic,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" }

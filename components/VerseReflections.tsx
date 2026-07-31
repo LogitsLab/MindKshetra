@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { REFLECTION_SHARED_EVENT } from "@/components/JournalBox";
 import { useLanguage } from "@/components/LanguageProvider";
 
 type Reflection = {
@@ -23,16 +24,38 @@ export default function VerseReflections({ slokaId }: { slokaId: number }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/slokas/${slokaId}/reflections`)
-      .then((res) => (res.ok ? res.json() : { reflections: [] }))
-      .then((data) => {
-        if (!cancelled) setReflections(data.reflections ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setReflections([]);
-      });
+    // Sequence requests so a slow initial load resolving AFTER the
+    // post-share refetch can't overwrite the list with its pre-share
+    // snapshot; no-store because the route caches empty lists for 60s and a
+    // cached empty body would swallow the just-shared line.
+    let requestSeq = 0;
+    const load = () => {
+      const seq = ++requestSeq;
+      fetch(`/api/slokas/${slokaId}/reflections`, { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : { reflections: [] }))
+        .then((data) => {
+          if (!cancelled && seq === requestSeq) {
+            setReflections(data.reflections ?? []);
+          }
+        })
+        .catch(() => {
+          // First load falls back to empty; a failed refetch keeps the list.
+          if (!cancelled && seq === requestSeq) {
+            setReflections((prev) => prev ?? []);
+          }
+        });
+    };
+    load();
+    // Close the share loop: when JournalBox shares a line on this verse,
+    // refetch so the person sees their words appear where they will live.
+    const onShared = (event: Event) => {
+      const detail = (event as CustomEvent<{ slokaId?: number }>).detail;
+      if (detail?.slokaId === slokaId) load();
+    };
+    window.addEventListener(REFLECTION_SHARED_EVENT, onShared);
     return () => {
       cancelled = true;
+      window.removeEventListener(REFLECTION_SHARED_EVENT, onShared);
     };
   }, [slokaId]);
 

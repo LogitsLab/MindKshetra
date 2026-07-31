@@ -45,11 +45,18 @@ describe("isValidTimezone", () => {
  * A-0.5 — one canonical seed. Three separate implementations previously
  * existed and home used a different formula (id-keyed instead of
  * index-keyed), so surfaces could disagree.
+ *
+ * The seed's day boundary is IST midnight (intended behavior since the ET6
+ * fix): the VOTD cache and the nakshatra read were already IST-keyed, so a
+ * UTC-derived seed let two lambdas disagree from 00:00–05:30 IST.
  */
 describe("daySeed", () => {
-  it("is stable within a UTC day", () => {
-    expect(daySeed(new Date("2026-07-31T00:00:01Z"))).toBe(
-      daySeed(new Date("2026-07-31T23:59:59Z"))
+  it("is stable within an IST day", () => {
+    // 2026-07-30T18:30:01Z === 00:00:01 IST and 2026-07-31T18:29:59Z ===
+    // 23:59:59 IST, both on IST 2026-07-31. (The old expectation used one
+    // UTC day, which straddles two IST days.)
+    expect(daySeed(new Date("2026-07-30T18:30:01Z"))).toBe(
+      daySeed(new Date("2026-07-31T18:29:59Z"))
     );
   });
 
