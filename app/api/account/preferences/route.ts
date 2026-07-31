@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthUserId } from "@/lib/supabase/server";
+import { isValidTimezone } from "@/lib/streaks";
 
 export type UserPreferences = {
   votdEmailEnabled: boolean;
@@ -8,6 +9,7 @@ export type UserPreferences = {
   place: string;
   preferredLanguage: "en" | "hi" | null;
   about: string;
+  timezone: string | null;
   email: string | null;
 };
 
@@ -18,6 +20,7 @@ const DEFAULTS = {
   place: "",
   preferredLanguage: null as "en" | "hi" | null,
   about: "",
+  timezone: null as string | null,
 };
 
 function normalizeLang(value: unknown): "en" | "hi" | null {
@@ -39,6 +42,7 @@ function mapRow(
     place?: string | null;
     preferred_language?: string | null;
     about?: string | null;
+    timezone?: string | null;
   } | null,
   email: string | null
 ): UserPreferences {
@@ -49,6 +53,7 @@ function mapRow(
     place: data?.place ?? "",
     preferredLanguage: normalizeLang(data?.preferred_language),
     about: data?.about ?? "",
+    timezone: data?.timezone ?? null,
     email,
   };
 }
@@ -67,7 +72,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("user_preferences")
     .select(
-      "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about"
+      "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone"
     )
     .eq("user_id", userId)
     .maybeSingle();
@@ -98,7 +103,7 @@ export async function PATCH(request: NextRequest) {
   const { data: existing } = await supabase
     .from("user_preferences")
     .select(
-      "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about"
+      "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone"
     )
     .eq("user_id", userId)
     .maybeSingle();
@@ -131,8 +136,21 @@ export async function PATCH(request: NextRequest) {
       typeof body.about === "string"
         ? emptyToNull(body.about.slice(0, 500))
         : (existing?.about ?? null),
+    timezone:
+      typeof body.timezone === "string" && isValidTimezone(body.timezone)
+        ? body.timezone
+        : body.timezone === null
+          ? null
+          : (existing?.timezone ?? null),
     updated_at: new Date().toISOString(),
   };
+
+  if (typeof body.timezone === "string" && !isValidTimezone(body.timezone)) {
+    return NextResponse.json(
+      { error: "timezone must be a valid IANA zone" },
+      { status: 400 }
+    );
+  }
 
   // Validate DOB if present (YYYY-MM-DD, not in the future, not before 1900)
   if (next.date_of_birth) {
@@ -161,7 +179,9 @@ export async function PATCH(request: NextRequest) {
     body.dateOfBirth === null ||
     typeof body.place === "string" ||
     body.preferredLanguage !== undefined ||
-    typeof body.about === "string";
+    typeof body.about === "string" ||
+    typeof body.timezone === "string" ||
+    body.timezone === null;
 
   if (!hasAnyField) {
     return NextResponse.json(
@@ -174,7 +194,7 @@ export async function PATCH(request: NextRequest) {
     .from("user_preferences")
     .upsert(next, { onConflict: "user_id" })
     .select(
-      "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about"
+      "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone"
     )
     .single();
 
@@ -183,7 +203,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Could not save. Apply supabase/migrations/004_user_prefs.sql and 005_user_profile.sql in the Supabase SQL editor.",
+          "Could not save. Apply supabase/migrations/004_user_prefs.sql, 005_user_profile.sql and 010_timezone_and_events.sql in the Supabase SQL editor.",
       },
       { status: 500 }
     );

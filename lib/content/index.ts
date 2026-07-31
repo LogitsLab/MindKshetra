@@ -33,6 +33,20 @@ export async function getSlokaById(id: number): Promise<Sloka | undefined> {
   }
 }
 
+/** Bulk lookup preserving input order; unknown ids are skipped. */
+export async function getSlokasByIds(ids: number[]): Promise<Sloka[]> {
+  if (!isDbContentEnabled()) return json.jsonGetSlokasByIds(ids);
+  try {
+    return await (await db()).dbGetSlokasByIds(ids);
+  } catch (err) {
+    console.warn(
+      "[content] dbGetSlokasByIds failed, falling back to JSON:",
+      err instanceof Error ? err.message : err
+    );
+    return json.jsonGetSlokasByIds(ids);
+  }
+}
+
 export async function getSlokasByChapter(chapter: number): Promise<Sloka[]> {
   if (!isDbContentEnabled()) return json.jsonGetSlokasByChapter(chapter);
   try {

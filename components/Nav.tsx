@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import AuthButton from "@/components/AuthButton";
+import { BrandNavWordmark } from "@/components/BrandWordmark";
 import { ThemeToggle } from "@/components/ThemeProvider";
 import type { DictKey } from "@/lib/i18n/dictionary";
 import type { AppLang } from "@/lib/i18n/dictionary";
@@ -40,7 +41,7 @@ export default function Nav() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--hairline)] bg-[var(--nav-bg)] backdrop-blur-xl backdrop-saturate-150">
+    <header className="sticky top-0 z-40 bg-transparent">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-3.5">
         <Link
           href="/"
@@ -55,7 +56,7 @@ export default function Nav() {
             className="shrink-0 opacity-90 transition group-hover:opacity-100"
             priority
           />
-          <span className="truncate">MindKshetra</span>
+          <BrandNavWordmark />
         </Link>
 
         {/* Desktop nav */}

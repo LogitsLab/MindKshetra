@@ -8,12 +8,24 @@ const orderedSlokas = [...slokas].sort(
   (a, b) => a.chapter - b.chapter || a.verse_number - b.verse_number
 );
 
+const slokasById = new Map<number, Sloka>(slokas.map((s) => [s.id, s]));
+
 export function jsonGetAllSlokas(): Sloka[] {
   return slokas;
 }
 
 export function jsonGetSlokaById(id: number): Sloka | undefined {
-  return slokas.find((s) => s.id === id);
+  return slokasById.get(id);
+}
+
+/** Bulk lookup preserving input order; unknown ids are skipped. */
+export function jsonGetSlokasByIds(ids: number[]): Sloka[] {
+  const out: Sloka[] = [];
+  for (const id of ids) {
+    const sloka = slokasById.get(id);
+    if (sloka) out.push(sloka);
+  }
+  return out;
 }
 
 export function jsonGetSlokasByChapter(chapter: number): Sloka[] {

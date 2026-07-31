@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthUserId, createClient } from "@/lib/supabase/server";
-import { getSlokaById } from "@/lib/slokas";
+import { getSlokasByIds } from "@/lib/slokas";
 import { formatVerseRef } from "@/lib/sloka-utils";
 
 export async function GET() {
@@ -60,44 +60,57 @@ export async function GET() {
       .order("completed_at", { ascending: false }),
   ]);
 
-  const favorites = [];
-  for (const row of favRows ?? []) {
-    const sloka = await getSlokaById(row.sloka_id);
-    favorites.push({
-      slokaId: row.sloka_id,
-      ref: sloka ? formatVerseRef(sloka) : null,
-      createdAt: row.created_at,
-    });
+  const refIds = new Set<number>();
+  for (const row of favRows ?? []) refIds.add(row.sloka_id);
+  for (const row of journalRows ?? []) refIds.add(row.sloka_id);
+  const refById = new Map(
+    (await getSlokasByIds(Array.from(refIds))).map((s) => [
+      s.id,
+      formatVerseRef(s),
+    ])
+  );
+
+  const favorites = (favRows ?? []).map((row) => ({
+    slokaId: row.sloka_id,
+    ref: refById.get(row.sloka_id) ?? null,
+    createdAt: row.created_at,
+  }));
+
+  const reflections = (journalRows ?? []).map((row) => ({
+    id: row.id,
+    slokaId: row.sloka_id,
+    ref: refById.get(row.sloka_id) ?? null,
+    reflection: row.reflection,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+
+  const sessionRows = sessions ?? [];
+  const { data: allMessages } = sessionRows.length
+    ? await supabase
+        .from("chat_messages")
+        .select("session_id, role, content, cited_sloka_ids, created_at")
+        .in(
+          "session_id",
+          sessionRows.map((s) => s.id)
+        )
+        .order("created_at", { ascending: true })
+    : { data: [] };
+
+  const messagesBySession = new Map<string, object[]>();
+  for (const { session_id, ...message } of allMessages ?? []) {
+    const list = messagesBySession.get(session_id) ?? [];
+    list.push(message);
+    messagesBySession.set(session_id, list);
   }
 
-  const reflections = [];
-  for (const row of journalRows ?? []) {
-    const sloka = await getSlokaById(row.sloka_id);
-    reflections.push({
-      id: row.id,
-      slokaId: row.sloka_id,
-      ref: sloka ? formatVerseRef(sloka) : null,
-      reflection: row.reflection,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    });
-  }
-
-  const chats = [];
-  for (const session of sessions ?? []) {
-    const { data: messages } = await supabase
-      .from("chat_messages")
-      .select("role, content, cited_sloka_ids, created_at")
-      .eq("session_id", session.id)
-      .order("created_at", { ascending: true });
-    chats.push({
-      id: session.id,
-      title: session.title,
-      createdAt: session.created_at,
-      updatedAt: session.updated_at,
-      messages: messages ?? [],
-    });
-  }
+  const chats = sessionRows.map((session) => ({
+    id: session.id,
+    title: session.title,
+    createdAt: session.created_at,
+    updatedAt: session.updated_at,
+    messages: messagesBySession.get(session.id) ?? [],
+  }));
 
   const payload = {
     exportedAt: new Date().toISOString(),

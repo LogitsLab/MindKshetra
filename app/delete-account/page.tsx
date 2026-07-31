@@ -25,7 +25,24 @@ export default function DeleteAccountPage() {
 
       <section className="mt-12 space-y-3 border-t border-[var(--hairline)] pt-10">
         <h2 className="font-display text-2xl font-semibold text-[var(--text)]">
-          How to request deletion
+          Delete it yourself (immediate)
+        </h2>
+        <p className="text-[15px] leading-relaxed text-[var(--text-muted)]">
+          Signed-in users can delete their account and all data instantly from{" "}
+          <Link
+            href="/account"
+            className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+          >
+            Account → Delete account
+          </Link>{" "}
+          on the website, or from Profile → Delete account in the mobile app.
+          Deletion is permanent and takes effect immediately.
+        </p>
+      </section>
+
+      <section className="mt-12 space-y-3 border-t border-[var(--hairline)] pt-10">
+        <h2 className="font-display text-2xl font-semibold text-[var(--text)]">
+          Or request deletion by email
         </h2>
         <ol className="list-decimal space-y-3 pl-5 text-[15px] leading-relaxed text-[var(--text-muted)]">
           <li>

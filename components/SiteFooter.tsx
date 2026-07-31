@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BRAND_NAME } from "@/components/BrandWordmark";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function SiteFooter() {
@@ -15,7 +16,7 @@ export default function SiteFooter() {
     <footer className="border-t border-[var(--hairline)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p className="text-xs text-[var(--text-muted)]">
-          © {year} MindKshetra
+          © {year} {BRAND_NAME}
         </p>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
           <Link

@@ -43,7 +43,13 @@ export const dynamic = "force-dynamic";
 /** Contract lives in lib/astrology/incognito.ts — shared with predictions + chat. */
 
 export async function POST(request: NextRequest) {
-  const rl = await rateLimit(`astro:compute:${clientKey(request)}`, 20, 60_000);
+  // Keyed per-user when signed in so carrier-NAT users don't share a bucket.
+  const signedInUserId = await getSignedInUserId();
+  const rl = await rateLimit(
+    `astro:compute:${signedInUserId ?? clientKey(request)}`,
+    20,
+    60_000
+  );
   if (!rl.ok) {
     return NextResponse.json(
       { error: "Too many requests" },
@@ -71,7 +77,11 @@ export async function POST(request: NextRequest) {
 
   try {
     if (body.memberId) {
-      return await computeForMember(String(body.memberId), asOfDate);
+      return await computeForMember(
+        String(body.memberId),
+        signedInUserId,
+        asOfDate
+      );
     }
 
     if (session.id && !body.dob) {
@@ -153,8 +163,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function computeForMember(memberId: string, asOfDate?: string) {
-  const userId = await getSignedInUserId();
+async function computeForMember(
+  memberId: string,
+  userId: string | null,
+  asOfDate?: string
+) {
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
@@ -182,16 +195,10 @@ async function computeForMember(memberId: string, asOfDate?: string) {
     .maybeSingle();
 
   if (cached?.payload) {
+    // Read-only path: the dasha "now" refresh is derived at read time, so
+    // persisting it here would only race a concurrent PATCH's cache delete
+    // and resurrect a stale payload.
     const chart = liveChart(cached.payload as ChartPayload, asOfDate);
-    await supabase.from("astrology_chart_cache").upsert(
-      {
-        member_id: memberId,
-        engine_version: ENGINE_VERSION,
-        payload: chart,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "member_id,engine_version" }
-    );
     return NextResponse.json({
       memberId,
       chart,

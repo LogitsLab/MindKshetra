@@ -11,6 +11,7 @@ import type { ChartPayload } from "@/lib/astrology/types";
 
 const SESSION_KEY = "mindkshetra-astro-incognito";
 const PENDING_SAVE_KEY = "mindkshetra-astro-pending-save";
+const RETURN_TO_KEY = "mindkshetra-return-to";
 
 /**
  * sessionStorage shape. The field stays `sessionId` deliberately: renaming it
@@ -114,6 +115,7 @@ export default function AstrologyLanding() {
   const [chart, setChart] = useState<ChartPayload | null>(null);
   const [restoring, setRestoring] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [saveBusy, setSaveBusy] = useState(false);
 
   useEffect(() => {
@@ -132,7 +134,11 @@ export default function AstrologyLanding() {
     })
       .then(async (res) => {
         if (!res.ok) {
+          // Legacy entries without `birth` cannot rehydrate; the server says so
+          // via `recoverable`. Either way the chart is gone — say it, don't
+          // just blank the page.
           sessionStorage.removeItem(SESSION_KEY);
+          setNotice(t("astroSessionExpiredNotice"));
           return;
         }
         const data = await res.json();
@@ -146,8 +152,12 @@ export default function AstrologyLanding() {
       })
       .catch(() => {
         sessionStorage.removeItem(SESSION_KEY);
+        setNotice(t("astroSessionExpiredNotice"));
       })
       .finally(() => setRestoring(false));
+    // t is stable enough for a mount-only effect; re-running on language
+    // switch would re-POST the chart for no reason.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -227,8 +237,8 @@ export default function AstrologyLanding() {
     };
     if (!signedIn) {
       sessionStorage.setItem(PENDING_SAVE_KEY, JSON.stringify(payload));
-      setError(t("astroSaveGuestNeedAuth"));
-      router.push("/account");
+      sessionStorage.setItem(RETURN_TO_KEY, "/astrology");
+      router.push("/account?intent=save-chart");
       return;
     }
     setSaveBusy(true);
@@ -415,6 +425,15 @@ export default function AstrologyLanding() {
             </li>
           </ol>
 
+          {notice ? (
+            <p
+              className="mb-4 border border-[var(--brass)]/25 bg-[var(--brass)]/5 px-3 py-2.5 text-sm text-[var(--brass-soft)]"
+              role="status"
+            >
+              {notice}
+            </p>
+          ) : null}
+
           {error ? (
             <p className="mb-4 text-sm text-red-400" role="alert">
               {error}
@@ -427,6 +446,7 @@ export default function AstrologyLanding() {
             submitLabel={t("astroCast")}
             onSubmit={async (values) => {
               setError(null);
+              setNotice(null);
               const res = await fetch("/api/astrology/compute", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

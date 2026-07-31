@@ -161,7 +161,10 @@ export const en = {
   astroGuidedDismiss: "Dismiss",
   astroSaveGuestMember: "Save to my charts",
   astroSaveGuestNeedAuth: "Sign in to save this chart to your account.",
+  astroSaveGuestReturn: "Sign in to keep this chart — you'll return to it right after.",
   astroSaveGuestDone: "Saved — opening member chart…",
+  astroSessionExpiredNotice:
+    "Your incognito chart expired — cast it again below.",
   astroLastMaha: "Current maha",
   astroPlaceHint: "Type a city — suggestions appear as you type.",
   astroMembersBlurb: "Saved charts for you and people you care about.",
@@ -362,7 +365,11 @@ export const hi: Record<keyof typeof en, string> = {
   astroGuidedDismiss: "हटाएँ",
   astroSaveGuestMember: "मेरी कुंडलियों में सहेजें",
   astroSaveGuestNeedAuth: "इस कुंडली को सहेजने के लिए साइन इन करें।",
+  astroSaveGuestReturn:
+    "कुंडली सहेजने के लिए साइन इन करें — उसके तुरंत बाद आप कुंडली पर लौट आएँगे।",
   astroSaveGuestDone: "सहेजा — सदस्य कुंडली खोल रहे हैं…",
+  astroSessionExpiredNotice:
+    "आपकी गुप्त कुंडली की अवधि समाप्त हो गई — नीचे फिर से बनाएँ।",
   astroLastMaha: "वर्तमान महा",
   astroPlaceHint: "शहर लिखें — सुझाव टाइप करते ही दिखेंगे।",
   astroMembersBlurb: "आपकी और आपके प्रियजनों की सहेजी कुंडलियाँ।",

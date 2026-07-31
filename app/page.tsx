@@ -1,15 +1,9 @@
 import HomePageClient from "@/components/HomePageClient";
+import { daySeed, getVerseOfTheDay } from "@/lib/day-seed";
 import { getAllMoods, getMoodById } from "@/lib/moods";
-import {
-  formatVerseRef,
-  getSlokaById,
-  getSlokaByRef,
-} from "@/lib/slokas";
+import { formatVerseRef, getSlokaByRef } from "@/lib/slokas";
 import { splitVerseLines } from "@/lib/verseDisplay";
 import type { Mood } from "@/lib/types";
-
-/** Daily featured verse rotates without loading the full corpus at build time. */
-const SLOKA_COUNT = 701;
 
 const PREVIEW_MOOD_POOL = [
   "anxious",
@@ -26,26 +20,14 @@ const PREVIEW_MOOD_POOL = [
   "failure",
 ] as const;
 
-function daySeed(): number {
-  const now = new Date();
-  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
-  const today = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate()
-  );
-  return Math.floor((today - start) / 86_400_000);
-}
-
 export const revalidate = 3600;
 
 export default async function HomePage() {
   const seed = daySeed();
-  const featuredId = (seed % SLOKA_COUNT) + 1;
   // Content layer falls back to JSON on DB timeout (Postgres 57014) so SSG
   // does not fail the Vercel build.
   const featuredSloka =
-    (await getSlokaById(featuredId)) ?? (await getSlokaByRef(2, 47));
+    (await getVerseOfTheDay()) ?? (await getSlokaByRef(2, 47));
 
   if (!featuredSloka) {
     throw new Error("Featured verse missing from dataset");

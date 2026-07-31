@@ -1,31 +1,16 @@
 import Link from "next/link";
 import SlokaPageClient from "@/components/SlokaPageClient";
 import { getChapterMeta } from "@/lib/chapters";
+import { getVerseOfTheDay } from "@/lib/day-seed";
 import {
   formatVerseRef,
   getAdjacentSlokas,
-  getAllSlokas,
-  getSlokaById,
   getTeachingPassage,
 } from "@/lib/slokas";
 import { splitVerseLines } from "@/lib/verseDisplay";
 
-function daySeed(): number {
-  const now = new Date();
-  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
-  const today = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate()
-  );
-  return Math.floor((today - start) / 86_400_000);
-}
-
 export default async function VerseOfTheDayPage() {
-  const all = await getAllSlokas();
-  const seed = daySeed();
-  const sloka =
-    (await getSlokaById(all[seed % all.length]?.id ?? 1)) ?? all[0];
+  const sloka = await getVerseOfTheDay();
 
   if (!sloka) {
     return <p className="text-[var(--text-muted)]">Verse unavailable.</p>;

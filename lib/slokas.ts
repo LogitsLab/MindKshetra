@@ -26,6 +26,11 @@ export async function getSlokaById(id: number): Promise<Sloka | undefined> {
   return (await content()).getSlokaById(id);
 }
 
+/** Bulk lookup preserving input order; unknown ids are skipped. */
+export async function getSlokasByIds(ids: number[]): Promise<Sloka[]> {
+  return (await content()).getSlokasByIds(ids);
+}
+
 export async function getSlokasByChapter(chapter: number): Promise<Sloka[]> {
   return (await content()).getSlokasByChapter(chapter);
 }
