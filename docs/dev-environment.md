@@ -32,6 +32,28 @@
 4. **Vercel cron note**: `vercel.json` crons only run on the production
    deployment — the dev site sends no scheduled emails. That is intentional.
 
+### Push dispatch runbook
+
+Push notifications are NOT Vercel cron: `.github/workflows/push-dispatch.yml`
+curls `/api/cron/push-dispatch` every 30 minutes with the `CRON_SECRET`
+bearer.
+
+- **GitHub disables scheduled workflows after 60 days of repo inactivity.**
+  The failure is silent — no error, just no runs. Watch the heartbeat query
+  in `docs/impact-metrics.md`: zero `push_sends` rows for >48h while opted-in
+  users exist means the schedule is dead.
+- **Re-enable**: repo → Actions → "Push dispatch" → the yellow "This
+  scheduled workflow is disabled" banner → **Enable workflow**. Then confirm
+  with a manual run: **Run workflow** (the workflow has `workflow_dispatch`).
+  Any pushed commit also resets the 60-day clock.
+- **Manual tick from a shell** (safe to rerun — `push_sends` makes every tick
+  idempotent, so nobody gets double-pinged):
+
+  ```bash
+  curl -fsS -H "Authorization: Bearer $CRON_SECRET" \
+    https://mind.logitslab.com/api/cron/push-dispatch
+  ```
+
 ## Two Supabase projects
 
 - **Prod project** — serves `main` / mind.logitslab.com. Schema moves only at

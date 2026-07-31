@@ -13,6 +13,67 @@ The `app_events` sink (migration 010) stores `user_id`, `name`, small `props`,
 clients send `share_card` via `lib/track.ts` (web) and `eventsApi.send`
 (mobile).
 
+## Launch gates
+
+The two go/no-go numbers. Each gate passes only when the **latest two full,
+consecutive weeks** both clear its bar — read the last two complete rows off
+the query output; a single-week spike does not count, and the current partial
+week never counts.
+
+### G1 — weekly practitioners (≥1 `sadhana_logged`)
+
+`sadhana_logged` is recorded server-side on every successful practice log
+(`app/api/sadhana/route.ts`) — and only on success, so this never counts
+sessions the database refused.
+
+```sql
+select
+  date_trunc('week', created_at)::date as week,
+  count(distinct user_id) as practitioners
+from app_events
+where name = 'sadhana_logged'
+  and created_at > now() - interval '8 weeks'
+group by 1
+order by 1;
+```
+
+### G2 — weekly sangha attendance
+
+Distinct users with ≥1 `sangha_attended` per week.
+
+```sql
+select
+  date_trunc('week', created_at)::date as week,
+  count(distinct user_id) as attendees
+from app_events
+where name = 'sangha_attended'
+  and created_at > now() - interval '8 weeks'
+group by 1
+order by 1;
+```
+
+## Push dispatch heartbeat
+
+`push_sends` gets a row per (user, kind, local day) *before* each send, so it
+doubles as the dispatcher's pulse:
+
+```sql
+select
+  sent_on as day,
+  kind,
+  count(*) as sends
+from push_sends
+where sent_on > current_date - 14
+group by 1, 2
+order by 1 desc, 2;
+```
+
+Zero rows for >48h while opted-in users exist (`select count(*) from
+user_preferences where notif_daily_verse or notif_streak_reminder;`) = the
+GitHub cron is dead — check the Actions tab. GitHub disables schedules after
+60 days of repo inactivity; see the push dispatch runbook in
+`docs/dev-environment.md` for the re-enable steps.
+
 ## Daily active practitioners (from streak check-ins)
 
 ```sql
@@ -122,5 +183,6 @@ order by 1, 2;
   allowlist. Add the name to `lib/events-names.ts` and record it at the crisis
   interception point when the care-path work lands (plan Phase 3). Count it as
   care delivered, never as a growth number.
-- **Sādhana completion** — arrives with the `sadhana_sessions` table
-  (plan Phase 1); until then `verse_completed` is the nearest proxy.
+- ~~**Sādhana completion**~~ — measurable now: `sadhana_sessions` (migration
+  011) landed and `sadhana_logged` is in the event allowlist; the G1 launch
+  gate above is the canonical query.
