@@ -6,6 +6,9 @@ import { getSlokasByTags } from "@/lib/slokas";
 type Props = { params: { id: string } };
 
 // Mood pages derive from static tag data; pre-render all 18.
+// force-static: see app/sloka/[id]/page.tsx — no-store DB fetches otherwise
+// demote the prerender silently.
+export const dynamic = "force-static";
 export const revalidate = 86400;
 export const dynamicParams = true;
 
