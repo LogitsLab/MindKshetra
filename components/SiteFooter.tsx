@@ -20,6 +20,12 @@ export default function SiteFooter() {
         </p>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
           <Link
+            href="/support"
+            className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+          >
+            {t("navSupport")}
+          </Link>
+          <Link
             href="/privacy"
             className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
           >
@@ -31,6 +37,26 @@ export default function SiteFooter() {
           >
             {t("navAccount")}
           </Link>
+          {process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL ? (
+            <a
+              href={process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+            >
+              WhatsApp
+            </a>
+          ) : null}
+          {process.env.NEXT_PUBLIC_TELEGRAM_URL ? (
+            <a
+              href={process.env.NEXT_PUBLIC_TELEGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+            >
+              Telegram
+            </a>
+          ) : null}
         </nav>
       </div>
     </footer>

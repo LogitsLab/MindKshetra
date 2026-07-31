@@ -1,0 +1,15 @@
+{
+  "updated": "2026-07",
+  "note": "Amounts are filled in by a maintainer each month; null means not yet published.",
+  "items": [
+    { "id": "vercel", "label_en": "Vercel — web hosting & cron", "label_hi": "Vercel — वेब होस्टिंग व क्रॉन", "amount": null },
+    { "id": "supabase", "label_en": "Supabase — database & auth", "label_hi": "Supabase — डेटाबेस व प्रमाणीकरण", "amount": null },
+    { "id": "groq", "label_en": "Groq — Madhav's language model", "label_hi": "Groq — माधव का भाषा मॉडल", "amount": null },
+    { "id": "voyage", "label_en": "Voyage — verse search embeddings", "label_hi": "Voyage — श्लोक खोज एम्बेडिंग", "amount": null },
+    { "id": "resend", "label_en": "Resend — Verse of the Day email", "label_hi": "Resend — आज का श्लोक ईमेल", "amount": null },
+    { "id": "upstash", "label_en": "Upstash — cache", "label_hi": "Upstash — कैश", "amount": null },
+    { "id": "apple", "label_en": "Apple Developer Program (yearly)", "label_hi": "Apple डेवलपर प्रोग्राम (वार्षिक)", "amount": null },
+    { "id": "play", "label_en": "Google Play Console (one-time)", "label_hi": "Google Play कंसोल (एक बार)", "amount": null },
+    { "id": "domain", "label_en": "Domain", "label_hi": "डोमेन", "amount": null }
+  ]
+}
