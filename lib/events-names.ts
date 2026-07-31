@@ -14,6 +14,7 @@ export const EVENT_NAMES = [
   "share_card",
   "chart_cast",
   "predictions_viewed",
+  "sadhana_logged",
 ] as const;
 
 export type EventName = (typeof EVENT_NAMES)[number];

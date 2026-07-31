@@ -1,41 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { isDbContentEnabled } from "@/lib/content/source";
+import {
+  FALLBACK_TIMEZONE,
+  advanceStreak,
+  isValidTimezone,
+  localDayString,
+} from "@/lib/practice-streaks";
 
-/**
- * Most of the audience is in India; before migration 010 every streak was
- * computed against UTC, which flips the day at 05:30 IST. Users without a
- * stored timezone keep IST semantics rather than reverting to UTC.
- */
-const FALLBACK_TIMEZONE = "Asia/Kolkata";
-
-export function isValidTimezone(tz: unknown): tz is string {
-  if (typeof tz !== "string" || !tz.trim()) return false;
-  try {
-    new Intl.DateTimeFormat("en-CA", { timeZone: tz });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/** YYYY-MM-DD in the given zone ('en-CA' formats as ISO). */
-export function localDayString(timeZone: string, now = new Date()): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(now);
-}
-
-function dayDiff(fromDay: string, toDay: string): number {
-  // Both are calendar dates; comparing them at UTC midnight is exact.
-  return Math.round(
-    (new Date(`${toDay}T00:00:00Z`).getTime() -
-      new Date(`${fromDay}T00:00:00Z`).getTime()) /
-      86_400_000
-  );
-}
+// Day math lives in lib/practice-streaks.ts (shared with sadhana streaks);
+// re-exported here so existing imports keep working.
+export { isValidTimezone, localDayString } from "@/lib/practice-streaks";
 
 async function resolveTimezone(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -51,12 +25,22 @@ async function resolveTimezone(
   return isValidTimezone(data?.timezone) ? data.timezone : FALLBACK_TIMEZONE;
 }
 
+/** Shared with lib/sadhana.ts so both streak families resolve days identically. */
+export async function resolveUserTimezone(
+  userId: string,
+  timezone?: string
+): Promise<string> {
+  const supabase = await createClient();
+  return resolveTimezone(supabase, userId, timezone);
+}
+
 export async function recordVisit(
   userId: string,
   timezone?: string
 ): Promise<{
   current: number;
   longest: number;
+  graceUsedToday?: boolean;
 }> {
   if (!isDbContentEnabled()) return { current: 0, longest: 0 };
 
@@ -79,35 +63,38 @@ export async function recordVisit(
     return { current: 1, longest: 1 };
   }
 
-  if (existing.last_visit_date === today) {
-    return {
+  const next = advanceStreak(
+    {
       current: existing.current_streak,
       longest: existing.longest_streak,
-    };
-  }
+      lastDay: existing.last_visit_date as string | null,
+      graceUsedOn: (existing.grace_used_on as string | null) ?? null,
+    },
+    today
+  );
 
-  const diffDays = dayDiff(existing.last_visit_date as string, today);
-  // diffDays < 1 can only happen around the one-time UTC→local-day migration
-  // (or a timezone change); treat it as "already visited today".
-  if (diffDays < 1) {
+  if (!next.changed) {
     return {
       current: existing.current_streak,
       longest: existing.longest_streak,
     };
   }
-  const current = diffDays === 1 ? existing.current_streak + 1 : 1;
-  const longest = Math.max(existing.longest_streak, current);
 
   await supabase
     .from("user_streaks")
     .update({
-      current_streak: current,
-      longest_streak: longest,
-      last_visit_date: today,
+      current_streak: next.current,
+      longest_streak: next.longest,
+      last_visit_date: next.lastDay,
+      grace_used_on: next.graceUsedOn,
     })
     .eq("user_id", userId);
 
-  return { current, longest };
+  return {
+    current: next.current,
+    longest: next.longest,
+    ...(next.graceConsumed ? { graceUsedToday: true } : {}),
+  };
 }
 
 export async function getStreak(userId: string): Promise<{
