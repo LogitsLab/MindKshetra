@@ -13,6 +13,10 @@ type Props = { params: { id: string } };
 // Verse content is immutable; pre-rendering all 701 pages makes navigation
 // (and Link prefetch) instant instead of a cold SSR round-trip per click.
 // Progress/favorites are client bridges, so nothing here is per-user.
+// force-static: DB-mode content fetches are no-store, which otherwise
+// silently demotes these pages to dynamic at build persist time (the route
+// table still shows ● but the prerender manifest stays empty).
+export const dynamic = "force-static";
 export const revalidate = 86400;
 export const dynamicParams = true;
 
