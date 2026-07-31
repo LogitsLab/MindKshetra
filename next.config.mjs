@@ -17,6 +17,15 @@ const nextConfig = {
     outputFileTracingIncludes: {
       "/api/astrology/**": ["./ephemeris/**"],
       "/astrology/**": ["./ephemeris/**"],
+      // Nakshatra-driven VOTD (lib/day-seed.ts) reads the moon on every VOTD
+      // surface; without these entries those lambdas silently fall back to
+      // Moshier and can disagree with the astrology routes at a nakshatra
+      // boundary. Same trap as documented in CLAUDE.md — keep them in sync.
+      "/": ["./ephemeris/**"],
+      "/verse-of-the-day": ["./ephemeris/**"],
+      "/api/votd/**": ["./ephemeris/**"],
+      "/api/cron/votd-email": ["./ephemeris/**"],
+      "/api/panchang/**": ["./ephemeris/**"],
     },
   },
   webpack: (config, { isServer }) => {
