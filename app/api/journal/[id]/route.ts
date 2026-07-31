@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { crisisResponse } from "@/lib/crisis";
 import { recordEvent } from "@/lib/events";
+import { killSwitchEngaged } from "@/lib/kill-switch";
 import { screenText } from "@/lib/moderation";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -53,7 +54,7 @@ export async function PATCH(
   // Kill switch pauses NEW sharing only; unsharing must always work.
   if (
     visibility === "shared" &&
-    process.env.COMMUNITY_REFLECTIONS_ENABLED === "0"
+    killSwitchEngaged("COMMUNITY_REFLECTIONS_ENABLED")
   ) {
     return NextResponse.json(
       { error: "Sharing is paused right now." },
@@ -65,7 +66,7 @@ export async function PATCH(
   const supabase = await createClient();
   const { data: entry, error: entryError } = await supabase
     .from("journal_entries")
-    .select("id, reflection")
+    .select("id, reflection, status")
     .eq("id", entryId)
     .eq("user_id", userId)
     .maybeSingle();
@@ -74,6 +75,15 @@ export async function PATCH(
   }
   if (!entry) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  // A maintainer's "removed" verdict is final for this entry — the author
+  // cannot relist it by cycling private→shared. Unsharing stays allowed.
+  if (visibility === "shared" && entry.status === "removed") {
+    return NextResponse.json(
+      { error: "This reflection can't be shared." },
+      { status: 403 }
+    );
   }
 
   const admin = createAdminClient();
@@ -138,7 +148,9 @@ export async function PATCH(
         source: "screen_hold",
         reason: screen.reason,
       });
-      if (queueError) {
+      // 23505 = the 016 partial unique index absorbed a concurrent duplicate
+      // — the queue row exists, which is all the care path needs.
+      if (queueError && queueError.code !== "23505") {
         // Care path: a held entry with no queue row would never reach a
         // human. Fail loudly so the client retries (the hold update above is
         // idempotent).

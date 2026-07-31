@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { killSwitchEngaged } from "@/lib/kill-switch";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSignedInUserId } from "@/lib/supabase/server";
@@ -13,7 +14,7 @@ const CONTENT_TYPES = new Set(["reflection", "profile", "circle_post"]);
  * reporting is an abuse vector on a small moderation team. 20/day per user.
  */
 export async function POST(request: NextRequest) {
-  if (process.env.COMMUNITY_REPORTS_ENABLED === "0") {
+  if (killSwitchEngaged("COMMUNITY_REPORTS_ENABLED")) {
     return NextResponse.json(
       { error: "Reporting is paused right now." },
       { status: 503 }
