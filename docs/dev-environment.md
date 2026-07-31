@@ -11,12 +11,14 @@
 
 ## One-time setup (owner, ~15 minutes)
 
-1. **Vercel domain**: project → Settings → Domains → add
-   `dev-mind.logitslab.com`. The deploy-dev workflow aliases each dev
-   deployment to it; adding the domain to the project is what authorizes that
-   alias.
-2. **DNS**: add a CNAME for `dev-mind` → `cname.vercel-dns.com` wherever
-   `logitslab.com` DNS lives.
+1. **Vercel domain**: ✅ `dev-mind.logitslab.com` is added to the project
+   (via CLI, 2026-07-31). The deploy-dev workflow aliases each dev deployment
+   to it.
+2. **DNS** (still pending): add a CNAME for `dev-mind` →
+   `cname.vercel-dns.com` in the `logitslab.com` zone — its nameservers are
+   Google (`ns-cloud-a*.googledomains.com`), so the record lives in Google
+   Cloud DNS / the domain host's DNS panel. Vercel auto-verifies once it
+   propagates.
 3. **Branch-scoped env vars** (Vercel → Settings → Environment Variables,
    environment "Preview", branch `dev`) — already set via CLI:
    - `NEXT_PUBLIC_SITE_URL=https://dev-mind.logitslab.com`

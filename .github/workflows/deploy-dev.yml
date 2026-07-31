@@ -44,7 +44,13 @@ jobs:
 
       - name: Deploy (preview)
         id: deploy
-        run: echo "url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})" >> "$GITHUB_OUTPUT"
+        # Assignment form so a deploy failure (e.g. Vercel's daily upload
+        # quota, code "api-upload-free") fails THIS step loudly instead of
+        # feeding an empty URL to the alias step.
+        run: |
+          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          test -n "$url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
