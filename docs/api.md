@@ -153,7 +153,7 @@ Record today's visit and return updated streak.
 
 ### `GET /api/account/export`
 
-Download a JSON export of the signed-in user's favorites, reflections, streak, and Madhav chat sessions.
+Download a JSON export of the signed-in user's favorites, reflections, streak, Madhav chat sessions, reading progress, sadhana log + streaks, public profile, block list, push-token metadata (never the raw token — it's a device push credential), and full preferences (incl. timezone and notification settings).
 
 ### `GET /api/votd/email`
 
@@ -243,9 +243,13 @@ Chart-aware mood ordering for a saved member: `{ memberId }` → `{ order: strin
 
 Opt-in public profile (signed-in, non-anonymous). PUT screens display name/bio; handles are `[a-z0-9_]{3,24}` minus a reserved list. Public read via `/api/profiles/[handle]` and the `/u/[handle]` page.
 
+### `PATCH /api/journal/[id]`
+
+Share or unshare a journal reflection. Body `{ "visibility": "shared" | "private", "language"?: "en" | "hi" }`. Sharing screens the text first: clean → `{ shared: true }`; held for review → `{ shared: false, held: true }` (crisis holds also return the helpline `message`); links/over-length → `400`. Returns `503` when sharing is paused (`COMMUNITY_REFLECTIONS_ENABLED=0`); unsharing (`"private"`) always works.
+
 ### `POST /api/report` · `GET|POST|DELETE /api/blocks`
 
-Report content into the human review queue (signed-in, 20/day) and manage a personal block list.
+Report content into the human review queue (signed-in, 20/day) and manage a personal block list. A repeat report of the same content by the same user while the first is still open returns `202` without adding a queue row. Returns `503` when reporting is paused (`COMMUNITY_REPORTS_ENABLED=0`).
 
 ### `POST|DELETE /api/push/register` · `GET /api/cron/push-dispatch`
 

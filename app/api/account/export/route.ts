@@ -19,6 +19,11 @@ export async function GET() {
     { data: prefs },
     { data: cursorRow },
     { data: completionRows },
+    { data: sadhanaSessionRows },
+    { data: sadhanaStreakRows },
+    { data: profileRow },
+    { data: blockRows },
+    { data: pushTokenRows },
   ] = await Promise.all([
     supabase
       .from("favorites")
@@ -44,7 +49,7 @@ export async function GET() {
     supabase
       .from("user_preferences")
       .select(
-        "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about"
+        "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone, notif_daily_verse, notif_daily_verse_hour, notif_streak_reminder, notif_community"
       )
       .eq("user_id", userId)
       .maybeSingle(),
@@ -58,6 +63,32 @@ export async function GET() {
       .select("sloka_id, completed_at")
       .eq("user_id", userId)
       .order("completed_at", { ascending: false }),
+    supabase
+      .from("sadhana_sessions")
+      .select("practice, occurred_on, duration_sec, count, details, client_ref, created_at")
+      .eq("user_id", userId)
+      .order("occurred_on", { ascending: false }),
+    supabase
+      .from("sadhana_streaks")
+      .select("practice, current_streak, longest_streak, last_day, grace_used_on")
+      .eq("user_id", userId),
+    supabase
+      .from("public_profiles")
+      .select("handle, display_name, bio, avatar_key, is_public, created_at")
+      .eq("user_id", userId)
+      .maybeSingle(),
+    supabase
+      .from("user_blocks")
+      .select("blocked_user_id, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false }),
+    // Metadata only — the raw token is a push credential for the device, so
+    // it must never leave the database in an export file.
+    supabase
+      .from("push_tokens")
+      .select("id, platform, created_at, disabled_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false }),
   ]);
 
   const refIds = new Set<number>();
@@ -122,6 +153,11 @@ export async function GET() {
       place: prefs?.place ?? null,
       preferredLanguage: prefs?.preferred_language ?? null,
       about: prefs?.about ?? null,
+      timezone: prefs?.timezone ?? null,
+      notifDailyVerse: prefs?.notif_daily_verse ?? false,
+      notifDailyVerseHour: prefs?.notif_daily_verse_hour ?? 8,
+      notifStreakReminder: prefs?.notif_streak_reminder ?? false,
+      notifCommunity: prefs?.notif_community ?? true,
     },
     streak: streak
       ? {
@@ -133,6 +169,44 @@ export async function GET() {
     favorites,
     reflections,
     chats,
+    sadhana: {
+      sessions: (sadhanaSessionRows ?? []).map((row) => ({
+        practice: row.practice,
+        occurredOn: row.occurred_on,
+        durationSec: row.duration_sec,
+        count: row.count,
+        details: row.details,
+        clientRef: row.client_ref,
+        createdAt: row.created_at,
+      })),
+      streaks: (sadhanaStreakRows ?? []).map((row) => ({
+        practice: row.practice,
+        current: row.current_streak,
+        longest: row.longest_streak,
+        lastDay: row.last_day,
+        graceUsedOn: row.grace_used_on,
+      })),
+    },
+    publicProfile: profileRow
+      ? {
+          handle: profileRow.handle,
+          displayName: profileRow.display_name,
+          bio: profileRow.bio,
+          avatarKey: profileRow.avatar_key,
+          isPublic: profileRow.is_public,
+          createdAt: profileRow.created_at,
+        }
+      : null,
+    blocks: (blockRows ?? []).map((row) => ({
+      blockedUserId: row.blocked_user_id,
+      createdAt: row.created_at,
+    })),
+    pushTokens: (pushTokenRows ?? []).map((row) => ({
+      id: row.id,
+      platform: row.platform,
+      createdAt: row.created_at,
+      disabledAt: row.disabled_at,
+    })),
     readingProgress: {
       cursor: cursorRow?.last_sloka_id
         ? {
