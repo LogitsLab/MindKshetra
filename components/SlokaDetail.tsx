@@ -138,6 +138,8 @@ export default function SlokaDetail({
             text={translation}
             url={`${typeof window !== "undefined" ? window.location.origin : ""}/sloka/${sloka.id}`}
             imageUrl={`/api/og/verse/${sloka.id}`}
+            slokaId={sloka.id}
+            surface="verse"
           />
         </div>
       </nav>
