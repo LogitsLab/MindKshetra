@@ -22,7 +22,10 @@ jobs:
           node-version: 20
 
       - name: Install Vercel CLI
-        run: npm install -g vercel@latest
+        # Pinned: 58.4.4 fails prebuilt deploys with
+        # "ENOENT: lstat node_modules/styled-jsx/index.js" during file upload;
+        # 58.4.0 is the last version verified good here. Bump deliberately.
+        run: npm install -g vercel@58.4.0
 
       - name: Pull Vercel project config
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
