@@ -14,7 +14,7 @@ import { useProgress } from "@/components/ProgressProvider";
 import type { ChapterMeta } from "@/lib/chapters";
 import type { Sloka } from "@/lib/types";
 import { formatVerseRef } from "@/lib/sloka-utils";
-import type { TeachingPassage } from "@/lib/sloka-utils";
+import type { RelatedVersePreview, TeachingPassage } from "@/lib/sloka-utils";
 import {
   cleanCommentary,
   hasCommentary,
@@ -27,6 +27,7 @@ type Props = {
   prev?: Sloka | null;
   next?: Sloka | null;
   passage?: TeachingPassage | null;
+  related?: RelatedVersePreview[];
 };
 
 export default function SlokaDetail({
@@ -35,6 +36,7 @@ export default function SlokaDetail({
   prev = null,
   next = null,
   passage = null,
+  related = [],
 }: Props) {
   const { lang, t } = useLanguage();
   const { recordOpen, markManyComplete, isComplete } = useProgress();
@@ -370,6 +372,32 @@ export default function SlokaDetail({
           </div>
         </aside>
       </div>
+
+      {related.length > 0 ? (
+        <section className="mt-6 border-t border-[var(--line)] pt-6">
+          <h2 className="text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+            {t("relatedVerses")}
+          </h2>
+          {/* Hairline list, not cards — the citation-list idiom. */}
+          <ul className="mt-3">
+            {related.map((r) => (
+              <li key={r.id} className="border-t border-[var(--hairline)]">
+                <Link
+                  href={`/sloka/${r.id}`}
+                  className="group flex min-h-11 flex-wrap items-baseline gap-x-4 gap-y-0.5 py-3"
+                >
+                  <span className="font-display text-sm text-[var(--brass-soft)] transition group-hover:text-[var(--brass)]">
+                    {r.chapter}.{r.verse_number}
+                  </span>
+                  <span className="min-w-0 flex-1 basis-56 text-sm font-light leading-relaxed text-[var(--text-muted)] transition group-hover:text-[var(--text-soft)]">
+                    {lang === "hi" ? r.previewHi : r.previewEn}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <JournalBox slokaId={sloka.id} />
       <VerseReflections slokaId={sloka.id} />

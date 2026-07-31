@@ -5,7 +5,7 @@ import SlokaDetail from "@/components/SlokaDetail";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { ChapterMeta } from "@/lib/chapters";
 import type { Sloka } from "@/lib/types";
-import type { TeachingPassage } from "@/lib/sloka-utils";
+import type { RelatedVersePreview, TeachingPassage } from "@/lib/sloka-utils";
 
 type Props = {
   sloka: Sloka;
@@ -13,6 +13,7 @@ type Props = {
   prev?: Sloka | null;
   next?: Sloka | null;
   passage?: TeachingPassage | null;
+  related?: RelatedVersePreview[];
 };
 
 export default function SlokaPageClient({
@@ -21,6 +22,7 @@ export default function SlokaPageClient({
   prev,
   next,
   passage,
+  related,
 }: Props) {
   const { t } = useLanguage();
 
@@ -39,6 +41,7 @@ export default function SlokaPageClient({
           prev={prev}
           next={next}
           passage={passage}
+          related={related}
         />
       </div>
     </div>
