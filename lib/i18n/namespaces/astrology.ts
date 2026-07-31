@@ -80,9 +80,11 @@ export const en = {
   astroNowPeriod: "In this dasha period",
   astroGuidance: "Guidance",
   astroRegeneratePred: "Regenerate detailed reading",
-  astroPredBlurb: "Generate a reading grounded in this chart — portrait, then life areas with placements and the current dasha (not generic horoscope text).",
+  astroPredBlurb:
+    "A written reading of this chart — your portrait first, then each life area in turn. It takes a moment to prepare.",
   astroChatTitle: "Ask about this chart",
-  astroChatBlurb: "Ask anything about this chart. You get a full Jyotish answer from placements and dasha — not Gita verses, not generic horoscope text.",
+  astroChatBlurb:
+    "Ask anything about this chart — answers come from its actual placements and the running dasha.",
   astroChatStarters: "Try a question",
   astroChatPlaceholder: "e.g. What does my current dasha mean for work?",
   astroPredWhatChartSays: "What the chart says",
@@ -284,9 +286,11 @@ export const hi: Record<keyof typeof en, string> = {
   astroNowPeriod: "इस दशा काल में",
   astroGuidance: "मार्गदर्शन",
   astroRegeneratePred: "विस्तृत पठन फिर बनाएँ",
-  astroPredBlurb: "इसी कुंडली पर आधारित पठन बनाएँ — चित्र, फिर जीवन क्षेत्र; भाव व वर्तमान दशा सहित (सामान्य राशिफल नहीं)।",
+  astroPredBlurb:
+    "इस कुंडली का लिखित पठन — पहले आपका चित्र, फिर हर जीवन क्षेत्र क्रम से। इसे तैयार होने में थोड़ा समय लगता है।",
   astroChatTitle: "इस कुंडली के बारे में पूछें",
-  astroChatBlurb: "इस कुंडली पर कुछ भी पूछें। भाव और दशा से पूरा ज्योतिष उत्तर मिलता है — गीता के श्लोक नहीं, सामान्य राशिफल नहीं।",
+  astroChatBlurb:
+    "इस कुंडली पर कुछ भी पूछें — उत्तर इसके वास्तविक भावों और चल रही दशा से मिलते हैं।",
   astroChatStarters: "एक प्रश्न आज़माएँ",
   astroChatPlaceholder: "जैसे: वर्तमान दशा करियर के लिए क्या कहती है?",
   astroPredWhatChartSays: "कुंडली क्या कहती है",

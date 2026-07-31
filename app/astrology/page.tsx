@@ -263,7 +263,7 @@ export default function AstrologyLanding() {
   if (chart && chartSessionId) {
     return (
       <div className="animate-fade py-6 sm:py-10">
-        <div className="mx-auto mb-6 flex max-w-3xl flex-wrap items-center justify-between gap-3">
+        <div className="mx-auto mb-6 flex max-w-3xl flex-wrap items-center justify-between gap-3 lg:max-w-none">
           {error ? (
             <p className="text-sm text-red-400" role="alert">
               {error}
