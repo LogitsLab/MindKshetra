@@ -156,6 +156,48 @@ function expandSearchTokens(tokens: string[]): string[] {
   return Array.from(out);
 }
 
+type SearchHaystack = {
+  sloka: Sloka;
+  ref: string;
+  hay: string;
+  translationHay: string;
+};
+
+// The corpus is immutable per process; lowercasing ~700 verses per query was
+// repeated work. Keyed by array identity so a DB-mode refresh recomputes.
+const haystackCache = new WeakMap<Sloka[], SearchHaystack[]>();
+
+function buildHaystacks(slokas: Sloka[]): SearchHaystack[] {
+  const cached = haystackCache.get(slokas);
+  if (cached) return cached;
+  const built = slokas.map((sloka) => {
+    const ref = formatVerseRef(sloka).toLowerCase();
+    const hay = [
+      ref,
+      sloka.english_translation,
+      sloka.hindi_translation,
+      sloka.english_meaning ?? "",
+      sloka.hindi_meaning ?? "",
+      sloka.transliteration_iast,
+      sloka.sanskrit_devanagari,
+      ...sloka.tags.map((t) => t.replace(/_/g, " ")),
+    ]
+      .join(" ")
+      .toLowerCase();
+    const translationHay = [
+      sloka.english_translation,
+      sloka.hindi_translation,
+      sloka.english_meaning ?? "",
+      sloka.hindi_meaning ?? "",
+    ]
+      .join(" ")
+      .toLowerCase();
+    return { sloka, ref, hay, translationHay };
+  });
+  haystackCache.set(slokas, built);
+  return built;
+}
+
 export async function searchSlokas(
   query: string,
   limit = 40
@@ -181,22 +223,7 @@ export async function searchSlokas(
   );
 
   const docFreq = new Map<string, number>();
-  const haystacks = slokas.map((sloka) => {
-    const ref = formatVerseRef(sloka).toLowerCase();
-    const hay = [
-      ref,
-      sloka.english_translation,
-      sloka.hindi_translation,
-      sloka.english_meaning ?? "",
-      sloka.hindi_meaning ?? "",
-      sloka.transliteration_iast,
-      sloka.sanskrit_devanagari,
-      ...sloka.tags.map((t) => t.replace(/_/g, " ")),
-    ]
-      .join(" ")
-      .toLowerCase();
-    return { sloka, ref, hay };
-  });
+  const haystacks = buildHaystacks(slokas);
 
   for (const token of tokens) {
     let count = 0;
@@ -209,7 +236,7 @@ export async function searchSlokas(
   const N = slokas.length;
 
   return haystacks
-    .map(({ sloka, ref, hay }) => {
+    .map(({ sloka, ref, hay, translationHay }) => {
       let score = 0;
       if (hay.includes(q)) score += 18;
       for (const token of tokens) {
@@ -222,14 +249,6 @@ export async function searchSlokas(
         }
         if (ref === token || ref.startsWith(`${token}.`)) score += 12;
       }
-      const translationHay = [
-        sloka.english_translation,
-        sloka.hindi_translation,
-        sloka.english_meaning ?? "",
-        sloka.hindi_meaning ?? "",
-      ]
-        .join(" ")
-        .toLowerCase();
       if (tokens.some((t) => translationHay.includes(t))) score += 2;
       return { sloka, score };
     })

@@ -1,9 +1,25 @@
 import { notFound } from "next/navigation";
 import SlokaPageClient from "@/components/SlokaPageClient";
 import { getChapterMeta } from "@/lib/chapters";
-import { getAdjacentSlokas, getSlokaById, getTeachingPassage } from "@/lib/slokas";
+import {
+  getAdjacentSlokas,
+  getAllSlokas,
+  getSlokaById,
+  getTeachingPassage,
+} from "@/lib/slokas";
 
 type Props = { params: { id: string } };
+
+// Verse content is immutable; pre-rendering all 701 pages makes navigation
+// (and Link prefetch) instant instead of a cold SSR round-trip per click.
+// Progress/favorites are client bridges, so nothing here is per-user.
+export const revalidate = 86400;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const all = await getAllSlokas();
+  return all.map((sloka) => ({ id: String(sloka.id) }));
+}
 
 export default async function SlokaPage({ params }: Props) {
   const id = Number(params.id);

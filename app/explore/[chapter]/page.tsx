@@ -5,6 +5,15 @@ import { getChapters, getSlokasByChapter } from "@/lib/slokas";
 
 type Props = { params: { chapter: string } };
 
+// Chapter content is immutable; pre-render all 18 for instant navigation.
+export const revalidate = 86400;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const chapters = await getChapters();
+  return chapters.map((chapter) => ({ chapter: String(chapter) }));
+}
+
 export default async function ChapterPage({ params }: Props) {
   const chapter = Number(params.chapter);
   const chapters = await getChapters();

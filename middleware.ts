@@ -74,6 +74,15 @@ export async function middleware(request: NextRequest) {
     return withCors(NextResponse.next(), isApi);
   }
 
+  // No Supabase auth cookies (sb-*) means there is no session to refresh —
+  // skip the network round-trip that otherwise taxed every guest page click.
+  const hasAuthCookies = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith("sb-"));
+  if (!hasAuthCookies) {
+    return withCors(NextResponse.next(), isApi);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(url, key, {

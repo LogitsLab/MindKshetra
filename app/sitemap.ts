@@ -4,6 +4,12 @@ import { getAllSlokas, getChapters } from "@/lib/slokas";
 
 const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+// Enumerates all 701 verse URLs; without revalidate every crawler hit
+// reloaded the full corpus. force-static because the content layer's DB
+// fetches are no-store, which would otherwise keep this dynamic.
+export const dynamic = "force-static";
+export const revalidate = 86400;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const staticRoutes: MetadataRoute.Sitemap = [
