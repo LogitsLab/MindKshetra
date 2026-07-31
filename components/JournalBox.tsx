@@ -9,11 +9,19 @@ type Props = {
   slokaId: number;
 };
 
+/**
+ * Dispatched on window after a reflection is successfully shared, with
+ * { slokaId } as detail. VerseReflections listens and refetches so the
+ * person's line appears on the page they are looking at.
+ */
+export const REFLECTION_SHARED_EVENT = "mindkshetra:reflection-shared";
+
 export default function JournalBox({ slokaId }: Props) {
   const { user } = useAuth();
   const { lang, t } = useLanguage();
   const [reflection, setReflection] = useState("");
   const [saved, setSaved] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [savedId, setSavedId] = useState<number | null>(null);
   const [shareState, setShareState] = useState<
@@ -28,20 +36,24 @@ export default function JournalBox({ slokaId }: Props) {
     if (!text) return;
 
     setLoading(true);
+    setSaveFailed(false);
     try {
       const res = await fetch("/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slokaId, reflection: text }),
       });
-      if (res.ok) {
-        const data = await res.json().catch(() => null);
-        setSaved(true);
-        setSavedId(typeof data?.id === "number" ? data.id : null);
-        setShareState("idle");
-        setShareNotice(null);
-        setReflection("");
-      }
+      if (!res.ok) throw new Error("journal save failed");
+      const data = await res.json().catch(() => null);
+      setSaved(true);
+      setSavedId(typeof data?.id === "number" ? data.id : null);
+      setShareState("idle");
+      setShareNotice(null);
+      setReflection("");
+    } catch {
+      // The words stay in the box — a failed save must never look like a
+      // successful one.
+      setSaveFailed(true);
     } finally {
       setLoading(false);
     }
@@ -60,6 +72,9 @@ export default function JournalBox({ slokaId }: Props) {
       const data = await res.json().catch(() => null);
       if (res.ok && data?.shared) {
         setShareState("shared");
+        window.dispatchEvent(
+          new CustomEvent(REFLECTION_SHARED_EVENT, { detail: { slokaId } })
+        );
       } else if (res.ok && data?.held) {
         setShareState("held");
         // Crisis holds carry the helpline text — show it verbatim, gently.
@@ -100,6 +115,7 @@ export default function JournalBox({ slokaId }: Props) {
         onChange={(e) => {
           setReflection(e.target.value);
           setSaved(false);
+          setSaveFailed(false);
         }}
         placeholder={t("journalPlaceholder")}
         rows={3}
@@ -112,6 +128,12 @@ export default function JournalBox({ slokaId }: Props) {
       >
         {saved ? t("journalSaved") : t("journalSave")}
       </button>
+
+      {saveFailed ? (
+        <p className="border-l-2 border-[var(--brass)]/60 pl-3 text-sm text-[var(--text-muted)]">
+          {t("journalSaveFailed")}
+        </p>
+      ) : null}
 
       {saved && savedId ? (
         <div className="pt-1">
