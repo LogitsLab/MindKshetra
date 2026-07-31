@@ -1,5 +1,5 @@
 {
-  "note": "Curated hold-list for UGC screening (lib/moderation.ts). A hit HOLDS content for human review — it never auto-removes. Keep entries lowercase; matching is substring on lowercased text. Extend via PR with maintainer review.",
+  "note": "Curated hold-list for UGC screening (lib/moderation.ts). A hit HOLDS content for human review — it never auto-removes. Keep entries lowercase; ASCII terms match on word boundaries, non-ASCII (Devanagari) terms match as substrings. Extend via PR with maintainer review.",
   "terms": [
     "chutiya",
     "chutiye",
