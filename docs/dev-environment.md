@@ -41,23 +41,23 @@ Content does not live in either database by default (`CONTENT_SOURCE=json`
 serves all 701 verses from the repo), so the dev project needs **no seeding**
 — only schema.
 
-### Bootstrapping / applying migrations to MindKshetra-dev
+### Applying migrations
 
-Preferred (needs a one-time `npx supabase login`):
-
-```bash
-npx supabase link --project-ref <dev-ref>
-npx supabase db push
-```
-
-No-CLI fallback — paste one script into the dashboard SQL editor:
+**`supabase db push` does not work in this repo** — the migrations are
+numbered `001_…`, which the CLI's `<timestamp>_name.sql` convention silently
+ignores (push reports "up to date" while applying nothing). Use one of:
 
 ```bash
-node scripts/dev-bootstrap-sql.cjs | pbcopy   # then paste + Run in SQL editor
+# Preferred (needs a one-time `npx supabase login`):
+node scripts/apply-migrations.cjs xtadssxgwskyobxmhnxa   # MindKshetra-dev
+
+# No-CLI fallback — paste into the dashboard SQL editor:
+node scripts/dev-bootstrap-sql.cjs | pbcopy
 ```
 
-The bundle is idempotent (`if not exists` / `drop policy if exists`
-throughout), so re-running it after new migrations land is safe.
+Every migration is idempotent (`if not exists` / `drop policy if exists`),
+so re-running either path after new files land is safe. MindKshetra-dev is
+bootstrapped through 015 as of 2026-07-31.
 
 ### Dev project auth configuration (dashboard, one-time)
 
@@ -103,8 +103,8 @@ EXPO_PUBLIC_API_URL=https://dev-mind.logitslab.com npx expo start
 When `dev` is ready:
 
 1. Apply the pending migrations to the **prod** Supabase project
-   (`npx supabase link --project-ref <prod-ref> && npx supabase db push`,
-   or the same SQL-editor paste). They have already soaked on MindKshetra-dev.
+   (`node scripts/apply-migrations.cjs <prod-ref>`, or the SQL-editor paste).
+   They have already soaked on MindKshetra-dev.
 2. Open a PR `dev → main` in each repo. Web deploys to production on merge;
    mobile's version-bump + EAS release workflows take over from there.
 
