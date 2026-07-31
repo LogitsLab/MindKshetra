@@ -132,7 +132,6 @@ export default function ChartHub({
   const [glossDismissed, setGlossDismissed] = useState<Record<string, boolean>>(
     {}
   );
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [chartStyle, setChartStyle] = useState<ChartStyle>("north");
   const [showBirthDetails, setShowBirthDetails] = useState(false);
   const [focusArea, setFocusArea] = useState<LifeArea | null>(null);
@@ -193,8 +192,6 @@ export default function ChartHub({
     { id: "yogas", label: t("astroTabYogas") },
     { id: "remedies", label: t("astroTabRemedies") },
   ];
-
-  const isAdvanced = advancedTabs.some((x) => x.id === tab);
 
   async function loadPredictions(force = false) {
     if (!onRequestPredictions) return;
@@ -337,7 +334,7 @@ export default function ChartHub({
     : undefined;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 animate-fade">
+    <div className="mx-auto max-w-3xl space-y-8 animate-fade lg:max-w-none">
       <header className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0 space-y-2">
@@ -463,57 +460,65 @@ export default function ChartHub({
         </div>
       ) : null}
 
-      <nav className="sticky top-14 z-20 -mx-1 space-y-0 bg-[var(--nav-bg)]/95 px-1 backdrop-blur-md">
-        <div className="flex gap-0.5 overflow-x-auto border-b border-[var(--hairline)] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {primaryTabs.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setTab(item.id)}
-              className={`shrink-0 px-2.5 py-3 text-[13px] transition sm:px-3.5 sm:py-3.5 sm:text-sm ${
-                tab === item.id
-                  ? "border-b-2 border-[var(--brass)] text-[var(--brass-soft)]"
-                  : "border-b-2 border-transparent text-[var(--text-muted)] hover:text-[var(--text)]"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setShowAdvanced((v) => !v)}
-            className={`shrink-0 px-2.5 py-3 text-[13px] transition sm:px-3.5 sm:py-3.5 sm:text-sm ${
-              isAdvanced || showAdvanced
-                ? "border-b-2 border-[var(--brass)]/60 text-[var(--brass-soft)]"
-                : "border-b-2 border-transparent text-[var(--text-muted)] hover:text-[var(--text)]"
-            }`}
-          >
-            {t("astroTabMore")}
-            <span className="ml-1 opacity-60">{showAdvanced ? "▾" : "▸"}</span>
-          </button>
-        </div>
-        {showAdvanced || isAdvanced ? (
-          <div className="flex gap-0.5 overflow-x-auto border-b border-[var(--hairline)] bg-[var(--brass)]/[0.04] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="space-y-6 lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-12 lg:space-y-0">
+        <nav aria-label={t("astroEyebrow")}>
+          {/* Below lg: every section in one scrollable row — no overflow menu. */}
+          <div className="sticky top-14 z-20 -mx-1 bg-[var(--nav-bg)]/95 px-1 backdrop-blur-md lg:hidden">
+            <div className="flex gap-0.5 overflow-x-auto border-b border-[var(--hairline)] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {[...primaryTabs, ...advancedTabs].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setTab(item.id)}
+                  className={`shrink-0 px-2.5 py-3 text-[13px] transition sm:px-3.5 sm:py-3.5 sm:text-sm ${
+                    tab === item.id
+                      ? "border-b-2 border-[var(--brass)] text-[var(--brass-soft)]"
+                      : "border-b-2 border-transparent text-[var(--text-muted)] hover:text-[var(--text)]"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* lg+: a quiet left rail; the sidebar has room for every section. */}
+          <div className="hidden lg:sticky lg:top-24 lg:block lg:space-y-0.5">
+            {primaryTabs.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setTab(item.id)}
+                className={`block w-full border-l-2 px-3.5 py-2.5 text-left text-sm transition ${
+                  tab === item.id
+                    ? "border-[var(--brass)] bg-[var(--brass)]/[0.07] text-[var(--brass-soft)]"
+                    : "border-[var(--hairline)] text-[var(--text-muted)] hover:border-[var(--brass)]/40 hover:text-[var(--text)]"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+            <p className="px-3.5 pb-1.5 pt-5 text-[0.6rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              {t("astroTabMore")}
+            </p>
             {advancedTabs.map((item) => (
               <button
                 key={item.id}
                 type="button"
-                onClick={() => {
-                  setTab(item.id);
-                  setShowAdvanced(true);
-                }}
-                className={`shrink-0 px-3 py-2.5 text-xs transition sm:text-sm ${
+                onClick={() => setTab(item.id)}
+                className={`block w-full border-l-2 px-3.5 py-2.5 text-left text-sm transition ${
                   tab === item.id
-                    ? "text-[var(--brass-soft)]"
-                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                    ? "border-[var(--brass)] bg-[var(--brass)]/[0.07] text-[var(--brass-soft)]"
+                    : "border-[var(--hairline)] text-[var(--text-muted)] hover:border-[var(--brass)]/40 hover:text-[var(--text)]"
                 }`}
               >
                 {item.label}
               </button>
             ))}
           </div>
-        ) : null}
-      </nav>
+        </nav>
+
+        <div className="min-w-0 space-y-8">
 
       {GLOSS_TABS.includes(tab as GlossTab) && !glossDismissed[tab] ? (
         <GlossaryBanner
@@ -1516,6 +1521,8 @@ export default function ChartHub({
           />
         </section>
       ) : null}
+        </div>
+      </div>
 
       <PlanetDetailSheet
         open={selectedPlanetId !== null}

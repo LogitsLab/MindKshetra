@@ -138,7 +138,7 @@ export default function AstrologyMemberHubPage() {
 
   return (
     <div className="animate-fade py-8 sm:py-10">
-      <div className="mx-auto mb-6 flex max-w-3xl">
+      <div className="mx-auto mb-6 flex max-w-3xl lg:max-w-none">
         <Link
           href="/astrology/members"
           className="text-xs text-[var(--text-muted)] underline-offset-4 transition hover:text-[var(--brass-soft)] hover:underline"
@@ -147,7 +147,9 @@ export default function AstrologyMemberHubPage() {
         </Link>
       </div>
       {error ? (
-        <p className="mx-auto mb-4 max-w-3xl text-sm text-red-400">{error}</p>
+        <p className="mx-auto mb-4 max-w-3xl text-sm text-red-400 lg:max-w-none">
+          {error}
+        </p>
       ) : null}
       <ChartHub
         chart={chart}
