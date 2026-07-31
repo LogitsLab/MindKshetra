@@ -377,6 +377,14 @@ export default function AstrologyLanding() {
             >
               {signedIn ? t("astroManageLink") : t("astroSignInToSave")}
             </Link>
+            {signedIn ? (
+              <Link
+                href="/astrology/milan"
+                className="min-h-11 border border-white/25 px-5 py-3 text-sm text-white/85 transition hover:border-[var(--brass)]/50 hover:text-white"
+              >
+                {t("milanEyebrow")}
+              </Link>
+            ) : null}
           </div>
         </div>
       </section>
