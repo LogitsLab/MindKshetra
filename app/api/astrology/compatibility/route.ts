@@ -3,8 +3,7 @@ import { computeCompatibility } from "@/lib/astrology/compatibility";
 import { computeChart } from "@/lib/astrology/engine";
 import { mapMemberRow, memberToBirthInput } from "@/lib/astrology/members";
 import { ENGINE_VERSION, type ChartPayload } from "@/lib/astrology/types";
-import { FEATURES, hasEntitlement, paywallResponse } from "@/lib/entitlements";
-import { clientKey, rateLimit } from "@/lib/rateLimit";
+import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -19,7 +18,13 @@ export const dynamic = "force-dynamic";
  * signed-in user, and RLS on astrology_members backs that up.
  */
 export async function POST(request: NextRequest) {
-  const rl = await rateLimit(`astro:compat:${clientKey(request)}`, 20, 60_000);
+  // Keyed per-user when signed in so carrier-NAT users don't share a bucket.
+  const userId = await getSignedInUserId();
+  const rl = await rateLimit(
+    `astro:compat:${principalKey(userId, request)}`,
+    20,
+    60_000
+  );
   if (!rl.ok) {
     return NextResponse.json(
       { error: "Too many requests" },
@@ -27,13 +32,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const userId = await getSignedInUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-  }
-
-  if (!(await hasEntitlement(FEATURES.compatibility))) {
-    return paywallResponse(FEATURES.compatibility);
   }
 
   let body: { memberA?: string; memberB?: string };

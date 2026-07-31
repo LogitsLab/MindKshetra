@@ -16,6 +16,7 @@ import {
   mintChartSessionId,
   readChartSessionId,
 } from "@/lib/astrology/incognito";
+import { recordEvent } from "@/lib/events";
 import { redisEnabled, redisGet, redisSet } from "@/lib/redis";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 import { DateTime } from "luxon";
@@ -104,6 +105,7 @@ export async function POST(request: NextRequest) {
       if (birth) {
         const chart = liveChart(computeChart(birth), asOfDate);
         await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
+        await recordEvent("chart_cast", signedInUserId, { mode: "incognito" });
         return NextResponse.json({
           chartSessionId: session.id,
           sessionId: session.id, // deprecated alias, drop after one deploy
@@ -149,6 +151,7 @@ export async function POST(request: NextRequest) {
       JSON.stringify(chart),
       INCOGNITO_TTL_SEC
     );
+    await recordEvent("chart_cast", signedInUserId, { mode: "incognito" });
 
     return NextResponse.json({
       chartSessionId,
@@ -218,6 +221,8 @@ async function computeForMember(
     },
     { onConflict: "member_id,engine_version" }
   );
+
+  await recordEvent("chart_cast", userId, { mode: "member" });
 
   return NextResponse.json({
     memberId,

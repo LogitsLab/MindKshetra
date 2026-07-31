@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isEventName, recordEvent } from "@/lib/events";
-import { clientKey, rateLimit } from "@/lib/rateLimit";
+import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { getAuthUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -11,7 +11,9 @@ export const dynamic = "force-dynamic";
  * the body. Always answers 202 on accepted input — clients fire-and-forget.
  */
 export async function POST(request: NextRequest) {
-  const rl = await rateLimit(`events:${clientKey(request)}`, 60, 60_000);
+  // Keyed per-user when signed in so carrier-NAT users don't share a bucket.
+  const userId = await getAuthUserId();
+  const rl = await rateLimit(`events:${principalKey(userId, request)}`, 60, 60_000);
   if (!rl.ok) {
     return NextResponse.json({ ok: false }, { status: 429 });
   }
@@ -21,7 +23,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unknown event" }, { status: 400 });
   }
 
-  const userId = await getAuthUserId();
   const props =
     body.props && typeof body.props === "object" && !Array.isArray(body.props)
       ? (body.props as Record<string, unknown>)

@@ -1,5 +1,7 @@
 "use client";
 
+import { track } from "@/lib/track";
+
 type Props = {
   title: string;
   text: string;
@@ -18,6 +20,7 @@ export default function ShareButton({ title, text, url, imageUrl }: Props) {
     if (navigator.share) {
       try {
         await navigator.share(shareData);
+        track("share_card", { method: "native", url });
         return;
       } catch {
         /* fall through */
@@ -25,11 +28,13 @@ export default function ShareButton({ title, text, url, imageUrl }: Props) {
     }
 
     await navigator.clipboard.writeText(url);
+    track("share_card", { method: "copy", url });
     alert("Link copied.");
   }
 
   function downloadImage() {
     if (!imageUrl) return;
+    track("share_card", { method: "image", url });
     window.open(imageUrl, "_blank", "noopener,noreferrer");
   }
 

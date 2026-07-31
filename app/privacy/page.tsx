@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     "How MindKshetra collects, uses, and protects data on web and mobile.",
 };
 
-const updated = "29 July 2026";
+const updated = "31 July 2026";
 
 export default function PrivacyPage() {
   return (
@@ -78,6 +78,14 @@ export default function PrivacyPage() {
             <span className="text-[var(--text)]">Email preferences.</span> Whether
             you receive Verse of the Day emails (on by default until you turn
             them off).
+          </li>
+          <li>
+            <span className="text-[var(--text)]">Usage events (first-party).</span>{" "}
+            A small, fixed set of named product events — for example “verse
+            completed”, “streak recorded”, “chart cast” — stored with your
+            account id but without IP address or user agent. We use them only to
+            understand how the practice features serve people and to improve the
+            product. No third-party analytics, no advertising use.
           </li>
           <li>
             <span className="text-[var(--text)]">Technical data.</span> Basic

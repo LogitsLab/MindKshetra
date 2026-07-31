@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { recordEvent } from "@/lib/events";
 import { getSignedInUserId } from "@/lib/supabase/server";
 import { setCompletion, setCompletionsBulk } from "@/lib/progress";
 
@@ -20,6 +21,9 @@ export async function POST(request: NextRequest) {
     if ("error" in result) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
+    if (completed) {
+      await recordEvent("verse_completed", userId, { count: slokaIds.length });
+    }
     return NextResponse.json({ ok: true });
   }
 
@@ -30,6 +34,9 @@ export async function POST(request: NextRequest) {
   const result = await setCompletion(userId, slokaId, completed);
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 400 });
+  }
+  if (completed) {
+    await recordEvent("verse_completed", userId, { slokaId });
   }
   return NextResponse.json({ ok: true });
 }

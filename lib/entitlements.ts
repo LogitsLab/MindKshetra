@@ -1,38 +1,28 @@
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 
 /**
- * ceo/T12 — feature entitlements.
+ * ceo/T12, retired as a paywall (July 2026): MindKshetra is a nonprofit and
+ * every feature is free, forever. No route may gate on this module — the last
+ * gate (Kundli Milan compatibility) was removed with that decision, and
+ * `PAYWALL_ENABLED` is gone with it.
  *
- *   request ──▶ hasEntitlement(feature) ──┬─▶ true  ─▶ serve
- *                                         └─▶ false ─▶ 402 + upgrade copy
+ * The `entitlements` table (migration 009) stays for RECOGNITION only: a
+ * Sustainer badge granted by a future donation webhook. Its
+ * `external_ref UNIQUE` column makes webhook inserts idempotent, so a
+ * provider retrying a delivery can never double-grant.
  *
- * Provider-agnostic by design. eng/E15 (Razorpay onboarding) is weeks of
- * external process — entity registration, business KYC, RBI e-mandate approval
- * — so the gate ships and is testable now; a live provider only needs a webhook
- * that inserts rows.
- *
- * FAIL-OPEN is deliberate. If Supabase is unreachable we grant access rather
- * than deny it: a billing lookup outage must never lock a paying user out of
- * something they already bought. The revenue risk of a brief free window is far
- * smaller than the trust cost of "you paid and we locked you out".
+ * Grants are cosmetic, so lookups fail CLOSED (no badge on error) — the
+ * opposite of the old paywall's fail-open — because a `false` here never
+ * withholds anything of value.
  */
-export const FEATURES = {
-  /** Kundli Milan compatibility between two saved members. */
-  compatibility: "compatibility",
-  /** Long-form written predictions per life area. */
-  deepReading: "deep_reading",
+export const GRANTS = {
+  /** Recognition for donors. Never gates a feature. */
+  sustainerBadge: "supporter_badge",
 } as const;
 
-export type Feature = (typeof FEATURES)[keyof typeof FEATURES];
+export type Grant = (typeof GRANTS)[keyof typeof GRANTS];
 
-/** Paywall is off until a payment provider is live. Flip to enable gating. */
-export function paywallEnabled(): boolean {
-  return process.env.PAYWALL_ENABLED === "1";
-}
-
-export async function hasEntitlement(feature: Feature): Promise<boolean> {
-  if (!paywallEnabled()) return true;
-
+export async function hasGrant(grant: Grant): Promise<boolean> {
   try {
     const userId = await getSignedInUserId();
     if (!userId) return false;
@@ -42,11 +32,11 @@ export async function hasEntitlement(feature: Feature): Promise<boolean> {
       .from("entitlements")
       .select("id, expires_at")
       .eq("user_id", userId)
-      .eq("feature", feature);
+      .eq("feature", grant);
 
     if (error) {
-      console.warn("[entitlements] lookup failed, failing OPEN:", error.message);
-      return true;
+      console.warn("[entitlements] lookup failed:", error.message);
+      return false;
     }
 
     const now = Date.now();
@@ -55,21 +45,9 @@ export async function hasEntitlement(feature: Feature): Promise<boolean> {
     );
   } catch (err) {
     console.warn(
-      "[entitlements] lookup threw, failing OPEN:",
+      "[entitlements] lookup threw:",
       err instanceof Error ? err.message : String(err)
     );
-    return true;
+    return false;
   }
-}
-
-/** 402 with copy that says what is locked and what unlocks it. */
-export function paywallResponse(feature: Feature): Response {
-  return new Response(
-    JSON.stringify({
-      error: "This feature needs an active plan.",
-      feature,
-      upgrade: "/account",
-    }),
-    { status: 402, headers: { "Content-Type": "application/json" } }
-  );
 }

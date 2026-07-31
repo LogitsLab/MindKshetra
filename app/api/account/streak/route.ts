@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { recordEvent } from "@/lib/events";
 import { getStreak, isValidTimezone, recordVisit } from "@/lib/streaks";
 import { getAuthUserId } from "@/lib/supabase/server";
 
@@ -21,5 +22,6 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
   const timezone = isValidTimezone(body?.timezone) ? body.timezone : undefined;
   const streak = await recordVisit(userId, timezone);
+  await recordEvent("streak_recorded", userId, { current: streak.current });
   return NextResponse.json(streak);
 }
