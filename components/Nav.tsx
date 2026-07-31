@@ -20,6 +20,7 @@ export default function Nav() {
     { href: "/explore", label: t("navExplore") },
     { href: "/mood", label: t("navMood") },
     { href: "/astrology", label: t("navAstrology") },
+    { href: "/panchang", label: t("navPanchang") },
     { href: "/madhav", label: t("navMadhav") },
   ];
 

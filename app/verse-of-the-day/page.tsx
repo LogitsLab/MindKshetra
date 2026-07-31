@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SlokaPageClient from "@/components/SlokaPageClient";
 import { getChapterMeta } from "@/lib/chapters";
-import { getVerseOfTheDay } from "@/lib/day-seed";
+import { getVerseOfTheDaySelection } from "@/lib/day-seed";
 import {
   formatVerseRef,
   getAdjacentSlokas,
@@ -16,7 +16,8 @@ export const dynamic = "force-static";
 export const revalidate = 3600;
 
 export default async function VerseOfTheDayPage() {
-  const sloka = await getVerseOfTheDay();
+  const selection = await getVerseOfTheDaySelection();
+  const sloka = selection?.sloka ?? null;
 
   if (!sloka) {
     return <p className="text-[var(--text-muted)]">Verse unavailable.</p>;
@@ -42,6 +43,11 @@ export default async function VerseOfTheDayPage() {
         <p className="mt-3 font-display text-lg leading-relaxed text-[var(--text-muted)]">
           {preview.join(" ")}
         </p>
+        {selection?.nakshatra ? (
+          <p className="mt-2 text-sm font-light text-[var(--text-muted)]">
+            Chosen for today&rsquo;s Moon in {selection.nakshatra.name}
+          </p>
+        ) : null}
         <Link
           href="/madhav"
           className="mt-4 inline-block text-sm text-[var(--brass-soft)] hover:underline"

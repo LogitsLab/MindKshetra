@@ -11,6 +11,7 @@ const {
   calc_ut,
   get_ayanamsa_ut,
   houses_ex,
+  rise_trans,
   close,
 } = sweph;
 
@@ -312,6 +313,49 @@ export function calcAyanamsa(
 ): number {
   setSiderealMode(sidereal);
   return get_ayanamsa_ut(jdUt);
+}
+
+/**
+ * Next sunrise/sunset (jd UT) at or after jdUt for a location. Uses the Hindu
+ * rising convention (disc center, no refraction) — the instant classical
+ * panchang elements are read at. Same Swiss→Moshier retry discipline as
+ * calcPlanetLongitude: only Swiss may fall back, a Moshier failure is real.
+ */
+export function calcSunTransit(
+  jdUt: number,
+  kind: "rise" | "set",
+  lat: number,
+  lng: number
+): number {
+  initSweph();
+  const rsmi =
+    (kind === "rise" ? constants.SE_CALC_RISE : constants.SE_CALC_SET) |
+    constants.SE_BIT_HINDU_RISING;
+  const geopos: [number, number, number] = [lng, lat, 0];
+  const usingSwiss = effectiveMode() === "swiss";
+  const eph = usingSwiss ? constants.SEFLG_SWIEPH : constants.SEFLG_MOSEPH;
+
+  const result = rise_trans(jdUt, constants.SE_SUN, null, eph, rsmi, geopos, 0, 0);
+  if (result.flag < 0) {
+    if (!usingSwiss) {
+      throw new Error(result.error || `rise_trans failed (${kind})`);
+    }
+    const retry = rise_trans(
+      jdUt,
+      constants.SE_SUN,
+      null,
+      constants.SEFLG_MOSEPH,
+      rsmi,
+      geopos,
+      0,
+      0
+    );
+    if (retry.flag < 0) {
+      throw new Error(retry.error || `rise_trans failed (${kind})`);
+    }
+    return retry.data;
+  }
+  return result.data;
 }
 
 /** Placidus house cusps (sidereal), returns cusps 1–12. */
