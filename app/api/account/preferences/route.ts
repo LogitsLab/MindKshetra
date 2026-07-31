@@ -11,6 +11,10 @@ export type UserPreferences = {
   about: string;
   timezone: string | null;
   email: string | null;
+  notifDailyVerse: boolean;
+  notifDailyVerseHour: number;
+  notifStreakReminder: boolean;
+  notifCommunity: boolean;
 };
 
 const DEFAULTS = {
@@ -21,7 +25,14 @@ const DEFAULTS = {
   preferredLanguage: null as "en" | "hi" | null,
   about: "",
   timezone: null as string | null,
+  notifDailyVerse: false,
+  notifDailyVerseHour: 8,
+  notifStreakReminder: false,
+  notifCommunity: true,
 };
+
+const PREF_COLUMNS =
+  "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone, notif_daily_verse, notif_daily_verse_hour, notif_streak_reminder, notif_community";
 
 function normalizeLang(value: unknown): "en" | "hi" | null {
   if (value === "en" || value === "hi") return value;
@@ -43,6 +54,10 @@ function mapRow(
     preferred_language?: string | null;
     about?: string | null;
     timezone?: string | null;
+    notif_daily_verse?: boolean | null;
+    notif_daily_verse_hour?: number | null;
+    notif_streak_reminder?: boolean | null;
+    notif_community?: boolean | null;
   } | null,
   email: string | null
 ): UserPreferences {
@@ -55,6 +70,12 @@ function mapRow(
     about: data?.about ?? "",
     timezone: data?.timezone ?? null,
     email,
+    notifDailyVerse: data?.notif_daily_verse ?? DEFAULTS.notifDailyVerse,
+    notifDailyVerseHour:
+      data?.notif_daily_verse_hour ?? DEFAULTS.notifDailyVerseHour,
+    notifStreakReminder:
+      data?.notif_streak_reminder ?? DEFAULTS.notifStreakReminder,
+    notifCommunity: data?.notif_community ?? DEFAULTS.notifCommunity,
   };
 }
 
@@ -71,9 +92,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("user_preferences")
-    .select(
-      "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone"
-    )
+    .select(PREF_COLUMNS)
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -102,9 +121,7 @@ export async function PATCH(request: NextRequest) {
 
   const { data: existing } = await supabase
     .from("user_preferences")
-    .select(
-      "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone"
-    )
+    .select(PREF_COLUMNS)
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -142,8 +159,36 @@ export async function PATCH(request: NextRequest) {
         : body.timezone === null
           ? null
           : (existing?.timezone ?? null),
+    notif_daily_verse:
+      typeof body.notifDailyVerse === "boolean"
+        ? body.notifDailyVerse
+        : (existing?.notif_daily_verse ?? DEFAULTS.notifDailyVerse),
+    notif_daily_verse_hour:
+      typeof body.notifDailyVerseHour === "number"
+        ? body.notifDailyVerseHour
+        : (existing?.notif_daily_verse_hour ?? DEFAULTS.notifDailyVerseHour),
+    notif_streak_reminder:
+      typeof body.notifStreakReminder === "boolean"
+        ? body.notifStreakReminder
+        : (existing?.notif_streak_reminder ?? DEFAULTS.notifStreakReminder),
+    notif_community:
+      typeof body.notifCommunity === "boolean"
+        ? body.notifCommunity
+        : (existing?.notif_community ?? DEFAULTS.notifCommunity),
     updated_at: new Date().toISOString(),
   };
+
+  if (
+    typeof body.notifDailyVerseHour === "number" &&
+    (!Number.isInteger(body.notifDailyVerseHour) ||
+      body.notifDailyVerseHour < 4 ||
+      body.notifDailyVerseHour > 22)
+  ) {
+    return NextResponse.json(
+      { error: "notifDailyVerseHour must be an integer between 4 and 22" },
+      { status: 400 }
+    );
+  }
 
   if (typeof body.timezone === "string" && !isValidTimezone(body.timezone)) {
     return NextResponse.json(
@@ -181,7 +226,11 @@ export async function PATCH(request: NextRequest) {
     body.preferredLanguage !== undefined ||
     typeof body.about === "string" ||
     typeof body.timezone === "string" ||
-    body.timezone === null;
+    body.timezone === null ||
+    typeof body.notifDailyVerse === "boolean" ||
+    typeof body.notifDailyVerseHour === "number" ||
+    typeof body.notifStreakReminder === "boolean" ||
+    typeof body.notifCommunity === "boolean";
 
   if (!hasAnyField) {
     return NextResponse.json(
@@ -193,9 +242,7 @@ export async function PATCH(request: NextRequest) {
   const { data, error } = await supabase
     .from("user_preferences")
     .upsert(next, { onConflict: "user_id" })
-    .select(
-      "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone"
-    )
+    .select(PREF_COLUMNS)
     .single();
 
   if (error) {

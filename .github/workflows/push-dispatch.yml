@@ -1,0 +1,30 @@
+name: Push dispatch
+
+# Half-hourly tick for /api/cron/push-dispatch (per-user local-hour windows
+# need finer granularity than Vercel cron offers on this plan; a few minutes
+# of GitHub cron jitter is fine for a morning verse).
+#
+# Harmless until mobile ships expo-notifications and users opt in — the
+# route answers {sent: 0} when no cohort is due. Requires the CRON_SECRET
+# repository secret to match the Vercel env var of the same name.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: push-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call dispatcher
+        run: |
+          curl -fsS --max-time 90 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ vars.PUSH_DISPATCH_URL || 'https://mind.logitslab.com/api/cron/push-dispatch' }}"
