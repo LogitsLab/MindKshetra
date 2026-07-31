@@ -3,6 +3,7 @@ import * as gita from "@/lib/i18n/namespaces/gita";
 import * as astrology from "@/lib/i18n/namespaces/astrology";
 import * as account from "@/lib/i18n/namespaces/account";
 import * as chat from "@/lib/i18n/namespaces/chat";
+import * as sadhana from "@/lib/i18n/namespaces/sadhana";
 
 /**
  * i18n entry point.
@@ -36,6 +37,7 @@ export const dictionary = {
     ...astrology.en,
     ...account.en,
     ...chat.en,
+    ...sadhana.en,
   },
   hi: {
     ...shared.hi,
@@ -43,6 +45,7 @@ export const dictionary = {
     ...astrology.hi,
     ...account.hi,
     ...chat.hi,
+    ...sadhana.hi,
   },
 } as const;
 

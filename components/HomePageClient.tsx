@@ -147,6 +147,12 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
             >
               {t("homeVotdLink")}
             </Link>
+            <Link
+              href="/sadhana"
+              className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
+            >
+              {t("sadhanaHomeLink")}
+            </Link>
             {streak > 0 ? (
               <span
                 className="min-h-11 px-2 py-3 text-sm text-[var(--brass)]"
