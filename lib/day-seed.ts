@@ -32,7 +32,9 @@ export type VotdSelection = {
  * the site; one shared sky wins. Ephemeris only, no LLM. Returns null when the
  * engine is unavailable so callers can fall back.
  */
-export function getTodaysNakshatra(now = new Date()): TodaysNakshatra | null {
+export async function getTodaysNakshatra(
+  now = new Date()
+): Promise<TodaysNakshatra | null> {
   try {
     // The IST calendar date, then 06:00 IST === 00:30 UTC on that date.
     const [y, m, d] = new Intl.DateTimeFormat("en-CA", {
@@ -47,10 +49,10 @@ export function getTodaysNakshatra(now = new Date()): TodaysNakshatra | null {
 
     // Loaded lazily so a missing native sweph build never breaks the
     // whole-corpus fallback path below.
-    const { utcPartsToJd, calcPlanetLongitude } =
-      require("@/lib/astrology/swe") as typeof import("@/lib/astrology/swe");
-    const { longitudeToNakshatra } =
-      require("@/lib/astrology/signs") as typeof import("@/lib/astrology/signs");
+    const { utcPartsToJd, calcPlanetLongitude } = await import(
+      "@/lib/astrology/swe"
+    );
+    const { longitudeToNakshatra } = await import("@/lib/astrology/signs");
 
     const { jdUt } = utcPartsToJd(y, m, d, 0, 30, 0);
     const moon = calcPlanetLongitude(jdUt, "moon");
@@ -102,7 +104,7 @@ export async function getVerseOfTheDaySelection(
 }
 
 async function computeSelection(now: Date): Promise<VotdSelection | null> {
-  const nakshatra = getTodaysNakshatra(now);
+  const nakshatra = await getTodaysNakshatra(now);
   if (nakshatra) {
     try {
       const tags = NAKSHATRA_TAGS[nakshatra.name as keyof typeof NAKSHATRA_TAGS];
