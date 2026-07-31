@@ -29,6 +29,9 @@ export type DailyPanchang = BirthPanchang & {
   isEkadashi: boolean;
   isPurnima: boolean;
   isAmavasya: boolean;
+  /** Sidereal (Lahiri) longitudes at sunrise — festival math reads these. */
+  sunLongitude: number;
+  moonLongitude: number;
 };
 
 const DAY_MS = 86_400_000;
@@ -144,5 +147,7 @@ export function computeDailyPanchang(
     isEkadashi: base.tithiIndex % 15 === 10,
     isPurnima: base.tithiIndex === 14,
     isAmavasya: base.tithiIndex === 29,
+    sunLongitude: norm(sunAtRise),
+    moonLongitude: norm(moonAtRise),
   };
 }
