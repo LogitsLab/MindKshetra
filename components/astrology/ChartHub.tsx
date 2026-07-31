@@ -5,6 +5,7 @@ import AstroChat, { type AstroChatMessage } from "@/components/astrology/AstroCh
 import DashaTimeline from "@/components/astrology/DashaTimeline";
 import NorthIndianChart from "@/components/astrology/NorthIndianChart";
 import PlanetDetailSheet from "@/components/astrology/PlanetDetailSheet";
+import PressurePracticeCard from "@/components/astrology/PressurePracticeCard";
 import SouthIndianChart from "@/components/astrology/SouthIndianChart";
 import { useLanguage } from "@/components/LanguageProvider";
 import {
@@ -633,6 +634,8 @@ export default function ChartHub({
               </p>
             </div>
           ) : null}
+
+          {memberId ? <PressurePracticeCard memberId={memberId} /> : null}
 
           <div>
             <button

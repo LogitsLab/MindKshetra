@@ -117,6 +117,11 @@ export const en = {
   moodEyebrow: "Match the field to your state",
   moodTitle: "Mood",
   moodIntro: "Name how you feel. We’ll gather verses that speak to that place.",
+  moodChartOrderToggle: "Order alongside my chart",
+  moodChartOrderLoading: "Reading your chart…",
+  moodChartOrderOn: "Ordered alongside your chart — tension areas first.",
+  moodChartOrderUnavailable:
+    "Needs a signed-in account with a cast chart. The usual order stays.",
   allMoods: "← All moods",
   matchedVerses: "matched verses",
   matchedVerse: "matched verse",
@@ -239,6 +244,11 @@ export const hi: Record<keyof typeof en, string> = {
   moodEyebrow: "अपनी अवस्था से क्षेत्र मिलाएँ",
   moodTitle: "मनोदशा",
   moodIntro: "कैसा महसूस हो रहा है, बताएँ। हम उससे जुड़े श्लोक लाएँगे।",
+  moodChartOrderToggle: "मेरी कुंडली के साथ क्रम",
+  moodChartOrderLoading: "कुंडली पढ़ी जा रही है…",
+  moodChartOrderOn: "कुंडली के साथ क्रमित — दबाव वाले क्षेत्र पहले।",
+  moodChartOrderUnavailable:
+    "इसके लिए साइन इन और एक बनी कुंडली चाहिए। सामान्य क्रम बना रहेगा।",
   allMoods: "← सभी मनोदशाएँ",
   matchedVerses: "मिलते श्लोक",
   matchedVerse: "मिलता श्लोक",

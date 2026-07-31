@@ -191,6 +191,36 @@ export const en = {
   milanNoteNadi: "Constitutional complement.",
   milanNoteNadiSame:
     "Same nadi. Classical texts list several exceptions that cancel this; they are not modelled here.",
+  ppEyebrow: "Pressure → practice",
+  ppActionLabel: "One small action today",
+  ppReadVerse: "Read the full verse",
+  ppProvenance: "Read alongside your chart — a companion, not a verdict.",
+  ppAction_career_0:
+    "Do the next task fully, then stop. One thing done with attention.",
+  ppAction_career_1:
+    "Write down the one duty you are avoiding, and do its first five minutes.",
+  ppAction_career_2:
+    "Finish today without once checking the result of yesterday's work.",
+  ppAction_marriage_0:
+    "Say one honest, kind sentence to someone close today.",
+  ppAction_marriage_1:
+    "Listen to one person today without planning your reply.",
+  ppAction_marriage_2: "Let one small irritation pass unanswered today.",
+  ppAction_health_0: "Sit for five unhurried breaths before your next meal.",
+  ppAction_health_1: "Take one short walk without your phone.",
+  ppAction_health_2: "Go to bed ten minutes earlier tonight.",
+  ppAction_finance_0:
+    "Note one thing you already have that is enough today.",
+  ppAction_finance_1: "Delay one non-essential purchase by a day.",
+  ppAction_finance_2: "Give something small away today — time counts.",
+  ppAction_education_0: "Read one page slowly, twice.",
+  ppAction_education_1: "Practice the hardest part first, for ten minutes.",
+  ppAction_education_2:
+    "Explain today's one idea to someone in plain words.",
+  ppAction_travel_0: "Plan the first step only; let the rest wait.",
+  ppAction_travel_1:
+    "Carry one fear through today without arguing with it.",
+  ppAction_travel_2: "Notice one unfamiliar thing on a familiar route.",
   astroVaar: "Weekday",
   astroDignity: "Dignity",
   astroDashaTimeline: "Current mahadasha timeline",
@@ -453,6 +483,36 @@ export const hi: Record<keyof typeof en, string> = {
   milanNoteNadi: "प्रकृति का परस्पर पूरक होना।",
   milanNoteNadiSame:
     "एक ही नाड़ी। शास्त्रों में इसे निरस्त करने वाले कई अपवाद हैं; वे यहाँ शामिल नहीं हैं।",
+  ppEyebrow: "दबाव → अभ्यास",
+  ppActionLabel: "आज एक छोटा कदम",
+  ppReadVerse: "पूरा श्लोक पढ़ें",
+  ppProvenance: "कुंडली के साथ पढ़ा गया — एक साथी, कोई फ़ैसला नहीं।",
+  ppAction_career_0:
+    "अगला काम पूरे मन से करें, फिर रुकें। ध्यान से किया गया एक काम।",
+  ppAction_career_1:
+    "जिस कर्तव्य को टाल रहे हैं उसे लिखें, और उसके पहले पाँच मिनट कर डालें।",
+  ppAction_career_2:
+    "आज कल के काम का परिणाम एक बार भी देखे बिना दिन पूरा करें।",
+  ppAction_marriage_0:
+    "आज किसी अपने से एक सच्ची, कोमल बात कहें।",
+  ppAction_marriage_1:
+    "आज एक व्यक्ति को बिना जवाब सोचे सुनें।",
+  ppAction_marriage_2: "आज एक छोटी सी खीझ को बिना उत्तर दिए जाने दें।",
+  ppAction_health_0: "अगले भोजन से पहले पाँच धीमी साँसों के लिए बैठें।",
+  ppAction_health_1: "फ़ोन के बिना एक छोटी सैर करें।",
+  ppAction_health_2: "आज रात दस मिनट पहले सो जाएँ।",
+  ppAction_finance_0:
+    "एक चीज़ लिखें जो आपके पास पहले से है और आज के लिए पर्याप्त है।",
+  ppAction_finance_1: "एक ग़ैर-ज़रूरी ख़रीद को एक दिन टाल दें।",
+  ppAction_finance_2: "आज कुछ छोटा सा दान करें — समय भी दान है।",
+  ppAction_education_0: "एक पृष्ठ धीरे-धीरे, दो बार पढ़ें।",
+  ppAction_education_1: "सबसे कठिन हिस्से का अभ्यास पहले करें, दस मिनट।",
+  ppAction_education_2:
+    "आज की एक बात किसी को सरल शब्दों में समझाएँ।",
+  ppAction_travel_0: "केवल पहला कदम तय करें; बाक़ी को रुकने दें।",
+  ppAction_travel_1:
+    "आज एक डर को बिना उससे बहस किए साथ लेकर चलें।",
+  ppAction_travel_2: "जानी-पहचानी राह पर एक नई चीज़ देखें।",
   astroVaar: "वार",
   astroDignity: "बल",
   astroDashaTimeline: "वर्तमान महादशा समयरेखा",
