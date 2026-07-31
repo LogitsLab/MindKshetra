@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import CompleteVerseButton from "@/components/CompleteVerseButton";
 import FavoriteButton from "@/components/FavoriteButton";
 import JournalBox from "@/components/JournalBox";
+import VerseReflections from "@/components/VerseReflections";
 import ShareButton from "@/components/ShareButton";
 import VerseStory from "@/components/VerseStory";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -369,6 +370,7 @@ export default function SlokaDetail({
       </div>
 
       <JournalBox slokaId={sloka.id} />
+      <VerseReflections slokaId={sloka.id} />
     </article>
   );
 }

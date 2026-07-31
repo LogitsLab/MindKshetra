@@ -11,10 +11,15 @@ type Props = {
 
 export default function JournalBox({ slokaId }: Props) {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [reflection, setReflection] = useState("");
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [savedId, setSavedId] = useState<number | null>(null);
+  const [shareState, setShareState] = useState<
+    "idle" | "sharing" | "shared" | "held"
+  >("idle");
+  const [shareNotice, setShareNotice] = useState<string | null>(null);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -30,11 +35,41 @@ export default function JournalBox({ slokaId }: Props) {
         body: JSON.stringify({ slokaId, reflection: text }),
       });
       if (res.ok) {
+        const data = await res.json().catch(() => null);
         setSaved(true);
+        setSavedId(typeof data?.id === "number" ? data.id : null);
+        setShareState("idle");
+        setShareNotice(null);
         setReflection("");
       }
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function share() {
+    if (!savedId) return;
+    setShareState("sharing");
+    setShareNotice(null);
+    try {
+      const res = await fetch(`/api/journal/${savedId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ visibility: "shared", language: lang }),
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.shared) {
+        setShareState("shared");
+      } else if (res.ok && data?.held) {
+        setShareState("held");
+        // Crisis holds carry the helpline text — show it verbatim, gently.
+        if (typeof data?.message === "string") setShareNotice(data.message);
+      } else {
+        setShareState("idle");
+        if (typeof data?.error === "string") setShareNotice(data.error);
+      }
+    } catch {
+      setShareState("idle");
     }
   }
 
@@ -77,6 +112,37 @@ export default function JournalBox({ slokaId }: Props) {
       >
         {saved ? t("journalSaved") : t("journalSave")}
       </button>
+
+      {saved && savedId ? (
+        <div className="pt-1">
+          {shareState === "shared" ? (
+            <p className="text-sm text-[var(--brass-soft)]">
+              {t("reflectShared")}
+            </p>
+          ) : shareState === "held" ? (
+            <p className="text-sm text-[var(--text-muted)]">{t("reflectHeld")}</p>
+          ) : (
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => void share()}
+                disabled={shareState === "sharing"}
+                className="min-h-10 border border-[var(--line)] px-3 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
+              >
+                {t("reflectShare")}
+              </button>
+              <span className="text-xs font-light text-[var(--text-muted)]">
+                {t("reflectShareConsent")}
+              </span>
+            </div>
+          )}
+          {shareNotice ? (
+            <p className="mt-3 whitespace-pre-line border-l-2 border-[var(--brass)]/60 pl-3 text-sm leading-relaxed text-[var(--text-muted)]">
+              {shareNotice}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </form>
   );
 }
