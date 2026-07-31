@@ -206,3 +206,51 @@ Chat and story generation are rate-limited per IP via Upstash Redis when configu
 ## Content source
 
 Set `CONTENT_SOURCE=db` with Supabase configured to serve verses from Postgres. Default `json` reads `data/slokas.json` locally.
+
+---
+
+## Practice & community (nonprofit pivot, dev branch)
+
+### `GET /api/sadhana?tz=<iana>`
+
+Practice summary for the authed user (anonymous sessions included): `{ today, doneToday: ("flow"|"japa"|"sit"|"pranayama")[], streaks: [{practice, current, longest, lastDay}] }`.
+
+### `POST /api/sadhana`
+
+Log a practice session. Body `{ practice, occurredOn?, durationSec?, count?, details?, clientRef? (uuid), timezone? }` → `{ ok, occurredOn, streak: {current, longest, graceUsedToday?} }`. A one-day gap consumes one grace per rolling week instead of resetting the streak.
+
+### `POST /api/sadhana/merge`
+
+Replay a device-local guest log after sign-in. Body `{ sessions: [{practice, occurredOn, durationSec?, count?, clientRef}], timezone? }`. Idempotent via `(user_id, client_ref)`.
+
+### `GET /api/panchang?date&lat&lng`
+
+Daily panchang (defaults to New Delhi). Elements read at local sunrise (Hindu rising, Lahiri ayanamsa) with tithi/nakshatra end times, sunrise/sunset, ekadashi/purnima/amavasya flags. Cached per day + rounded location.
+
+### `GET /api/panchang/calendar?month=YYYY-MM&lat&lng`
+
+Month of computed observances: ekadashis, purnima, amavasya, sankrantis. Named-festival table is deliberately deferred.
+
+### `POST /api/astrology/compatibility`
+
+(Existing endpoint, now ungated — the paywall was removed with the nonprofit decision. 402 no longer occurs.)
+
+### `POST /api/moods/order`
+
+Chart-aware mood ordering for a saved member: `{ memberId }` → `{ order: string[], basis: [{lifeArea, score}] }`. Fail-soft contract: clients keep the static order on any error.
+
+### `GET|PUT|DELETE /api/profile` · `GET /api/profiles/[handle]`
+
+Opt-in public profile (signed-in, non-anonymous). PUT screens display name/bio; handles are `[a-z0-9_]{3,24}` minus a reserved list. Public read via `/api/profiles/[handle]` and the `/u/[handle]` page.
+
+### `POST /api/report` · `GET|POST|DELETE /api/blocks`
+
+Report content into the human review queue (signed-in, 20/day) and manage a personal block list.
+
+### `POST|DELETE /api/push/register` · `GET /api/cron/push-dispatch`
+
+Expo push token registry and the half-hourly dispatcher (GitHub Actions cron, `CRON_SECRET` Bearer). Kinds: `daily_verse` at the user's chosen local hour, `streak_reminder` at 20:00 local; `push_sends` makes reruns idempotent.
+
+### `GET /api/votd/today`
+
+Response now includes optional `nakshatra` (e.g. `"Rohini"`) when the day's verse was selected by the Moon's nakshatra.
