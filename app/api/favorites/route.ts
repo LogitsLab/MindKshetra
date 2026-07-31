@@ -1,15 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUserId } from "@/lib/supabase/server";
-import { getSlokaById } from "@/lib/slokas";
+import { getSlokasByIds } from "@/lib/slokas";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
 
   const supabase = await createClient();
+
+  // Existence check for a single verse: GET /api/favorites?slokaId=42
+  const slokaIdParam = request.nextUrl.searchParams.get("slokaId");
+  if (slokaIdParam !== null) {
+    const slokaId = Number(slokaIdParam);
+    if (!Number.isInteger(slokaId)) {
+      return NextResponse.json({ error: "Invalid slokaId" }, { status: 400 });
+    }
+    const { data, error } = await supabase
+      .from("favorites")
+      .select("sloka_id")
+      .eq("user_id", userId)
+      .eq("sloka_id", slokaId)
+      .maybeSingle();
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ saved: Boolean(data) });
+  }
+
   const { data, error } = await supabase
     .from("favorites")
     .select("sloka_id, created_at")
@@ -20,11 +40,7 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const slokas = [];
-  for (const row of data ?? []) {
-    const sloka = await getSlokaById(row.sloka_id);
-    if (sloka) slokas.push(sloka);
-  }
+  const slokas = await getSlokasByIds((data ?? []).map((row) => row.sloka_id));
 
   return NextResponse.json({ slokas });
 }

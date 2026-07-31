@@ -1,22 +1,10 @@
 import "server-only";
-import {
-  formatVerseRef,
-  getAllSlokas,
-  getSlokaById,
-  getTeachingPassage,
-} from "@/lib/slokas";
+import { daySeed, getVerseOfTheDay } from "@/lib/day-seed";
+import { formatVerseRef, getTeachingPassage } from "@/lib/slokas";
 import { getCachedStory } from "@/lib/stories";
 import type { Sloka } from "@/lib/types";
 
-export function daySeed(now = new Date()): number {
-  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
-  const today = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate()
-  );
-  return Math.floor((today - start) / 86_400_000);
-}
+export { daySeed };
 
 function escapeHtml(text: string): string {
   return text
@@ -156,10 +144,7 @@ export type VotdPayload = {
 };
 
 export async function loadTodaysVotdPayload(): Promise<VotdPayload | null> {
-  const all = await getAllSlokas();
-  const seed = daySeed();
-  const sloka =
-    (await getSlokaById(all[seed % all.length]?.id ?? 1)) ?? all[0];
+  const sloka = await getVerseOfTheDay();
   if (!sloka) return null;
 
   const passage = await getTeachingPassage(sloka.id);

@@ -2,10 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useProgress } from "@/components/ProgressProvider";
+
+const RETURN_TO_KEY = "mindkshetra-return-to";
 
 const fieldClass =
   "w-full border border-[var(--line)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)] outline-none transition placeholder:text-[var(--text-muted)]/55 focus:border-[var(--brass)]/55";
@@ -25,6 +28,8 @@ export default function AccountPageClient() {
   } = useAuth();
   const { t } = useLanguage();
   const { continueSlokaId } = useProgress();
+  const router = useRouter();
+  const [notice, setNotice] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -49,21 +54,63 @@ export default function AccountPageClient() {
   const [profileStatus, setProfileStatus] = useState<
     "idle" | "saving" | "saved"
   >("idle");
+  const [deleteStage, setDeleteStage] = useState<
+    "idle" | "confirming" | "deleting"
+  >("idle");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  async function onDeleteAccount() {
+    setDeleteStage("deleting");
+    setDeleteError(null);
+    try {
+      const res = await fetch("/api/account/delete", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || t("deleteAccountFailed"));
+      }
+      await signOut();
+      window.location.href = "/";
+    } catch (err) {
+      setDeleteError(
+        err instanceof Error ? err.message : t("deleteAccountFailed")
+      );
+      setDeleteStage("idle");
+    }
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const authError = params.get("auth_error");
-    if (!authError) return;
+    const intent = params.get("intent");
+    if (!authError && !intent) return;
     if (authError === "otp_expired") setError(t("authLinkExpired"));
-    else setError(t("authLinkFailed"));
-    setEmailOpen(true);
+    else if (authError) setError(t("authLinkFailed"));
+    if (authError) setEmailOpen(true);
+    if (intent === "save-chart") setNotice(t("astroSaveGuestReturn"));
     params.delete("auth_error");
+    params.delete("intent");
     const clean = `${window.location.pathname}${
       params.toString() ? `?${params}` : ""
     }`;
     window.history.replaceState({}, "", clean);
   }, [t]);
+
+  // A flow that sent the user here to sign in (e.g. saving an incognito
+  // chart) leaves an internal path in sessionStorage; bounce back once the
+  // sign-in completes.
+  useEffect(() => {
+    if (!user || user.is_anonymous) return;
+    try {
+      const returnTo = sessionStorage.getItem(RETURN_TO_KEY);
+      if (returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")) {
+        sessionStorage.removeItem(RETURN_TO_KEY);
+        router.replace(returnTo);
+      }
+    } catch {
+      // sessionStorage unavailable — stay on the account page.
+    }
+  }, [user, router]);
 
   useEffect(() => {
     if (!user || user.is_anonymous) {
@@ -578,6 +625,53 @@ export default function AccountPageClient() {
           >
             {t("signOut")}
           </button>
+
+          {deleteStage === "idle" ? (
+            <p>
+              <button
+                type="button"
+                onClick={() => setDeleteStage("confirming")}
+                className="text-xs text-[var(--text-muted)] transition hover:text-[var(--danger)]"
+              >
+                {t("deleteAccount")}
+              </button>
+            </p>
+          ) : (
+            <div className="space-y-3 border border-[var(--danger)]/35 px-4 py-4">
+              <p className="text-sm leading-relaxed text-[var(--text-soft)]">
+                {t("deleteAccountBlurb")}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  disabled={deleteStage === "deleting"}
+                  onClick={() => void onDeleteAccount()}
+                  className="border border-[var(--danger)]/60 px-3 py-2 text-sm text-[var(--danger)] transition hover:bg-[var(--danger)]/10 disabled:opacity-50"
+                >
+                  {deleteStage === "deleting"
+                    ? t("deleteAccountBusy")
+                    : t("deleteAccountConfirm")}
+                </button>
+                <button
+                  type="button"
+                  disabled={deleteStage === "deleting"}
+                  onClick={() => {
+                    setDeleteStage("idle");
+                    setDeleteError(null);
+                  }}
+                  className="px-3 py-2 text-sm text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50"
+                >
+                  {t("deleteAccountCancel")}
+                </button>
+              </div>
+              {deleteError ? (
+                <p className="text-sm text-[var(--danger)]" role="alert">
+                  {deleteError}
+                </p>
+              ) : null}
+            </div>
+          )}
+
           <p>
             <Link
               href="/privacy"
@@ -624,6 +718,14 @@ export default function AccountPageClient() {
         </header>
 
         <div className="relative mt-8 space-y-5">
+          {notice ? (
+            <p
+              className="border border-[var(--brass)]/30 bg-[var(--brass)]/8 px-4 py-3 text-sm leading-relaxed text-[var(--brass-soft)]"
+              role="status"
+            >
+              {notice}
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={() => void onGoogle()}

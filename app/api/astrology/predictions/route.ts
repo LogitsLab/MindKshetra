@@ -13,9 +13,10 @@ import { memoryGet, memorySet } from "@/lib/astrology/memory-cache";
 import {
   INCOGNITO_TTL_SEC,
   incognitoKey,
+  incognitoMissReason,
   readChartSessionId,
 } from "@/lib/astrology/incognito";
-import { redisGet, redisSet } from "@/lib/redis";
+import { redisEnabled, redisGet, redisSet } from "@/lib/redis";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 import { DateTime } from "luxon";
 
@@ -34,10 +35,15 @@ function liveChart(chart: ChartPayload): ChartPayload {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// The write-up is a single long Groq completion; platform-default timeouts
+// can cut it off mid-generation and surface as an opaque fetch failure.
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
+  // Keyed per-user when signed in so carrier-NAT users don't share a bucket.
+  const signedInUserId = await getSignedInUserId();
   const rl = await rateLimit(
-    `astro:predict:${clientKey(request)}`,
+    `astro:predict:${signedInUserId ?? clientKey(request)}`,
     10,
     60_000
   );
@@ -65,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     if (body.memberId) {
       memberId = String(body.memberId);
-      const userId = await getSignedInUserId();
+      const userId = signedInUserId;
       if (!userId) {
         return NextResponse.json({ error: "Not signed in" }, { status: 401 });
       }
@@ -177,8 +183,18 @@ export async function POST(request: NextRequest) {
           source: chart.predictionsText.source ?? "llm",
         });
       }
+      // Same contract as /api/astrology/compute: `recoverable` tells the
+      // client to re-send `birth`, which it holds locally.
+      const reason = incognitoMissReason(redisEnabled());
       return NextResponse.json(
-        { error: "Session expired — cast the chart again" },
+        {
+          error:
+            reason === "cache-unavailable"
+              ? "Chart cache unavailable — resend birth details"
+              : "Session expired — cast the chart again",
+          reason,
+          recoverable: true,
+        },
         { status: 404 }
       );
     }

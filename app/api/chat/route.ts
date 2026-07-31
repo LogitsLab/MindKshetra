@@ -20,6 +20,9 @@ import type { ChatMessage } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Streams a Groq completion (plus a chart compute on the astrology branch);
+// platform-default timeouts can kill the stream mid-reply.
+export const maxDuration = 60;
 
 const SSE_HEADERS = {
   "Content-Type": "text/event-stream; charset=utf-8",
@@ -119,7 +122,13 @@ async function loadChartForChat(body: ChatBody) {
 
 export async function POST(request: NextRequest) {
   warnIfRedisMissing();
-  const limited = await rateLimit(`chat:${clientKey(request)}`, 20, 60_000);
+  // Keyed per-user when signed in so carrier-NAT users don't share a bucket.
+  const authUserId = await getAuthUserId();
+  const limited = await rateLimit(
+    `chat:${authUserId ?? clientKey(request)}`,
+    20,
+    60_000
+  );
   if (!limited.ok) {
     return new Response(
       JSON.stringify({
@@ -180,7 +189,7 @@ export async function POST(request: NextRequest) {
   }
 
   const language = body.language === "hi" ? "hi" : "en";
-  const userId = await getAuthUserId();
+  const userId = authUserId;
   const incognito = Boolean(body.incognito);
 
   let sessionId: string | undefined = undefined;
