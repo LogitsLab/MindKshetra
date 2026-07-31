@@ -16,13 +16,13 @@ Fix-now tasks live in `~/.gstack/projects/LogitsLab-MindKshetra/tasks-*-20260731
 - [ ] Streak columns are directly writable via PostgREST (cosmetic today) — move
       streak advancement behind service-role before "practiced today" presence ships
 - [ ] Month-calendar single-flight/precompute (cold-cache stampede on the 1st at 10x)
-- [ ] Push receipts polling; prefs-scan keyset pagination is ET8, receipts still open
 - [ ] CI guard: refuse dev→main merge while `supabase/migrations/` is ahead of prod schema
 - [ ] Optional single soft bell at sit end (contradicts "no audio in v1" — owner call)
 - [ ] Acquisition follow-through: weekly share-funnel + email-growth KPI review
-      (queries land with T5) Grouped by nearest phase;
-the full roadmap context lives in `docs/` and the nonprofit plan. When you
-pick one up, delete the line in the same PR.
+      (queries land with T5)
+
+Grouped by nearest phase; the full roadmap context lives in `docs/` and the
+nonprofit plan. When you pick one up, delete the line in the same PR.
 
 ## UI catching up with shipped backends
 
@@ -45,11 +45,9 @@ pick one up, delete the line in the same PR.
 
 ## Phase 3 remainders (design settled in the plan)
 
-- [ ] Shared reflections: `journal_entries.visibility` migration + share
-      toggle + per-verse "Reflections from seekers" (moderation stack and
-      crisis-hold contract are already in place — reuse `screenText`)
-- [ ] Admin moderation queue page (`/app/admin/moderation`) + `MAINTAINER_USER_IDS`
-      gate + Groq triage pass (queue schema shipped in migration 014)
+- [ ] Moderation queue: Groq triage pass to prioritize the human queue
+      (page + `MAINTAINER_USER_IDS` gate shipped; triage never removes,
+      only ranks)
 - [ ] Circles (sanghas): migration with `SECURITY DEFINER is_circle_member()`
       + two-user RLS tests — the first migration where a policy bug leaks
       private content; do not rush it
@@ -76,7 +74,10 @@ pick one up, delete the line in the same PR.
 
 ## Owner-gated (see docs/nonprofit-kickoff.md)
 
-- [ ] Apply migrations 011–014 (`npx supabase db push`)
+- [ ] Apply migrations 011–016 via `node scripts/apply-migrations.cjs`
+      (`db push` is silently broken here — docs/dev-environment.md).
+      016 requires **code deployed first, then the migration** (header
+      documents the order and rollback)
 - [ ] Vercel: dev-mind.logitslab.com domain + branch env vars
       (docs/dev-environment.md)
 - [ ] Set NEXT_PUBLIC_GITHUB_SPONSORS_URL / OPEN_COLLECTIVE / RAZORPAY /
