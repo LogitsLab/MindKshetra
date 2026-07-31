@@ -437,7 +437,7 @@ export default function SadhanaClient() {
             </div>
           ) : verseState === "failed" ? (
             <div className="mb-8 border-l-2 border-[var(--hairline)] pl-5">
-              <p className="text-sm font-light text-[var(--text-muted)]">
+              <p className="text-sm font-light text-[var(--text-soft)]">
                 {t("sadhanaVerseFailed")}
               </p>
               <button
@@ -445,7 +445,7 @@ export default function SadhanaClient() {
                 onClick={() => {
                   if (moodRef.current) void loadVerse(moodRef.current);
                 }}
-                className="mt-2 text-sm text-[var(--brass-soft)] underline-offset-4 hover:underline"
+                className="mt-2 inline-flex min-h-10 items-center px-3 py-2 text-sm text-[var(--brass-soft)] underline-offset-4 hover:underline"
               >
                 {t("sadhanaRetry")}
               </button>
@@ -555,7 +555,7 @@ export default function SadhanaClient() {
                 className="mt-5 w-full border border-[var(--line)] bg-transparent px-4 py-3 text-[15px] text-[var(--text)] placeholder:text-[var(--text-muted)]/60 focus:border-[var(--brass)]/60 focus:outline-none"
               />
               {reflectFailed ? (
-                <p className="mt-3 border-l-2 border-[var(--brass)]/60 pl-3 text-sm text-[var(--text-muted)]">
+                <p className="mt-3 border-l-2 border-[var(--brass)]/60 pl-3 text-sm text-[var(--text-soft)]">
                   {t("sadhanaReflectFailed")}
                 </p>
               ) : null}
@@ -621,7 +621,7 @@ export default function SadhanaClient() {
           ) : null}
 
           {logOutcome === "deviceOnly" ? (
-            <p className="mt-3 text-[15px] text-[var(--text-muted)]">
+            <p className="mt-3 text-[15px] text-[var(--text-soft)]">
               {t("sadhanaDeviceOnly")}{" "}
               <Link
                 href="/account"
@@ -634,7 +634,7 @@ export default function SadhanaClient() {
 
           {logOutcome === "failed" ? (
             <div className="mt-3">
-              <p className="border-l-2 border-[var(--brass)]/60 pl-3 text-[15px] text-[var(--text-muted)]">
+              <p className="border-l-2 border-[var(--brass)]/60 pl-3 text-[15px] text-[var(--text-soft)]">
                 {t("sadhanaLogFailed")}
               </p>
               <button
@@ -700,13 +700,25 @@ function JapaPanel({ visible }: { visible: boolean }) {
     });
   }, []);
 
+  // The shortcut must never steal Space from another focused control: a
+  // keyboard user who tabbed to "Sit again" and pressed Space should activate
+  // that button, not count a phantom bead. Only document-body (no focus) or
+  // the japa circle itself count.
   useEffect(() => {
-    if (!visible || !(engaged || focused)) return;
+    if (!visible) {
+      setEngaged(false);
+      return;
+    }
+    if (!(engaged || focused)) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === "Space" && (e.target as HTMLElement)?.tagName !== "TEXTAREA") {
-        e.preventDefault();
-        tap();
-      }
+      if (e.code !== "Space") return;
+      const el = e.target as HTMLElement | null;
+      const onInteractive = el?.closest?.(
+        "button, a, input, select, textarea, [role='button']"
+      );
+      if (onInteractive && !el?.dataset?.japaCircle) return;
+      e.preventDefault();
+      tap();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -790,6 +802,7 @@ function JapaPanel({ visible }: { visible: boolean }) {
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           aria-label={t("japaTitle")}
+          data-japa-circle="1"
           className="flex h-56 w-56 items-center justify-center rounded-full border border-[var(--brass)]/40 transition active:scale-[0.98]"
         >
           <span className="font-display text-5xl tabular-nums text-[var(--text)]">
@@ -814,7 +827,7 @@ function JapaPanel({ visible }: { visible: boolean }) {
           <p className="mt-3 text-sm text-[var(--brass-soft)]">{t("japaLogged")}</p>
         ) : null}
         {outcome === "deviceOnly" ? (
-          <p className="mt-3 text-sm text-[var(--text-muted)]">
+          <p className="mt-3 text-sm text-[var(--text-soft)]">
             {t("sadhanaDeviceOnly")}{" "}
             <Link
               href="/account"
@@ -826,7 +839,7 @@ function JapaPanel({ visible }: { visible: boolean }) {
         ) : null}
         {outcome === "failed" ? (
           <div className="mt-3 text-center">
-            <p className="text-sm text-[var(--text-muted)]">
+            <p className="text-sm text-[var(--text-soft)]">
               {t("sadhanaLogFailed")}
             </p>
             <button

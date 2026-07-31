@@ -43,6 +43,13 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
   }, [user]);
 
   useEffect(() => {
+    // Signed-out visitors get a guaranteed empty summary from this route —
+    // skip the no-op serverless hit on the highest-traffic page, and refresh
+    // when the session changes so the done-state follows sign-in.
+    if (!user) {
+      setSadhanaDone(null);
+      return;
+    }
     let cancelled = false;
     let tz: string | undefined;
     try {
@@ -63,7 +70,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   const entries = [
     {
@@ -220,7 +227,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       <section className="border-t border-[var(--hairline)] py-14">
         <Link
           href="/sadhana"
-          className="group block border border-[var(--hairline)] transition hover:border-[var(--brass)]/40"
+          className="group block border border-[var(--line)] transition hover:border-[var(--brass)]/40"
         >
           <div className="border-l-2 border-[var(--brass)]/70 px-6 py-8 sm:px-8 sm:py-9">
             <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass)]">

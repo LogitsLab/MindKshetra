@@ -130,7 +130,7 @@ export default function JournalBox({ slokaId }: Props) {
       </button>
 
       {saveFailed ? (
-        <p className="border-l-2 border-[var(--brass)]/60 pl-3 text-sm text-[var(--text-muted)]">
+        <p className="border-l-2 border-[var(--brass)]/60 pl-3 text-sm text-[var(--text-soft)]">
           {t("journalSaveFailed")}
         </p>
       ) : null}
