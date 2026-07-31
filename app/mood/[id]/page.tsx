@@ -1,9 +1,18 @@
 import { notFound } from "next/navigation";
 import MoodDetailClient from "@/components/MoodDetailClient";
-import { getMoodById } from "@/lib/moods";
+import { getAllMoods, getMoodById } from "@/lib/moods";
 import { getSlokasByTags } from "@/lib/slokas";
 
 type Props = { params: { id: string } };
+
+// Mood pages derive from static tag data; pre-render all 18.
+export const revalidate = 86400;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const moods = await getAllMoods();
+  return moods.map((mood) => ({ id: mood.id }));
+}
 
 export default async function MoodDetailPage({ params }: Props) {
   const mood = await getMoodById(params.id);

@@ -106,6 +106,9 @@ export async function getAdjacentSlokas(id: number): Promise<{
   prev: Sloka | null;
   next: Sloka | null;
 }> {
+  // JSON mode has a pre-sorted corpus; re-sorting all 701 per verse render
+  // was pure waste on the hottest page in the product.
+  if (!isDbContentEnabled()) return json.jsonGetAdjacentSlokas(id);
   const all = await getAllSlokas();
   const ordered = [...all].sort(
     (a, b) => a.chapter - b.chapter || a.verse_number - b.verse_number

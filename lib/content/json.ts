@@ -58,13 +58,26 @@ export function jsonGetAdjacentSlokas(id: number): {
   };
 }
 
+// Corpus-wide tag frequencies are immutable per process; computing them on
+// every mood lookup re-walked all 701 verses' tags each time.
+let tagFrequency: Map<string, number> | null = null;
+
+function getTagFrequency(): Map<string, number> {
+  if (!tagFrequency) {
+    tagFrequency = new Map<string, number>();
+    for (const s of slokas) {
+      for (const t of s.tags) {
+        tagFrequency.set(t, (tagFrequency.get(t) || 0) + 1);
+      }
+    }
+  }
+  return tagFrequency;
+}
+
 export function jsonGetSlokasByTags(tags: string[]): Sloka[] {
   if (tags.length === 0) return [];
   const tagSet = new Set(tags);
-  const freq = new Map<string, number>();
-  for (const s of slokas) {
-    for (const t of s.tags) freq.set(t, (freq.get(t) || 0) + 1);
-  }
+  const freq = getTagFrequency();
   return slokas
     .map((sloka) => {
       let score = 0;

@@ -9,6 +9,12 @@ import {
 } from "@/lib/slokas";
 import { splitVerseLines } from "@/lib/verseDisplay";
 
+// Matches the home page's cadence so the two surfaces rotate together.
+// force-static: the content layer's DB fetches are no-store, which would
+// otherwise keep this page dynamic despite the revalidate window.
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
 export default async function VerseOfTheDayPage() {
   const sloka = await getVerseOfTheDay();
 
