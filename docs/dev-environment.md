@@ -18,33 +18,70 @@
 2. **DNS**: add a CNAME for `dev-mind` → `cname.vercel-dns.com` wherever
    `logitslab.com` DNS lives.
 3. **Branch-scoped env vars** (Vercel → Settings → Environment Variables,
-   environment "Preview", branch `dev`):
-   - `NEXT_PUBLIC_SITE_URL=https://dev-mind.logitslab.com` — every hardcoded
-     origin in the app already falls back through this variable.
-   - Everything else (Supabase, Groq, Redis, Resend keys) is inherited from the
-     existing Preview environment. If dev should ever get its own Supabase
-     project, override the two `NEXT_PUBLIC_SUPABASE_*` vars here and nothing
-     else changes.
-4. **Supabase redirect URL**: Authentication → URL Configuration → add
-   `https://dev-mind.logitslab.com/auth/callback` (sign-in on the dev site
-   fails without it).
-5. **Vercel cron note**: `vercel.json` crons only run on the production
+   environment "Preview", branch `dev`) — already set via CLI:
+   - `NEXT_PUBLIC_SITE_URL=https://dev-mind.logitslab.com`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — the **MindKshetra-dev** publishable key
+   - `SUPABASE_SERVICE_ROLE_KEY` — the MindKshetra-dev secret key (sensitive)
+   - `NEXT_PUBLIC_SUPABASE_URL` — the MindKshetra-dev project URL
+     (`https://<ref>.supabase.co`)
+   - Everything else (Groq, Redis, Resend) is inherited from the shared
+     Preview environment. Consider leaving `RESEND_API_KEY` unset for the dev
+     branch so nothing on dev can send real email.
+4. **Vercel cron note**: `vercel.json` crons only run on the production
    deployment — the dev site sends no scheduled emails. That is intentional.
+
+## Two Supabase projects
+
+- **Prod project** — serves `main` / mind.logitslab.com. Schema moves only at
+  promotion time.
+- **MindKshetra-dev** — serves the `dev` branch / dev-mind.logitslab.com and
+  local development. Fresh migrations land here first and soak.
+
+Content does not live in either database by default (`CONTENT_SOURCE=json`
+serves all 701 verses from the repo), so the dev project needs **no seeding**
+— only schema.
+
+### Bootstrapping / applying migrations to MindKshetra-dev
+
+Preferred (needs a one-time `npx supabase login`):
+
+```bash
+npx supabase link --project-ref <dev-ref>
+npx supabase db push
+```
+
+No-CLI fallback — paste one script into the dashboard SQL editor:
+
+```bash
+node scripts/dev-bootstrap-sql.cjs | pbcopy   # then paste + Run in SQL editor
+```
+
+The bundle is idempotent (`if not exists` / `drop policy if exists`
+throughout), so re-running it after new migrations land is safe.
+
+### Dev project auth configuration (dashboard, one-time)
+
+Authentication → URL Configuration:
+
+- Site URL: `https://dev-mind.logitslab.com`
+- Redirect URLs: `https://dev-mind.logitslab.com/auth/callback`,
+  `http://localhost:3000/auth/callback`, `mindkshetra://auth/callback`,
+  `exp://127.0.0.1:8081/--/auth/callback`
+
+Authentication → Providers: enable **Anonymous** and **Email** (magic link).
+Google/Apple only if those flows need testing on dev — each needs the dev
+callback registered with the provider too.
+
+Note: dev has its own user pool. Prod accounts don't exist here — use
+throwaway test accounts. That's the point.
 
 ## Database migrations
 
-New migrations under `supabase/migrations/` are **written on `dev` but not
-auto-applied** — there is one Supabase project, shared by prod and dev sites.
-All Phase 1+ migrations are strictly additive (new tables, new columns with
-defaults), so applying them does not affect the live app; still, applying is an
-owner action:
-
-```bash
-npx supabase db push   # after linking: npx supabase link --project-ref <ref>
-```
-
-Until a migration is applied, its API routes degrade (empty data or 503), and
-the UI shows empty states — the dev site stays browsable either way.
+New migrations are **written on `dev` and applied to MindKshetra-dev** as part
+of the same change (db push or the bootstrap script). The prod project is
+touched only at promotion. Until a migration is applied, its API routes
+degrade (empty data or 503) and the UI shows empty states — the site stays
+browsable either way.
 
 ## Mobile against the dev backend
 
@@ -63,7 +100,12 @@ EXPO_PUBLIC_API_URL=https://dev-mind.logitslab.com npx expo start
 
 ## Promotion to production
 
-When `dev` is ready: apply any un-applied migrations, then open a PR
-`dev → main` in each repo. Web deploys to production on merge; mobile's
-version-bump + EAS release workflows take over from there. Never cherry-pick
-around `dev`.
+When `dev` is ready:
+
+1. Apply the pending migrations to the **prod** Supabase project
+   (`npx supabase link --project-ref <prod-ref> && npx supabase db push`,
+   or the same SQL-editor paste). They have already soaked on MindKshetra-dev.
+2. Open a PR `dev → main` in each repo. Web deploys to production on merge;
+   mobile's version-bump + EAS release workflows take over from there.
+
+Never cherry-pick around `dev`.
