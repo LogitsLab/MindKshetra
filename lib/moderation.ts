@@ -32,11 +32,15 @@ function escapeRegex(s: string): string {
 const ASCII_ONLY = /^[\x00-\x7F]+$/;
 
 /**
- * Precompiled once at module load. ASCII terms match on \b word boundaries —
- * plain substring held "grandiose" and "modus operandi" (both contain
- * "randi"). Terms with non-ASCII stay substring matches: JS \b only knows
- * [A-Za-z0-9_], so a Devanagari term would never sit "between boundaries"
- * and word-boundary matching would silently disable it.
+ * Precompiled once at module load. ASCII terms match on a LEADING word
+ * boundary only (`\bterm`, suffixes allowed): plain substring held
+ * "grandiose" and "modus operandi" (both contain "randi" mid-word), while a
+ * trailing boundary would have let suffixed abuse ("bitches", "chutiyapa")
+ * sail through the screen — the leading boundary rejects the false positives
+ * and keeps the inflected true positives. Terms with non-ASCII stay
+ * substring matches: JS \b only knows [A-Za-z0-9_], so a Devanagari term
+ * would never sit "between boundaries" and word-boundary matching would
+ * silently disable it.
  */
 const COMPILED_TERMS: Array<
   { kind: "word"; pattern: RegExp } | { kind: "substring"; term: string }
@@ -45,7 +49,7 @@ const COMPILED_TERMS: Array<
   .filter((t) => t.length > 0)
   .map((term) =>
     ASCII_ONLY.test(term)
-      ? { kind: "word" as const, pattern: new RegExp(`\\b${escapeRegex(term)}\\b`) }
+      ? { kind: "word" as const, pattern: new RegExp(`\\b${escapeRegex(term)}`) }
       : { kind: "substring" as const, term }
   );
 

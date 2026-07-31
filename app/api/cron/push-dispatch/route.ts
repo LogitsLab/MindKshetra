@@ -23,9 +23,12 @@ export const maxDuration = 60;
  *   streak_reminder — notif_streak_reminder at 20:00 local when yesterday
  *                     was the last visit and a streak >= 2 is alive
  *
- * push_sends (user, kind, local-day) is inserted BEFORE sending: a rerun can
- * skip a user, never double-ping them. Quiet failure is the worse of the two
- * only for a reminder, and the next day always comes.
+ * Each keyset page is processed END-TO-END (ledger → tokens → send) before
+ * the next page is fetched: no query ever serializes more than one page of
+ * user ids (PostgREST URL limits), and a mid-run timeout burns the send
+ * ledger for at most the in-flight page instead of the whole cohort.
+ * push_sends (user, kind, local-day) is inserted BEFORE that page's send:
+ * a rerun can skip a user, never double-ping them.
  */
 const FALLBACK_TZ = "Asia/Kolkata";
 const STREAK_HOUR = 20;
@@ -35,6 +38,10 @@ const PAGE_SIZE = 1000;
 const MAX_PAGES = 20;
 /** Newest tokens per user actually sent to — bounds the blast radius of one account. */
 const MAX_TOKENS_PER_USER = 3;
+/** PostgREST .in() lists ride the query string — keep them well under URL limits. */
+const IN_CHUNK = 200;
+/** Ledger upsert batch size. */
+const UPSERT_CHUNK = 500;
 
 function authorizeCron(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -52,6 +59,12 @@ type PrefRow = {
   notif_streak_reminder: boolean | null;
 };
 
+type Candidate = {
+  row: PrefRow;
+  kind: "daily_verse" | "streak_reminder";
+  day: string;
+};
+
 function localHour(tz: string, now: Date): number {
   return Number(
     new Intl.DateTimeFormat("en-GB", {
@@ -62,6 +75,12 @@ function localHour(tz: string, now: Date): number {
   );
 }
 
+function chunk<T>(items: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
+}
+
 export async function GET(request: NextRequest) {
   if (!authorizeCron(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -70,10 +89,17 @@ export async function GET(request: NextRequest) {
   const admin = createAdminClient();
   const now = new Date();
 
-  // Keyset pagination over the opted-in prefs (user_id ascending): each page
-  // resumes after the last id, so growth past any one page never silently
-  // drops the users who sort after it.
-  const rows: PrefRow[] = [];
+  const selection = await getVerseOfTheDaySelection(now);
+  const ref = selection ? formatVerseRef(selection.sloka) : "";
+
+  const totals = {
+    sent: 0,
+    attempted: 0,
+    stale: 0,
+    deduped: 0,
+    cohorts: { daily_verse: 0, streak_reminder: 0 },
+  };
+
   let lastId: string | null = null;
   for (let page = 0; page < MAX_PAGES; page++) {
     let filters = admin
@@ -92,20 +118,60 @@ export async function GET(request: NextRequest) {
     }
 
     const batch = (prefs ?? []) as PrefRow[];
-    rows.push(...batch);
+    if (batch.length) {
+      const pageResult = await dispatchPage(admin, batch, now, ref);
+      totals.sent += pageResult.sent;
+      totals.attempted += pageResult.attempted;
+      totals.stale += pageResult.stale;
+      totals.deduped += pageResult.deduped;
+      totals.cohorts.daily_verse += pageResult.cohorts.daily_verse;
+      totals.cohorts.streak_reminder += pageResult.cohorts.streak_reminder;
+      lastId = batch[batch.length - 1].user_id;
+    }
+
     if (batch.length < PAGE_SIZE) break;
-    lastId = batch[batch.length - 1].user_id;
     if (page === MAX_PAGES - 1) {
-      console.warn(
-        `[push-dispatch] hit the ${MAX_PAGES}-page scan ceiling (${rows.length} rows); user_ids beyond ${lastId} were skipped this tick`
-      );
+      // Warn only when someone actually sorts beyond the ceiling — an
+      // exactly-full final page with nothing after it is not a skip.
+      const { data: probe } = await admin
+        .from("user_preferences")
+        .select("user_id")
+        .or("notif_daily_verse.eq.true,notif_streak_reminder.eq.true")
+        .gt("user_id", lastId ?? "")
+        .limit(1);
+      if (probe?.length) {
+        console.warn(
+          `[push-dispatch] hit the ${MAX_PAGES}-page scan ceiling; user_ids beyond ${lastId} were skipped this tick`
+        );
+      }
     }
   }
-  if (!rows.length) {
-    return NextResponse.json({ ok: true, sent: 0, cohorts: {} });
-  }
 
-  const due: Array<{ row: PrefRow; kind: "daily_verse" | "streak_reminder"; day: string }> = [];
+  return NextResponse.json({ ok: true, ...totals });
+}
+
+/** One page, end-to-end: eligibility → ledger claim → tokens → send. */
+async function dispatchPage(
+  admin: ReturnType<typeof createAdminClient>,
+  rows: PrefRow[],
+  now: Date,
+  ref: string
+): Promise<{
+  sent: number;
+  attempted: number;
+  stale: number;
+  deduped: number;
+  cohorts: { daily_verse: number; streak_reminder: number };
+}> {
+  const empty = {
+    sent: 0,
+    attempted: 0,
+    stale: 0,
+    deduped: 0,
+    cohorts: { daily_verse: 0, streak_reminder: 0 },
+  };
+
+  const due: Candidate[] = [];
   for (const row of rows) {
     const tz = isValidTimezone(row.timezone) ? row.timezone! : FALLBACK_TZ;
     const hour = localHour(tz, now);
@@ -117,20 +183,18 @@ export async function GET(request: NextRequest) {
       due.push({ row, kind: "streak_reminder", day });
     }
   }
-  if (!due.length) {
-    return NextResponse.json({ ok: true, sent: 0, cohorts: {} });
-  }
+  if (!due.length) return empty;
 
   // Streak eligibility: yesterday-local was the last visit, streak alive.
   const streakUserIds = due
     .filter((d) => d.kind === "streak_reminder")
     .map((d) => d.row.user_id);
   const streakByUser = new Map<string, { current: number; last: string }>();
-  if (streakUserIds.length) {
+  for (const ids of chunk(streakUserIds, IN_CHUNK)) {
     const { data: streaks } = await admin
       .from("user_streaks")
       .select("user_id, current_streak, last_visit_date")
-      .in("user_id", streakUserIds)
+      .in("user_id", ids)
       .gte("current_streak", 2);
     for (const s of streaks ?? []) {
       streakByUser.set(s.user_id, {
@@ -145,59 +209,56 @@ export async function GET(request: NextRequest) {
     const s = streakByUser.get(d.row.user_id);
     return !!s && dayDiff(s.last, d.day) === 1;
   });
-  if (!candidates.length) {
-    return NextResponse.json({ ok: true, sent: 0, cohorts: {} });
+  if (!candidates.length) return empty;
+
+  // Idempotency gate: claim send rows first; conflicts drop out silently.
+  const insertedKeys = new Set<string>();
+  for (const batch of chunk(candidates, UPSERT_CHUNK)) {
+    const { data: inserted } = await admin
+      .from("push_sends")
+      .upsert(
+        batch.map((c) => ({
+          user_id: c.row.user_id,
+          kind: c.kind,
+          sent_on: c.day,
+        })),
+        { onConflict: "user_id,kind,sent_on", ignoreDuplicates: true }
+      )
+      .select("user_id, kind");
+    for (const r of inserted ?? []) {
+      insertedKeys.add(`${r.user_id}:${r.kind}`);
+    }
   }
 
-  // Idempotency gate: insert send rows first; conflicts drop out silently.
-  const sendRows = candidates.map((c) => ({
-    user_id: c.row.user_id,
-    kind: c.kind,
-    sent_on: c.day,
-  }));
-  const { data: inserted } = await admin
-    .from("push_sends")
-    .upsert(sendRows, {
-      onConflict: "user_id,kind,sent_on",
-      ignoreDuplicates: true,
-    })
-    .select("user_id, kind");
-
-  const insertedKeys = new Set(
-    (inserted ?? []).map((r) => `${r.user_id}:${r.kind}`)
-  );
   const toSend = candidates.filter((c) =>
     insertedKeys.has(`${c.row.user_id}:${c.kind}`)
   );
   if (!toSend.length) {
-    return NextResponse.json({ ok: true, sent: 0, deduped: candidates.length });
+    return { ...empty, deduped: candidates.length };
   }
 
-  const { data: tokens } = await admin
-    .from("push_tokens")
-    .select("user_id, token")
-    .in(
-      "user_id",
-      Array.from(new Set(toSend.map((c) => c.row.user_id)))
-    )
-    .is("disabled_at", null)
-    .order("last_seen_at", { ascending: false });
-
-  // Rows arrive newest-first, so per-user insertion order preserves that:
-  // keeping the first MAX_TOKENS_PER_USER per user keeps the newest devices.
+  const userIds = Array.from(new Set(toSend.map((c) => c.row.user_id)));
   const tokensByUser = new Map<string, string[]>();
-  for (const t of tokens ?? []) {
-    const list = tokensByUser.get(t.user_id) ?? [];
-    if (list.length >= MAX_TOKENS_PER_USER) continue;
-    list.push(t.token);
-    tokensByUser.set(t.user_id, list);
+  for (const ids of chunk(userIds, IN_CHUNK)) {
+    const { data: tokens } = await admin
+      .from("push_tokens")
+      .select("user_id, token")
+      .in("user_id", ids)
+      .is("disabled_at", null)
+      .order("last_seen_at", { ascending: false })
+      .limit(ids.length * MAX_TOKENS_PER_USER * 2);
+    // Rows arrive newest-first, so per-user insertion order preserves that:
+    // keeping the first MAX_TOKENS_PER_USER per user keeps the newest devices.
+    for (const t of tokens ?? []) {
+      const list = tokensByUser.get(t.user_id) ?? [];
+      if (list.length >= MAX_TOKENS_PER_USER) continue;
+      list.push(t.token);
+      tokensByUser.set(t.user_id, list);
+    }
   }
-
-  const selection = await getVerseOfTheDaySelection(now);
-  const ref = selection ? formatVerseRef(selection.sloka) : "";
 
   const messages: PushMessage[] = [];
-  const counts = { daily_verse: 0, streak_reminder: 0 };
+  const cohorts = { daily_verse: 0, streak_reminder: 0 };
   for (const c of toSend) {
     const userTokens = tokensByUser.get(c.row.user_id) ?? [];
     if (!userTokens.length) continue;
@@ -213,7 +274,7 @@ export async function GET(request: NextRequest) {
       c.kind === "daily_verse"
         ? "mindkshetra://verse-of-the-day"
         : "mindkshetra://sadhana";
-    counts[c.kind] += userTokens.length;
+    cohorts[c.kind] += userTokens.length;
     for (const token of userTokens) {
       messages.push({
         to: token,
@@ -225,18 +286,21 @@ export async function GET(request: NextRequest) {
   }
 
   const result = await sendExpoPush(messages);
-  if (result.staleTokens.length) {
+  let stale = 0;
+  for (const tokens of chunk(result.staleTokens, IN_CHUNK)) {
+    if (!tokens.length) continue;
     await admin
       .from("push_tokens")
       .update({ disabled_at: new Date().toISOString() })
-      .in("token", result.staleTokens);
+      .in("token", tokens);
+    stale += tokens.length;
   }
 
-  return NextResponse.json({
-    ok: true,
+  return {
     sent: result.ok,
     attempted: result.attempted,
-    stale: result.staleTokens.length,
-    cohorts: counts,
-  });
+    stale,
+    deduped: candidates.length - toSend.length,
+    cohorts,
+  };
 }

@@ -133,7 +133,8 @@ export async function logSadhanaSession(
   // any streak math runs (the route turns the throw into a non-200 and the
   // client keeps its local copy to retry).
   if (error) {
-    throw new Error("Could not record the session: " + error.message);
+    console.error("[sadhana] session upsert failed:", error.message);
+    throw new Error("Could not record the session");
   }
 
   const streak = await advancePracticeStreak(userId, input.practice, occurredOn);
@@ -180,7 +181,8 @@ async function advancePracticeStreak(
     { onConflict: "user_id,practice" }
   );
   if (error) {
-    throw new Error("Could not update the streak: " + error.message);
+    console.error("[sadhana] streak upsert failed:", error.message);
+    throw new Error("Could not update the streak");
   }
 
   return {
@@ -251,7 +253,8 @@ export async function mergeGuestSadhana(
     // Throwing is what lets the client keep its local log: the route answers
     // non-200 and the device retries later instead of discarding history.
     if (error) {
-      throw new Error("Could not merge the practice log: " + error.message);
+      console.error("[sadhana] merge upsert failed:", error.message);
+      throw new Error("Could not merge the practice log");
     }
     // ignoreDuplicates returns only the rows this call inserted.
     merged = inserted?.length ?? 0;
@@ -290,7 +293,8 @@ async function recomputeStreaks(
     // A partial read would fold a truncated history into the streak — abort
     // instead; the merge is idempotent, so a retry recomputes from the top.
     if (error) {
-      throw new Error("Could not read sessions to recompute streaks: " + error.message);
+      console.error("[sadhana] recompute read failed:", error.message);
+      throw new Error("Could not recompute streaks");
     }
 
     const days = Array.from(
@@ -319,7 +323,8 @@ async function recomputeStreaks(
       { onConflict: "user_id,practice" }
     );
     if (writeError) {
-      throw new Error("Could not update the streak: " + writeError.message);
+      console.error("[sadhana] recompute streak upsert failed:", writeError.message);
+      throw new Error("Could not update the streak");
     }
   }
 }
