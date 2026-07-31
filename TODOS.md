@@ -32,9 +32,9 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
 - [ ] Account panel: public-profile editor (API `/api/profile` is live,
       `/u/[handle]` renders; `AccountPageClient.tsx` needs the opt-in panel
       with a "what becomes visible" explainer)
-- [ ] Mood page: optional chart-aware ordering (POST `/api/moods/order` is
-      live and fail-soft; needs the visible toggle + provenance line on
-      web `app/mood/page.tsx` and mobile)
+- [ ] Mobile parity (after usage gates, per E7 web-first): chart-aware mood
+      ordering toggle, Pressure→Practice card, koota notes via shared i18n,
+      panchang Delhi wall-clock (not device time)
 - [ ] Panchang calendar page (month API `/api/panchang/calendar` is live;
       needs `app/panchang/calendar/page.tsx` grouped-by-week list)
 - [ ] Themed path UI ("Seven days with anxiety" — `data/paths/anxiety-7.json`
@@ -51,8 +51,9 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
 - [ ] Circles (sanghas): migration with `SECURITY DEFINER is_circle_member()`
       + two-user RLS tests — the first migration where a policy bug leaks
       private content; do not rush it
-- [ ] Pressure→Practice cards: extend `lib/bridge/` chart→verse into
-      fact → teaching → one small action; chart-verify guard already exists
+- [ ] Pressure→Practice as the sādhana verse for chart users (the card
+      shipped on the chart overview; the optional sadhana integration
+      from the plan is still open)
 - [ ] Festival email + push reminders (cron clone of votd-email; push kinds
       ride the shipped dispatcher)
 - [ ] Named-festival rule table (`data/festivals.json` — lunar month + paksha
