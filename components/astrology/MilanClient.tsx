@@ -89,15 +89,15 @@ export default function MilanClient() {
       const data = await res.json().catch(() => null);
       if (res.ok && data?.result) {
         setResult(data.result as MilanResult);
+      } else if (res.status === 422) {
+        // Missing birth time — say so in the user's language; never render
+        // a zero that reads as "incompatible".
+        setNotice(t("milanMissingBirthTime"));
       } else {
-        // 422 (missing birth time) and friends carry a human message — show
-        // it plainly; never render a zero that reads as "incompatible".
-        setNotice(
-          typeof data?.error === "string" ? data.error : t("panchangUnavailable")
-        );
+        setNotice(t("milanUnavailable"));
       }
     } catch {
-      setNotice(t("panchangUnavailable"));
+      setNotice(t("milanUnavailable"));
     } finally {
       setComputing(false);
     }
@@ -131,8 +131,8 @@ export default function MilanClient() {
   if (state === "error") {
     return (
       <EmptyState
-        title={t("panchangUnavailable")}
-        body={t("panchangUnavailableBody")}
+        title={t("milanUnavailable")}
+        body={t("milanUnavailableBody")}
       />
     );
   }
@@ -210,12 +210,26 @@ export default function MilanClient() {
         </p>
       ) : null}
 
-      {result ? <MilanResultView result={result} /> : null}
+      {result ? (
+        <MilanResultView
+          result={result}
+          nameA={members.find((m) => m.id === memberA)?.name ?? ""}
+          nameB={members.find((m) => m.id === memberB)?.name ?? ""}
+        />
+      ) : null}
     </div>
   );
 }
 
-function MilanResultView({ result }: { result: MilanResult }) {
+function MilanResultView({
+  result,
+  nameA,
+  nameB,
+}: {
+  result: MilanResult;
+  nameA: string;
+  nameB: string;
+}) {
   const { t } = useLanguage();
 
   return (
@@ -244,7 +258,9 @@ function MilanResultView({ result }: { result: MilanResult }) {
             <p className="mt-1 text-sm font-light leading-relaxed text-[var(--text-muted)]">
               {koota.name === "Nadi" && koota.score === 0
                 ? t("milanNoteNadiSame")
-                : t(NOTE_KEY[koota.name] ?? "milanNoteNadi")}
+                : NOTE_KEY[koota.name]
+                  ? t(NOTE_KEY[koota.name])
+                  : koota.note}
             </p>
           </div>
         ))}
@@ -267,7 +283,12 @@ function MilanResultView({ result }: { result: MilanResult }) {
 
       {result.band === "needs-discussion" ? (
         <Link
-          href="/madhav"
+          href={`/madhav?prompt=${encodeURIComponent(
+            t("milanMadhavSeed")
+              .replace("{nameA}", nameA)
+              .replace("{nameB}", nameB)
+              .replace("{score}", String(result.total))
+          )}`}
           className="mt-6 inline-block border border-[var(--line)] px-5 py-3 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
         >
           {t("milanAskMadhav")} →

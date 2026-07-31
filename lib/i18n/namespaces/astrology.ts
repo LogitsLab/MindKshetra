@@ -151,6 +151,7 @@ export const en = {
     "Computed at local sunrise for New Delhi, Lahiri ayanamsa. Regional almanacs may differ near element boundaries.",
   panchangUnavailable: "The panchang is quiet right now.",
   panchangUnavailableBody: "Try again in a little while.",
+  panchangLocationLine: "New Delhi · IST",
   milanEyebrow: "Kundli Milan",
   milanTitle: "Milan",
   milanIntro:
@@ -174,6 +175,12 @@ export const en = {
   milanNeedTwoBody: "Add family members under Astrology → Manage Charts.",
   milanSignIn: "Sign in to use Kundli Milan with your saved people.",
   milanSamePerson: "Pick two different people.",
+  milanMissingBirthTime:
+    "Compatibility needs a birth time for both people. One of these charts is missing one — add it under Manage Charts.",
+  milanUnavailable: "Milan is resting right now.",
+  milanUnavailableBody: "The count couldn't be computed. Try again in a little while.",
+  milanMadhavSeed:
+    "We compared the charts of {nameA} and {nameB} with the traditional guna milan count; it came to {score} of 36. Help us talk through what this count does and does not mean for a relationship.",
   milanNoteVarna: "Temperament and work orientation.",
   milanNoteVashya: "Mutual influence and give-and-take.",
   milanNoteTara: "Timing and shared fortune.",
@@ -406,6 +413,7 @@ export const hi: Record<keyof typeof en, string> = {
     "नई दिल्ली के स्थानीय सूर्योदय पर गणना, लाहिरी अयनांश। सीमाओं के निकट क्षेत्रीय पंचांग भिन्न हो सकते हैं।",
   panchangUnavailable: "पंचांग अभी उपलब्ध नहीं है।",
   panchangUnavailableBody: "कुछ देर बाद फिर देखें।",
+  panchangLocationLine: "नई दिल्ली · IST",
   milanEyebrow: "कुंडली मिलान",
   milanTitle: "मिलान",
   milanIntro:
@@ -429,6 +437,12 @@ export const hi: Record<keyof typeof en, string> = {
   milanNeedTwoBody: "ज्योतिष → कुंडली प्रबंधन में परिवार के सदस्य जोड़ें।",
   milanSignIn: "सहेजे गए लोगों के मिलान के लिए साइन इन करें।",
   milanSamePerson: "दो अलग-अलग व्यक्ति चुनें।",
+  milanMissingBirthTime:
+    "मिलान के लिए दोनों का जन्म समय आवश्यक है। इनमें से एक कुंडली में जन्म समय नहीं है — कुंडली प्रबंधन में जोड़ें।",
+  milanUnavailable: "मिलान अभी विश्राम में है।",
+  milanUnavailableBody: "गणना नहीं हो सकी। थोड़ी देर में फिर प्रयास करें।",
+  milanMadhavSeed:
+    "हमने {nameA} और {nameB} की कुंडलियों का पारंपरिक गुण मिलान किया; गणना 36 में से {score} आई। हमें समझने में मदद करें कि यह अंक किसी रिश्ते के लिए क्या कहता है और क्या नहीं।",
   milanNoteVarna: "स्वभाव और कार्य-दृष्टि।",
   milanNoteVashya: "परस्पर प्रभाव और लेन-देन।",
   milanNoteTara: "समय और साझा भाग्य।",
