@@ -24,6 +24,10 @@ export const en = {
   errorBody:
     "The page didn’t load. Nothing you have saved is affected — trying again is usually enough.",
   errorRetry: "Try again",
+  votdEyebrow: "Verse of the day",
+  /* {nakshatra} is substituted at the call site — the same placeholder idiom
+     the panchang strings use. */
+  votdNakshatraNote: "Chosen for today’s Moon in {nakshatra}",
   votdUnavailable: "Today’s verse isn’t ready",
   votdUnavailableBody:
     "The verse rotates once a day. Explore the chapters in the meantime — all 701 are here.",
@@ -58,6 +62,8 @@ export const hi: Record<keyof typeof en, string> = {
   errorBody:
     "पृष्ठ लोड नहीं हो पाया। आपका सहेजा हुआ कुछ भी प्रभावित नहीं हुआ — प्रायः फिर से प्रयास पर्याप्त होता है।",
   errorRetry: "फिर प्रयास करें",
+  votdEyebrow: "आज का श्लोक",
+  votdNakshatraNote: "आज चंद्रमा {nakshatra} में — उसी के अनुसार चुना गया",
   votdUnavailable: "आज का श्लोक अभी तैयार नहीं",
   votdUnavailableBody:
     "श्लोक दिन में एक बार बदलता है। तब तक अध्याय देखें — सभी 701 श्लोक यहीं हैं।",

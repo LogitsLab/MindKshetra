@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import LocalizedPageHeader from "@/components/LocalizedPageHeader";
+import PageHeroImage from "@/components/PageHeroImage";
 import SupportClient from "@/components/SupportClient";
 
 export const metadata: Metadata = {
@@ -10,14 +12,13 @@ export const metadata: Metadata = {
 export default function SupportPage() {
   return (
     <div className="animate-fade">
-      <header className="mb-8 max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-          Dāna
-        </p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-4xl">
-          Support MindKshetra
-        </h1>
-      </header>
+      {/* Dāna is a gathering, not a transaction — the lantern under the tree.
+          No introKey: SupportClient already opens with supportIntro. */}
+      <PageHeroImage src="/images/paths/community.jpg" />
+      <LocalizedPageHeader
+        eyebrowKey="supportEyebrow"
+        titleKey="supportTitle"
+      />
       <SupportClient />
     </div>
   );

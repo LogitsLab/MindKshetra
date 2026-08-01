@@ -1,6 +1,6 @@
-import Link from "next/link";
 import LocalizedEmptyState from "@/components/LocalizedEmptyState";
 import SlokaPageClient from "@/components/SlokaPageClient";
+import VerseOfTheDayHeader from "@/components/VerseOfTheDayHeader";
 import { getChapterMeta } from "@/lib/chapters";
 import { getVerseOfTheDaySelection } from "@/lib/day-seed";
 import {
@@ -41,28 +41,11 @@ export default async function VerseOfTheDayPage() {
 
   return (
     <div className="animate-fade">
-      <header className="mb-6 max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-          Verse of the day
-        </p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-4xl">
-          {ref}
-        </h1>
-        <p className="mt-3 font-devanagari text-lg leading-[1.9] text-[var(--text-soft)]">
-          {preview.join(" ")}
-        </p>
-        {selection?.nakshatra ? (
-          <p className="mt-2 text-sm font-light text-[var(--text-muted)]">
-            Chosen for today&rsquo;s Moon in {selection.nakshatra.name}
-          </p>
-        ) : null}
-        <Link
-          href="/madhav"
-          className="mt-4 inline-block text-sm text-[var(--brass-soft)] hover:underline"
-        >
-          Ask Madhav about this verse →
-        </Link>
-      </header>
+      <VerseOfTheDayHeader
+        verseRef={ref}
+        preview={preview}
+        nakshatra={selection?.nakshatra?.name ?? null}
+      />
       <SlokaPageClient
         sloka={sloka}
         chapterMeta={getChapterMeta(sloka.chapter)}
