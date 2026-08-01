@@ -1,11 +1,16 @@
 /**
- * Sangha (Model A) + themed paths + care copy.
+ * Community (Model A) + themed paths + care copy.
+ *
+ * UI-only rename (WS6): the surface says "Community" / "समुदाय" now, but
+ * internal names — this file, the sangha* keys, the sangha_attended event,
+ * strategy-doc gate language — deliberately keep the word sangha. "सत्संग" /
+ * "satsang" stays wherever it names the weekly live itself.
  */
 export const en = {
-  sanghaEyebrow: "Sangha",
+  sanghaEyebrow: "Community",
   sanghaTitle: "Practice together",
   sanghaIntro:
-    "Small circles and a weekly live — not a social feed. Join the channel, sit with others, then tap that you attended so we can measure real sangha.",
+    "Small circles and a weekly live — not a social feed. Join the channel, sit with others, then tap that you attended so we can see the community is real.",
   sanghaJoinWhatsApp: "WhatsApp daily verse",
   sanghaJoinTelegram: "Telegram discussion",
   sanghaChannelsSoon:
@@ -16,7 +21,7 @@ export const en = {
   sanghaAttended: "I attended this week’s live",
   sanghaAttendedDone: "Recorded — thank you for showing up.",
   sanghaAttendedSignIn:
-    "Sign in (even as guest) so attendance counts toward sangha gates.",
+    "Sign in (even as guest) so attendance counts toward community gates.",
   sanghaSevaTitle: "Seva",
   sanghaSevaBlurb:
     "Once a month we name one small act tied to a chapter theme — blood donation, visiting elders, planting a tree. Announced on the channel when ready.",
@@ -49,17 +54,17 @@ export const en = {
     "MindKshetra is a Gita companion, not clinical care. If you are in immediate danger, contact local emergency services. These numbers are starting points; we partner with NGOs to keep the list honest.",
   careIndiaTitle: "India",
   careDisclaimer:
-    "Listing a helpline is not an endorsement of every call outcome. Prefer local emergency services when life is at risk. Mentors in sangha are facilitators, not therapists.",
+    "Listing a helpline is not an endorsement of every call outcome. Prefer local emergency services when life is at risk. Mentors in the community are facilitators, not therapists.",
   microSevaTitle: "Today’s seva (verse-linked)",
   microSevaBlurb:
     "One kind act for someone near you — then sit with 3.21 or your path day’s verse. Never a generic wellness tip; always a teaching.",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
-  sanghaEyebrow: "संघ",
+  sanghaEyebrow: "समुदाय",
   sanghaTitle: "साथ अभ्यास",
   sanghaIntro:
-    "छोटे मंडल और साप्ताहिक सत्संग — सामाजिक फ़ीड नहीं। चैनल जॉइन करें, साथ बैठें, फिर उपस्थिति दर्ज करें ताकि असली संघ मापा जा सके।",
+    "छोटे मंडल और साप्ताहिक सत्संग — सामाजिक फ़ीड नहीं। चैनल जॉइन करें, साथ बैठें, फिर उपस्थिति दर्ज करें ताकि समुदाय सच में मापा जा सके।",
   sanghaJoinWhatsApp: "व्हाट्सऐप दैनिक श्लोक",
   sanghaJoinTelegram: "टेलीग्राम चर्चा",
   sanghaChannelsSoon:
@@ -70,7 +75,7 @@ export const hi: Record<keyof typeof en, string> = {
   sanghaAttended: "मैंने इस सप्ताह के सत्संग में भाग लिया",
   sanghaAttendedDone: "दर्ज — आने के लिए धन्यवाद।",
   sanghaAttendedSignIn:
-    "उपस्थिति संघ द्वारों में गिने जाने के लिए साइन इन करें (अतिथि भी ठीक)।",
+    "उपस्थिति समुदाय द्वारों में गिने जाने के लिए साइन इन करें (अतिथि भी ठीक)।",
   sanghaSevaTitle: "सेवा",
   sanghaSevaBlurb:
     "महीने में एक बार अध्याय से जुड़ा एक छोटा काम — रक्तदान, वृद्धों से भेंट, पौधा लगाना। चैनल पर घोषणा होगी।",
@@ -103,7 +108,7 @@ export const hi: Record<keyof typeof en, string> = {
     "MindKshetra गीता साथी है, चिकित्सकीय देखभाल नहीं। तात्कालिक खतरे में स्थानीय आपातकालीन सेवाओं से संपर्क करें। ये नंबर आरंभ बिंदु हैं; सूची को ईमानदार रखने के लिए हम NGO से साझेदारी करते हैं।",
   careIndiaTitle: "भारत",
   careDisclaimer:
-    "हेल्पलाइन सूची हर कॉल परिणाम का समर्थन नहीं है। जीवन जोखिम में स्थानीय आपातकाल प्राथमिक है। संघ के मार्गदर्शक सुविधाकार हैं, चिकित्सक नहीं।",
+    "हेल्पलाइन सूची हर कॉल परिणाम का समर्थन नहीं है। जीवन जोखिम में स्थानीय आपातकाल प्राथमिक है। समुदाय के मार्गदर्शक सुविधाकार हैं, चिकित्सक नहीं।",
   microSevaTitle: "आज की सेवा (श्लोक से जुड़ी)",
   microSevaBlurb:
     "पास के किसी के लिए एक दयालु काम — फिर ३.२१ या आज के मार्ग-श्लोक के साथ बैठें। सामान्य वेलनेस सुझाव नहीं; सदैव शिक्षा।",

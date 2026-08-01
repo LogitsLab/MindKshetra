@@ -21,7 +21,7 @@ export default function Nav() {
     { href: "/mood", label: t("navMood") },
     { href: "/astrology", label: t("navAstrology") },
     { href: "/panchang", label: t("navPanchang") },
-    { href: "/sangha", label: t("navSangha") },
+    { href: "/community", label: t("navSangha") },
     { href: "/madhav", label: t("navMadhav") },
   ];
 

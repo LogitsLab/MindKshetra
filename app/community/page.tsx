@@ -4,12 +4,12 @@ import SanghaClient from "@/components/SanghaClient";
 import { getSlokaByRef } from "@/lib/slokas";
 
 export const metadata: Metadata = {
-  title: "Sangha · MindKshetra",
+  title: "Community · MindKshetra",
   description:
     "Practice together — weekly live, channels, seva, and a care path. Not a social feed.",
 };
 
-export default async function SanghaPage() {
+export default async function CommunityPage() {
   const microSeva = await getSlokaByRef(3, 21);
   const microSevaHref = microSeva ? `/sloka/${microSeva.id}` : "/explore/3";
 

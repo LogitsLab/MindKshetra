@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      // WS6 rename: the surface is /community now; shared /sangha links keep
+      // working forever. (The sangha_attended event name is unchanged.)
+      { source: "/sangha", destination: "/community", permanent: true },
+    ];
+  },
   experimental: {
     serverComponentsExternalPackages: ["sweph"],
 

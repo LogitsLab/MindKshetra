@@ -217,7 +217,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
           {t("pathListTitle")}
         </Link>
         <Link
-          href="/sangha"
+          href="/community"
           className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
         >
           {t("navSangha")}
