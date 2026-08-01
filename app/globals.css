@@ -94,6 +94,60 @@ html {
   scroll-behavior: smooth;
 }
 
+@layer base {
+  /*
+   * The focus ring.
+   *
+   * Before this, exactly two components in the app styled focus at all, so
+   * keyboard navigation across every link, card and button was following the
+   * browser default — which several surfaces then removed with `outline-none`
+   * while only restyling `:focus` on inputs. A keyboard user could tab through
+   * a page with no idea where they were.
+   *
+   * Deliberately in @layer base, not after the utilities: base loses to
+   * `outline-none`, so the inputs that already signal focus through their
+   * border keep their design instead of growing a second, redundant ring. A
+   * default, not a decree.
+   *
+   * :focus-visible, never :focus — a brass ring appearing on every mouse click
+   * is the reason people delete focus styles in the first place.
+   */
+  :focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+  }
+}
+
+/*
+ * Skip to content. The first focusable thing in the document, and invisible
+ * until it is focused — the nav is 8+ links deep on desktop and every one of
+ * them stood between a keyboard user and the page they had just opened.
+ *
+ * :focus rather than :focus-visible: nothing reaches this link except a
+ * keyboard or assistive tech, so there is no mouse case to guard against.
+ */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 1.15rem;
+  background: var(--brass);
+  color: var(--on-brass);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 1.5rem));
+  transition: transform 0.15s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 body {
   color: var(--text);
   background-color: var(--void);

@@ -41,7 +41,7 @@ export default function ReflectionsPage() {
             >
               <Link
                 href={`/sloka/${e.sloka_id}`}
-                className="text-sm text-[var(--brass-soft)])"
+                className="text-sm text-[var(--brass-soft)]"
               >
                 {t("verse")} →
               </Link>

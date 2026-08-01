@@ -3,9 +3,10 @@ import { Fraunces, Noto_Serif_Devanagari, Sora } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { ProgressProvider } from "@/components/ProgressProvider";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider, THEME_STORAGE_KEY } from "@/components/ThemeProvider";
 import Nav from "@/components/Nav";
 import MainShell from "@/components/MainShell";
+import SkipLink from "@/components/SkipLink";
 import SiteFooter from "@/components/SiteFooter";
 import NavigationProgress from "@/components/NavigationProgress";
 import "./globals.css";
@@ -72,6 +73,22 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Runs before first paint, before React, before anything else in the document.
+ *
+ * `data-theme` was hardcoded to "dark" on <html>, and ThemeProvider corrected
+ * it in a useEffect — i.e. after hydration. So every light-mode reader opened
+ * every page with a full-contrast dark flash and then a hard swap. There is no
+ * way to fix that from React: the correct value lives in localStorage, which
+ * the server cannot read, so the read has to happen in the document itself.
+ *
+ * Built from THEME_STORAGE_KEY rather than a repeated literal — a drift between
+ * the writer and this reader is a permanent flash that nothing warns about.
+ */
+const themeScript = `(function(){try{var t=localStorage.getItem(${JSON.stringify(
+  THEME_STORAGE_KEY
+)});document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark")}catch(e){}})()`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -81,12 +98,20 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="dark"
+      /* The script above rewrites data-theme before hydration, so the server's
+         "dark" and the client's actual value legitimately differ on <html>. */
+      suppressHydrationWarning
       className={`${display.variable} ${body.variable} ${devanagari.variable}`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="font-body antialiased">
         <ThemeProvider>
           <AuthProvider>
             <LanguageProvider>
+              {/* First focusable element in the document, by design. */}
+              <SkipLink />
               <ProgressProvider>
                 <div className="site-atmosphere" aria-hidden />
                 <NavigationProgress />

@@ -16,6 +16,7 @@ export const en = {
   of: "of",
   menuOpen: "Open menu",
   menuClose: "Close menu",
+  skipToContent: "Skip to content",
   notFoundTitle: "Not found",
   notFoundBody: "That page or verse isn’t on this path.",
   /* The error boundary. Invitational, never accusatory: nothing the reader did
@@ -56,6 +57,7 @@ export const hi: Record<keyof typeof en, string> = {
   of: "में से",
   menuOpen: "मेनू खोलें",
   menuClose: "मेनू बंद करें",
+  skipToContent: "सीधे मुख्य सामग्री पर जाएँ",
   notFoundTitle: "नहीं मिला",
   notFoundBody: "यह पृष्ठ या श्लोक इस मार्ग पर नहीं है।",
   errorTitle: "हमारी ओर से कुछ गड़बड़ हुई",
