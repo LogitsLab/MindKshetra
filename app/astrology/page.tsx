@@ -344,7 +344,7 @@ export default function AstrologyLanding() {
         <ZodiacRing className="astro-zodiac-ring pointer-events-none absolute -right-20 top-1/2 h-[26rem] w-[26rem] -translate-y-1/2 text-[var(--brass)] opacity-[0.18] sm:-right-10 sm:h-[34rem] sm:w-[34rem]" />
 
         <p
-          className="watermark-sanskrit pointer-events-none absolute right-[4%] top-[18%] select-none font-display text-[clamp(5rem,20vw,10rem)] leading-none"
+          className="watermark-sanskrit pointer-events-none absolute right-[4%] top-[18%] select-none font-devanagari text-[clamp(5rem,20vw,10rem)] leading-none"
           aria-hidden
         >
           ज्योतिष

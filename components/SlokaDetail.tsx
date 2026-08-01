@@ -74,12 +74,21 @@ export default function SlokaDetail({
     <article className="animate-fade">
       <header className="border-b border-[var(--hairline)] pb-8 text-center">
         <p className="font-body text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-          {lang === "hi" ? "भगवद्गीता" : "Bhagavad Gita"} ·{" "}
-          {formatVerseRef(sloka)}
+          {/* Devanagari inside a tracked Latin eyebrow: the globals.css guard
+              only fires under html[lang="hi"], so an EN reader was getting
+              0.22em pulled through "भगवद्गीता" — matras off their base
+              consonants, exactly what DESIGN.md forbids. */}
+          <span className="font-devanagari tracking-normal">
+            {lang === "hi" ? "भगवद्गीता" : "Bhagavad Gita"}
+          </span>{" "}
+          · {formatVerseRef(sloka)}
           {chapterTitle ? ` · ${chapterTitle}` : ""}
         </p>
 
-        <h1 className="mx-auto mt-6 max-w-3xl space-y-3 font-display text-[1.65rem] font-semibold leading-[1.75] tracking-wide text-[var(--text)] sm:text-[2rem] md:text-[2.15rem]">
+        {/* No `tracking-*` here: the html[lang="hi"] reset in globals.css only
+            matches bracketed Tailwind values, so a bare `tracking-wide` slipped
+            past it and tracked the verse in both languages. */}
+        <h1 className="mx-auto mt-6 max-w-3xl space-y-3 font-devanagari text-[1.65rem] font-semibold leading-[1.75] text-[var(--text)] sm:text-[2rem] md:text-[2.15rem]">
           {sanskritLines.map((line, i) => (
             <span key={i} className="block">
               {line}

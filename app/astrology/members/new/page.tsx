@@ -12,7 +12,7 @@ export default function NewAstrologyMemberPage() {
   return (
     <div className="relative mx-auto max-w-3xl space-y-10 py-10 sm:py-14 animate-fade">
       <div
-        className="pointer-events-none absolute -right-4 top-4 select-none font-display text-[5rem] leading-none text-white/[0.04] sm:text-[7rem]"
+        className="pointer-events-none absolute -right-4 top-4 select-none font-devanagari text-[5rem] leading-none text-white/[0.04] sm:text-[7rem]"
         aria-hidden
       >
         जन्म

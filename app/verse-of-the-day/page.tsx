@@ -40,7 +40,7 @@ export default async function VerseOfTheDayPage() {
         <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-4xl">
           {ref}
         </h1>
-        <p className="mt-3 font-display text-lg leading-relaxed text-[var(--text-muted)]">
+        <p className="mt-3 font-devanagari text-lg leading-[1.9] text-[var(--text-soft)]">
           {preview.join(" ")}
         </p>
         {selection?.nakshatra ? (

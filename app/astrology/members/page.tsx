@@ -57,7 +57,7 @@ export default function AstrologyMembersPage() {
   return (
     <div className="relative mx-auto max-w-3xl space-y-10 py-10 sm:py-14 animate-fade">
       <div
-        className="pointer-events-none absolute -right-8 top-0 select-none font-display text-[6rem] leading-none text-white/[0.04] sm:text-[8rem]"
+        className="pointer-events-none absolute -right-8 top-0 select-none font-devanagari text-[6rem] leading-none text-white/[0.04] sm:text-[8rem]"
         aria-hidden
       >
         कुण्डली

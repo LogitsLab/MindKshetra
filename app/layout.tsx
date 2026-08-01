@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Sora } from "next/font/google";
+import { Fraunces, Noto_Serif_Devanagari, Sora } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { ProgressProvider } from "@/components/ProgressProvider";
@@ -20,6 +20,23 @@ const body = Sora({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-body",
+});
+
+/**
+ * The third face, and the only one that is not a style choice.
+ *
+ * Fraunces ships no Devanagari subset, so every श्लोक — the app's core content
+ * — was silently substituted by whatever serif the OS happened to have. The
+ * one thing on the site nobody had typeset was the thing people come to read.
+ *
+ * Noto Serif Devanagari is Fraunces' closest companion in weight and warmth
+ * and carries the full conjunct set. `latin` rides along so mixed runs
+ * ("2.47 · भगवद्गीता") do not swap faces mid-line.
+ */
+const devanagari = Noto_Serif_Devanagari({
+  subsets: ["devanagari", "latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-devanagari",
 });
 
 export const metadata: Metadata = {
@@ -64,7 +81,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="dark"
-      className={`${display.variable} ${body.variable}`}
+      className={`${display.variable} ${body.variable} ${devanagari.variable}`}
     >
       <body className="font-body antialiased">
         <ThemeProvider>
