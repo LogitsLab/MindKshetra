@@ -1,6 +1,6 @@
 name: Deploy dev to Vercel
 
-# The dev integration branch deploys to https://dev-mind.logitslab.com as a
+# The dev integration branch deploys to https://mind-dev.logitslab.com as a
 # Vercel *preview* deployment aliased to a stable domain. Production stays
 # main-only (deploy.yml). Setup steps live in docs/dev-environment.md.
 
@@ -57,13 +57,13 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Alias to dev-mind.logitslab.com
+      - name: Alias to mind-dev.logitslab.com
         # Owner-gated: until the domain is added to the Vercel project +
         # DNS, aliasing fails ("Response Error") while the deploy above
         # succeeded. A missing vanity domain must not paint the run red —
         # the deploy step's own URL is the artifact that matters.
         continue-on-error: true
-        run: vercel alias set ${{ steps.deploy.outputs.url }} dev-mind.logitslab.com --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel alias set ${{ steps.deploy.outputs.url }} mind-dev.logitslab.com --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

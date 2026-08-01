@@ -2,7 +2,7 @@
 
 REST JSON endpoints for the web app and the Expo mobile app. Base URL is
 `NEXT_PUBLIC_SITE_URL` — production `https://mind.logitslab.com`, dev site
-`https://dev-mind.logitslab.com`, local `http://localhost:3000`.
+`https://mind-dev.logitslab.com`, local `http://localhost:3000`.
 
 The mobile client `MindKshetra-app/src/api/endpoints.ts` (in the
 [MindKshetra-app](https://github.com/LogitsLab/MindKshetra-app) repo) is the
@@ -53,7 +53,7 @@ Configure these Redirect URLs in Supabase → Authentication → URL Configurati
 
 - `http://localhost:3000/auth/callback`
 - `https://mind.logitslab.com/auth/callback`
-- `https://dev-mind.logitslab.com/auth/callback` (dev site)
+- `https://mind-dev.logitslab.com/auth/callback` (dev site)
 - `mindkshetra://auth/callback`
 - `exp://127.0.0.1:8081/--/auth/callback` (local Expo Go)
 

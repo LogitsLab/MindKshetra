@@ -1,27 +1,23 @@
-# Dev environment — branch model and dev-mind.logitslab.com
+# Dev environment — branch model and mind-dev.logitslab.com
 
 ## Branch model
 
 - **`dev`** — the integration branch, in BOTH repos (web + mobile). All feature
   work merges here. It deploys continuously to
-  **https://dev-mind.logitslab.com** via `.github/workflows/deploy-dev.yml`.
+  **https://mind-dev.logitslab.com** via `.github/workflows/deploy-dev.yml`.
 - **`main`** — production only. Nothing merges to `main` except an owner-driven
   promotion of `dev` (which triggers the existing production deploy on web and
   the EAS release train on mobile). Day-to-day work never targets it.
 
 ## One-time setup (owner, ~15 minutes)
 
-1. **Vercel domain**: ✅ `dev-mind.logitslab.com` is added to the project
+1. **Vercel domain**: ✅ `mind-dev.logitslab.com` is added to the project
    (via CLI, 2026-07-31). The deploy-dev workflow aliases each dev deployment
    to it.
-2. **DNS** (still pending): add a CNAME for `dev-mind` →
-   `cname.vercel-dns.com` in the `logitslab.com` zone — its nameservers are
-   Google (`ns-cloud-a*.googledomains.com`), so the record lives in Google
-   Cloud DNS / the domain host's DNS panel. Vercel auto-verifies once it
-   propagates.
+2. **DNS**: ✅ `mind-dev` CNAME → Vercel DNS is live (verified 2026-08-01).
 3. **Branch-scoped env vars** (Vercel → Settings → Environment Variables,
    environment "Preview", branch `dev`) — already set via CLI:
-   - `NEXT_PUBLIC_SITE_URL=https://dev-mind.logitslab.com`
+   - `NEXT_PUBLIC_SITE_URL=https://mind-dev.logitslab.com`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — the **MindKshetra-dev** publishable key
    - `SUPABASE_SERVICE_ROLE_KEY` — the MindKshetra-dev secret key (sensitive)
    - `NEXT_PUBLIC_SUPABASE_URL` — the MindKshetra-dev project URL
@@ -58,7 +54,7 @@ bearer.
 
 - **Prod project** — serves `main` / mind.logitslab.com. Schema moves only at
   promotion time.
-- **MindKshetra-dev** — serves the `dev` branch / dev-mind.logitslab.com and
+- **MindKshetra-dev** — serves the `dev` branch / mind-dev.logitslab.com and
   local development. Fresh migrations land here first and soak.
 
 Content does not live in either database by default (`CONTENT_SOURCE=json`
@@ -96,8 +92,8 @@ bootstrapped through 015 as of 2026-07-31.
 
 Authentication → URL Configuration:
 
-- Site URL: `https://dev-mind.logitslab.com`
-- Redirect URLs: `https://dev-mind.logitslab.com/auth/callback`,
+- Site URL: `https://mind-dev.logitslab.com`
+- Redirect URLs: `https://mind-dev.logitslab.com/auth/callback`,
   `http://localhost:3000/auth/callback`, `mindkshetra://auth/callback`,
   `exp://127.0.0.1:8081/--/auth/callback`
 
@@ -119,7 +115,7 @@ browsable either way.
 ## Mobile against the dev backend
 
 `eas.json` has a `dev-backend` build profile (extends `preview`) that points
-`EXPO_PUBLIC_API_URL` at `https://dev-mind.logitslab.com`:
+`EXPO_PUBLIC_API_URL` at `https://mind-dev.logitslab.com`:
 
 ```bash
 eas build --profile dev-backend --platform ios      # or android
@@ -128,7 +124,7 @@ eas build --profile dev-backend --platform ios      # or android
 For local development against the dev site, run with:
 
 ```bash
-EXPO_PUBLIC_API_URL=https://dev-mind.logitslab.com npx expo start
+EXPO_PUBLIC_API_URL=https://mind-dev.logitslab.com npx expo start
 ```
 
 ## Promotion to production

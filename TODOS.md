@@ -68,7 +68,7 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
 
 ## Owner-gated (see docs/nonprofit-kickoff.md + docs/dev-soak.md)
 
-- [ ] DNS CNAME for `dev-mind` (if still pending)
+- [x] DNS CNAME for `mind-dev.logitslab.com` (live 2026-08-01)
 - [x] Kill-switch defaults documented in `.env.example` (set false on Preview)
 - [x] Apply migration **017** to MindKshetra-dev (`path_runs` — 2026-08-01)
 - [ ] Set NEXT_PUBLIC_GITHUB_SPONSORS_URL / OPEN_COLLECTIVE / RAZORPAY /

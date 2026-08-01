@@ -1,24 +1,23 @@
 # Dev soak — no prod promote yet
 
 Everything in the next phase soaks on **MindKshetra-dev** and
-**https://dev-mind.logitslab.com**. Do not merge `dev` → `main` or apply
+**https://mind-dev.logitslab.com**. Do not merge `dev` → `main` or apply
 migrations 011–016 to prod until the owner signs the checklist at the bottom.
 
 ## Environment readiness
 
-- [ ] DNS: CNAME `dev-mind` → `cname.vercel-dns.com` (Google Cloud DNS /
-      domain host). Vercel verifies after propagation.
+- [x] DNS: `mind-dev.logitslab.com` → Vercel (verified 2026-08-01).
 - [ ] Preview / `dev` branch env: kill switches **dark**
   - `COMMUNITY_REFLECTIONS_ENABLED=false`
   - `COMMUNITY_REPORTS_ENABLED=false`
   (Unset means *live* — do not leave unset on shared Preview.)
 - [ ] `CRON_SECRET` set in GitHub Actions secrets (matches Vercel Preview if
-      you tick push-dispatch against dev-mind).
+      you tick push-dispatch against mind-dev).
 - [ ] Schema on MindKshetra-dev through **018** (`npm run db:migrate -- <dev-ref>`).
-- [ ] Mobile uses `EXPO_PUBLIC_API_URL=https://dev-mind.logitslab.com` or the
+- [ ] Mobile uses `EXPO_PUBLIC_API_URL=https://mind-dev.logitslab.com` or the
       EAS `dev-backend` profile.
 
-## Manual smoke (web on dev-mind + Expo → dev API)
+## Manual smoke (web on mind-dev + Expo → dev API)
 
 Record pass/fail with date below.
 
@@ -47,7 +46,7 @@ Date: 2026-08-01  Reviewer: Auto (agent) — automated soak pass
 - [x] Kill-switch defaults set false in `.env.example` and local `.env.local`
 - [x] Migration 017 (`path_runs`) applied to MindKshetra-dev (011–016 already present; 002 policy exists noisily)
 - [x] No Calm / open-feed / AstroTalk-shaped scope in this change set
-- [ ] Manual browser smoke on https://dev-mind.logitslab.com — **owner** (DNS + Preview deploy); use table above
+- [ ] Manual browser smoke on https://mind-dev.logitslab.com — **owner** (DNS + Preview deploy); use table above
 
 Findings (blockers only on `dev`):
 

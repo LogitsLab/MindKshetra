@@ -77,11 +77,11 @@ Tokens will not leave Expo Go / simulators until credentials exist.
 | `notifStreakReminder` | `streak_reminder` | Only when streak at risk per dispatcher rules |
 | Off / no token | — | No send; ledger not claimed |
 
-Manual tick against **dev-mind** (after `CRON_SECRET` matches):
+Manual tick against **mind-dev** (after `CRON_SECRET` matches):
 
 ```bash
 curl -fsS -H "Authorization: Bearer $CRON_SECRET" \
-  https://dev-mind.logitslab.com/api/cron/push-dispatch
+  https://mind-dev.logitslab.com/api/cron/push-dispatch
 ```
 
 ## GitHub disables schedules on quiet repos

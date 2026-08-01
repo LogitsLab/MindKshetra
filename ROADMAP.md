@@ -32,7 +32,7 @@ Gita×Jyotish moat, and never behind a paywall.
 
 **Sangha order:** Model A (WhatsApp / Telegram / weekly live) before any
 in-app circles. Circles stay launch-frozen until G2 + G3 + a second named
-steward. Soak everything on `dev` / [dev-mind.logitslab.com](https://dev-mind.logitslab.com)
+steward. Soak everything on `dev` / [mind-dev.logitslab.com](https://mind-dev.logitslab.com)
 before any `dev` → `main` promote (see [docs/dev-soak.md](docs/dev-soak.md)).
 
 ## Shipped (on `dev`; promote to production only after soak)

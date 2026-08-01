@@ -4,7 +4,7 @@ Clarity from the Gita, for the battlefield of the mind.
 
 Open-source web companion for the Bhagavad Gita — and Jyotish birth charts — at
 [mind.logitslab.com](https://mind.logitslab.com) (dev builds:
-[dev-mind.logitslab.com](https://dev-mind.logitslab.com)).
+[mind-dev.logitslab.com](https://mind-dev.logitslab.com)).
 
 **Mobile app:** [LogitsLab/MindKshetra-app](https://github.com/LogitsLab/MindKshetra-app)
 
@@ -72,7 +72,7 @@ This is an **open repository**. We welcome:
 - **Pull requests** — focused changes with a clear description
 
 **PRs target the `dev` branch, never `main`.** `dev` is the integration
-branch and deploys to [dev-mind.logitslab.com](https://dev-mind.logitslab.com);
+branch and deploys to [mind-dev.logitslab.com](https://mind-dev.logitslab.com);
 `main` is production ([mind.logitslab.com](https://mind.logitslab.com)).
 
 Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** before opening a PR.
