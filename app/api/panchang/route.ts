@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { computeDailyPanchang } from "@/lib/astrology/daily-panchang";
 import { resolveIanaTz } from "@/lib/astrology/geo";
+import { localDayString } from "@/lib/practice-streaks";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
 import { redisGet, redisSet } from "@/lib/redis";
 
@@ -43,12 +44,7 @@ export async function GET(request: NextRequest) {
   const date =
     dateParam && DAY_SHAPE.test(dateParam)
       ? dateParam
-      : new Intl.DateTimeFormat("en-CA", {
-          timeZone: ianaTz,
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        }).format(new Date());
+      : localDayString(ianaTz, new Date());
 
   // ~11 km rounding: sunrise shifts well under a minute inside a bucket.
   const cacheKey = `panchang:${date}:${lat.toFixed(1)}:${lng.toFixed(1)}`;
