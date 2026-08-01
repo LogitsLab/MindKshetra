@@ -42,6 +42,12 @@ type VerseState = "idle" | "loading" | "loaded" | "failed";
 /** How today's flow ended up recorded — never pretend, never guess. */
 type LogOutcome = "recorded" | "deviceOnly" | "failed";
 
+type ChartOffer = {
+  verseId: number;
+  ref: string;
+  excerpt: string;
+};
+
 function deviceTimezone(): string | undefined {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -112,6 +118,31 @@ function clearDeviceLog(): void {
   }
 }
 
+function guestPathKey(id: string) {
+  return `mindkshetra-path-${id}`;
+}
+
+function markPathGuest(pathId: string, day: number) {
+  try {
+    const raw = localStorage.getItem(guestPathKey(pathId));
+    const parsed = raw
+      ? (JSON.parse(raw) as { completedDays?: unknown })
+      : { completedDays: [] };
+    const prior = Array.isArray(parsed.completedDays)
+      ? parsed.completedDays.filter(
+          (d): d is number => typeof d === "number" && Number.isInteger(d)
+        )
+      : [];
+    const next = Array.from(new Set([...prior, day])).sort((a, b) => a - b);
+    localStorage.setItem(
+      guestPathKey(pathId),
+      JSON.stringify({ completedDays: next })
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
 async function logPractice(
   body: Record<string, unknown>
 ): Promise<
@@ -150,6 +181,7 @@ export default function SadhanaClient() {
   const [logOutcome, setLogOutcome] = useState<LogOutcome | null>(null);
   const [retrying, setRetrying] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [chartOffer, setChartOffer] = useState<ChartOffer | null>(null);
   const [pathContext, setPathContext] = useState<PathContext | null>(null);
   // "Tomorrow: day N of your path" on the done screen; null when no path is
   // active or the path just finished its last day.
@@ -334,10 +366,67 @@ export default function SadhanaClient() {
     );
   }, []);
 
+  // Optional Pressure→Practice verse for chart users (mood stage only).
+  useEffect(() => {
+    if (!signedIn || stage !== "mood") {
+      setChartOffer(null);
+      return;
+    }
+    let cancelled = false;
+    fetch("/api/astrology/members")
+      .then((res) => (res.ok ? res.json() : null))
+      .then(async (data) => {
+        const members = (data?.members ?? []) as {
+          id: string;
+          relationship?: string;
+        }[];
+        if (!members.length || cancelled) return;
+        const self =
+          members.find((m) => m.relationship === "self") ?? members[0];
+        const cardRes = await fetch("/api/astrology/practice-card", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ memberId: self.id }),
+        });
+        if (!cardRes.ok || cancelled) return;
+        const card = (await cardRes.json()) as {
+          verse?: {
+            id: number;
+            ref: string;
+            english: string;
+            hindi: string;
+          };
+        };
+        if (!card.verse || cancelled) return;
+        const excerptSource =
+          lang === "hi" ? card.verse.hindi : card.verse.english;
+        const excerpt =
+          excerptSource.length > 140
+            ? `${excerptSource.slice(0, 140).trimEnd()}…`
+            : excerptSource;
+        setChartOffer({
+          verseId: card.verse.id,
+          ref: card.verse.ref,
+          excerpt,
+        });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [signedIn, stage, lang]);
+
   function pickMood(moodId: string) {
     moodRef.current = moodId;
     setStage("sit");
     void loadVerse(moodId);
+  }
+
+  function useChartVerse() {
+    if (!chartOffer) return;
+    moodRef.current = null;
+    setStage("sit");
+    void loadVerseById(chartOffer.verseId);
   }
 
   const haltClock = useCallback(() => {
@@ -538,6 +627,26 @@ export default function SadhanaClient() {
           <h2 className="font-display text-2xl text-[var(--text)]">
             {t("sadhanaMoodPrompt")}
           </h2>
+          {chartOffer ? (
+            <div className="mt-6 border border-[var(--line)] px-4 py-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
+                {chartOffer.ref}
+              </p>
+              <p className="mt-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
+                {t("sadhanaChartVerseBlurb")}
+              </p>
+              <p className="mt-2 text-[15px] font-light leading-relaxed text-[var(--text-soft)]">
+                {chartOffer.excerpt}
+              </p>
+              <button
+                type="button"
+                onClick={useChartVerse}
+                className="mt-4 min-h-10 bg-[var(--brass)] px-4 py-2 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+              >
+                {t("sadhanaChartVerse")}
+              </button>
+            </div>
+          ) : null}
           <div className="mt-6 flex flex-wrap gap-2">
             {moods.map((mood) => (
               <button
@@ -555,6 +664,11 @@ export default function SadhanaClient() {
 
       {stage === "sit" ? (
         <section>
+          {pathContext ? (
+            <p className="mb-6 text-sm text-[var(--brass-soft)]">
+              {t("sadhanaPathDayHint")}
+            </p>
+          ) : null}
           {verseState === "loading" ? (
             <div className="mb-8 border-l-2 border-[var(--hairline)] pl-5" aria-hidden>
               <div className="h-3 w-40 animate-pulse bg-[var(--hairline)]" />

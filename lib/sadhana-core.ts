@@ -10,7 +10,7 @@ import {
  * lib/sadhana.ts re-exports the shared names so existing imports stand,
  * the same split lib/events.ts / lib/events-names.ts uses.
  */
-export const PRACTICES = ["flow", "japa", "sit", "pranayama"] as const;
+export const PRACTICES = ["flow", "japa", "sit", "pranayama", "meditation"] as const;
 export type Practice = (typeof PRACTICES)[number];
 
 export function isPractice(value: unknown): value is Practice {

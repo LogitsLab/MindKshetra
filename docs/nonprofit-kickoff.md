@@ -128,14 +128,47 @@ G3 external spine tracker: [safeguarding.md](safeguarding.md). Dev soak:
 
 In-app page: `/sangha` — join links (env) + “I attended” → `sangha_attended`.
 
+### Channel launch checklist (owner ops)
+
+1. Create WhatsApp Channel → copy invite URL
+2. Create Telegram group (admin-approval) → copy invite URL
+3. On Vercel **Preview / `dev`** (not prod yet), set:
+   - `NEXT_PUBLIC_WHATSAPP_CHANNEL_URL`
+   - `NEXT_PUBLIC_TELEGRAM_URL`
+4. Redeploy Preview; confirm `/sangha` shows join buttons (not “channels soon”)
+5. Schedule first weekly live (30–45 min Meet/YouTube): verse + sit + Q&A
+6. After live: attendees tap **I attended** on `/sangha` (counts toward G2)
+7. Daily: post VOTD + OG card to WhatsApp; weekly: one Telegram prompt
+
 - [ ] WhatsApp Channel live; set `NEXT_PUBLIC_WHATSAPP_CHANNEL_URL` on Preview
 - [ ] Telegram group (admin-approval); set `NEXT_PUBLIC_TELEGRAM_URL` on Preview
 - [ ] GitHub Discussions enabled on both repos
 - [ ] First weekly live scheduled (Meet/YouTube); attendees tap “I attended”
 - [ ] Seva board — monthly chapter-tied action (ops, not code-first)
 
+### Money rails on Preview (Track 1 → env)
+
+When OC / Sponsors / Razorpay URLs exist, set on Preview only first:
+
+- `NEXT_PUBLIC_OPEN_COLLECTIVE_URL`
+- `NEXT_PUBLIC_GITHUB_SPONSORS_URL`
+- `NEXT_PUBLIC_RAZORPAY_DONATION_URL` (after Indian entity + 12A/80G path)
+
+Monthly: update [`data/transparency.json`](../data/transparency.json) (`updated` month + amounts).
+
 ## Gate call log
 
 | Date | Gate | Result | Notes |
 |---|---|---|---|
-| | G1 / G2 / G3 | miss / watch / pass | |
+| 2026-08-01 | G1 / G2 | miss (baseline) | Dev soak; habit started — run SQL weekly on MindKshetra-dev per impact-metrics.md |
+| 2026-08-01 | G3 | miss | Grievance + clinician review + second steward still open — see safeguarding.md |
+
+### Weekly gate SQL habit
+
+Every Friday (or after weekly live), in Supabase SQL editor on **MindKshetra-dev**:
+
+1. Run G1 + G2 queries from [impact-metrics.md](impact-metrics.md)
+2. Append a row to the table in [dev-soak.md](dev-soak.md) Gate query habit
+3. Append a dated call here (miss / watch / pass)
+
+Do **not** flip community kill switches on miss or watch.

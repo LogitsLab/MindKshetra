@@ -15,9 +15,10 @@ export const EVENT_NAMES = [
   "chart_cast",
   "predictions_viewed",
   "sadhana_logged",
+  "meditation_completed",
   // Gate metrics G1/G2. sangha_attended predates the Sangha → Community UI
-  // rename (WS6) and stays as-is: gate queries and recorded history bind to
-  // the name, not to the label on the page.
+  // rename and stays as-is: gate queries and recorded history bind to the
+  // name, not to the label on the page.
   "reflection_shared",
   "sangha_attended",
 ] as const;

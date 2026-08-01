@@ -25,6 +25,14 @@ export type PracticePath = {
   days: PathDay[];
 };
 
+const PATH_ORDER = [
+  "anxiety-7",
+  "grief-7",
+  "purpose-7",
+  "relationships-7",
+  "student-7",
+];
+
 const ROOT = path.join(process.cwd(), "data", "paths");
 
 export function listPracticePaths(): PracticePath[] {
@@ -34,9 +42,18 @@ export function listPracticePaths(): PracticePath[] {
   } catch {
     return [];
   }
-  return files
+  const loaded = files
     .map((f) => loadPracticePath(f.replace(/\.json$/, "")))
     .filter((p): p is PracticePath => Boolean(p));
+
+  return loaded.sort((a, b) => {
+    const ia = PATH_ORDER.indexOf(a.id);
+    const ib = PATH_ORDER.indexOf(b.id);
+    if (ia === -1 && ib === -1) return a.id.localeCompare(b.id);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
 }
 
 export function loadPracticePath(id: string): PracticePath | null {

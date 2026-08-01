@@ -14,7 +14,7 @@ migrations 011–016 to prod until the owner signs the checklist at the bottom.
   (Unset means *live* — do not leave unset on shared Preview.)
 - [ ] `CRON_SECRET` set in GitHub Actions secrets (matches Vercel Preview if
       you tick push-dispatch against dev-mind).
-- [ ] Schema on MindKshetra-dev through **016** (`npm run db:migrate -- <dev-ref>`).
+- [ ] Schema on MindKshetra-dev through **018** (`npm run db:migrate -- <dev-ref>`).
 - [ ] Mobile uses `EXPO_PUBLIC_API_URL=https://dev-mind.logitslab.com` or the
       EAS `dev-backend` profile.
 
@@ -35,6 +35,7 @@ Record pass/fail with date below.
 | `/sangha` “I attended” → `sangha_attended` event | | |
 | Account: notification prefs PATCH; public profile PUT → `/u/[handle]` | | |
 | `/paths/anxiety-7` day list + verse links | | |
+| `/meditation` Day 1 mood → TTS/silence → complete | | |
 | `/panchang/calendar` month list loads | | |
 
 ## Eng re-review notes
@@ -63,7 +64,7 @@ Weekly: run G1 / G2 from [impact-metrics.md](impact-metrics.md). Dated calls:
 
 | Date | G1 practitioners (last 2 full weeks) | G2 attendees | Call |
 |---|---|---|---|
-| | | | miss / watch / pass |
+| 2026-08-01 | baseline — run after first live week | baseline | miss (habit started) |
 
 ## Deferred promote checklist (owner sign-off required)
 
@@ -71,9 +72,11 @@ Do **not** start until soak is declared done:
 
 1. Set prod kill switches dark before traffic.
 2. Deploy current app code to production, then
-   `npm run db:migrate -- <prod-ref>` for 011 → 016 (016: code before SQL).
+   `npm run db:migrate -- <prod-ref>` for 011 → **017** (016: code before SQL;
+   017 `path_runs` after soak on dev).
 3. PR `dev` → `main` (web; mobile when store-ready).
 4. Prod smoke (same table as above).
 5. Optional follow-up: CI guard refusing merge while migrations ahead of prod.
 
-**Promote status:** deferred — soak first.
+**Promote status:** deferred — soak first. This checklist is the promote todo;
+executing it early is a strategy regression.

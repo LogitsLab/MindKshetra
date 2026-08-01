@@ -30,6 +30,20 @@ export default function SupportClient() {
         {t("supportNoLock")}
       </p>
 
+      <section className="mt-10 border border-[var(--line)] px-5 py-6 sm:px-7">
+        <h2 className="font-display text-xl text-[var(--text)]">
+          {t("supportSustainerTitle")}
+        </h2>
+        <p className="mt-2 text-[15px] font-light leading-relaxed text-[var(--text-muted)]">
+          {t("supportSustainerBody")}
+        </p>
+        {!GITHUB_SPONSORS && !OPEN_COLLECTIVE && !UPI_DONATION ? (
+          <p className="mt-4 text-sm text-[var(--text-soft)]">
+            {t("supportRailsPending")}
+          </p>
+        ) : null}
+      </section>
+
       <section className="mt-12 border-t border-[var(--hairline)] pt-8">
         <h2 className="font-display text-2xl text-[var(--text)]">
           {t("supportGive")}

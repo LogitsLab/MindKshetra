@@ -49,6 +49,41 @@ dispatch heartbeat") shows sends per day from the ledger. Zero rows for a
 day with opted-in users = the tick did not run — check the Actions tab
 before debugging the route.
 
+## APNs / FCM credentials (EAS — required for real devices)
+
+Code path is ready: `expo-notifications` plugin in `app.json`,
+`src/notifications/registerPush.ts`, Account prefs, and this dispatcher.
+Tokens will not leave Expo Go / simulators until credentials exist.
+
+### One-time setup (owner)
+
+1. **Apple (APNs):** Apple Developer → Keys → Apple Push Notifications service
+   (Key). Download `.p8` once. In EAS:
+   `eas credentials` → iOS → Push Key → upload Key ID + Team ID + `.p8`.
+2. **Google (FCM):** Firebase project for `app.mindkshetra.mobile` → Cloud
+   Messaging → service account / FCM V1. In EAS:
+   `eas credentials` → Android → Google Service Account / FCM.
+3. Rebuild with EAS (`preview` or `dev-backend` profile) — credentials attach
+   at build time; OTA alone is not enough for first push enablement.
+4. On a TestFlight / internal APK: sign in → Account → enable dawn verse and/or
+   streak → confirm a row in `push_tokens` (Supabase) and a later
+   `push_sends` ledger row after a dispatch tick.
+
+### Verify dawn / streak against prefs
+
+| Pref | Kind | Expect |
+|---|---|---|
+| `notifDailyVerse` + hour | `daily_verse` | Send in that local hour window |
+| `notifStreakReminder` | `streak_reminder` | Only when streak at risk per dispatcher rules |
+| Off / no token | — | No send; ledger not claimed |
+
+Manual tick against **dev-mind** (after `CRON_SECRET` matches):
+
+```bash
+curl -fsS -H "Authorization: Bearer $CRON_SECRET" \
+  https://dev-mind.logitslab.com/api/cron/push-dispatch
+```
+
 ## GitHub disables schedules on quiet repos
 
 GitHub **disables scheduled workflows after 60 days without repository

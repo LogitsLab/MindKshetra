@@ -23,6 +23,11 @@ export const en = {
   supportAgpl:
     "The code is open source under AGPL — dāna funds software no one can enclose. Clarity should not sit behind a temple wall of code.",
   supportCommunity: "Community",
+  supportSustainerTitle: "Sustainer recognition",
+  supportSustainerBody:
+    "When donation rails go live, Sustainer is a thank-you badge only — every verse, chart, and chat stays free. Nothing functional ever locks.",
+  supportRailsPending:
+    "Open Collective, GitHub Sponsors, and UPI links appear here as soon as each account is approved. Until then the page stays honest about what is still forming.",
   navSupport: "Support",
 };
 
@@ -46,5 +51,10 @@ export const hi: Record<keyof typeof en, string> = {
   supportAgpl:
     "कोड AGPL के अंतर्गत मुक्त स्रोत है — दान ऐसे सॉफ़्टवेयर को संभव बनाता है जिसे कोई घेर नहीं सकता। स्पष्टता किसी कोड-रूपी मंदिर की दीवार के पीछे नहीं होनी चाहिए।",
   supportCommunity: "समुदाय",
+  supportSustainerTitle: "सस्टेनर सम्मान",
+  supportSustainerBody:
+    "दान मार्ग चालू होने पर सस्टेनर केवल धन्यवाद बैज है — हर श्लोक, कुंडली और संवाद निःशुल्क रहता है। कुछ भी बंद नहीं होता।",
+  supportRailsPending:
+    "Open Collective, GitHub Sponsors और UPI लिंक प्रत्येक खाते की स्वीकृति पर यहाँ दिखाई देंगे। तब तक यह पृष्ठ ईमानदारी से बताता है कि क्या अभी बन रहा है।",
   navSupport: "सहयोग",
 };

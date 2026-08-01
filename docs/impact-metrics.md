@@ -294,6 +294,49 @@ group by 1, 2
 order by 1, 2;
 ```
 
+## Meditation course
+
+Event `meditation_completed` (props: `sessionId`, `day`, `moodBefore`, `moodAfter`, `tier`). Completions also write `sadhana_logged` with `practice = meditation` (counts toward G1).
+
+### Weekly course practitioners
+
+```sql
+select
+  date_trunc('week', created_at)::date as week,
+  count(distinct user_id) as course_users
+from app_events
+where name = 'meditation_completed'
+  and created_at > now() - interval '12 weeks'
+group by 1
+order by 1;
+```
+
+### Day 1 → Day 7 funnel (foundation)
+
+```sql
+select
+  (props->>'day')::int as day,
+  count(distinct user_id) as users
+from app_events
+where name = 'meditation_completed'
+  and props->>'tier' = 'foundation'
+  and created_at > now() - interval '12 weeks'
+group by 1
+order by 1;
+```
+
+### Mean mood delta (after − before)
+
+```sql
+select
+  round(avg((mood_after - mood_before)::numeric), 2) as mean_delta,
+  count(*) as n
+from meditation_completions
+where mood_before is not null
+  and mood_after is not null
+  and completed_at > now() - interval '30 days';
+```
+
 ## Not yet measurable
 
 - **Crisis redirects handled** — the chat crisis path (`app/api/chat/route.ts`)

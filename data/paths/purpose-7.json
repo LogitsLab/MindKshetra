@@ -1,0 +1,80 @@
+{
+  "id": "purpose-7",
+  "days_count": 7,
+  "title_en": "Seven days with purpose",
+  "title_hi": "उद्देश्य के साथ सात दिन",
+  "intro_en": "A week for the mind that asks “what am I for?” — duty without freeze, action without vanity. One verse, one sit, one honest line a day. Not career advice; a practice of seeing clearly.",
+  "intro_hi": "जो मन पूछता है «मैं किसलिए हूँ?» — उसके लिए एक सप्ताह: कर्तव्य बिना जमे, कर्म बिना अहंकार। प्रतिदिन एक श्लोक, बैठक, एक सच्ची पंक्ति। करियर सलाह नहीं; स्पष्ट देखने का अभ्यास।",
+  "days": [
+    {
+      "day": 1,
+      "ref": { "chapter": 3, "verse": 35 },
+      "practice": "sit",
+      "minutes": 3,
+      "title_en": "Your own dharma",
+      "title_hi": "अपना ही धर्म",
+      "prompt_en": "Whose path have you been copying — and what is one action that feels like yours alone?",
+      "prompt_hi": "किसके मार्ग की नकल कर रहे हैं — और वह एक कर्म क्या है जो केवल आपका लगता है?"
+    },
+    {
+      "day": 2,
+      "ref": { "chapter": 2, "verse": 47 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Claim the action",
+      "title_hi": "कर्म अपना लें",
+      "prompt_en": "Write the next right action you can take today that does not need applause.",
+      "prompt_hi": "आज वह अगला सही कर्म लिखें जिसे तालियों की ज़रूरत नहीं।"
+    },
+    {
+      "day": 3,
+      "ref": { "chapter": 2, "verse": 50 },
+      "practice": "pranayama",
+      "minutes": 5,
+      "title_en": "Skill in action",
+      "title_hi": "कर्म में कुशलता",
+      "prompt_en": "Where did you rush or force today — and where did skill feel quiet?",
+      "prompt_hi": "आज कहाँ जल्दबाज़ी या ज़बरदस्ती हुई — और कहाँ कुशलता शांत लगी?"
+    },
+    {
+      "day": 4,
+      "ref": { "chapter": 18, "verse": 37 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Bitter then nectar",
+      "title_hi": "पहले कड़वा, फिर अमृत",
+      "prompt_en": "What worthwhile work still tastes bitter at the start — and is still yours to do?",
+      "prompt_hi": "कौन-सा सार्थक काम अभी भी आरंभ में कड़वा लगता है — और फिर भी आपका है?"
+    },
+    {
+      "day": 5,
+      "ref": { "chapter": 3, "verse": 21 },
+      "practice": "japa",
+      "minutes": 5,
+      "title_en": "What you do teaches",
+      "title_hi": "आपका कर्म सिखाता है",
+      "prompt_en": "If someone watched only your actions today, what dharma would they learn?",
+      "prompt_hi": "यदि कोई केवल आपके कर्म देखे, तो कौन-सा धर्म सीखेगा?"
+    },
+    {
+      "day": 6,
+      "ref": { "chapter": 18, "verse": 63 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Deliberate, then choose",
+      "title_hi": "विचार कर, फिर चुनें",
+      "prompt_en": "Krishna taught and left the choice. What choice are you postponing?",
+      "prompt_hi": "कृष्ण ने सिखाया और चुनाव छोड़ा। आप कौन-सा चुनाव टाल रहे हैं?"
+    },
+    {
+      "day": 7,
+      "ref": { "chapter": 18, "verse": 58 },
+      "practice": "sit",
+      "minutes": 10,
+      "title_en": "Through grace, the work",
+      "title_hi": "कृपा से ही कर्म",
+      "prompt_en": "Name one place you will act this week without needing to see the whole map.",
+      "prompt_hi": "इस सप्ताह कहाँ बिना पूरा नक्शा देखे कर्म करेंगे — एक जगह लिखें।"
+    }
+  ]
+}

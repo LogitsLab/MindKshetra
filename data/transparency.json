@@ -1,6 +1,6 @@
 {
-  "updated": "2026-07",
-  "note": "Amounts are filled in by a maintainer each month; null means not yet published.",
+  "updated": "2026-08",
+  "note": "Amounts are filled in by a maintainer each month; null means not yet published. Publish by the 5th of each month on /support once OC/Sponsors or Razorpay are live.",
   "items": [
     { "id": "vercel", "label_en": "Vercel — web hosting & cron", "label_hi": "Vercel — वेब होस्टिंग व क्रॉन", "amount": null },
     { "id": "supabase", "label_en": "Supabase — database & auth", "label_hi": "Supabase — डेटाबेस व प्रमाणीकरण", "amount": null },
@@ -11,5 +11,15 @@
     { "id": "apple", "label_en": "Apple Developer Program (yearly)", "label_hi": "Apple डेवलपर प्रोग्राम (वार्षिक)", "amount": null },
     { "id": "play", "label_en": "Google Play Console (one-time)", "label_hi": "Google Play कंसोल (एक बार)", "amount": null },
     { "id": "domain", "label_en": "Domain", "label_hi": "डोमेन", "amount": null }
-  ]
+  ],
+  "publish_habit": {
+    "cadence": "monthly",
+    "owner": "steward",
+    "next_due": "2026-09-05",
+    "preview_env_keys": [
+      "NEXT_PUBLIC_OPEN_COLLECTIVE_URL",
+      "NEXT_PUBLIC_GITHUB_SPONSORS_URL",
+      "NEXT_PUBLIC_RAZORPAY_DONATION_URL"
+    ]
+  }
 }

@@ -46,9 +46,8 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
       only ranks)
 - [ ] Circles (sanghas): see [docs/circles-design.md](docs/circles-design.md) —
       frozen until G2+G3+second steward; do not open migration early
-- [ ] Pressure→Practice as the sādhana verse for chart users (the card
-      shipped on the chart overview; the optional sadhana integration
-      from the plan is still open)
+- [x] Pressure→Practice as the sādhana verse for chart users (optional
+      offer on `/sadhana` mood stage; path-day deep link still wins)
 - [ ] Festival email + push reminders (cron clone of votd-email; push kinds
       ride the shipped dispatcher)
 - [ ] Named-festival rule table (`data/festivals.json` — lunar month + paksha

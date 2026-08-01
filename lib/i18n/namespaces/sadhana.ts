@@ -38,6 +38,10 @@ export const en = {
   sadhanaSignInHint: "Sign in to keep your practice record across days.",
   sadhanaHomeLink: "Begin today's sādhana",
   sadhanaHomeBody: "A verse, a short sit, one quiet line.",
+  sadhanaChartVerse: "Use today’s Pressure→Practice verse",
+  sadhanaChartVerseBlurb:
+    "Your chart’s leading tension meets one Gita verse — optional, never required.",
+  sadhanaPathDayHint: "Path day practice — this verse, then sit and complete.",
   japaTitle: "Japa",
   japaIntro: "Count a mala of 108 — tap the circle, or press space.",
   japaMalas: "malas",
@@ -82,6 +86,10 @@ export const hi: Record<keyof typeof en, string> = {
   sadhanaSignInHint: "अपनी साधना का क्रम बनाए रखने के लिए साइन इन करें।",
   sadhanaHomeLink: "आज की साधना आरंभ करें",
   sadhanaHomeBody: "एक श्लोक, एक छोटी बैठक, एक शांत पंक्ति।",
+  sadhanaChartVerse: "आज का Pressure→Practice श्लोक लें",
+  sadhanaChartVerseBlurb:
+    "कुंडली का मुख्य दबाव एक गीता श्लोक से मिलता है — वैकल्पिक, अनिवार्य नहीं।",
+  sadhanaPathDayHint: "मार्ग का दिन — यह श्लोक, फिर बैठें और पूर्ण करें।",
   japaTitle: "जप",
   japaIntro: "108 की एक माला — वृत्त पर टैप करें, या स्पेस दबाएँ।",
   japaMalas: "मालाएँ",

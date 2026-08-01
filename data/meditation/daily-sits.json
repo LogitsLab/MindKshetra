@@ -1,0 +1,67 @@
+{
+  "id": "daily-sits",
+  "title_en": "One-off sits",
+  "title_hi": "एक-बार बैठकें",
+  "intro_en": "Short sits outside the unlock path. Always available — for days you already finished the course, or when you only want five quiet minutes.",
+  "intro_hi": "अनलॉक श्रृंखला के बाहर छोटी बैठकें। सदैव उपलब्ध — पाठ्यक्रम पूरा होने के बाद, या जब केवल पाँच शांत मिनट चाहें।",
+  "sessions": [
+    {
+      "id": "daily-breath-5",
+      "day_number": 0,
+      "tier": "daily",
+      "track": null,
+      "unlock_rule": "always",
+      "audio_url": null,
+      "duration_minutes": 5,
+      "title_en": "Five minutes of breath",
+      "title_hi": "पाँच मिनट श्वास",
+      "theme_en": "A simple return when the day is full.",
+      "theme_hi": "जब दिन भरा हो, एक सरल लौटना।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit. Soften the belly. Follow the breath in and out without changing it.",
+          "text_hi": "बैठें। पेट कोमल। श्वास को बिना बदले अंदर-बाहर देखें।"
+        },
+        { "type": "silence", "seconds": 200 },
+        {
+          "type": "speak",
+          "text_en": "One clear breath. Open the eyes. You can return any time.",
+          "text_hi": "एक स्पष्ट श्वास। आँखें खोलें। आप कभी भी लौट सकते हैं।"
+        }
+      ]
+    },
+    {
+      "id": "daily-release-8",
+      "day_number": 0,
+      "tier": "daily",
+      "track": null,
+      "unlock_rule": "always",
+      "audio_url": null,
+      "duration_minutes": 8,
+      "title_en": "Release the shoulders",
+      "title_hi": "कंधे छोड़ें",
+      "theme_en": "Let the upper body soften while the breath stays ordinary.",
+      "theme_hi": "ऊपरी शरीर को कोमल करें; श्वास सामान्य रहे।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Notice the shoulders. On the next exhale, let them drop a little. Jaw soft. Hands heavy.",
+          "text_hi": "कंधों पर ध्यान दें। अगली साँस छोड़ते हुए उन्हें थोड़ा गिराएँ। जबड़ा कोमल। हाथ भारी।"
+        },
+        { "type": "silence", "seconds": 45 },
+        {
+          "type": "speak",
+          "text_en": "Stay with breath. Each time tension returns to the neck or jaw, soften on the exhale.",
+          "text_hi": "श्वास के साथ रहें। गर्दन या जबड़े में तनाव लौटे तो साँस छोड़ते हुए कोमल करें।"
+        },
+        { "type": "silence", "seconds": 240 },
+        {
+          "type": "speak",
+          "text_en": "Stretch gently if you wish. Carry a softer shoulder into the next task.",
+          "text_hi": "चाहें तो हल्का खिंचाव करें। अगले काम में कोमल कंधा साथ रखें।"
+        }
+      ]
+    }
+  ]
+}

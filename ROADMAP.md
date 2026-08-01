@@ -19,12 +19,16 @@ nonprofit engines for retention, trust, donations, and impact. Lead with a
 paths, hosting, and circle ops — never aggressive paywalls.
 
 **Explicit non-goals (early):**
-- Generic meditation marketplace (Calm / Headspace clone)
+- Generic meditation *marketplace* with paywalled library (Calm / Headspace clone)
 - Open social feed (moderation hell + brand risk)
 - Paid astrologer marketplace (AstroTalk clone; fights AGPL + nonprofit story)
 - Turning Madhav into a therapist
 - Public gamification — milestones stay private to their user; no points,
   no levels, no leaderboards, by design (presence without performance)
+
+A **free progressive sit course** (`/meditation`, Tier 1 = 7 days) is allowed as
+a retention peer to scripture **sādhana** — not a replacement for the
+Gita×Jyotish moat, and never behind a paywall.
 
 **Sangha order:** Model A (WhatsApp / Telegram / weekly live) before any
 in-app circles. Circles stay launch-frozen until G2 + G3 + a second named
@@ -33,11 +37,16 @@ before any `dev` → `main` promote (see [docs/dev-soak.md](docs/dev-soak.md)).
 
 ## Shipped (on `dev`; promote to production only after soak)
 
+- **Meditation course (v1)** — `/meditation` foundation-7 progressive sits
+  (TTS + silence phases, mood before/after, unlock, guest merge); one-off
+  dailies; peer to sādhana — not japa.
 - **Practice layer** — Daily Sādhana, japa (grace-day streaks), guest merge;
-  themed paths (`/paths`, anxiety-7 + `path_runs`).
+  themed paths (`/paths`, five journeys + `path_runs`); path day → guided
+  sādhana (verse + sit + complete); Meditation tile → `/meditation`.
 - **Lifestyle layer** — sunrise-anchored panchang, month calendar,
   festival/ekadashi engine, nakshatra-leaning VOTD.
-- **The wedge** — Pressure→Practice card + chart-aware mood ordering.
+- **The wedge** — Pressure→Practice card + chart-aware mood ordering;
+  optional chart verse as today’s sādhana for signed-in chart users.
 - **Model A sangha surface** — `/sangha` (attend → `sangha_attended`), `/care`.
 - **Community rails, dark** — shared reflections, moderation, profiles, push
   dispatcher — behind kill switches until G1/G2/G3.

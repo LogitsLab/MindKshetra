@@ -6,7 +6,7 @@ import * as chat from "@/lib/i18n/namespaces/chat";
 import * as sadhana from "@/lib/i18n/namespaces/sadhana";
 import * as support from "@/lib/i18n/namespaces/support";
 import * as sangha from "@/lib/i18n/namespaces/sangha";
-import * as onboarding from "@/lib/i18n/namespaces/onboarding";
+import * as meditation from "@/lib/i18n/namespaces/meditation";
 
 /**
  * i18n entry point.
@@ -44,7 +44,7 @@ export const dictionary = {
     ...sadhana.en,
     ...support.en,
     ...sangha.en,
-    ...onboarding.en,
+    ...meditation.en,
   },
   hi: {
     ...shared.hi,
@@ -55,7 +55,7 @@ export const dictionary = {
     ...sadhana.hi,
     ...support.hi,
     ...sangha.hi,
-    ...onboarding.hi,
+    ...meditation.hi,
   },
 } as const;
 
