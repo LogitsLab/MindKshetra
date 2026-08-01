@@ -4,6 +4,21 @@ export function formatVerseRef(sloka: Sloka): string {
   return `${sloka.chapter}.${sloka.verse_number}`;
 }
 
+/**
+ * Trim prose to a meta-description length, cutting at a word boundary.
+ *
+ * Search engines truncate around 155–160 characters anyway; doing it here means
+ * the cut lands between words with an ellipsis rather than mid-word with a hard
+ * stop, and the same rule applies to verses, chapters and moods.
+ */
+export function metaDescription(text: string, max = 155): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[,;:.\s]+$/, "")}…`;
+}
+
 export type TeachingPassage = {
   verses: Sloka[];
   focus: Sloka;
