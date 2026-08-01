@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getAuthUserId, createClient } from "@/lib/supabase/server";
 import { rateLimit, clientKey } from "@/lib/rateLimit";
 import {
@@ -51,6 +52,10 @@ export async function POST(request: Request) {
     );
   }
 
+  // Sending requires a signed-in inbox, so Supabase is a hard dependency here
+  // (GET above stays guest-readable and degrades without it).
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

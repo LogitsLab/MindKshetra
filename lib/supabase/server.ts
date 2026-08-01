@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 import { cookies, headers } from "next/headers";
+import { supabaseEnvConfigured } from "@/lib/supabase/require";
 
 function supabaseUrl(): string {
   return process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -61,7 +62,24 @@ export async function createClient(): Promise<SupabaseClient> {
   });
 }
 
+let warnedUnconfigured = false;
+
 async function getRequestUser(): Promise<User | null> {
+  // No Supabase env → no sessions exist → every request is signed out.
+  // Without this, client construction below throws and guest-capable routes
+  // (chat, incognito charts, streak/sadhana GET) 500 on deployments that
+  // deliberately run without Supabase. Routes that hard-require Supabase
+  // return an actionable 503 via lib/supabase/require.ts instead.
+  if (!supabaseEnvConfigured()) {
+    if (!warnedUnconfigured) {
+      warnedUnconfigured = true;
+      console.warn(
+        "[supabase] NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY not set — treating all requests as signed out (see .env.example)"
+      );
+    }
+    return null;
+  }
+
   const token = getBearerToken();
   if (token) {
     const supabase = createBearerClient(token);

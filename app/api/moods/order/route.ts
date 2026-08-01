@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { orderMoods } from "@/lib/mood-order";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { ENGINE_VERSION, type ChartPayload } from "@/lib/astrology/types";
+import { requireSupabase } from "@/lib/supabase/require";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -15,6 +16,8 @@ export const dynamic = "force-dynamic";
  * Redis and the ordering is a signed-in nicety first.)
  */
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getSignedInUserId();
   const rl = await rateLimit(
     `moods:order:${principalKey(userId, request)}`,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireSupabase } from "@/lib/supabase/require";
 import { createClient, getAuthUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -17,6 +18,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // The public read path runs on the service role (migration 016).
+  const unconfigured = requireSupabase({ admin: true });
+  if (unconfigured) return unconfigured;
   const rl = await rateLimit(`reflections:${clientKey(request)}`, 60, 60_000);
   if (!rl.ok) {
     return NextResponse.json({ reflections: [] }, { status: 429 });

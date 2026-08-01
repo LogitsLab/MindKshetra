@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getAuthUserId, createClient } from "@/lib/supabase/server";
 import { getSlokasByIds } from "@/lib/slokas";
 import { formatVerseRef } from "@/lib/sloka-utils";
 
 export async function GET() {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

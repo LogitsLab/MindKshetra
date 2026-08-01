@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordEvent } from "@/lib/events";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getSignedInUserId } from "@/lib/supabase/server";
 import { setCompletion, setCompletionsBulk } from "@/lib/progress";
 
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getSignedInUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
