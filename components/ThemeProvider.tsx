@@ -8,8 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
-
-type Theme = "dark" | "light";
+import { THEME_STORAGE_KEY, type Theme } from "@/lib/theme";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -19,13 +18,10 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 /**
- * Exported so the blocking inline script in app/layout.tsx reads the same key
- * this provider writes. That script runs before React exists, so it cannot
- * import anything — but it can be BUILT from this constant, which keeps the
- * two in step. A drift here is a permanent theme flash that nothing warns
- * about.
+ * Same key the anti-flash script in app/layout.tsx reads. It lives in lib/theme
+ * rather than here because a server component cannot read a constant out of a
+ * "use client" module — see the note there.
  */
-export const THEME_STORAGE_KEY = "mindkshetra-theme";
 const STORAGE_KEY = THEME_STORAGE_KEY;
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
