@@ -20,6 +20,10 @@ Fix-now tasks live in `~/.gstack/projects/LogitsLab-MindKshetra/tasks-*-20260731
 - [ ] Optional single soft bell at sit end (contradicts "no audio in v1" — owner call)
 - [ ] Acquisition follow-through: weekly share-funnel + email-growth KPI review
       (queries land with T5)
+- [ ] RLS two-user tests for migrations 013/015/016 (ET13) — need a local
+      supabase; Docker unavailable this round. The pure-layer half shipped
+      (`lib/push-cohort.ts`, `lib/sadhana-core.ts` + 18 tests); the
+      DB-policy half runs when Docker is back
 
 Grouped by nearest phase; the full roadmap context lives in `docs/` and the
 nonprofit plan. When you pick one up, delete the line in the same PR.
