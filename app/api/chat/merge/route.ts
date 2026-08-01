@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { assignSessionToUser } from "@/lib/chat-store";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getAuthUserId } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

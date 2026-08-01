@@ -7,6 +7,7 @@ import {
   logSadhanaSession,
 } from "@/lib/sadhana";
 import { isValidTimezone } from "@/lib/practice-streaks";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getAuthUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -31,6 +32,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getAuthUserId();
   const rl = await rateLimit(
     `sadhana:${principalKey(userId, request)}`,

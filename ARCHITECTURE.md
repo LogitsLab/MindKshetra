@@ -259,18 +259,45 @@ Without Redis on Vercel, each Lambda keeps only process-local memory — fine fo
 
 ---
 
-## 12. Environment variable groups
+## 12. Environment variables
 
 ### Web (Vercel / `.env.local`)
 
-| Group | Variables |
-|-------|-----------|
-| Core | `GROQ_API_KEY`, `NEXT_PUBLIC_SITE_URL` |
-| Models | `GROQ_MODEL`, `GROQ_PREDICTIONS_MODEL`, `GROQ_PREDICTIONS_REASONING_EFFORT` |
-| Supabase | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `CONTENT_SOURCE` |
-| Redis | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` |
-| RAG | `VOYAGE_API_KEY` |
-| Email | `RESEND_API_KEY`, `RESEND_FROM`, `CRON_SECRET` |
+Tiers say what breaks without the var. **Core needs no env at all**: verses
+ship in the repo (`CONTENT_SOURCE` defaults to `json`) and account surfaces
+run in guest mode. Routes that hard-require Supabase answer
+`503 "Supabase is not configured on this deployment"` when its vars are
+absent (`lib/supabase/require.ts`).
+
+| Variable | Tier | Purpose |
+|----------|------|---------|
+| `GROQ_API_KEY` | AI | Madhav chat, verse stories, chart readings |
+| `GROQ_MODEL` | AI (opt) | Chat model override (default in `lib/groq.ts`) |
+| `GROQ_PREDICTIONS_MODEL` | AI (opt) | One-shot chart-reading model override |
+| `GROQ_PREDICTIONS_REASONING_EFFORT` | AI (opt) | Reasoning effort for chart readings |
+| `NEXT_PUBLIC_SUPABASE_URL` | accounts | Supabase project URL (auth + user data) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | accounts | Supabase publishable key |
+| `SUPABASE_SERVICE_ROLE_KEY` | accounts | Service-role writes (moderation queue, push tokens, events sink); seed/migrate scripts |
+| `CONTENT_SOURCE` | accounts (opt) | `json` (default, verses from repo) or `db` (Supabase + seed) |
+| `RESEND_API_KEY` | email | Verse-of-the-Day sends via Resend |
+| `RESEND_FROM` | email (opt) | From address (defaults to the verified prod sender) |
+| `CRON_SECRET` | ops | Bearer auth for `/api/cron/*` (VOTD broadcast, push dispatch) |
+| `MAINTAINER_USER_IDS` | ops | Comma-separated auth ids for `/api/admin/moderation`; empty fails closed |
+| `COMMUNITY_REFLECTIONS_ENABLED` | ops | Kill switch — set `0/false/off/no` to pause NEW reflection sharing (unsharing keeps working) |
+| `COMMUNITY_REPORTS_ENABLED` | ops | Kill switch — same off-spellings pause user reports |
+| `NEXT_PUBLIC_SITE_URL` | optional | Canonical origin for OG/share/email links + PKCE recovery (prod default) |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | optional | Shared rate limits + story/incognito-chart cache; in-memory fallback without |
+| `VOYAGE_API_KEY` | optional | Hybrid vector retrieval (needs `db` content + embeddings); tag-only fallback |
+| `NOMINATIM_USER_AGENT` | optional | Geocoding User-Agent per OpenStreetMap policy |
+| `STORY_CACHE_MEMORY_ONLY` | optional | Dev: skip the on-disk story cache |
+| `NEXT_PUBLIC_WHATSAPP_CHANNEL_URL` / `NEXT_PUBLIC_TELEGRAM_URL` | optional | Footer/support community links; hidden when unset |
+| `NEXT_PUBLIC_RAZORPAY_DONATION_URL` / `NEXT_PUBLIC_OPEN_COLLECTIVE_URL` / `NEXT_PUBLIC_GITHUB_SPONSORS_URL` | optional | Support-page donate links; hidden when unset |
+
+Scripts/CI only (never needed by the running app): `SUPABASE_ACCESS_TOKEN`
+(`npm run db:migrate` auth), `EVAL_HYBRID`, `EVAL_HYBRID_MIN_RATE`,
+`EVAL_HYBRID_MIN_EMBEDDINGS`, `EVAL_VOYAGE_DELAY_MS`, `EMBED_DELAY_MS`,
+`STORY_PREGEN_DELAY_MS`, `SPIKE_VOYAGE_DELAY_MS`, `GITHUB_BEFORE_SHA`.
+`NODE_ENV` / `VERCEL` are platform-set.
 
 ### Mobile (EAS env + local `.env`)
 

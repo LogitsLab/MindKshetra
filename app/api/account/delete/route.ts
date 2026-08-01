@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getAuthUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -13,6 +14,8 @@ export const dynamic = "force-dynamic";
  * never leaves an account that exists but can't be re-deleted.
  */
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const rl = await rateLimit(`account:delete:${clientKey(request)}`, 5, 60_000);
   if (!rl.ok) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });

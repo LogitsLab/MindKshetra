@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getSignedInUserId } from "@/lib/supabase/server";
 import { getProgressForUser } from "@/lib/progress";
 
 export async function GET() {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getSignedInUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

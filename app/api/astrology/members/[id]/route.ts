@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { mapMemberRow } from "@/lib/astrology/members";
 import { resolveBirthInstant } from "@/lib/astrology/geo";
 import { ENGINE_VERSION } from "@/lib/astrology/types";
+import { requireSupabase } from "@/lib/supabase/require";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -10,6 +11,8 @@ export const dynamic = "force-dynamic";
 type Ctx = { params: { id: string } };
 
 export async function PATCH(request: NextRequest, { params }: Ctx) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getSignedInUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
@@ -116,6 +119,8 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
 }
 
 export async function DELETE(_request: NextRequest, { params }: Ctx) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getSignedInUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
