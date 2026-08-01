@@ -108,6 +108,13 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       image: "/images/paths/astrology.jpg",
       icon: "/icons/paths/astrology.svg",
     },
+    {
+      href: "/community",
+      title: t("homeBlockSanghaTitle"),
+      blurb: t("homeBlockSanghaBody"),
+      image: "/images/paths/community.jpg",
+      icon: "/icons/paths/meditation.svg",
+    },
   ];
 
   const translation = lang === "hi" ? featured.hindi : featured.english;
@@ -146,19 +153,21 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
           </p>
 
           <div className="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
-            {continueSlokaId ? (
-              <Link
-                href={`/sloka/${continueSlokaId}`}
-                className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-              >
-                {t("continueReading")}
-              </Link>
-            ) : (
+            {/* Today's practice leads while it is still undone; once it is
+                recorded the hero points back at the reading. */}
+            {sadhanaDone === false || !continueSlokaId ? (
               <Link
                 href="/sadhana"
                 className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
               >
                 {t("homeCtaPractice")}
+              </Link>
+            ) : (
+              <Link
+                href={`/sloka/${continueSlokaId}`}
+                className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+              >
+                {t("continueReading")}
               </Link>
             )}
             <Link
@@ -268,42 +277,53 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
           </div>
         </Link>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(
             [
-              {
-                href: "/meditation",
-                title: t("homeBlockCourseTitle"),
-                body: t("homeBlockCourseBody"),
-              },
               {
                 href: "/paths",
                 title: t("homeBlockPathsTitle"),
                 body: t("homeBlockPathsBody"),
+                image: "/images/paths/paths.jpg",
               },
               {
                 href: "/sadhana#japa",
                 title: t("homeBlockJapaTitle"),
                 body: t("homeBlockJapaBody"),
+                image: "/images/paths/sadhana.jpg",
               },
               {
                 href: "/panchang",
                 title: t("homeBlockPanchangTitle"),
                 body: t("homeBlockPanchangBody"),
+                image: "/images/paths/panchang-ring.jpg",
               },
             ] as const
           ).map((block) => (
             <Link
               key={block.href + block.title}
               href={block.href}
-              className="group border border-[var(--line)] px-5 py-6 transition hover:border-[var(--brass)]/45"
+              className="group relative flex min-h-[160px] flex-col justify-end overflow-hidden border border-[var(--line)] transition hover:border-[var(--brass)]/45"
             >
-              <h3 className="font-display text-xl text-[var(--text)] transition group-hover:text-[var(--brass-hover)]">
-                {block.title}
-              </h3>
-              <p className="mt-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
-                {block.body}
-              </p>
+              <Image
+                src={block.image}
+                alt=""
+                fill
+                sizes="(max-width: 640px) 100vw, 33vw"
+                className="object-cover opacity-45 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-60"
+              />
+              <div
+                className="absolute inset-0 bg-gradient-to-t from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-transparent"
+                aria-hidden
+              />
+              <div className="relative z-10 px-5 py-5">
+                <h3 className="font-display text-xl text-[var(--on-media)] transition group-hover:text-[var(--brass-hover)]">
+                  {block.title}
+                </h3>
+                <p className="mt-2 text-sm font-light leading-relaxed text-[var(--on-media-muted)]">
+                  {block.body}
+                </p>
+              </div>
             </Link>
           ))}
         </div>
@@ -320,14 +340,9 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
         <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-[var(--text-soft)] sm:text-base">
           {t("homeTogetherBlurb")}
         </p>
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(
             [
-              {
-                href: "/community",
-                title: t("homeBlockSanghaTitle"),
-                body: t("homeBlockSanghaBody"),
-              },
               {
                 href: "/care",
                 title: t("homeBlockCareTitle"),

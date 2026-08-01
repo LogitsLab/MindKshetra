@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function PanchangPage() {
   return (
     <div className="animate-fade">
-      <PageHeroImage src="/images/paths/panchang.jpg" />
+      <PageHeroImage src="/images/paths/panchang-ring.jpg" />
       <LocalizedPageHeader eyebrowKey="panchangEyebrow" titleKey="panchangTitle" />
       <PanchangView />
     </div>
