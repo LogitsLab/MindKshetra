@@ -1,5 +1,5 @@
 import HomePageClient from "@/components/HomePageClient";
-import { daySeed, getVerseOfTheDay } from "@/lib/day-seed";
+import { daySeed, getVerseOfTheDaySelection } from "@/lib/day-seed";
 import { getAllMoods, getMoodById } from "@/lib/moods";
 import { formatVerseRef, getSlokaByRef } from "@/lib/slokas";
 import { splitVerseLines } from "@/lib/verseDisplay";
@@ -26,8 +26,8 @@ export default async function HomePage() {
   const seed = daySeed();
   // Content layer falls back to JSON on DB timeout (Postgres 57014) so SSG
   // does not fail the Vercel build.
-  const featuredSloka =
-    (await getVerseOfTheDay()) ?? (await getSlokaByRef(2, 47));
+  const selection = await getVerseOfTheDaySelection();
+  const featuredSloka = selection?.sloka ?? (await getSlokaByRef(2, 47));
 
   if (!featuredSloka) {
     throw new Error("Featured verse missing from dataset");
@@ -42,6 +42,8 @@ export default async function HomePage() {
     ),
     english: featuredSloka.english_translation,
     hindi: featuredSloka.hindi_translation,
+    // Why-this-verse provenance; absent on the engine-fallback rotation.
+    nakshatra: selection?.nakshatra?.name ?? null,
   };
 
   const moods = await getAllMoods();

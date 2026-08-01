@@ -2,9 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import { MilestoneLine, takeNewMilestone } from "@/components/MilestoneMarks";
+import type { Milestone } from "@/lib/milestones";
 import { moods } from "@/lib/moods-data";
+import { markGuestPathDay } from "@/lib/paths-local";
 import { splitVerseLines } from "@/lib/verseDisplay";
 
 type Sloka = {
@@ -19,6 +23,19 @@ type Sloka = {
 type Streak = { current: number; longest: number; graceUsedToday?: boolean };
 
 type Stage = "mood" | "sit" | "sitDone" | "reflect" | "done";
+
+/**
+ * Arrival from a path day (/paths/[id] → "Begin day's practice"). Completing
+ * the flow then marks that day on the run — the same write the path page's
+ * "Mark day complete" button performs — and the done screen can point at
+ * tomorrow, closing the paths → sadhana → paths loop.
+ */
+type PathContext = {
+  pathId: string;
+  pathDay: number;
+  /** days_count of the path; null on older links without the param. */
+  pathTotal: number | null;
+};
 
 type VerseState = "idle" | "loading" | "loaded" | "failed";
 
@@ -118,6 +135,7 @@ async function logPractice(
 export default function SadhanaClient() {
   const { lang, t } = useLanguage();
   const { user } = useAuth();
+  const searchParams = useSearchParams();
   const [stage, setStage] = useState<Stage>("mood");
   const [doneToday, setDoneToday] = useState(false);
   const [sloka, setSloka] = useState<Sloka | null>(null);
@@ -132,6 +150,12 @@ export default function SadhanaClient() {
   const [logOutcome, setLogOutcome] = useState<LogOutcome | null>(null);
   const [retrying, setRetrying] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [pathContext, setPathContext] = useState<PathContext | null>(null);
+  // "Tomorrow: day N of your path" on the done screen; null when no path is
+  // active or the path just finished its last day.
+  const [tomorrowDay, setTomorrowDay] = useState<number | null>(null);
+  // At most one newly-crossed quiet milestone for the done screen (WS4).
+  const [milestone, setMilestone] = useState<Milestone | null>(null);
 
   const moodRef = useRef<string | null>(null);
   const verseReqRef = useRef(0);
@@ -143,8 +167,15 @@ export default function SadhanaClient() {
   const sitCompletedRef = useRef(false);
   const prevTitleRef = useRef<string | null>(null);
   const flowBodyRef = useRef<Record<string, unknown> | null>(null);
+  const pathBootstrappedRef = useRef(false);
 
   const signedIn = Boolean(user && !user.is_anonymous);
+  // finishFlow reads these through refs so its useCallback identity does not
+  // have to chase auth or query-param state.
+  const signedInRef = useRef(signedIn);
+  signedInRef.current = signedIn;
+  const pathContextRef = useRef<PathContext | null>(null);
+  pathContextRef.current = pathContext;
 
   useEffect(() => {
     const tz = deviceTimezone();
@@ -194,6 +225,113 @@ export default function SadhanaClient() {
       // but the absence is named, not silent (a quiet retry renders).
       if (verseReqRef.current === req) setVerseState("failed");
     }
+  }, []);
+
+  const loadVerseById = useCallback(async (id: number) => {
+    const req = ++verseReqRef.current;
+    setSloka(null);
+    setVerseState("loading");
+    try {
+      const res = await fetch(`/api/slokas/${id}`);
+      if (!res.ok) throw new Error("verse fetch failed");
+      const data = (await res.json()) as Sloka;
+      if (verseReqRef.current !== req) return;
+      if (data?.id) {
+        setSloka(data);
+        setVerseState("loaded");
+      } else {
+        setVerseState("failed");
+      }
+    } catch {
+      if (verseReqRef.current === req) setVerseState("failed");
+    }
+  }, []);
+
+  // Path-day deep link (?slokaId&pathId&pathDay&pathTotal&minutes from
+  // /paths/[id]): open straight on the sit with that day's verse and remember
+  // the path so finishing the flow marks the day on the run.
+  useEffect(() => {
+    if (pathBootstrappedRef.current) return;
+    const slokaId = Number(searchParams.get("slokaId"));
+    if (!Number.isInteger(slokaId) || slokaId < 1) return;
+    pathBootstrappedRef.current = true;
+    const pathId = searchParams.get("pathId");
+    const pathDay = Number(searchParams.get("pathDay"));
+    const pathTotal = Number(searchParams.get("pathTotal"));
+    if (
+      pathId &&
+      /^[a-z0-9-]+$/i.test(pathId) &&
+      Number.isInteger(pathDay) &&
+      pathDay >= 1
+    ) {
+      setPathContext({
+        pathId,
+        pathDay,
+        pathTotal:
+          Number.isInteger(pathTotal) && pathTotal >= pathDay && pathTotal <= 60
+            ? pathTotal
+            : null,
+      });
+    }
+    const mins = Number(searchParams.get("minutes"));
+    if (Number.isFinite(mins) && mins >= 1 && mins <= 60) {
+      setMinutes(Math.round(mins));
+    }
+    setStage("sit");
+    void loadVerseById(slokaId);
+  }, [searchParams, loadVerseById]);
+
+  /**
+   * Mark the active path day complete after the practice was recorded —
+   * the same write as the path page's "Mark day complete" — and work out
+   * whether a "tomorrow" line has a day to point at. Secondary to the
+   * practice log: any failure here is silent, the sit still counted.
+   */
+  const recordPathDay = useCallback(async () => {
+    const pc = pathContextRef.current;
+    if (!pc) return;
+    let nextDay: number | null = null;
+    let completedCount = 0;
+
+    const markLocally = () => {
+      const days = markGuestPathDay(pc.pathId, pc.pathDay);
+      completedCount = days.length;
+      const upcoming = (days[days.length - 1] ?? 0) + 1;
+      // Without days_count there is no honest clamp — mark, but say nothing.
+      nextDay = pc.pathTotal ? Math.min(pc.pathTotal, upcoming) : null;
+    };
+
+    if (signedInRef.current) {
+      try {
+        const res = await fetch(
+          `/api/paths/${encodeURIComponent(pc.pathId)}/run`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ day: pc.pathDay }),
+          }
+        );
+        if (res.ok) {
+          const data = (await res.json()) as {
+            currentDay?: number;
+            completedDays?: number[];
+          };
+          completedCount = data.completedDays?.length ?? 0;
+          nextDay = data.currentDay ?? null;
+        } else if (res.status === 401) {
+          markLocally();
+        }
+      } catch {
+        /* the day can still be marked from the path page */
+      }
+    } else {
+      markLocally();
+    }
+
+    const pathDone = pc.pathTotal !== null && completedCount >= pc.pathTotal;
+    setTomorrowDay(
+      nextDay !== null && nextDay > pc.pathDay && !pathDone ? nextDay : null
+    );
   }, []);
 
   function pickMood(moodId: string) {
@@ -309,6 +447,8 @@ export default function SadhanaClient() {
       setStreak(result.streak);
       setLogOutcome("recorded");
       setDoneToday(true);
+      await recordPathDay();
+      setMilestone(await takeNewMilestone());
     } else if (result.reason === "signedOut") {
       appendDeviceLog({
         practice: "flow",
@@ -318,11 +458,13 @@ export default function SadhanaClient() {
       });
       flowBodyRef.current = null;
       setLogOutcome("deviceOnly");
+      await recordPathDay();
+      setMilestone(await takeNewMilestone());
     } else {
       setLogOutcome("failed");
     }
     setStage("done");
-  }, [sloka]);
+  }, [sloka, recordPathDay]);
 
   async function retryLog() {
     setRetrying(true);
@@ -365,6 +507,10 @@ export default function SadhanaClient() {
     setStreak(null);
     setLogOutcome(null);
     setAnnouncement("");
+    // A fresh sit is its own practice — never re-marks the arrival path day.
+    setPathContext(null);
+    setTomorrowDay(null);
+    setMilestone(null);
     flowBodyRef.current = null;
     satMsRef.current = 0;
     segmentStartRef.current = null;
@@ -620,6 +766,19 @@ export default function SadhanaClient() {
             </p>
           ) : null}
 
+          {milestone ? <MilestoneLine milestone={milestone} /> : null}
+
+          {tomorrowDay !== null && pathContext ? (
+            <p className="mt-3 text-[15px] text-[var(--text-soft)]">
+              <Link
+                href={`/paths/${pathContext.pathId}`}
+                className="text-[var(--brass-soft)] underline-offset-4 hover:underline"
+              >
+                {t("sadhanaTomorrowPath").replace("{n}", String(tomorrowDay))} →
+              </Link>
+            </p>
+          ) : null}
+
           {logOutcome === "deviceOnly" ? (
             <p className="mt-3 text-[15px] text-[var(--text-soft)]">
               {t("sadhanaDeviceOnly")}{" "}
@@ -675,6 +834,8 @@ function JapaPanel({ visible }: { visible: boolean }) {
     null | "logged" | "deviceOnly" | "failed"
   >(null);
   const [busy, setBusy] = useState(false);
+  // Mala-completion moment: at most one newly-crossed milestone (WS4).
+  const [milestone, setMilestone] = useState<Milestone | null>(null);
   // Space only counts beads once the circle has been touched or focused —
   // never as a global shortcut leaking into someone's sit or reflection.
   const [engaged, setEngaged] = useState(false);
@@ -692,6 +853,7 @@ function JapaPanel({ visible }: { visible: boolean }) {
   const tap = useCallback(() => {
     setEngaged(true);
     setOutcome(null);
+    setMilestone(null);
     japaBodyRef.current = null; // a changed count is a new attempt
     setBeads((b) => {
       if (b + 1 >= 108) {
@@ -757,6 +919,7 @@ function JapaPanel({ visible }: { visible: boolean }) {
       setBeads(0);
       setMalas(0);
       setOutcome("logged");
+      setMilestone(await takeNewMilestone());
     } else if (result.reason === "signedOut") {
       appendDeviceLog({
         practice: "japa",
@@ -768,6 +931,7 @@ function JapaPanel({ visible }: { visible: boolean }) {
       setBeads(0);
       setMalas(0);
       setOutcome("deviceOnly");
+      setMilestone(await takeNewMilestone());
     } else {
       // The count stays on the circle — nothing is reset on a failed record.
       setOutcome("failed");
@@ -845,6 +1009,9 @@ function JapaPanel({ visible }: { visible: boolean }) {
         ) : null}
         {outcome === "logged" ? (
           <p className="mt-3 text-sm text-[var(--brass-soft)]">{t("japaLogged")}</p>
+        ) : null}
+        {(outcome === "logged" || outcome === "deviceOnly") && milestone ? (
+          <MilestoneLine milestone={milestone} />
         ) : null}
         {outcome === "deviceOnly" ? (
           <p className="mt-3 text-sm text-[var(--text-soft)]">

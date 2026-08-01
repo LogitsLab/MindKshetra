@@ -25,7 +25,7 @@ export const en = {
   historyIncognitoHint: "Turn off Incognito to browse saved chats.",
   navAstrology: "Astrology",
   navPanchang: "Panchang",
-  navSangha: "Sangha",
+  navSangha: "Community",
   navPrivacy: "Privacy",
   navAccount: "Account",
 } as const;
@@ -50,7 +50,7 @@ export const hi: Record<keyof typeof en, string> = {
   historyIncognitoHint: "सहेजी वार्ताएँ देखने के लिए गुप्त मोड बंद करें।",
   navAstrology: "ज्योतिष",
   navPanchang: "पंचांग",
-  navSangha: "संघ",
+  navSangha: "समुदाय",
   navPrivacy: "गोपनीयता",
   navAccount: "खाता",
 };

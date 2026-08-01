@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import EmptyState from "@/components/EmptyState";
+import { MilestoneMark } from "@/components/MilestoneMarks";
 import SlokaCard from "@/components/SlokaCard";
 import { useLanguage } from "@/components/LanguageProvider";
 import {
@@ -110,8 +111,17 @@ export default function ChapterPageClient({
             {slokas.length} {slokas.length === 1 ? t("verse") : t("verses")}
           </span>
           {slokas.length > 0 ? (
-            <span className="text-[var(--text-muted)]">
+            <span className="inline-flex items-center gap-2 text-[var(--text-muted)]">
               · {doneCount}/{slokas.length} {t("progressComplete")}
+              {doneCount === slokas.length ? (
+                // The chapter's quiet mark (WS4) — same wheel motif as the
+                // "Adhyāya n" milestone on the account panel.
+                <MilestoneMark
+                  motif="wheel"
+                  size={16}
+                  className="text-[var(--brass)] opacity-90"
+                />
+              ) : null}
             </span>
           ) : null}
         </div>

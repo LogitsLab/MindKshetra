@@ -1,5 +1,7 @@
 "use client";
 
+// Renders /community (the WS6 Sangha → Community rename is UI-only; this
+// file name and the sangha* i18n keys stay — they are user-invisible).
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
@@ -22,6 +24,9 @@ export default function SanghaClient({
   const [attended, setAttended] = useState(false);
 
   function markAttended() {
+    // The surface renamed Sangha → Community (WS6); the event name is
+    // UI-independent history — G2 gate queries and recorded rows depend on
+    // it, so it stays sangha_attended forever.
     track("sangha_attended", { source: "sangha_page" });
     setAttended(true);
   }
