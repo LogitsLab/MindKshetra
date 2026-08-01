@@ -182,13 +182,17 @@ export default function PathDetailClient({
         {path.days.map((day) => {
           const done = completed.has(day.day);
           const slokaId = verseByDay.get(day.day) ?? null;
+          const practiceHref =
+            slokaId != null
+              ? `/sadhana?slokaId=${slokaId}&pathId=${encodeURIComponent(path.id)}&pathDay=${day.day}&minutes=${day.minutes}`
+              : null;
           return (
             <li
               key={day.day}
               className="border border-[var(--line)] px-5 py-5"
             >
               <p className="text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
-                Day {day.day}
+                {t("pathDay").replace("{n}", String(day.day))}
               </p>
               <h2 className="mt-2 font-display text-xl text-[var(--text)]">
                 {lang === "hi" ? day.title_hi : day.title_en}
@@ -197,10 +201,20 @@ export default function PathDetailClient({
                 {lang === "hi" ? day.prompt_hi : day.prompt_en}
               </p>
               <p className="mt-3 text-sm text-[var(--text-muted)]">
-                {t("pathDayPractice")}: {day.practice} · {day.minutes}{" "}
-                {t("pathDayMinutes")} · {day.ref.chapter}.{day.ref.verse}
+                {t("pathDayPractice")}:{" "}
+                {t(`pathPractice_${day.practice}` as "pathPractice_sit")} ·{" "}
+                {day.minutes} {t("pathDayMinutes")} · {day.ref.chapter}.
+                {day.ref.verse}
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-3">
+                {practiceHref ? (
+                  <Link
+                    href={practiceHref}
+                    className="min-h-10 bg-[var(--brass)] px-4 py-2 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+                  >
+                    {t("pathBeginPractice")}
+                  </Link>
+                ) : null}
                 {slokaId ? (
                   <Link
                     href={`/sloka/${slokaId}`}
