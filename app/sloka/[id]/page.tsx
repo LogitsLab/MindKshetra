@@ -2,9 +2,14 @@ import { notFound } from "next/navigation";
 import SlokaPageClient from "@/components/SlokaPageClient";
 import { getChapterMeta } from "@/lib/chapters";
 import {
+  rankRelatedSlokas,
+  toRelatedVersePreview,
+} from "@/lib/sloka-utils";
+import {
   getAdjacentSlokas,
   getAllSlokas,
   getSlokaById,
+  getSlokasByTags,
   getTeachingPassage,
 } from "@/lib/slokas";
 
@@ -32,10 +37,17 @@ export default async function SlokaPage({ params }: Props) {
   const sloka = await getSlokaById(id);
   if (!sloka) notFound();
 
-  const [{ prev, next }, passage] = await Promise.all([
+  const [{ prev, next }, passage, tagMatches] = await Promise.all([
     getAdjacentSlokas(id),
     getTeachingPassage(id),
+    sloka.tags.length > 0 ? getSlokasByTags(sloka.tags) : Promise.resolve([]),
   ]);
+
+  // Related-verse interlinks ride the static prerender (SEO + engagement):
+  // ranked server-side by shared-tag overlap, serialized as slim previews.
+  const related = rankRelatedSlokas(sloka, tagMatches).map(
+    toRelatedVersePreview
+  );
 
   return (
     <SlokaPageClient
@@ -44,6 +56,7 @@ export default async function SlokaPage({ params }: Props) {
       prev={prev}
       next={next}
       passage={passage}
+      related={related}
     />
   );
 }

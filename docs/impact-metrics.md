@@ -130,18 +130,136 @@ group by 1
 order by 1;
 ```
 
-## Shares — person-to-person spread
+## Acquisition
+
+### a) Weekly share volume (`share_card`)
+
+`share_card` fires from the share buttons on the verse page and the
+reflection story (both also rendered on `/verse-of-the-day`). Props:
+`method` (`native` | `copy` | `image`), `surface` (`verse` | `story`),
+`slokaId`, `path`. Instrumentation shipped 2026-08-01 — earlier weeks are
+structurally zero, not "no sharing".
 
 ```sql
 select
   date_trunc('week', created_at)::date as week,
-  props->>'method' as method,
-  count(*) as shares
+  count(*)                             as shares,
+  count(distinct user_id)              as distinct_signed_in_sharers
 from app_events
 where name = 'share_card'
-  and created_at > now() - interval '12 weeks'
-group by 1, 2
-order by 1, 2;
+group by 1
+order by 1 desc;
+```
+
+Split by surface and method (signed-out sharers have `user_id is null` and
+still count in `shares`):
+
+```sql
+select
+  date_trunc('week', created_at)::date   as week,
+  coalesce(props->>'surface', 'unknown') as surface,
+  coalesce(props->>'method',  'unknown') as method,
+  count(*)                               as shares
+from app_events
+where name = 'share_card'
+group by 1, 2, 3
+order by 1 desc, shares desc;
+```
+
+### b) VOTD email opt-in
+
+The email is opt-out: the daily cron (`app/api/cron/votd-email/route.ts`)
+sends to every non-anonymous account with an email **except** rows where
+`votd_email_enabled = false`. "No prefs row" therefore means subscribed.
+
+Current subscriber reach (matches the cron's recipient rule exactly):
+
+```sql
+select
+  (select count(*)
+     from auth.users u
+    where u.email is not null
+      and coalesce(u.is_anonymous, false) = false)
+  -
+  (select count(*)
+     from public.user_preferences
+    where votd_email_enabled = false) as votd_email_subscribers_now;
+```
+
+Weekly series: because the default is subscribed, **new accounts are new
+subscribers**, so weekly signups are the honest weekly opt-in count (later
+opt-outs are subtracted in the reach figure above):
+
+```sql
+select
+  date_trunc('week', u.created_at)::date as week,
+  count(*) as new_accounts_with_email    -- ≈ new VOTD subscribers
+from auth.users u
+where u.email is not null
+  and coalesce(u.is_anonymous, false) = false
+group by 1
+order by 1 desc;
+```
+
+Opt-out drift — approximate only. `user_preferences` has no per-field
+timestamps and `updated_at` moves on any preference change, so this shows
+when currently-opted-out rows were *last touched*, not when the opt-out
+itself happened:
+
+```sql
+select
+  date_trunc('week', updated_at)::date           as week,
+  count(*) filter (where not votd_email_enabled) as rows_now_opted_out,
+  count(*) filter (where votd_email_enabled)     as rows_now_opted_in
+from public.user_preferences
+group by 1
+order by 1 desc;
+```
+
+### c) Arrivals from the VOTD email (`ref=votd`)
+
+The email's verse links (`/verse-of-the-day` and `/sloka/[id]`, HTML and
+plain-text) carry `?ref=votd` **as of 2026-08-01**; emails sent before that
+date had bare links, so nothing can ever be attributed before it.
+
+**Honest limitation: this KPI is not yet measurable from `app_events`.**
+Page visits are not recorded anywhere — the allowlist in
+`lib/events-names.ts` contains no page-view/arrival event and no code reads
+the `ref` query param on landing. The tables have no column that captures
+it, so there is no real query for "weekly distinct users arriving with
+`ref=votd`" today. Counting it requires a small client beacon that fires an
+allowlisted event (e.g. `notif_opened`-style `votd_opened` with
+`props->>'ref'`) when a page loads with `ref=votd`; that event name does not
+exist yet and would need to be added to `lib/events-names.ts` first.
+
+Once such an event ships, the query is:
+
+```sql
+-- DOES NOT RUN TODAY: no arrival event exists yet. Template for when it does.
+select
+  date_trunc('week', created_at)::date as week,
+  count(distinct user_id)              as distinct_signed_in_arrivals,
+  count(*)                             as arrivals_incl_signed_out
+from app_events
+where name = 'votd_opened'          -- placeholder: add to lib/events-names.ts
+  and props->>'ref' = 'votd'
+group by 1
+order by 1 desc;
+```
+
+Scoped to what `app_events` actually contains today, the closest available
+cut is weekly distinct signed-in users emitting *any* event — an engagement
+baseline, **not** email-attributed traffic; do not present it as such:
+
+```sql
+select
+  date_trunc('week', created_at)::date as week,
+  count(distinct user_id) filter (where user_id is not null)
+                                       as distinct_signed_in_active,
+  count(*)                             as events
+from app_events
+group by 1
+order by 1 desc;
 ```
 
 ## Chart volume — fresh casts by mode

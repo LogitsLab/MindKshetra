@@ -95,3 +95,24 @@ no ads), what you're asking for (small, specific), what you offer back
 - First-party event instrumentation live on both clients + privacy pages
   updated; impact queries in `docs/impact-metrics.md`.
 - CSRF/rate-limit hardening that community write-endpoints will rely on.
+
+## Launch gates (review amendment A2 — 2026-07-31)
+
+Built ≠ launched. The community/broadcast surfaces below are **merged but
+dark** behind env kill switches, and they stay dark until the numbered gates
+pass. Gate metrics come from `app_events` (queries in
+`docs/impact-metrics.md`); record every gate call as a dated note here.
+
+| Gate | Threshold | Unlocks |
+|---|---|---|
+| G1 — practice | ≥100 distinct users with ≥1 `sadhana_logged`/week, 2 consecutive weeks | shared-reflections surface public by default |
+| G2 — sangha | ≥25 distinct `sangha_attended` users/week, 4 consecutive weeks | in-app circles build + launch; push `community` kind |
+| G3 — safety spine | DPDP disclosure + named grievance contact + safeguarding/age posture + clinician-reviewed crisis copy | any UGC surface public (co-requirement with G1/G2) |
+
+Additional prerequisite for circles: a **second named steward** (moderation
+cannot be a single-human dependency). Review monthly.
+
+Freeze markers: festival push broadcasts, circles, and any public feed-like
+surface are **launch-frozen** regardless of code readiness until their gate
+row clears. Flipping a kill switch without its gate is a strategy regression,
+not a config change.

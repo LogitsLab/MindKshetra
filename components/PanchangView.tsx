@@ -96,6 +96,9 @@ export default function PanchangView() {
 
   return (
     <div className="max-w-2xl">
+      <p className="mb-4 text-sm text-[var(--text-muted)]">
+        {t("panchangLocationLine")}
+      </p>
       {special ? (
         <p className="mb-6 border-l-2 border-[var(--brass)]/60 pl-4 font-display text-lg text-[var(--text)]">
           {special}

@@ -250,6 +250,8 @@ export default function VerseStory({
                   : `/sloka/${slokaId}`
               }
               imageUrl={`/api/og/story/${slokaId}?lang=${lang}`}
+              slokaId={slokaId}
+              surface="story"
             />
             <p className="w-full text-xs text-[var(--text-muted)]">
               {isScene ? t("sceneHint") : t("storyHint")}
