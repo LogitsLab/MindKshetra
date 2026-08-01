@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LocalizedEmptyState from "@/components/LocalizedEmptyState";
 import SlokaPageClient from "@/components/SlokaPageClient";
 import { getChapterMeta } from "@/lib/chapters";
 import { getVerseOfTheDaySelection } from "@/lib/day-seed";
@@ -20,7 +21,14 @@ export default async function VerseOfTheDayPage() {
   const sloka = selection?.sloka ?? null;
 
   if (!sloka) {
-    return <p className="text-[var(--text-muted)]">Verse unavailable.</p>;
+    return (
+      <div className="mx-auto max-w-lg py-12">
+        <LocalizedEmptyState
+          titleKey="votdUnavailable"
+          bodyKey="votdUnavailableBody"
+        />
+      </div>
+    );
   }
 
   const [{ prev, next }, passage] = await Promise.all([

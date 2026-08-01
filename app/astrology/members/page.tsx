@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import EmptyState from "@/components/EmptyState";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { AstrologyMember } from "@/lib/astrology/types";
 
@@ -94,14 +95,19 @@ export default function AstrologyMembersPage() {
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
       {members.length === 0 ? (
-        <div className="border-y border-[var(--hairline)] py-12 text-center">
-          <p className="text-[var(--text-muted)]">{t("astroEmptyMembers")}</p>
-          <Link
-            href="/astrology/members/new"
-            className="mt-4 inline-block text-sm text-[var(--brass-soft)] underline-offset-4 hover:underline"
-          >
-            {t("astroAddMember")}
-          </Link>
+        <div>
+          <EmptyState
+            title={t("astroEmptyMembers")}
+            body={t("astroEmptyMembersBody")}
+          />
+          <div className="mt-4 text-center">
+            <Link
+              href="/astrology/members/new"
+              className="text-sm text-[var(--brass-soft)] underline-offset-4 hover:underline"
+            >
+              {t("astroAddMember")}
+            </Link>
+          </div>
         </div>
       ) : (
         <ul className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">

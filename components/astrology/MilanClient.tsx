@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
 import EmptyState from "@/components/EmptyState";
+import { SkeletonPanel } from "@/components/Skeleton";
 import type { DictKey } from "@/lib/i18n/dictionary";
 
 type Member = { id: string; name: string; relationship: string };
@@ -105,10 +106,7 @@ export default function MilanClient() {
 
   if (state === "loading") {
     return (
-      <div className="surface animate-pulse px-6 py-10">
-        <div className="h-4 w-48 bg-[var(--hairline)]" />
-        <div className="mt-4 h-4 w-64 bg-[var(--hairline)]" />
-      </div>
+      <SkeletonPanel widths={["w-48", "w-64"]} label={t("loading")} />
     );
   }
 

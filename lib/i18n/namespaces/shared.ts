@@ -18,6 +18,15 @@ export const en = {
   menuClose: "Close menu",
   notFoundTitle: "Not found",
   notFoundBody: "That page or verse isn’t on this path.",
+  /* The error boundary. Invitational, never accusatory: nothing the reader did
+     caused this, and "try again" is an offer, not an instruction. */
+  errorTitle: "Something went wrong on our side",
+  errorBody:
+    "The page didn’t load. Nothing you have saved is affected — trying again is usually enough.",
+  errorRetry: "Try again",
+  votdUnavailable: "Today’s verse isn’t ready",
+  votdUnavailableBody:
+    "The verse rotates once a day. Explore the chapters in the meantime — all 701 are here.",
   backHome: "← Back to MindKshetra",
   start: "← Start",
   end: "End →",
@@ -45,6 +54,13 @@ export const hi: Record<keyof typeof en, string> = {
   menuClose: "मेनू बंद करें",
   notFoundTitle: "नहीं मिला",
   notFoundBody: "यह पृष्ठ या श्लोक इस मार्ग पर नहीं है।",
+  errorTitle: "हमारी ओर से कुछ गड़बड़ हुई",
+  errorBody:
+    "पृष्ठ लोड नहीं हो पाया। आपका सहेजा हुआ कुछ भी प्रभावित नहीं हुआ — प्रायः फिर से प्रयास पर्याप्त होता है।",
+  errorRetry: "फिर प्रयास करें",
+  votdUnavailable: "आज का श्लोक अभी तैयार नहीं",
+  votdUnavailableBody:
+    "श्लोक दिन में एक बार बदलता है। तब तक अध्याय देखें — सभी 701 श्लोक यहीं हैं।",
   backHome: "← MindKshetra पर लौटें",
   start: "← आरंभ",
   end: "अंत →",

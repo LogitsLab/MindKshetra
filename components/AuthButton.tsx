@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import Skeleton from "@/components/Skeleton";
 
 const PREFS_EVENT = "mindkshetra:prefs";
 const NAV_CACHE_KEY = "mindkshetra-nav-prefs";
@@ -129,10 +130,7 @@ export default function AuthButton() {
 
   if (loading) {
     return (
-      <span
-        className="inline-block h-9 w-16 animate-pulse border border-[var(--line)] bg-[var(--surface)]"
-        aria-hidden
-      />
+      <Skeleton block className="h-9 w-16" />
     );
   }
 

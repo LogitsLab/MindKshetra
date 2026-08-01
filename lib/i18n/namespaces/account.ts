@@ -107,7 +107,9 @@ export const en = {
   privacyPolicy: "Privacy policy",
   favorites: "Favorites",
   favoritesBlurb: "Verses you have bookmarked.",
-  noFavorites: "No bookmarks yet.",
+  noFavorites: "Nothing saved yet",
+  noFavoritesBody:
+    "The bookmark on any verse keeps it here, so a line that lands can be found again on the day you need it.",
   bookmark: "Bookmark",
   bookmarked: "Bookmarked",
   signInToBookmark: "Sign in to bookmark verses.",
@@ -129,7 +131,9 @@ export const en = {
   journalSaveFailed: "Couldn't save — your words are still here. Try again.",
   signInToJournal: "Sign in to save reflections.",
   myReflections: "My reflections",
-  noReflections: "No reflections yet.",
+  noReflections: "Nothing written yet",
+  noReflectionsBody:
+    "Every verse has a space to write in. What you put there is private, and it stays here for you to read back.",
   streakLabel: "Day streak",
   streakDays: "days",
   marksTitle: "Practice marks",
@@ -246,7 +250,9 @@ export const hi: Record<keyof typeof en, string> = {
   privacyPolicy: "गोपनीयता नीति",
   favorites: "पसंदीदा",
   favoritesBlurb: "आपके द्वारा सहेजे गए श्लोक।",
-  noFavorites: "अभी कोई बुकमार्क नहीं।",
+  noFavorites: "अभी कुछ सहेजा नहीं है",
+  noFavoritesBody:
+    "किसी भी श्लोक पर बुकमार्क उसे यहाँ रख देता है — जो पंक्ति मन को छू जाए, वह उस दिन फिर मिल सके जब उसकी आवश्यकता हो।",
   bookmark: "बुकमार्क",
   bookmarked: "सहेजा गया",
   signInToBookmark: "बुकमार्क के लिए साइन इन करें।",
@@ -268,7 +274,9 @@ export const hi: Record<keyof typeof en, string> = {
   journalSaveFailed: "सहेज नहीं पाए — आपके शब्द यहीं हैं। फिर कोशिश करें।",
   signInToJournal: "चिंतन सहेजने के लिए साइन इन करें।",
   myReflections: "मेरे चिंतन",
-  noReflections: "अभी कोई चिंतन नहीं।",
+  noReflections: "अभी कुछ लिखा नहीं है",
+  noReflectionsBody:
+    "हर श्लोक के साथ लिखने की जगह है। वहाँ जो आप लिखते हैं वह निजी है, और यहीं रहता है — जब चाहें, फिर पढ़ने के लिए।",
   streakLabel: "दिन की लकीर",
   streakDays: "दिन",
   marksTitle: "साधना चिह्न",

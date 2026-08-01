@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import EmptyState from "@/components/EmptyState";
+import { SkeletonPanel } from "@/components/Skeleton";
 
 type CalDay = {
   date: string;
@@ -124,10 +125,7 @@ export default function PanchangCalendarView() {
       </div>
 
       {state === "loading" && !data ? (
-        <div className="surface animate-pulse px-6 py-10">
-          <div className="h-4 w-40 bg-[var(--hairline)]" />
-          <div className="mt-4 h-4 w-56 bg-[var(--hairline)]" />
-        </div>
+        <SkeletonPanel widths={["w-40", "w-56"]} label={t("loading")} />
       ) : data ? (
         <>
           <div className="overflow-x-auto">

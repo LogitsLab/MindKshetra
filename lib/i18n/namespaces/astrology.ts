@@ -17,7 +17,9 @@ export const en = {
   astroSignInPrompt: "Sign in to manage saved birth charts.",
   astroMembersTitle: "Your birth charts",
   astroAddMember: "Add Birth Chart",
-  astroEmptyMembers: "No saved charts yet.",
+  astroEmptyMembers: "No charts saved yet",
+  astroEmptyMembersBody:
+    "A saved chart can be opened any day, compared with another, and read alongside the Gita. Nothing is shared with anyone.",
   astroName: "Name",
   astroNameOptional: "Name (optional)",
   astroNameOptionalPh: "How should we label this chart?",
@@ -319,7 +321,9 @@ export const hi: Record<keyof typeof en, string> = {
   astroSignInPrompt: "सहेजी कुंडलियाँ प्रबंधित करने के लिए साइन इन करें।",
   astroMembersTitle: "आपकी जन्म कुंडलियाँ",
   astroAddMember: "जन्म कुंडली जोड़ें",
-  astroEmptyMembers: "अभी कोई सहेजी कुंडली नहीं।",
+  astroEmptyMembers: "अभी कोई कुंडली सहेजी नहीं",
+  astroEmptyMembersBody:
+    "सहेजी हुई कुंडली किसी भी दिन खोली जा सकती है, दूसरी से मिलाई जा सकती है, और गीता के साथ पढ़ी जा सकती है। कुछ भी किसी से साझा नहीं होता।",
   astroName: "नाम",
   astroNameOptional: "नाम (वैकल्पिक)",
   astroNameOptionalPh: "इस कुंडली को क्या कहें?",

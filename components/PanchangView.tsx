@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import EmptyState from "@/components/EmptyState";
+import { SkeletonPanel } from "@/components/Skeleton";
 
 type DailyPanchang = {
   tithi: string;
@@ -54,11 +55,7 @@ export default function PanchangView() {
 
   if (state === "loading") {
     return (
-      <div className="surface animate-pulse px-6 py-10">
-        <div className="h-4 w-40 bg-[var(--hairline)]" />
-        <div className="mt-4 h-4 w-56 bg-[var(--hairline)]" />
-        <div className="mt-4 h-4 w-48 bg-[var(--hairline)]" />
-      </div>
+      <SkeletonPanel label={t("loading")} />
     );
   }
 

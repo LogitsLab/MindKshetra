@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import EmptyState from "@/components/EmptyState";
 import { useLanguage } from "@/components/LanguageProvider";
 
 type Entry = {
@@ -28,7 +29,10 @@ export default function ReflectionsPage() {
       </h1>
       <div className="mt-8 space-y-4">
         {entries.length === 0 ? (
-          <p className="text-[var(--text-muted)]">{t("noReflections")}</p>
+          <EmptyState
+            title={t("noReflections")}
+            body={t("noReflectionsBody")}
+          />
         ) : (
           entries.map((e) => (
             <article
