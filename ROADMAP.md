@@ -23,6 +23,8 @@ paths, hosting, and circle ops — never aggressive paywalls.
 - Open social feed (moderation hell + brand risk)
 - Paid astrologer marketplace (AstroTalk clone; fights AGPL + nonprofit story)
 - Turning Madhav into a therapist
+- Public gamification — milestones stay private to their user; no points,
+  no levels, no leaderboards, by design (presence without performance)
 
 **Sangha order:** Model A (WhatsApp / Telegram / weekly live) before any
 in-app circles. Circles stay launch-frozen until G2 + G3 + a second named

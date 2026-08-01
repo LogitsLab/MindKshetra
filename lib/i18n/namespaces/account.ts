@@ -132,6 +132,16 @@ export const en = {
   noReflections: "No reflections yet.",
   streakLabel: "Day streak",
   streakDays: "days",
+  marksTitle: "Practice marks",
+  marksBlurb:
+    "Quiet marks for staying with it. Everything here is private to you — no leaderboards, by design.",
+  marksStreakLine: "Longest: {longest} days · currently {current}",
+  marksVersesLine: "{n} of {total} verses read",
+  marksNext: "Next: {name}",
+  marksEmpty:
+    "Marks appear as the practice deepens — begin with today’s sādhana.",
+  marksGuestHint:
+    "These marks live on this device for now — sign in to keep them.",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
@@ -261,4 +271,13 @@ export const hi: Record<keyof typeof en, string> = {
   noReflections: "अभी कोई चिंतन नहीं।",
   streakLabel: "दिन की लकीर",
   streakDays: "दिन",
+  marksTitle: "साधना चिह्न",
+  marksBlurb:
+    "साथ बने रहने के शांत चिह्न। यहाँ सब कुछ केवल आपके लिए निजी है — कोई लीडरबोर्ड नहीं, यही रचना है।",
+  marksStreakLine: "सबसे लंबी: {longest} दिन · अभी {current}",
+  marksVersesLine: "{total} में से {n} श्लोक पढ़े",
+  marksNext: "आगे: {name}",
+  marksEmpty: "अभ्यास गहराने पर चिह्न यहाँ दिखेंगे — आज की साधना से आरंभ करें।",
+  marksGuestHint:
+    "ये चिह्न अभी इसी डिवाइस पर हैं — सहेजे रखने के लिए साइन इन करें।",
 };

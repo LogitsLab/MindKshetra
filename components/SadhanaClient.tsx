@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import { MilestoneLine, takeNewMilestone } from "@/components/MilestoneMarks";
+import type { Milestone } from "@/lib/milestones";
 import { moods } from "@/lib/moods-data";
 import { markGuestPathDay } from "@/lib/paths-local";
 import { splitVerseLines } from "@/lib/verseDisplay";
@@ -152,6 +154,8 @@ export default function SadhanaClient() {
   // "Tomorrow: day N of your path" on the done screen; null when no path is
   // active or the path just finished its last day.
   const [tomorrowDay, setTomorrowDay] = useState<number | null>(null);
+  // At most one newly-crossed quiet milestone for the done screen (WS4).
+  const [milestone, setMilestone] = useState<Milestone | null>(null);
 
   const moodRef = useRef<string | null>(null);
   const verseReqRef = useRef(0);
@@ -444,6 +448,7 @@ export default function SadhanaClient() {
       setLogOutcome("recorded");
       setDoneToday(true);
       await recordPathDay();
+      setMilestone(await takeNewMilestone());
     } else if (result.reason === "signedOut") {
       appendDeviceLog({
         practice: "flow",
@@ -454,6 +459,7 @@ export default function SadhanaClient() {
       flowBodyRef.current = null;
       setLogOutcome("deviceOnly");
       await recordPathDay();
+      setMilestone(await takeNewMilestone());
     } else {
       setLogOutcome("failed");
     }
@@ -504,6 +510,7 @@ export default function SadhanaClient() {
     // A fresh sit is its own practice — never re-marks the arrival path day.
     setPathContext(null);
     setTomorrowDay(null);
+    setMilestone(null);
     flowBodyRef.current = null;
     satMsRef.current = 0;
     segmentStartRef.current = null;
@@ -759,6 +766,8 @@ export default function SadhanaClient() {
             </p>
           ) : null}
 
+          {milestone ? <MilestoneLine milestone={milestone} /> : null}
+
           {tomorrowDay !== null && pathContext ? (
             <p className="mt-3 text-[15px] text-[var(--text-soft)]">
               <Link
@@ -825,6 +834,8 @@ function JapaPanel({ visible }: { visible: boolean }) {
     null | "logged" | "deviceOnly" | "failed"
   >(null);
   const [busy, setBusy] = useState(false);
+  // Mala-completion moment: at most one newly-crossed milestone (WS4).
+  const [milestone, setMilestone] = useState<Milestone | null>(null);
   // Space only counts beads once the circle has been touched or focused —
   // never as a global shortcut leaking into someone's sit or reflection.
   const [engaged, setEngaged] = useState(false);
@@ -842,6 +853,7 @@ function JapaPanel({ visible }: { visible: boolean }) {
   const tap = useCallback(() => {
     setEngaged(true);
     setOutcome(null);
+    setMilestone(null);
     japaBodyRef.current = null; // a changed count is a new attempt
     setBeads((b) => {
       if (b + 1 >= 108) {
@@ -907,6 +919,7 @@ function JapaPanel({ visible }: { visible: boolean }) {
       setBeads(0);
       setMalas(0);
       setOutcome("logged");
+      setMilestone(await takeNewMilestone());
     } else if (result.reason === "signedOut") {
       appendDeviceLog({
         practice: "japa",
@@ -918,6 +931,7 @@ function JapaPanel({ visible }: { visible: boolean }) {
       setBeads(0);
       setMalas(0);
       setOutcome("deviceOnly");
+      setMilestone(await takeNewMilestone());
     } else {
       // The count stays on the circle — nothing is reset on a failed record.
       setOutcome("failed");
@@ -995,6 +1009,9 @@ function JapaPanel({ visible }: { visible: boolean }) {
         ) : null}
         {outcome === "logged" ? (
           <p className="mt-3 text-sm text-[var(--brass-soft)]">{t("japaLogged")}</p>
+        ) : null}
+        {(outcome === "logged" || outcome === "deviceOnly") && milestone ? (
+          <MilestoneLine milestone={milestone} />
         ) : null}
         {outcome === "deviceOnly" ? (
           <p className="mt-3 text-sm text-[var(--text-soft)]">

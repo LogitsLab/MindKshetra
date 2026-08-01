@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import { PracticeMarks } from "@/components/MilestoneMarks";
 import { useProgress } from "@/components/ProgressProvider";
 
 const RETURN_TO_KEY = "mindkshetra-return-to";
@@ -577,6 +578,9 @@ export default function AccountPageClient() {
             ))}
           </div>
         </section>
+
+        {/* Practice marks — private milestones (WS4) */}
+        <PracticeMarks />
 
         {/* Profile */}
         <section className="mt-12 space-y-4">
@@ -1253,6 +1257,10 @@ export default function AccountPageClient() {
           </p>
         </div>
       </div>
+
+      {/* Guests keep device-local practice marks too (WS4) — the panel
+          computes them from this device and invites sign-in to keep them. */}
+      <PracticeMarks />
     </div>
   );
 }
