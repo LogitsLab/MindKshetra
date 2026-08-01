@@ -192,6 +192,24 @@ export default function PrivacyPage() {
 
       <section className="mt-10 space-y-3">
         <h2 className="font-display text-2xl font-semibold text-[var(--text)]">
+          Safeguarding
+        </h2>
+        <p className="text-[15px] leading-relaxed text-[var(--text-muted)]">
+          A named grievance officer will be designated as the project’s nonprofit
+          entity registers. MindKshetra is not clinical care — if you need
+          helplines, see{" "}
+          <Link
+            href="/care"
+            className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+          >
+            Care
+          </Link>
+          .
+        </p>
+      </section>
+
+      <section className="mt-10 space-y-3">
+        <h2 className="font-display text-2xl font-semibold text-[var(--text)]">
           For users in India (DPDP Act, 2023)
         </h2>
         <p className="text-[15px] leading-relaxed text-[var(--text-muted)]">

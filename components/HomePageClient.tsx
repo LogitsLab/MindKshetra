@@ -98,13 +98,8 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       href: "/astrology",
       title: t("homeAstroTitle"),
       blurb: t("homeAstroBlurb"),
-      // PLACEHOLDER (des/D15). These are Explore's assets. There is no
-      // astrology image or icon anywhere in public/, so the half this product
-      // calls its moat is represented on the first screen by another section's
-      // photograph. Needs a commissioned illustration — not something a code
-      // change can supply. Tracked in TODOS.md.
-      image: "/images/paths/explore.jpg",
-      icon: "/icons/paths/explore.svg",
+      image: "/images/paths/astrology.jpg",
+      icon: "/icons/paths/astrology.svg",
     },
   ];
 
@@ -255,6 +250,20 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
             ) : null}
           </div>
         </Link>
+        <p className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+          <Link
+            href="/paths"
+            className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+          >
+            {t("pathListTitle")}
+          </Link>
+          <Link
+            href="/sangha"
+            className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+          >
+            {t("navSangha")}
+          </Link>
+        </p>
       </section>
 
       {/* Verse of the day */}

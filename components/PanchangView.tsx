@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import EmptyState from "@/components/EmptyState";
@@ -138,6 +139,14 @@ export default function PanchangView() {
 
       <p className="mt-8 border-t border-[var(--hairline)] pt-4 text-sm font-light text-[var(--text-muted)]">
         {t("panchangConvention")}
+      </p>
+      <p className="mt-4">
+        <Link
+          href="/panchang/calendar"
+          className="text-sm text-[var(--brass-soft)] underline-offset-2 hover:underline"
+        >
+          {t("panchangCalendarLink")} →
+        </Link>
       </p>
     </div>
   );

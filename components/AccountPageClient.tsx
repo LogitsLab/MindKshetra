@@ -43,6 +43,10 @@ export default function AccountPageClient() {
   const [votdTestingMode, setVotdTestingMode] = useState(false);
   const [votdEnabled, setVotdEnabled] = useState(true);
   const [prefsBusy, setPrefsBusy] = useState(false);
+  const [notifDailyVerse, setNotifDailyVerse] = useState(false);
+  const [notifDailyVerseHour, setNotifDailyVerseHour] = useState(8);
+  const [notifStreakReminder, setNotifStreakReminder] = useState(false);
+  const [notifCommunity, setNotifCommunity] = useState(true);
   const [streak, setStreak] = useState(0);
   const [displayName, setDisplayName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
@@ -53,6 +57,13 @@ export default function AccountPageClient() {
   );
   const [profileStatus, setProfileStatus] = useState<
     "idle" | "saving" | "saved"
+  >("idle");
+  const [publicHandle, setPublicHandle] = useState("");
+  const [publicDisplayName, setPublicDisplayName] = useState("");
+  const [publicBio, setPublicBio] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
+  const [publicStatus, setPublicStatus] = useState<
+    "idle" | "saving" | "saved" | "clearing"
   >("idle");
   const [deleteStage, setDeleteStage] = useState<
     "idle" | "confirming" | "deleting"
@@ -117,11 +128,19 @@ export default function AccountPageClient() {
       setStreak(0);
       setVotdConfigured(false);
       setVotdEnabled(true);
+      setNotifDailyVerse(false);
+      setNotifDailyVerseHour(8);
+      setNotifStreakReminder(false);
+      setNotifCommunity(true);
       setDisplayName("");
       setDateOfBirth("");
       setPlace("");
       setAbout("");
       setPreferredLanguage("");
+      setPublicHandle("");
+      setPublicDisplayName("");
+      setPublicBio("");
+      setIsPublic(true);
       return;
     }
     fetch("/api/account/streak", { method: "GET" })
@@ -152,6 +171,39 @@ export default function AccountPageClient() {
         } else {
           setPreferredLanguage("");
         }
+        if (typeof d.notifDailyVerse === "boolean") {
+          setNotifDailyVerse(d.notifDailyVerse);
+        }
+        if (typeof d.notifDailyVerseHour === "number") {
+          setNotifDailyVerseHour(d.notifDailyVerseHour);
+        } else {
+          setNotifDailyVerseHour(8);
+        }
+        if (typeof d.notifStreakReminder === "boolean") {
+          setNotifStreakReminder(d.notifStreakReminder);
+        }
+        if (typeof d.notifCommunity === "boolean") {
+          setNotifCommunity(d.notifCommunity);
+        }
+      })
+      .catch(() => {});
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((d) => {
+        const p = d.profile;
+        if (!p) {
+          setPublicHandle("");
+          setPublicDisplayName("");
+          setPublicBio("");
+          setIsPublic(true);
+          return;
+        }
+        setPublicHandle(typeof p.handle === "string" ? p.handle : "");
+        setPublicDisplayName(
+          typeof p.display_name === "string" ? p.display_name : ""
+        );
+        setPublicBio(typeof p.bio === "string" ? p.bio : "");
+        setIsPublic(p.is_public !== false);
       })
       .catch(() => {});
   }, [user]);
@@ -236,28 +288,66 @@ export default function AccountPageClient() {
     }
   }
 
-  async function onToggleVotdEmails() {
-    const next = !votdEnabled;
+  async function patchPrefs(body: Record<string, unknown>) {
     setPrefsBusy(true);
     setError(null);
     try {
       const res = await fetch("/api/account/preferences", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ votdEmailEnabled: next }),
+        body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error || t("exportFailed"));
-        return;
+        return null;
       }
-      setVotdEnabled(Boolean(data.votdEmailEnabled));
-      if (!next) setVotdEmail("idle");
+      if (typeof data.votdEmailEnabled === "boolean") {
+        setVotdEnabled(data.votdEmailEnabled);
+      }
+      if (typeof data.notifDailyVerse === "boolean") {
+        setNotifDailyVerse(data.notifDailyVerse);
+      }
+      if (typeof data.notifDailyVerseHour === "number") {
+        setNotifDailyVerseHour(data.notifDailyVerseHour);
+      }
+      if (typeof data.notifStreakReminder === "boolean") {
+        setNotifStreakReminder(data.notifStreakReminder);
+      }
+      if (typeof data.notifCommunity === "boolean") {
+        setNotifCommunity(data.notifCommunity);
+      }
+      return data;
     } catch {
       setError(t("exportFailed"));
+      return null;
     } finally {
       setPrefsBusy(false);
     }
+  }
+
+  async function onToggleVotdEmails() {
+    const next = !votdEnabled;
+    const data = await patchPrefs({ votdEmailEnabled: next });
+    if (data && !next) setVotdEmail("idle");
+  }
+
+  async function onToggleNotifDailyVerse() {
+    await patchPrefs({ notifDailyVerse: !notifDailyVerse });
+  }
+
+  async function onToggleNotifStreakReminder() {
+    await patchPrefs({ notifStreakReminder: !notifStreakReminder });
+  }
+
+  async function onToggleNotifCommunity() {
+    await patchPrefs({ notifCommunity: !notifCommunity });
+  }
+
+  async function onChangeNotifHour(hour: number) {
+    if (!Number.isInteger(hour) || hour < 4 || hour > 22) return;
+    setNotifDailyVerseHour(hour);
+    await patchPrefs({ notifDailyVerseHour: hour });
   }
 
   async function onSaveProfile(e: FormEvent) {
@@ -302,6 +392,71 @@ export default function AccountPageClient() {
     } catch {
       setError(t("exportFailed"));
       setProfileStatus("idle");
+    }
+  }
+
+  async function onSavePublicProfile(e: FormEvent) {
+    e.preventDefault();
+    setPublicStatus("saving");
+    setError(null);
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          handle: publicHandle.trim().toLowerCase(),
+          displayName: publicDisplayName,
+          bio: publicBio,
+          isPublic,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (res.status === 409) setError(t("publicHandleTaken"));
+        else if (res.status === 400) setError(t("publicHandleInvalid"));
+        else setError(data.error || t("exportFailed"));
+        setPublicStatus("idle");
+        return;
+      }
+      const p = data.profile;
+      if (p) {
+        setPublicHandle(typeof p.handle === "string" ? p.handle : publicHandle);
+        setPublicDisplayName(
+          typeof p.display_name === "string"
+            ? p.display_name
+            : publicDisplayName
+        );
+        setPublicBio(typeof p.bio === "string" ? p.bio : publicBio);
+        setIsPublic(p.is_public !== false);
+      }
+      setPublicStatus("saved");
+      window.setTimeout(() => setPublicStatus("idle"), 2000);
+    } catch {
+      setError(t("exportFailed"));
+      setPublicStatus("idle");
+    }
+  }
+
+  async function onClearPublicProfile() {
+    if (!window.confirm(t("publicClearConfirm"))) return;
+    setPublicStatus("clearing");
+    setError(null);
+    try {
+      const res = await fetch("/api/profile", { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || t("exportFailed"));
+        setPublicStatus("idle");
+        return;
+      }
+      setPublicHandle("");
+      setPublicDisplayName("");
+      setPublicBio("");
+      setIsPublic(true);
+      setPublicStatus("idle");
+    } catch {
+      setError(t("exportFailed"));
+      setPublicStatus("idle");
     }
   }
 
@@ -527,6 +682,131 @@ export default function AccountPageClient() {
           </form>
         </section>
 
+        {/* Public profile */}
+        <section className="mt-12 space-y-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-[var(--brass)]">
+              {t("publicProfileTitle")}
+            </p>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              {t("publicProfileBlurb")}
+            </p>
+          </div>
+
+          <form
+            onSubmit={onSavePublicProfile}
+            className="glass space-y-5 px-5 py-6 sm:px-7 sm:py-7"
+          >
+            <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+              {t("publicProfileExplainer")}
+            </p>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block space-y-2 sm:col-span-2">
+                <span className={labelClass}>{t("publicHandle")}</span>
+                <input
+                  type="text"
+                  autoComplete="username"
+                  maxLength={24}
+                  value={publicHandle}
+                  onChange={(e) =>
+                    setPublicHandle(e.target.value.toLowerCase())
+                  }
+                  placeholder={t("publicHandlePlaceholder")}
+                  className={fieldClass}
+                  required
+                />
+              </label>
+
+              <label className="block space-y-2 sm:col-span-2">
+                <span className={labelClass}>{t("publicDisplayName")}</span>
+                <input
+                  type="text"
+                  maxLength={40}
+                  value={publicDisplayName}
+                  onChange={(e) => setPublicDisplayName(e.target.value)}
+                  className={fieldClass}
+                />
+              </label>
+
+              <label className="block space-y-2 sm:col-span-2">
+                <span className={labelClass}>{t("publicBio")}</span>
+                <textarea
+                  rows={3}
+                  maxLength={200}
+                  value={publicBio}
+                  onChange={(e) => setPublicBio(e.target.value)}
+                  placeholder={t("publicBioPlaceholder")}
+                  className={`${fieldClass} resize-y`}
+                />
+              </label>
+            </div>
+
+            <div className="flex items-start justify-between gap-4 border-t border-[var(--hairline)] pt-5">
+              <div className="min-w-0 space-y-1">
+                <p className="text-sm text-[var(--text)]">{t("publicIsPublic")}</p>
+                <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+                  {t("publicIsPublicBlurb")}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isPublic}
+                onClick={() => setIsPublic((v) => !v)}
+                className={`relative h-8 w-14 shrink-0 border transition ${
+                  isPublic
+                    ? "border-[var(--brass)]/55 bg-[var(--brass)]/25"
+                    : "border-[var(--line)] bg-[var(--surface)]"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 h-5 w-5 bg-[var(--brass-soft)] transition ${
+                    isPublic ? "left-8" : "left-1 opacity-50"
+                  }`}
+                />
+                <span className="sr-only">
+                  {isPublic ? t("notifOn") : t("notifOff")}
+                </span>
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="submit"
+                disabled={
+                  publicStatus === "saving" || publicStatus === "clearing"
+                }
+                className="min-h-11 bg-[var(--brass)] px-6 py-2.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
+              >
+                {publicStatus === "saving"
+                  ? t("publicSaving")
+                  : publicStatus === "saved"
+                    ? t("publicSaved")
+                    : t("publicSave")}
+              </button>
+              {publicHandle.trim() ? (
+                <Link
+                  href={`/u/${publicHandle.trim()}`}
+                  className="text-sm text-[var(--brass-soft)] underline-offset-4 transition hover:underline"
+                >
+                  {t("publicPreview")}
+                </Link>
+              ) : null}
+              <button
+                type="button"
+                disabled={
+                  publicStatus === "saving" || publicStatus === "clearing"
+                }
+                onClick={() => void onClearPublicProfile()}
+                className="text-sm text-[var(--text-muted)] underline-offset-4 transition hover:text-[var(--danger)] hover:underline disabled:opacity-50"
+              >
+                {t("publicClear")}
+              </button>
+            </div>
+          </form>
+        </section>
+
         {/* Preferences */}
         <section className="mt-12 space-y-4">
           <div>
@@ -594,6 +874,130 @@ export default function AccountPageClient() {
                 </button>
               </div>
             ) : null}
+
+            <div className="space-y-1 px-5 py-5 sm:px-7">
+              <p className="text-sm text-[var(--text)]">{t("notifTitle")}</p>
+              <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+                {t("notifBlurb")}
+              </p>
+            </div>
+
+            <div className="flex items-start justify-between gap-4 px-5 py-5 sm:px-7">
+              <div className="min-w-0 space-y-1">
+                <p className="text-sm text-[var(--text)]">{t("notifDailyVerse")}</p>
+                <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+                  {t("notifDailyVerseBlurb")}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={notifDailyVerse}
+                disabled={prefsBusy}
+                onClick={() => void onToggleNotifDailyVerse()}
+                className={`relative h-8 w-14 shrink-0 border transition disabled:opacity-50 ${
+                  notifDailyVerse
+                    ? "border-[var(--brass)]/55 bg-[var(--brass)]/25"
+                    : "border-[var(--line)] bg-[var(--surface)]"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 h-5 w-5 bg-[var(--brass-soft)] transition ${
+                    notifDailyVerse ? "left-8" : "left-1 opacity-50"
+                  }`}
+                />
+                <span className="sr-only">
+                  {notifDailyVerse ? t("notifOn") : t("notifOff")}
+                </span>
+              </button>
+            </div>
+
+            {notifDailyVerse ? (
+              <div className="px-5 py-4 sm:px-7">
+                <label className="block max-w-[12rem] space-y-2">
+                  <span className={labelClass}>{t("notifDailyVerseHour")}</span>
+                  <select
+                    value={notifDailyVerseHour}
+                    disabled={prefsBusy}
+                    onChange={(e) =>
+                      void onChangeNotifHour(Number(e.target.value))
+                    }
+                    className={fieldClass}
+                  >
+                    {Array.from({ length: 19 }, (_, i) => i + 4).map((h) => (
+                      <option key={h} value={h}>
+                        {h}:00
+                      </option>
+                    ))}
+                  </select>
+                  <span className="block text-xs text-[var(--text-muted)]">
+                    {t("notifDailyVerseHourBlurb")}
+                  </span>
+                </label>
+              </div>
+            ) : null}
+
+            <div className="flex items-start justify-between gap-4 px-5 py-5 sm:px-7">
+              <div className="min-w-0 space-y-1">
+                <p className="text-sm text-[var(--text)]">
+                  {t("notifStreakReminder")}
+                </p>
+                <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+                  {t("notifStreakReminderBlurb")}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={notifStreakReminder}
+                disabled={prefsBusy}
+                onClick={() => void onToggleNotifStreakReminder()}
+                className={`relative h-8 w-14 shrink-0 border transition disabled:opacity-50 ${
+                  notifStreakReminder
+                    ? "border-[var(--brass)]/55 bg-[var(--brass)]/25"
+                    : "border-[var(--line)] bg-[var(--surface)]"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 h-5 w-5 bg-[var(--brass-soft)] transition ${
+                    notifStreakReminder ? "left-8" : "left-1 opacity-50"
+                  }`}
+                />
+                <span className="sr-only">
+                  {notifStreakReminder ? t("notifOn") : t("notifOff")}
+                </span>
+              </button>
+            </div>
+
+            <div className="flex items-start justify-between gap-4 px-5 py-5 sm:px-7">
+              <div className="min-w-0 space-y-1">
+                <p className="text-sm text-[var(--text)]">{t("notifCommunity")}</p>
+                <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+                  {t("notifCommunityBlurb")}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={notifCommunity}
+                disabled={prefsBusy}
+                onClick={() => void onToggleNotifCommunity()}
+                className={`relative h-8 w-14 shrink-0 border transition disabled:opacity-50 ${
+                  notifCommunity
+                    ? "border-[var(--brass)]/55 bg-[var(--brass)]/25"
+                    : "border-[var(--line)] bg-[var(--surface)]"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 h-5 w-5 bg-[var(--brass-soft)] transition ${
+                    notifCommunity ? "left-8" : "left-1 opacity-50"
+                  }`}
+                />
+                <span className="sr-only">
+                  {notifCommunity ? t("notifOn") : t("notifOff")}
+                </span>
+              </button>
+            </div>
 
             <div className="px-5 py-4 sm:px-7">
               <button

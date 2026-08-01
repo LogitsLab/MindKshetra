@@ -152,6 +152,15 @@ export const en = {
   panchangUnavailable: "The panchang is quiet right now.",
   panchangUnavailableBody: "Try again in a little while.",
   panchangLocationLine: "New Delhi · IST",
+  panchangCalendarLink: "Month calendar",
+  panchangCalendarTitle: "Panchang calendar",
+  panchangCalendarEyebrow: "Month view",
+  panchangCalendarIntro:
+    "Tithi and nakshatra by day, grouped by week — same Swiss Ephemeris as today’s panchang.",
+  panchangCalendarPrev: "Previous month",
+  panchangCalendarNext: "Next month",
+  panchangObservances: "Observances this month",
+  panchangBackToday: "Today’s panchang",
   milanEyebrow: "Kundli Milan",
   milanTitle: "Milan",
   milanIntro:
@@ -444,6 +453,15 @@ export const hi: Record<keyof typeof en, string> = {
   panchangUnavailable: "पंचांग अभी उपलब्ध नहीं है।",
   panchangUnavailableBody: "कुछ देर बाद फिर देखें।",
   panchangLocationLine: "नई दिल्ली · IST",
+  panchangCalendarLink: "मासिक पंचांग",
+  panchangCalendarTitle: "पंचांग कैलेंडर",
+  panchangCalendarEyebrow: "माह दृश्य",
+  panchangCalendarIntro:
+    "प्रतिदिन तिथि और नक्षत्र, सप्ताह के अनुसार — वही स्विस एफेमेरिस।",
+  panchangCalendarPrev: "पिछला माह",
+  panchangCalendarNext: "अगला माह",
+  panchangObservances: "इस माह के पर्व",
+  panchangBackToday: "आज का पंचांग",
   milanEyebrow: "कुंडली मिलान",
   milanTitle: "मिलान",
   milanIntro:

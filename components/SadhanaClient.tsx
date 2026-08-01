@@ -679,7 +679,9 @@ function JapaPanel({ visible }: { visible: boolean }) {
   // never as a global shortcut leaking into someone's sit or reflection.
   const [engaged, setEngaged] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [tick, setTick] = useState(false);
   const japaBodyRef = useRef<Record<string, unknown> | null>(null);
+  const tickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     import("@/data/mantras.json")
@@ -698,6 +700,20 @@ function JapaPanel({ visible }: { visible: boolean }) {
       }
       return b + 1;
     });
+    setTick(true);
+    if (tickTimerRef.current) clearTimeout(tickTimerRef.current);
+    tickTimerRef.current = setTimeout(() => setTick(false), 120);
+    try {
+      navigator.vibrate?.(8);
+    } catch {
+      /* haptic optional */
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (tickTimerRef.current) clearTimeout(tickTimerRef.current);
+    };
   }, []);
 
   // The shortcut must never steal Space from another focused control: a
@@ -803,9 +819,13 @@ function JapaPanel({ visible }: { visible: boolean }) {
           onBlur={() => setFocused(false)}
           aria-label={t("japaTitle")}
           data-japa-circle="1"
-          className="flex h-56 w-56 items-center justify-center rounded-full border border-[var(--brass)]/40 transition active:scale-[0.98]"
+          className="flex h-56 w-56 items-center justify-center rounded-full border border-[var(--brass)]/40 transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brass)]/60"
         >
-          <span className="font-display text-5xl tabular-nums text-[var(--text)]">
+          <span
+            className={`font-display text-5xl tabular-nums text-[var(--text)] transition duration-100 ${
+              tick ? "scale-110" : "scale-100"
+            }`}
+          >
             {beads}
             <span className="text-xl text-[var(--text-muted)]"> / 108</span>
           </span>

@@ -20,6 +20,12 @@ export default function SiteFooter() {
         </p>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
           <Link
+            href="/sangha"
+            className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+          >
+            {t("navSangha")}
+          </Link>
+          <Link
             href="/support"
             className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
           >

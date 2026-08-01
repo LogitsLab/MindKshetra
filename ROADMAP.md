@@ -8,19 +8,40 @@ gentle daily practice — together. Strategy detail lives in
 [CONTRIBUTING.md](CONTRIBUTING.md) and
 [docs/translations.md](docs/translations.md).
 
-## Shipped (on `dev`, promoting to production as it hardens)
+## Direction (locked)
 
-- **Practice layer** — Daily Sādhana (mood → verse → sit → reflect), japa
-  with grace-day streaks, guest-first with merge on sign-in.
-- **Lifestyle layer** — sunrise-anchored panchang with tithi/nakshatra end
-  times, festival/ekadashi engine, nakshatra-driven Verse of the Day.
-- **The wedge** — Pressure→Practice card (chart fact → teaching → one
-  small action, no LLM) and chart-aware mood ordering.
-- **Community rails, dark** — shared reflections with moderation +
-  crisis-hold, public profiles, push dispatcher. Built and merged, behind
-  kill switches (see launch gates).
-- **Acquisition loops** — related-verse interlinks, share instrumentation,
-  VOTD email with `ref=votd`.
+**Chain (do not invert):** chart pressure → Gita guidance → daily practice →
+shared sangha.
+
+Keep the moat (**Gita × real Jyotish**). Add **sādhana** and **sangha** as
+nonprofit engines for retention, trust, donations, and impact. Lead with a
+**free-forever core** (verses, mood, basic Madhav, basic chart); dāna supports
+paths, hosting, and circle ops — never aggressive paywalls.
+
+**Explicit non-goals (early):**
+- Generic meditation marketplace (Calm / Headspace clone)
+- Open social feed (moderation hell + brand risk)
+- Paid astrologer marketplace (AstroTalk clone; fights AGPL + nonprofit story)
+- Turning Madhav into a therapist
+
+**Sangha order:** Model A (WhatsApp / Telegram / weekly live) before any
+in-app circles. Circles stay launch-frozen until G2 + G3 + a second named
+steward. Soak everything on `dev` / [dev-mind.logitslab.com](https://dev-mind.logitslab.com)
+before any `dev` → `main` promote (see [docs/dev-soak.md](docs/dev-soak.md)).
+
+## Shipped (on `dev`; promote to production only after soak)
+
+- **Practice layer** — Daily Sādhana, japa (grace-day streaks), guest merge;
+  themed paths (`/paths`, anxiety-7 + `path_runs`).
+- **Lifestyle layer** — sunrise-anchored panchang, month calendar,
+  festival/ekadashi engine, nakshatra-leaning VOTD.
+- **The wedge** — Pressure→Practice card + chart-aware mood ordering.
+- **Model A sangha surface** — `/sangha` (attend → `sangha_attended`), `/care`.
+- **Community rails, dark** — shared reflections, moderation, profiles, push
+  dispatcher — behind kill switches until G1/G2/G3.
+- **Acquisition loops** — related verses, share tracking, VOTD `ref=votd`.
+- **Account** — notification prefs + public profile editor; mobile push client
+  scaffold (APNs/FCM still owner-gated).
 
 ## Gated launches (not date-driven)
 
@@ -33,13 +54,15 @@ gate passes its surface stays dark regardless of code readiness.
 - In-app circles (sanghas) — behind G2 + G3 + a second named steward.
 - Festival/push broadcasts — behind their gate rows.
 
-## Next
+## Next (on `dev` until soak)
 
-- Mobile parity for gated-off features as their gates clear (web-first by
-  decision E7).
-- Themed 7-day paths (content pilot shipped as data; UI next).
-- Audio via TTS-cue bridge, then recorded chant packs (license-verified).
-- Tamil/Telugu/Bengali — each ships only with a named language steward.
+- Model A sangha ops: WhatsApp / Telegram / weekly live (page `/sangha` shipped).
+- Wire donate + channel env URLs on Preview; money rails (OC / Sponsors / entity).
+- G3 external spine — [docs/safeguarding.md](docs/safeguarding.md).
+- Mobile parity for gated-off features as their gates clear (E7 web-first).
+- More themed paths after anxiety-7 usage; audio + new languages only with named stewards.
+- In-app circles only after G2 + G3 + second steward — [docs/circles-design.md](docs/circles-design.md).
+- **Promote `dev` → `main` only after** [docs/dev-soak.md](docs/dev-soak.md) sign-off.
 
 ## How to influence this
 

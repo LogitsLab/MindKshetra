@@ -5,6 +5,11 @@ is why they start on day 1 even though the product work they unlock (the
 `/support` page's UPI block, Sustainer badges, community links) ships later.
 Work the tracks in parallel — none block each other.
 
+**Dev-first (2026-08):** wire Preview / `dev` env vars and channels first.
+Do **not** promote `dev` → `main` or apply 011–016 to prod until soak is
+signed off in [dev-soak.md](dev-soak.md). Product chain stays:
+chart pressure → Gita guidance → daily practice → shared sangha.
+
 ## Track 1 — Money rails (longest lead time, start first)
 
 ### International / developer donations (live in days, no entity needed)
@@ -115,4 +120,22 @@ cannot be a single-human dependency). Review monthly.
 Freeze markers: festival push broadcasts, circles, and any public feed-like
 surface are **launch-frozen** regardless of code readiness until their gate
 row clears. Flipping a kill switch without its gate is a strategy regression,
-not a config change.
+not a config change. Circles design (not a build ticket): [circles-design.md](circles-design.md).
+G3 external spine tracker: [safeguarding.md](safeguarding.md). Dev soak:
+[dev-soak.md](dev-soak.md).
+
+## Model A sangha (start here)
+
+In-app page: `/sangha` — join links (env) + “I attended” → `sangha_attended`.
+
+- [ ] WhatsApp Channel live; set `NEXT_PUBLIC_WHATSAPP_CHANNEL_URL` on Preview
+- [ ] Telegram group (admin-approval); set `NEXT_PUBLIC_TELEGRAM_URL` on Preview
+- [ ] GitHub Discussions enabled on both repos
+- [ ] First weekly live scheduled (Meet/YouTube); attendees tap “I attended”
+- [ ] Seva board — monthly chapter-tied action (ops, not code-first)
+
+## Gate call log
+
+| Date | Gate | Result | Notes |
+|---|---|---|---|
+| | G1 / G2 / G3 | miss / watch / pass | |

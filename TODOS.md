@@ -30,31 +30,22 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
 
 ## UI catching up with shipped backends
 
-- [ ] Account panel: notification settings (the 4 `notif*` preference fields
-      exist in `/api/account/preferences`; no web UI yet — mobile is the
-      primary surface, web parity when convenient)
-- [ ] Account panel: public-profile editor (API `/api/profile` is live,
-      `/u/[handle]` renders; `AccountPageClient.tsx` needs the opt-in panel
-      with a "what becomes visible" explainer)
+- [x] Account panel: notification settings (web + mobile prefs UI)
+- [x] Account panel: public-profile editor (`/api/profile` + Account panel)
 - [ ] Mobile parity (after usage gates, per E7 web-first): chart-aware mood
       ordering toggle, Pressure→Practice card, koota notes via shared i18n,
       panchang Delhi wall-clock (not device time)
-- [ ] Panchang calendar page (month API `/api/panchang/calendar` is live;
-      needs `app/panchang/calendar/page.tsx` grouped-by-week list)
-- [ ] Themed path UI ("Seven days with anxiety" — `data/paths/anxiety-7.json`
-      is complete EN+HI; needs a simple day-list surface + `path_runs`
-      progress, resolve verses via `getSlokaByRef`)
-- [ ] Web japa: bead haptic equivalent (subtle audio/visual tick) and a
-      keyboard-focus ring pass
+- [x] Panchang calendar page (`app/panchang/calendar` week-grouped)
+- [x] Themed path UI + `path_runs` (migration 017; `/paths`, `/paths/anxiety-7`)
+- [x] Web japa: visual tick + focus-visible ring (+ vibrate when available)
 
 ## Phase 3 remainders (design settled in the plan)
 
 - [ ] Moderation queue: Groq triage pass to prioritize the human queue
       (page + `MAINTAINER_USER_IDS` gate shipped; triage never removes,
       only ranks)
-- [ ] Circles (sanghas): migration with `SECURITY DEFINER is_circle_member()`
-      + two-user RLS tests — the first migration where a policy bug leaks
-      private content; do not rush it
+- [ ] Circles (sanghas): see [docs/circles-design.md](docs/circles-design.md) —
+      frozen until G2+G3+second steward; do not open migration early
 - [ ] Pressure→Practice as the sādhana verse for chart users (the card
       shipped on the chart overview; the optional sadhana integration
       from the plan is still open)
@@ -66,9 +57,8 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
 
 ## Known debt
 
-- [ ] Astrology path artwork still reuses Explore's image
-      (`components/HomePageClient.tsx` PATHS; no asset exists in
-      `public/images/paths/`)
+- [x] Astrology path artwork — dedicated `astrology.jpg` + `astrology.svg` icon
+      (commissioned photo can still replace later)
 - [ ] `/api/astrology/chat` deprecation shim — delete once logs go quiet
       (`docs/t6a-behaviour-deltas.md`)
 - [ ] `ChartHub.tsx` (~73 KB) split
@@ -77,15 +67,15 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
 - [ ] VOTD email: nakshatra provenance line + community channel links in the
       footer once channels exist (`lib/votd-email.ts`)
 
-## Owner-gated (see docs/nonprofit-kickoff.md)
+## Owner-gated (see docs/nonprofit-kickoff.md + docs/dev-soak.md)
 
-- [ ] Apply migrations 011–016 via `node scripts/apply-migrations.cjs`
-      (`db push` is silently broken here — docs/dev-environment.md).
-      016 requires **code deployed first, then the migration** (header
-      documents the order and rollback)
-- [ ] Vercel: dev-mind.logitslab.com domain + branch env vars
-      (docs/dev-environment.md)
+- [ ] DNS CNAME for `dev-mind` (if still pending)
+- [x] Kill-switch defaults documented in `.env.example` (set false on Preview)
+- [x] Apply migration **017** to MindKshetra-dev (`path_runs` — 2026-08-01)
 - [ ] Set NEXT_PUBLIC_GITHUB_SPONSORS_URL / OPEN_COLLECTIVE / RAZORPAY /
-      WHATSAPP / TELEGRAM env vars as accounts come online
+      WHATSAPP / TELEGRAM env vars as accounts come online (Preview first)
 - [ ] GitHub secret CRON_SECRET for the push-dispatch workflow
-- [ ] APNs/FCM credentials in EAS before mobile v1.2.0 (expo-notifications)
+- [x] Mobile push client scaffold (expo-notifications); APNs/FCM still needed
+      in EAS before a push-capable store build
+- [ ] **Promote deferred** — no `dev`→`main` until soak signed off in
+      [docs/dev-soak.md](docs/dev-soak.md)
