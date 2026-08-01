@@ -30,7 +30,7 @@ export default function Nav() {
   const moreLinks = [
     { href: "/panchang", label: t("navPanchang") },
     { href: "/community", label: t("navSangha") },
-    { href: "/paths", label: t("pathListTitle") },
+    { href: "/meditation", label: t("homeMeditationTitle") },
     { href: "/support", label: t("navSupport") },
   ];
   const madhavLink = { href: "/madhav", label: t("navMadhav") };

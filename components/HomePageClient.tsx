@@ -109,11 +109,11 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       icon: "/icons/paths/astrology.svg",
     },
     {
-      href: "/community",
-      title: t("homeBlockSanghaTitle"),
-      blurb: t("homeBlockSanghaBody"),
-      image: "/images/paths/community.jpg",
-      icon: "/icons/paths/meditation.svg",
+      href: "/paths",
+      title: t("homeBlockPathsTitle"),
+      blurb: t("homeBlockPathsBody"),
+      image: "/images/paths/paths.jpg",
+      icon: "/icons/paths/paths.svg",
     },
   ];
 
@@ -281,10 +281,10 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
           {(
             [
               {
-                href: "/paths",
-                title: t("homeBlockPathsTitle"),
-                body: t("homeBlockPathsBody"),
-                image: "/images/paths/paths.jpg",
+                href: "/meditation",
+                title: t("homeBlockCourseTitle"),
+                body: t("homeBlockCourseBody"),
+                image: "/images/paths/meditation.jpg",
               },
               {
                 href: "/sadhana#japa",
@@ -340,9 +340,14 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
         <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-[var(--text-soft)] sm:text-base">
           {t("homeTogetherBlurb")}
         </p>
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {(
             [
+              {
+                href: "/community",
+                title: t("homeBlockSanghaTitle"),
+                body: t("homeBlockSanghaBody"),
+              },
               {
                 href: "/care",
                 title: t("homeBlockCareTitle"),
