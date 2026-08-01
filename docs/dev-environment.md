@@ -67,16 +67,25 @@ serves all 701 verses from the repo), so the dev project needs **no seeding**
 
 ### Applying migrations
 
-**`supabase db push` does not work in this repo** — the migrations are
-numbered `001_…`, which the CLI's `<timestamp>_name.sql` convention silently
-ignores (push reports "up to date" while applying nothing). Use one of:
+There is **one** migration path:
 
 ```bash
-# Preferred (needs a one-time `npx supabase login`):
-node scripts/apply-migrations.cjs xtadssxgwskyobxmhnxa   # MindKshetra-dev
+npm run db:migrate -- <project-ref>          # e.g. xtadssxgwskyobxmhnxa (MindKshetra-dev)
+```
 
-# No-CLI fallback — paste into the dashboard SQL editor:
-node scripts/dev-bootstrap-sql.cjs | pbcopy
+It runs `scripts/apply-migrations.cjs`, which applies every
+`supabase/migrations/*.sql` in order via the Supabase Management API (needs a
+one-time `npx supabase login`, or `SUPABASE_ACCESS_TOKEN` set).
+
+**Do not use `supabase db push` — it silently applies nothing here.** The
+migrations are numbered `001_…`, which the CLI's `<timestamp>_name.sql`
+convention ignores, so push reports "up to date" without running a single
+file.
+
+No CLI token available? Fallback: paste the SQL into the dashboard SQL editor:
+
+```bash
+node scripts/dev-bootstrap-sql.cjs | pbcopy   # then Dashboard → SQL Editor
 ```
 
 Every migration is idempotent (`if not exists` / `drop policy if exists`),
@@ -102,7 +111,7 @@ throwaway test accounts. That's the point.
 ## Database migrations
 
 New migrations are **written on `dev` and applied to MindKshetra-dev** as part
-of the same change (db push or the bootstrap script). The prod project is
+of the same change (`npm run db:migrate -- <dev-ref>`). The prod project is
 touched only at promotion. Until a migration is applied, its API routes
 degrade (empty data or 503) and the UI shows empty states — the site stays
 browsable either way.
@@ -127,7 +136,7 @@ EXPO_PUBLIC_API_URL=https://dev-mind.logitslab.com npx expo start
 When `dev` is ready:
 
 1. Apply the pending migrations to the **prod** Supabase project
-   (`node scripts/apply-migrations.cjs <prod-ref>`, or the SQL-editor paste).
+   (`npm run db:migrate -- <prod-ref>`, or the SQL-editor paste).
    They have already soaked on MindKshetra-dev.
 2. Open a PR `dev → main` in each repo. Web deploys to production on merge;
    mobile's version-bump + EAS release workflows take over from there.
