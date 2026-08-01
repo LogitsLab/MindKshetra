@@ -44,11 +44,13 @@ jobs:
 
       - name: Deploy (preview)
         id: deploy
-        # Assignment form so a deploy failure (e.g. Vercel's daily upload
-        # quota, code "api-upload-free") fails THIS step loudly instead of
-        # feeding an empty URL to the alias step.
+        # Assignment form so a deploy failure fails THIS step loudly instead
+        # of feeding an empty URL to the alias step. --archive=tgz uploads
+        # one tarball instead of thousands of files — the free tier's daily
+        # upload quota (code "api-upload-free", >5000 files/day) killed
+        # three deploys before this; the prebuilt output alone exceeds it.
         run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --archive=tgz --token=${{ secrets.VERCEL_TOKEN }})
           test -n "$url"
           echo "url=$url" >> "$GITHUB_OUTPUT"
         env:
