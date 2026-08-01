@@ -80,7 +80,7 @@ export default function ChapterPageClient({
           height={100}
           className="pointer-events-none absolute -right-2 -top-4 opacity-20 sm:right-0"
         />
-        <p className="text-xs uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+        <p className="eyebrow text-[var(--brass-soft)]">
           {t("chapter")} {chapter}
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-5xl">
@@ -98,7 +98,7 @@ export default function ChapterPageClient({
         ) : null}
         {chapterMoral(meta, lang) ? (
           <div className="mt-5 border border-[var(--line)] bg-[var(--panel)] p-4">
-            <p className="text-[0.7rem] uppercase tracking-[0.18em] text-[var(--brass-soft)]">
+            <p className="eyebrow text-[var(--brass-soft)]">
               {t("chapterMoral")}
             </p>
             <p className="mt-2 font-display text-lg leading-snug text-[var(--text)]">
@@ -137,7 +137,7 @@ export default function ChapterPageClient({
 
       {showJump && (
         <div className="mt-8">
-          <p className="mb-2 text-[0.65rem] uppercase tracking-[0.16em] text-[var(--text-muted)]">
+          <p className="eyebrow mb-2 text-[var(--text-muted)]">
             {t("jumpToVerse")}
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -177,7 +177,7 @@ export default function ChapterPageClient({
                       <h2 className="font-display text-2xl text-[var(--text)]">
                         {lang === "hi" ? unit.titleHi : unit.titleEn}
                       </h2>
-                      <span className="border border-[var(--line)] px-2 py-0.5 text-[0.65rem] uppercase tracking-[0.14em] text-[var(--brass-soft)]">
+                      <span className="eyebrow border border-[var(--line)] px-2 py-0.5 text-[var(--brass-soft)]">
                         {unit.mode === "scene"
                           ? t("unitBadgeScene")
                           : t("unitBadgeTeaching")}

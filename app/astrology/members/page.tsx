@@ -65,7 +65,7 @@ export default function AstrologyMembersPage() {
 
       <div className="relative flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[0.65rem] uppercase tracking-[0.28em] text-[var(--brass-soft)]">
+          <p className="eyebrow text-[var(--brass-soft)]">
             {t("astroEyebrow")}
           </p>
           <h1 className="mt-2 font-display text-3xl tracking-tight text-[var(--text)] sm:text-5xl">

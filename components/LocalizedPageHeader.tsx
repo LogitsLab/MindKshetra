@@ -21,7 +21,7 @@ export default function LocalizedPageHeader({
   const { t } = useLanguage();
   return (
     <header className="mb-8 max-w-2xl">
-      <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
+      <p className="eyebrow text-[var(--brass-soft)]">
         {t(eyebrowKey)}
       </p>
       <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-4xl">

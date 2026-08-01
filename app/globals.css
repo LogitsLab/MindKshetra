@@ -47,7 +47,6 @@
   --media-scrim-soft: rgba(7, 9, 15, 0.2);
   --on-media: #f4f6fa;
   --on-media-muted: rgba(238, 242, 247, 0.78);
-  --hero-panel: transparent;
 }
 
 /* Cool mist / ink — translucent so the field image shows through */
@@ -75,7 +74,6 @@
   --danger: #9f1239;
   --danger-bg: rgba(159, 18, 57, 0.1);
   --nav-bg: rgba(248, 250, 252, 0.55);
-  --hero-panel: rgba(255, 255, 255, 0.55);
   --atmosphere-veil: linear-gradient(
     180deg,
     rgba(7, 9, 15, 0.25) 0%,
@@ -148,18 +146,6 @@ body {
   border: 1px solid var(--line);
   backdrop-filter: blur(16px) saturate(1.1);
   -webkit-backdrop-filter: blur(16px) saturate(1.1);
-}
-
-.glass-hero {
-  background: var(--hero-panel);
-  border: 1px solid transparent;
-  backdrop-filter: blur(18px) saturate(1.15);
-  -webkit-backdrop-filter: blur(18px) saturate(1.15);
-}
-
-[data-theme="light"] .glass-hero {
-  border-color: rgba(12, 18, 32, 0.1);
-  box-shadow: 0 12px 40px rgba(12, 18, 32, 0.12);
 }
 
 .site-atmosphere::before {
@@ -410,7 +396,17 @@ body {
  *
  * `text-[11px] uppercase tracking-[0.16em] text-[var(--brass-soft)]` was pasted
  * as a string literal across ChatWindow, ChapterPageClient and AccountPageClient
- * (where it was already a named const at line 14). New code uses .eyebrow.
+ * (where it was already a named const at line 14).
+ *
+ * It then sat at zero usages while eight surfaces went on inlining eight
+ * different tracking values — 0.14em, 0.16em, 0.18em, 0.2em, 0.22em, 0.28em,
+ * 0.32em — at four different sizes. Documenting an idiom nobody adopts is
+ * indistinguishable from not having one, so the label sites now use the class.
+ *
+ * Deliberately three properties. Colour and spacing stay at the call site: a
+ * --text-muted chrome label and a --brass-soft section label are the same idiom
+ * carrying different weights of attention, and baking either in would force the
+ * next surface back to inlining.
  */
 .eyebrow {
   font-size: 11px;

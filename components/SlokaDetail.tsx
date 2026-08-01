@@ -73,7 +73,7 @@ export default function SlokaDetail({
   return (
     <article className="animate-fade">
       <header className="border-b border-[var(--hairline)] pb-8 text-center">
-        <p className="font-body text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
+        <p className="eyebrow font-body text-[var(--brass-soft)]">
           {/* Devanagari inside a tracked Latin eyebrow: the globals.css guard
               only fires under html[lang="hi"], so an EN reader was getting
               0.22em pulled through "भगवद्गीता" — matras off their base
@@ -194,7 +194,7 @@ export default function SlokaDetail({
         <section className="min-w-0 space-y-7 border border-[var(--line)] bg-[var(--panel)] p-5 sm:p-7 lg:rounded-none lg:border-r-0">
           {/* Primary reading: translation first */}
           <div>
-            <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+            <h2 className="eyebrow mb-3 text-[var(--brass-soft)]">
               {t("translation")}
             </h2>
             <p className="font-display text-xl leading-relaxed text-[var(--text)] sm:text-[1.35rem]">
@@ -205,7 +205,7 @@ export default function SlokaDetail({
           <div className="h-px bg-[var(--line)]" />
 
           <div>
-            <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+            <h2 className="eyebrow mb-3 text-[var(--brass-soft)]">
               {t("meaning")}
             </h2>
             {commentary ? (
@@ -242,7 +242,7 @@ export default function SlokaDetail({
             <>
               <div className="h-px bg-[var(--line)]" />
               <details className="group" open={passage.verses.length > 1}>
-                <summary className="cursor-pointer list-none text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)] marker:content-none [&::-webkit-details-marker]:hidden">
+                <summary className="eyebrow cursor-pointer list-none text-[var(--brass-soft)] marker:content-none [&::-webkit-details-marker]:hidden">
                   <span className="inline-flex items-center gap-2">
                     {lang === "hi" ? passage.titleHi : passage.titleEn}
                     <span className="text-[var(--text-muted)]">
@@ -312,7 +312,7 @@ export default function SlokaDetail({
             <>
               <div className="h-px bg-[var(--line)]" />
               <details className="group">
-                <summary className="cursor-pointer list-none text-[0.7rem] uppercase tracking-[0.2em] text-[var(--text-muted)] marker:content-none [&::-webkit-details-marker]:hidden">
+                <summary className="eyebrow cursor-pointer list-none text-[var(--text-muted)] marker:content-none [&::-webkit-details-marker]:hidden">
                   <span className="inline-flex items-center gap-2">
                     {t("wordMeanings")}
                     <span className="text-[var(--text-muted)]/70 transition group-open:rotate-90">
@@ -343,7 +343,7 @@ export default function SlokaDetail({
             <>
               <div className="h-px bg-[var(--line)]" />
               <div>
-                <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                <h2 className="eyebrow mb-3 text-[var(--text-muted)]">
                   {t("themes")}
                 </h2>
                 <ul className="flex flex-wrap gap-2">
@@ -384,7 +384,7 @@ export default function SlokaDetail({
 
       {related.length > 0 ? (
         <section className="mt-6 border-t border-[var(--line)] pt-6">
-          <h2 className="text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+          <h2 className="eyebrow text-[var(--brass-soft)]">
             {t("relatedVerses")}
           </h2>
           {/* Hairline list, not cards — the citation-list idiom. */}

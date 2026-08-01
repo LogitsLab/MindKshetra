@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BirthForm from "@/components/astrology/BirthForm";
 import ChartHub from "@/components/astrology/ChartHub";
+import ZodiacRing from "@/components/astrology/ZodiacRing";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { ChartPayload } from "@/lib/astrology/types";
@@ -51,58 +52,6 @@ function writeStoredSession(sessionId: string, birth: ChartPayload["birth"]) {
   sessionStorage.setItem(
     SESSION_KEY,
     JSON.stringify({ sessionId, birth } satisfies StoredSession)
-  );
-}
-
-function ZodiacRing({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 240 240" className={className} aria-hidden fill="none">
-      <circle
-        cx="120"
-        cy="120"
-        r="108"
-        stroke="currentColor"
-        strokeWidth="0.5"
-        strokeDasharray="3 8"
-        opacity="0.5"
-      />
-      <circle
-        cx="120"
-        cy="120"
-        r="86"
-        stroke="currentColor"
-        strokeWidth="0.4"
-        opacity="0.28"
-      />
-      <circle
-        cx="120"
-        cy="120"
-        r="58"
-        stroke="currentColor"
-        strokeWidth="0.35"
-        opacity="0.18"
-      />
-      {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => {
-        const rad = ((deg - 90) * Math.PI) / 180;
-        const x = 120 + Math.cos(rad) * 108;
-        const y = 120 + Math.sin(rad) * 108;
-        return (
-          <circle
-            key={deg}
-            cx={x}
-            cy={y}
-            r={deg % 90 === 0 ? 2 : 1.2}
-            fill="currentColor"
-            opacity={deg % 90 === 0 ? 0.75 : 0.4}
-          />
-        );
-      })}
-      <path
-        d="M120 22 L128 42 L120 36 L112 42 Z"
-        fill="currentColor"
-        opacity="0.55"
-      />
-    </svg>
   );
 }
 
@@ -269,7 +218,7 @@ export default function AstrologyLanding() {
               {error}
             </p>
           ) : (
-            <span className="text-[0.65rem] uppercase tracking-[0.28em] text-[var(--brass)]">
+            <span className="eyebrow text-[var(--brass)]">
               {t("astroEyebrow")}
             </span>
           )}
@@ -351,7 +300,7 @@ export default function AstrologyLanding() {
         </p>
 
         <div className="relative z-10 max-w-3xl">
-          <p className="animate-rise mb-4 text-xs uppercase tracking-[0.32em] text-[var(--brass)] sm:text-sm">
+          <p className="eyebrow animate-rise mb-4 text-[var(--brass)]">
             {t("astroEyebrow")}
           </p>
           <h1 className="animate-rise-delay-1 font-display text-[2.75rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-7xl md:text-8xl">
@@ -402,7 +351,7 @@ export default function AstrologyLanding() {
         <div className="relative mx-auto max-w-3xl">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-[0.65rem] uppercase tracking-[0.28em] text-[var(--brass-soft)]">
+              <p className="eyebrow text-[var(--brass-soft)]">
                 {t("astroCastStep")}
               </p>
               <h2 className="mt-2 font-display text-3xl tracking-tight text-[var(--text)] sm:text-4xl">

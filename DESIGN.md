@@ -90,9 +90,12 @@ users who asked for less motion.
 
 - `EmptyState` — ornament SVG + display title + muted body. Empty states are
   features. Never ship "No items found."
-- `.eyebrow` — 11px uppercase, `0.16em` tracking. The label idiom.
-- `ZodiacRing` (`app/astrology/page.tsx`) — the astrology mark. Reuse it; do not
-  rebuild it from pseudo-elements.
+- `.eyebrow` — 11px uppercase, `0.16em` tracking. The label idiom. It carries
+  size, case and tracking only; the call site keeps its own colour and spacing,
+  because a chrome label and a brass section label are the same *idiom* at
+  different weights of attention.
+- `ZodiacRing` (`components/astrology/ZodiacRing.tsx`) — the astrology mark.
+  Reuse it; do not rebuild it from pseudo-elements.
 
 ## The two-voice reply
 

@@ -25,7 +25,7 @@ export default function NewAstrologyMemberPage() {
         >
           ← {t("astroMembersTitle")}
         </Link>
-        <p className="text-[0.65rem] uppercase tracking-[0.28em] text-[var(--brass-soft)]">
+        <p className="eyebrow text-[var(--brass-soft)]">
           {t("astroEyebrow")}
         </p>
         <h1 className="font-display text-3xl tracking-tight text-[var(--text)] sm:text-4xl">
