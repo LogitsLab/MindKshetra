@@ -282,7 +282,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
                 body: t("homeBlockPathsBody"),
               },
               {
-                href: "/sadhana",
+                href: "/sadhana#japa",
                 title: t("homeBlockJapaTitle"),
                 body: t("homeBlockJapaBody"),
               },

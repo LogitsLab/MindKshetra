@@ -1055,9 +1055,12 @@ function JapaPanel({ visible }: { visible: boolean }) {
   const mantra = mantras[mantraIdx];
 
   return (
+    // id: the home japa tile links to /sadhana#japa so the count is where
+    // the tile said it would be, not a scroll away.
     <section
+      id="japa"
       hidden={!visible}
-      className="mt-16 border-t border-[var(--hairline)] pt-10"
+      className="scroll-mt-24 mt-16 border-t border-[var(--hairline)] pt-10"
     >
       <h2 className="font-display text-2xl text-[var(--text)]">
         {t("japaTitle")}
