@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getVerseOfTheDaySelection } from "@/lib/day-seed";
-import { localDayString, isValidTimezone, dayDiff } from "@/lib/practice-streaks";
+import {
+  filterStreakEligible,
+  selectDueCandidates,
+  type Candidate,
+  type PrefRow,
+} from "@/lib/push-cohort";
 import {
   dailyVerseCopy,
   normalizePushLang,
@@ -30,8 +35,6 @@ export const maxDuration = 60;
  * push_sends (user, kind, local-day) is inserted BEFORE that page's send:
  * a rerun can skip a user, never double-ping them.
  */
-const FALLBACK_TZ = "Asia/Kolkata";
-const STREAK_HOUR = 20;
 /** Keyset page size for the prefs scan; a flat cap froze out user_ids sorting past it. */
 const PAGE_SIZE = 1000;
 /** Safety ceiling (20k opted-in rows/tick) — hitting it warns instead of looping forever. */
@@ -48,31 +51,6 @@ function authorizeCron(request: NextRequest): boolean {
   if (!secret) return false;
   const auth = request.headers.get("authorization") || "";
   return auth === `Bearer ${secret}`;
-}
-
-type PrefRow = {
-  user_id: string;
-  timezone: string | null;
-  preferred_language: string | null;
-  notif_daily_verse: boolean | null;
-  notif_daily_verse_hour: number | null;
-  notif_streak_reminder: boolean | null;
-};
-
-type Candidate = {
-  row: PrefRow;
-  kind: "daily_verse" | "streak_reminder";
-  day: string;
-};
-
-function localHour(tz: string, now: Date): number {
-  return Number(
-    new Intl.DateTimeFormat("en-GB", {
-      timeZone: tz,
-      hour: "2-digit",
-      hour12: false,
-    }).format(now)
-  );
 }
 
 function chunk<T>(items: T[], size: number): T[][] {
@@ -171,18 +149,7 @@ async function dispatchPage(
     cohorts: { daily_verse: 0, streak_reminder: 0 },
   };
 
-  const due: Candidate[] = [];
-  for (const row of rows) {
-    const tz = isValidTimezone(row.timezone) ? row.timezone! : FALLBACK_TZ;
-    const hour = localHour(tz, now);
-    const day = localDayString(tz, now);
-    if (row.notif_daily_verse && hour === (row.notif_daily_verse_hour ?? 8)) {
-      due.push({ row, kind: "daily_verse", day });
-    }
-    if (row.notif_streak_reminder && hour === STREAK_HOUR) {
-      due.push({ row, kind: "streak_reminder", day });
-    }
-  }
+  const due = selectDueCandidates(rows, now);
   if (!due.length) return empty;
 
   // Streak eligibility: yesterday-local was the last visit, streak alive.
@@ -204,11 +171,7 @@ async function dispatchPage(
     }
   }
 
-  const candidates = due.filter((d) => {
-    if (d.kind !== "streak_reminder") return true;
-    const s = streakByUser.get(d.row.user_id);
-    return !!s && dayDiff(s.last, d.day) === 1;
-  });
+  const candidates = filterStreakEligible(due, streakByUser);
   if (!candidates.length) return empty;
 
   // Idempotency gate: claim send rows first; conflicts drop out silently.

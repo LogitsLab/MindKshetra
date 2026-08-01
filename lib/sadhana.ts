@@ -7,21 +7,29 @@ import {
   type StreakState,
 } from "@/lib/practice-streaks";
 import { resolveUserTimezone } from "@/lib/streaks";
+import {
+  DAY_SHAPE,
+  MERGE_CAP,
+  PRACTICES,
+  UUID_SHAPE,
+  clampInt,
+  foldStreakDays,
+  isPractice,
+  sanitizeGuestSessions,
+  type Practice,
+} from "@/lib/sadhana-core";
 
 /**
  * Sadhana practice log (migration 011). One model serves the Daily Sadhana
  * flow, japa, the sit timer, and pranayama. Guests log locally on-device and
  * replay through mergeGuestSadhana on sign-in; (user_id, client_ref) keeps the
  * replay idempotent.
+ *
+ * Validation and streak math live in lib/sadhana-core.ts (pure, testable);
+ * the re-exports below keep existing imports working.
  */
-export const PRACTICES = ["flow", "japa", "sit", "pranayama"] as const;
-export type Practice = (typeof PRACTICES)[number];
-
-export function isPractice(value: unknown): value is Practice {
-  return (
-    typeof value === "string" && (PRACTICES as readonly string[]).includes(value)
-  );
-}
+export { PRACTICES, isPractice };
+export type { Practice };
 
 export type SadhanaSessionInput = {
   practice: Practice;
@@ -47,16 +55,6 @@ export type SadhanaSummary = {
   doneToday: Practice[];
   streaks: PracticeStreak[];
 };
-
-const DAY_SHAPE = /^\d{4}-\d{2}-\d{2}$/;
-const UUID_SHAPE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function clampInt(value: unknown, min: number, max: number): number | null {
-  const n = Number(value);
-  if (!Number.isInteger(n) || n < min || n > max) return null;
-  return n;
-}
 
 export async function getSadhanaSummary(
   userId: string,
@@ -192,8 +190,6 @@ async function advancePracticeStreak(
   };
 }
 
-const MERGE_CAP = 200;
-
 /**
  * `merged` counts rows actually written this call — an idempotent replay
  * reports 0, not the batch size. `received`/`capped` echo what arrived so a
@@ -215,34 +211,7 @@ export async function mergeGuestSadhana(
 
   const received = Array.isArray(sessions) ? sessions.length : 0;
 
-  const rows = (Array.isArray(sessions) ? sessions : [])
-    .slice(0, MERGE_CAP)
-    .flatMap((raw) => {
-      if (!raw || typeof raw !== "object") return [];
-      const s = raw as Record<string, unknown>;
-      if (!isPractice(s.practice)) return [];
-      const occurredOn =
-        typeof s.occurredOn === "string" &&
-        DAY_SHAPE.test(s.occurredOn) &&
-        dayDiff(s.occurredOn, today) >= 0
-          ? s.occurredOn
-          : null;
-      if (!occurredOn) return [];
-      if (typeof s.clientRef !== "string" || !UUID_SHAPE.test(s.clientRef)) {
-        return [];
-      }
-      return [
-        {
-          user_id: userId,
-          practice: s.practice,
-          occurred_on: occurredOn,
-          duration_sec: clampInt(s.durationSec, 0, 86_400),
-          count: clampInt(s.count, 0, 100_000),
-          details: null,
-          client_ref: s.clientRef,
-        },
-      ];
-    });
+  const rows = sanitizeGuestSessions(sessions, userId, today);
 
   let merged = 0;
   if (rows.length) {
@@ -297,18 +266,9 @@ async function recomputeStreaks(
       throw new Error("Could not recompute streaks");
     }
 
-    const days = Array.from(
-      new Set((data ?? []).map((r) => r.occurred_on as string))
+    const state = foldStreakDays(
+      (data ?? []).map((r) => r.occurred_on as string)
     );
-    let state: StreakState = {
-      current: 0,
-      longest: 0,
-      lastDay: null,
-      graceUsedOn: null,
-    };
-    for (const day of days) {
-      state = advanceStreak(state, day);
-    }
 
     const { error: writeError } = await supabase.from("sadhana_streaks").upsert(
       {
