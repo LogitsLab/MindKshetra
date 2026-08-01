@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     "How MindKshetra collects, uses, and protects data on web and mobile.",
 };
 
-const updated = "31 July 2026";
+const updated = "1 August 2026";
 
 export default function PrivacyPage() {
   return (
@@ -187,6 +187,41 @@ export default function PrivacyPage() {
           needed to provide the service, comply with law, or resolve disputes.
           We use industry-standard safeguards (HTTPS, access-controlled
           databases). No method of transmission or storage is perfectly secure.
+        </p>
+      </section>
+
+      <section className="mt-10 space-y-3">
+        <h2 className="font-display text-2xl font-semibold text-[var(--text)]">
+          For users in India (DPDP Act, 2023)
+        </h2>
+        <p className="text-[15px] leading-relaxed text-[var(--text-muted)]">
+          Some of what you may choose to store here — birth details, journal
+          reflections, mood check-ins — is personal and can be sensitive. We
+          treat it that way: private journal entries are never screened,
+          analysed for advertising, or shared; astrology birth details are
+          used only to compute the charts you ask for; nothing you store is
+          sold.
+        </p>
+        <p className="text-[15px] leading-relaxed text-[var(--text-muted)]">
+          Under the Digital Personal Data Protection Act you may access,
+          correct, and erase your personal data: export from Account, edit in
+          place, or use{" "}
+          <Link
+            href="/delete-account"
+            className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+          >
+            Delete your account
+          </Link>
+          . For grievances, write to{" "}
+          <a
+            href="mailto:info@logitslab.com"
+            className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+          >
+            info@logitslab.com
+          </a>{" "}
+          with the subject “Grievance”. We acknowledge grievances within 7
+          days. A named grievance officer will be designated here as the
+          project’s nonprofit entity is registered.
         </p>
       </section>
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pickVerseIndex, pressureBasis } from "@/lib/bridge/pressure-practice";
-import { localDayString } from "@/lib/practice-streaks";
+import { istDayNumber } from "@/lib/ist";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { formatVerseRef } from "@/lib/sloka-utils";
 import { getSlokasByTags } from "@/lib/slokas";
@@ -16,14 +16,6 @@ export const dynamic = "force-dynamic";
  * Fail-soft by the same contract as /api/moods/order — any error and the
  * client renders nothing; this card may only ever add to the overview.
  */
-
-const IST = "Asia/Kolkata";
-
-/** Whole days since epoch for the IST calendar date — drives daily rotation. */
-function istDayNumber(now: Date): number {
-  const [y, m, d] = localDayString(IST, now).split("-").map(Number);
-  return Math.floor(Date.UTC(y, m - 1, d) / 86_400_000);
-}
 
 export async function POST(request: NextRequest) {
   const userId = await getSignedInUserId();

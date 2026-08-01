@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getSignedInUserId } from "@/lib/supabase/server";
 import { mergeGuestProgress } from "@/lib/progress";
 
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getSignedInUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

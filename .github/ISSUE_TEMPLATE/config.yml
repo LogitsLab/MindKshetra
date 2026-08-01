@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Product / architecture question
+    url: https://github.com/LogitsLab/MindKshetra/discussions
+    about: Longer-form questions and ideas fit better as a discussion.

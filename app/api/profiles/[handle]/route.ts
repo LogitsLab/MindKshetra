@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { HANDLE_SHAPE } from "@/lib/profiles";
+import { requireSupabase } from "@/lib/supabase/require";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -10,6 +11,8 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: { handle: string } }
 ) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const handle = params.handle?.toLowerCase();
   if (!handle || !HANDLE_SHAPE.test(handle)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });

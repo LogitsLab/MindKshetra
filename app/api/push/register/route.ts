@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isExpoPushToken } from "@/lib/push";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getAuthUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -20,6 +21,8 @@ const MAX_ACTIVE_TOKENS = 5;
  * accounts re-owns its token instead of erroring on the unique constraint.
  */
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase({ admin: true });
+  if (unconfigured) return unconfigured;
   const userId = await getAuthUserId();
   const rl = await rateLimit(
     `push:register:${principalKey(userId, request)}`,
@@ -85,6 +88,8 @@ export async function POST(request: NextRequest) {
 
 /** Sign-out path: stop sends to this device without deleting history. */
 export async function DELETE(request: NextRequest) {
+  const unconfigured = requireSupabase({ admin: true });
+  if (unconfigured) return unconfigured;
   const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

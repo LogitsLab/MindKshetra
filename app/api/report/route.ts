@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { killSwitchEngaged } from "@/lib/kill-switch";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getSignedInUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -14,6 +15,8 @@ const CONTENT_TYPES = new Set(["reflection", "profile", "circle_post"]);
  * reporting is an abuse vector on a small moderation team. 20/day per user.
  */
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase({ admin: true });
+  if (unconfigured) return unconfigured;
   if (killSwitchEngaged("COMMUNITY_REPORTS_ENABLED")) {
     return NextResponse.json(
       { error: "Reporting is paused right now." },

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordEvent } from "@/lib/events";
 import { getStreak, isValidTimezone, recordVisit } from "@/lib/streaks";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getAuthUserId } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -13,6 +14,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

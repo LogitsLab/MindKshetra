@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { mergeGuestSadhana } from "@/lib/sadhana";
 import { isValidTimezone } from "@/lib/practice-streaks";
+import { requireSupabase } from "@/lib/supabase/require";
 import { getSignedInUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -17,6 +18,8 @@ export const dynamic = "force-dynamic";
  * non-200 the client must keep its local log and retry.
  */
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getSignedInUserId();
   const rl = await rateLimit(
     `sadhana:merge:${principalKey(userId, request)}`,

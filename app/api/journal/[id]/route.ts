@@ -5,6 +5,7 @@ import { killSwitchEngaged } from "@/lib/kill-switch";
 import { screenText } from "@/lib/moderation";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireSupabase } from "@/lib/supabase/require";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -28,6 +29,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // Share-state writes go through the service-role client (migration 016).
+  const unconfigured = requireSupabase({ admin: true });
+  if (unconfigured) return unconfigured;
   const userId = await getSignedInUserId();
   const rl = await rateLimit(
     `journal:share:${principalKey(userId, request)}`,
@@ -196,6 +200,8 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getSignedInUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

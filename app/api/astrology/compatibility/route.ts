@@ -4,6 +4,7 @@ import { computeChart } from "@/lib/astrology/engine";
 import { mapMemberRow, memberToBirthInput } from "@/lib/astrology/members";
 import { ENGINE_VERSION, type ChartPayload } from "@/lib/astrology/types";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
+import { requireSupabase } from "@/lib/supabase/require";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -18,6 +19,8 @@ export const dynamic = "force-dynamic";
  * signed-in user, and RLS on astrology_members backs that up.
  */
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   // Keyed per-user when signed in so carrier-NAT users don't share a bucket.
   const userId = await getSignedInUserId();
   const rl = await rateLimit(

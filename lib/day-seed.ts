@@ -1,17 +1,8 @@
 import "server-only";
 import { getAllSlokas, getSlokaById, getSlokasByTags } from "@/lib/slokas";
+import { istDayString as istDay } from "@/lib/ist";
 import { NAKSHATRA_TAGS } from "@/lib/nakshatra-tags";
 import type { Sloka } from "@/lib/types";
-
-/** YYYY-MM-DD of the IST calendar day ('en-CA' formats as ISO). */
-function istDay(now: Date): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(now);
-}
 
 /**
  * Canonical day-of-year seed for the verse-of-the-day rotation. Every surface
