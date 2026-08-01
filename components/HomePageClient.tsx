@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import Onboarding, { ONBOARDED_KEY } from "@/components/Onboarding";
 import { useProgress } from "@/components/ProgressProvider";
 import { moodLabel } from "@/lib/mood-utils";
 import { getMoodVisual } from "@/lib/moodVisuals";
@@ -25,11 +26,24 @@ type Props = {
 
 export default function HomePageClient({ featured, previewMoods }: Props) {
   const { lang, t } = useLanguage();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { continueSlokaId } = useProgress();
   const [streak, setStreak] = useState(0);
   // null = not known yet; the card shows its invitation and never an error.
   const [sadhanaDone, setSadhanaDone] = useState<boolean | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // First visit, signed out, `/` only: swap in onboarding after hydration.
+  // The ISR HTML is untouched — crawlers and no-JS visitors always see home,
+  // and deep links (sloka, mood…) are never gated anywhere.
+  useEffect(() => {
+    if (authLoading || user) return;
+    try {
+      if (!localStorage.getItem(ONBOARDED_KEY)) setShowOnboarding(true);
+    } catch {
+      /* storage unavailable — never gate home on it */
+    }
+  }, [authLoading, user]);
 
   useEffect(() => {
     if (!user) {
@@ -105,6 +119,10 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
 
   const translation = lang === "hi" ? featured.hindi : featured.english;
 
+  if (showOnboarding && !user) {
+    return <Onboarding onDone={() => setShowOnboarding(false)} />;
+  }
+
   return (
     <div className="relative">
       {/* Hero — cinematic text over the field (no white card) */}
@@ -167,6 +185,17 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
               {t("homeVotdLink")}
             </Link>
           </div>
+
+          {user?.is_anonymous ? (
+            <p className="animate-rise-delay-3 mt-4 text-sm font-light text-white/70">
+              <Link
+                href="/account"
+                className="underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
+              >
+                {t("onboardingGuestNudge")}
+              </Link>
+            </p>
+          ) : null}
         </div>
       </section>
 
