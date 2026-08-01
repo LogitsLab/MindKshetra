@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import LocalizedPageHeader from "@/components/LocalizedPageHeader";
 import SadhanaClient from "@/components/SadhanaClient";
 
@@ -12,7 +13,11 @@ export default function SadhanaPage() {
   return (
     <div className="animate-fade">
       <LocalizedPageHeader eyebrowKey="sadhanaEyebrow" titleKey="sadhanaTitle" />
-      <SadhanaClient />
+      {/* Suspense: SadhanaClient reads the path-day deep link via
+          useSearchParams, which needs a boundary on a static page. */}
+      <Suspense fallback={null}>
+        <SadhanaClient />
+      </Suspense>
     </div>
   );
 }

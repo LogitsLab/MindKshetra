@@ -5,6 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { PracticePath } from "@/lib/paths";
+import {
+  readGuestPathDays as readGuest,
+  writeGuestPathDays as writeGuest,
+} from "@/lib/paths-local";
 
 type DayVerse = {
   day: number;
@@ -16,36 +20,6 @@ type RunState = {
   completedDays: number[];
   guest: boolean;
 };
-
-function guestKey(id: string) {
-  return `mindkshetra-path-${id}`;
-}
-
-function readGuest(id: string): number[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(guestKey(id));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as { completedDays?: unknown };
-    if (!Array.isArray(parsed.completedDays)) return [];
-    return parsed.completedDays.filter(
-      (d): d is number => typeof d === "number" && Number.isInteger(d)
-    );
-  } catch {
-    return [];
-  }
-}
-
-function writeGuest(id: string, completedDays: number[]) {
-  try {
-    localStorage.setItem(
-      guestKey(id),
-      JSON.stringify({ completedDays })
-    );
-  } catch {
-    /* ignore quota */
-  }
-}
 
 export default function PathDetailClient({
   path,
@@ -184,7 +158,7 @@ export default function PathDetailClient({
           const slokaId = verseByDay.get(day.day) ?? null;
           const practiceHref =
             slokaId != null
-              ? `/sadhana?slokaId=${slokaId}&pathId=${encodeURIComponent(path.id)}&pathDay=${day.day}&minutes=${day.minutes}`
+              ? `/sadhana?slokaId=${slokaId}&pathId=${encodeURIComponent(path.id)}&pathDay=${day.day}&pathTotal=${path.days_count}&minutes=${day.minutes}`
               : null;
           return (
             <li

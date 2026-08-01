@@ -42,12 +42,18 @@ export default function CareClient() {
         </p>
       </section>
 
-      <p className="mt-10 border-t border-[var(--hairline)] pt-6">
+      <p className="mt-10 flex flex-wrap gap-x-6 gap-y-2 border-t border-[var(--hairline)] pt-6">
         <Link
           href="/sangha"
           className="text-sm text-[var(--brass-soft)] underline-offset-2 hover:underline"
         >
           ← {t("sanghaTitle")}
+        </Link>
+        <Link
+          href="/"
+          className="text-sm text-[var(--text-muted)] underline-offset-2 transition hover:text-[var(--brass-soft)] hover:underline"
+        >
+          {t("backHome")}
         </Link>
       </p>
     </div>
