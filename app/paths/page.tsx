@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import LocalizedPageHeader from "@/components/LocalizedPageHeader";
 import PageHeroImage from "@/components/PageHeroImage";
 import PathsListClient from "@/components/PathsListClient";
-import { listPracticePaths } from "@/lib/paths";
+import { listJourneysByKind } from "@/lib/journeys/content";
 
 export const metadata: Metadata = {
   title: "Paths · MindKshetra",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function PathsPage() {
-  const paths = listPracticePaths();
+  const paths = listJourneysByKind("scripture");
 
   return (
     <div className="animate-fade">

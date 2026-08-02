@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
-import type { PracticePath } from "@/lib/paths";
+import type { Journey } from "@/lib/journeys/core";
 import {
-  readGuestPathDays as readGuest,
-  writeGuestPathDays as writeGuest,
-} from "@/lib/paths-local";
+  readGuestJourneyDays as readGuest,
+  writeGuestJourneyDays as writeGuest,
+} from "@/lib/journeys/local";
 
 type DayVerse = {
   day: number;
@@ -25,7 +25,7 @@ export default function PathDetailClient({
   path,
   dayVerses,
 }: {
-  path: PracticePath;
+  path: Journey;
   dayVerses: DayVerse[];
 }) {
   const { lang, t } = useLanguage();
@@ -35,7 +35,7 @@ export default function PathDetailClient({
 
   const loadRun = useCallback(async () => {
     try {
-      const res = await fetch(`/api/paths/${path.id}/run`);
+      const res = await fetch(`/api/journeys/${path.id}/run`);
       if (!res.ok) throw new Error();
       const data = (await res.json()) as {
         currentDay?: number;
@@ -43,7 +43,7 @@ export default function PathDetailClient({
         guest?: boolean;
       };
       if (data.guest) {
-        const completedDays = readGuest(path.id);
+        const completedDays = readGuest(path.id, path.days_count);
         setRun({
           currentDay: Math.min(
             path.days_count,
@@ -60,7 +60,7 @@ export default function PathDetailClient({
         guest: false,
       });
     } catch {
-      const completedDays = readGuest(path.id);
+      const completedDays = readGuest(path.id, path.days_count);
       setRun({
         currentDay: Math.min(
           path.days_count,
@@ -93,7 +93,7 @@ export default function PathDetailClient({
     }
 
     try {
-      const res = await fetch(`/api/paths/${path.id}/run`, {
+      const res = await fetch(`/api/journeys/${path.id}/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ day }),
@@ -172,13 +172,19 @@ export default function PathDetailClient({
                 {lang === "hi" ? day.title_hi : day.title_en}
               </h2>
               <p className="mt-2 text-[15px] font-light leading-relaxed text-[var(--text-muted)]">
-                {lang === "hi" ? day.prompt_hi : day.prompt_en}
+                {day.kind === "scripture"
+                  ? lang === "hi"
+                    ? day.prompt_hi
+                    : day.prompt_en
+                  : lang === "hi"
+                    ? day.session.theme_hi
+                    : day.session.theme_en}
               </p>
               <p className="mt-3 text-sm text-[var(--text-muted)]">
                 {t("pathDayPractice")}:{" "}
                 {t(`pathPractice_${day.practice}` as "pathPractice_sit")} ·{" "}
-                {day.minutes} {t("pathDayMinutes")} · {day.ref.chapter}.
-                {day.ref.verse}
+                {day.minutes} {t("pathDayMinutes")}
+                {day.ref ? ` · ${day.ref.chapter}.${day.ref.verse}` : null}
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 {practiceHref ? (

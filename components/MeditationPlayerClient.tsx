@@ -88,6 +88,8 @@ export default function MeditationPlayerClient({
   const [ttsOk, setTtsOk] = useState(false);
   const satSecRef = useRef(0);
   const silenceStartRef = useRef<number | null>(null);
+  /** Seconds of the CURRENT silence phase already credited to satSecRef. */
+  const satCreditedRef = useRef(0);
   const silenceTotalRef = useRef(0);
   const autoAdvanceRef = useRef(false);
 
@@ -175,12 +177,17 @@ export default function MeditationPlayerClient({
     if (stage !== "play" || !phase || phase.type !== "silence") return;
     silenceTotalRef.current = phase.seconds;
     silenceStartRef.current = Date.now();
+    satCreditedRef.current = 0;
     setSilenceLeft(phase.seconds);
     const id = setInterval(() => {
       const start = silenceStartRef.current;
       if (start == null) return;
       const elapsed = Math.floor((Date.now() - start) / 1000);
-      satSecRef.current += 1;
+      // Credit the wall-clock delta, not one second per tick: this fires
+      // twice a second, so `+= 1` logged every sit at double its real
+      // length — inflated practice history, silently.
+      satSecRef.current += Math.max(0, elapsed - satCreditedRef.current);
+      satCreditedRef.current = elapsed;
       const left = Math.max(0, silenceTotalRef.current - elapsed);
       setSilenceLeft(left);
       if (left <= 0) {
@@ -219,6 +226,7 @@ export default function MeditationPlayerClient({
 
   function startPlay() {
     satSecRef.current = 0;
+    satCreditedRef.current = 0;
     setPhaseIdx(0);
     setStage("play");
   }

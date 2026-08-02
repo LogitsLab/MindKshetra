@@ -4,12 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
-import type { PracticePath } from "@/lib/paths";
-import { readGuestPathDays } from "@/lib/paths-local";
+import type { Journey } from "@/lib/journeys/core";
+import { readGuestJourneyDays } from "@/lib/journeys/local";
 
 type RunLine = { currentDay: number; completedCount: number };
 
-export default function PathsListClient({ paths }: { paths: PracticePath[] }) {
+export default function PathsListClient({ paths }: { paths: Journey[] }) {
   const { lang, t } = useLanguage();
   const { user } = useAuth();
   // pathId → progress; absent = not started (or unknown), which renders
@@ -19,8 +19,8 @@ export default function PathsListClient({ paths }: { paths: PracticePath[] }) {
   useEffect(() => {
     let cancelled = false;
 
-    const fromLocal = (path: PracticePath): RunLine | null => {
-      const days = readGuestPathDays(path.id);
+    const fromLocal = (path: Journey): RunLine | null => {
+      const days = readGuestJourneyDays(path.id, path.days_count);
       if (days.length === 0) return null;
       return {
         currentDay: Math.min(
@@ -37,7 +37,7 @@ export default function PathsListClient({ paths }: { paths: PracticePath[] }) {
         paths.map(async (path) => {
           let line: RunLine | null = null;
           try {
-            const res = await fetch(`/api/paths/${path.id}/run`);
+            const res = await fetch(`/api/journeys/${path.id}/run`);
             if (res.ok) {
               const data = (await res.json()) as {
                 currentDay?: number;

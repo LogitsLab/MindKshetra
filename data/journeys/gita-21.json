@@ -10,7 +10,10 @@
   "days": [
     {
       "day": 1,
-      "ref": { "chapter": 1, "verse": 1 },
+      "ref": {
+        "chapter": 1,
+        "verse": 1
+      },
       "practice": "sit",
       "minutes": 5,
       "title_en": "The field is here",
@@ -20,7 +23,10 @@
     },
     {
       "day": 2,
-      "ref": { "chapter": 1, "verse": 21 },
+      "ref": {
+        "chapter": 1,
+        "verse": 21
+      },
       "practice": "sit",
       "minutes": 5,
       "title_en": "Between the two armies",
@@ -30,7 +36,10 @@
     },
     {
       "day": 3,
-      "ref": { "chapter": 1, "verse": 29 },
+      "ref": {
+        "chapter": 1,
+        "verse": 29
+      },
       "practice": "pranayama",
       "minutes": 6,
       "title_en": "The body speaks first",
@@ -40,7 +49,10 @@
     },
     {
       "day": 4,
-      "ref": { "chapter": 1, "verse": 47 },
+      "ref": {
+        "chapter": 1,
+        "verse": 47
+      },
       "practice": "sit",
       "minutes": 6,
       "title_en": "He set the bow down",
@@ -50,7 +62,10 @@
     },
     {
       "day": 5,
-      "ref": { "chapter": 2, "verse": 7 },
+      "ref": {
+        "chapter": 2,
+        "verse": 7
+      },
       "practice": "japa",
       "minutes": 6,
       "title_en": "Teach me",
@@ -60,7 +75,10 @@
     },
     {
       "day": 6,
-      "ref": { "chapter": 2, "verse": 11 },
+      "ref": {
+        "chapter": 2,
+        "verse": 11
+      },
       "practice": "sit",
       "minutes": 7,
       "title_en": "Grief and its object",
@@ -70,7 +88,10 @@
     },
     {
       "day": 7,
-      "ref": { "chapter": 2, "verse": 20 },
+      "ref": {
+        "chapter": 2,
+        "verse": 20
+      },
       "practice": "flow",
       "minutes": 7,
       "title_en": "That which does not end",
@@ -80,7 +101,10 @@
     },
     {
       "day": 8,
-      "ref": { "chapter": 3, "verse": 19 },
+      "ref": {
+        "chapter": 3,
+        "verse": 19
+      },
       "practice": "sit",
       "minutes": 8,
       "title_en": "Work without gripping",
@@ -90,7 +114,10 @@
     },
     {
       "day": 9,
-      "ref": { "chapter": 4, "verse": 18 },
+      "ref": {
+        "chapter": 4,
+        "verse": 18
+      },
       "practice": "flow",
       "minutes": 8,
       "title_en": "Stillness inside action",
@@ -100,7 +127,10 @@
     },
     {
       "day": 10,
-      "ref": { "chapter": 5, "verse": 10 },
+      "ref": {
+        "chapter": 5,
+        "verse": 10
+      },
       "practice": "pranayama",
       "minutes": 9,
       "title_en": "Like a lotus leaf",
@@ -110,7 +140,10 @@
     },
     {
       "day": 11,
-      "ref": { "chapter": 6, "verse": 19 },
+      "ref": {
+        "chapter": 6,
+        "verse": 19
+      },
       "practice": "sit",
       "minutes": 9,
       "title_en": "Lamp out of the wind",
@@ -120,17 +153,23 @@
     },
     {
       "day": 12,
-      "ref": { "chapter": 6, "verse": 29 },
+      "ref": {
+        "chapter": 13,
+        "verse": 2
+      },
       "practice": "sit",
       "minutes": 10,
-      "title_en": "The same everywhere",
-      "title_hi": "सर्वत्र वही",
-      "prompt_en": "Bring to mind three people you saw today, including one you barely noticed. Hold each for a single breath and look for the one thing that is the same in all of you.",
-      "prompt_hi": "आज देखे हुए तीन लोगों को याद करें — उनमें एक ऐसा भी जिस पर आपकी दृष्टि मुश्किल से पड़ी। हर एक पर एक श्वास ठहरें और वह एक बात खोजें जो आप सबमें समान है।"
+      "title_en": "The field and its knower",
+      "title_hi": "क्षेत्र और क्षेत्रज्ञ",
+      "prompt_en": "Sit and let the body be the field: the aches, the breath, the restlessness, all of it weather passing over ground. Then ask, without hurrying to answer — who is watching the weather?",
+      "prompt_hi": "बैठें और शरीर को क्षेत्र होने दें: पीड़ा, श्वास, बेचैनी — सब भूमि पर से गुज़रता मौसम। फिर बिना उत्तर की जल्दी किए पूछें — इस मौसम को देख कौन रहा है?"
     },
     {
       "day": 13,
-      "ref": { "chapter": 9, "verse": 27 },
+      "ref": {
+        "chapter": 9,
+        "verse": 27
+      },
       "practice": "japa",
       "minutes": 10,
       "title_en": "Offer what you do",
@@ -140,7 +179,10 @@
     },
     {
       "day": 14,
-      "ref": { "chapter": 12, "verse": 13 },
+      "ref": {
+        "chapter": 12,
+        "verse": 13
+      },
       "practice": "sit",
       "minutes": 11,
       "title_en": "Friendly to all beings",
@@ -150,7 +192,10 @@
     },
     {
       "day": 15,
-      "ref": { "chapter": 12, "verse": 20 },
+      "ref": {
+        "chapter": 12,
+        "verse": 20
+      },
       "practice": "japa",
       "minutes": 11,
       "title_en": "Dear beyond measure",
@@ -160,7 +205,10 @@
     },
     {
       "day": 16,
-      "ref": { "chapter": 15, "verse": 1 },
+      "ref": {
+        "chapter": 15,
+        "verse": 1
+      },
       "practice": "sit",
       "minutes": 12,
       "title_en": "Roots above",
@@ -170,7 +218,10 @@
     },
     {
       "day": 17,
-      "ref": { "chapter": 15, "verse": 5 },
+      "ref": {
+        "chapter": 15,
+        "verse": 5
+      },
       "practice": "pranayama",
       "minutes": 12,
       "title_en": "Free of the pairs",
@@ -180,7 +231,10 @@
     },
     {
       "day": 18,
-      "ref": { "chapter": 17, "verse": 15 },
+      "ref": {
+        "chapter": 17,
+        "verse": 15
+      },
       "practice": "flow",
       "minutes": 13,
       "title_en": "Speech that does not wound",
@@ -190,7 +244,10 @@
     },
     {
       "day": 19,
-      "ref": { "chapter": 18, "verse": 46 },
+      "ref": {
+        "chapter": 18,
+        "verse": 46
+      },
       "practice": "sit",
       "minutes": 13,
       "title_en": "Your own work, offered",
@@ -200,7 +257,10 @@
     },
     {
       "day": 20,
-      "ref": { "chapter": 18, "verse": 63 },
+      "ref": {
+        "chapter": 18,
+        "verse": 63
+      },
       "practice": "sit",
       "minutes": 14,
       "title_en": "Now act as you wish",
@@ -210,7 +270,10 @@
     },
     {
       "day": 21,
-      "ref": { "chapter": 18, "verse": 73 },
+      "ref": {
+        "chapter": 18,
+        "verse": 73
+      },
       "practice": "sit",
       "minutes": 15,
       "title_en": "I will act",
