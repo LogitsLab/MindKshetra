@@ -37,9 +37,10 @@ before any `dev` → `main` promote (see [docs/dev-soak.md](docs/dev-soak.md)).
 
 ## Shipped (on `dev`; promote to production only after soak)
 
-- **Meditation course (v1)** — `/meditation` foundation-7 progressive sits
-  (TTS + silence phases, mood before/after, unlock, guest merge); one-off
-  dailies; peer to sādhana — not japa.
+- **Meditation course (v1→v2)** — `/meditation` progressive sitting course
+  (foundation 1–7, habit 8–21, deepening 22–45; TTS + silence; mood; unlock;
+  guest merge; private milestones at 7/21/45); one-off dailies; peer to
+  sādhana — not japa.
 - **Practice layer** — Daily Sādhana, japa (grace-day streaks), guest merge;
   themed paths (`/paths`, five journeys + `path_runs`); path day → guided
   sādhana (verse + sit + complete); Meditation tile → `/meditation`.

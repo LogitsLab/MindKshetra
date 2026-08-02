@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import {
   loadDailySits,
-  loadFoundationProgram,
+  loadSittingProgram,
   sessionTranscript,
 } from "@/lib/meditation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-static";
 
-/** GET /api/meditation/catalog — program + daily sits (public JSON). */
+/** GET /api/meditation/catalog — sitting course + daily sits (public JSON). */
 export async function GET() {
-  const program = loadFoundationProgram();
+  const program = loadSittingProgram();
   const dailies = loadDailySits();
   if (!program) {
     return NextResponse.json({ error: "Catalog missing" }, { status: 500 });

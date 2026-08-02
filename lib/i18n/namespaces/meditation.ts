@@ -3,9 +3,9 @@
  */
 export const en = {
   medEyebrow: "Meditation course",
-  medTitle: "Seven days of sitting",
+  medTitle: "Days of sitting",
   medIntro:
-    "A free progressive sit — not japa, not a marketplace. Finish a day to unlock the next. Missing a calendar day never erases your place.",
+    "A free progressive sit — foundation, habit, and deepening. Finish a day to unlock the next. Missing a calendar day never erases your place.",
   medContinue: "Continue day {n}",
   medStart: "Begin day 1",
   medDayComplete: "Complete",
@@ -14,6 +14,16 @@ export const en = {
   medProgress: "{done} of {total} days",
   medStreak: "{n}-day sit streak",
   medStreakNone: "No streak yet — begin when you are ready.",
+  medSectionFoundation: "Foundation · days 1–7",
+  medSectionHabit: "Habit · days 8–21",
+  medSectionDeepening: "Deepening · days 22–45",
+  medMilestoneTitle: "Milestone",
+  medMilestone7:
+    "Foundation complete. Habit weeks open when you are ready — rest is practice too.",
+  medMilestone21:
+    "Twenty-one days. Deepening opens next, or pause here without guilt.",
+  medMilestone45:
+    "Forty-five days. The course ends; the seat remains. Begin again whenever you wish.",
   medDailiesTitle: "One-off sits",
   medDailiesIntro: "Always open — no unlock chain.",
   medMoodBefore: "How is the mind before you sit?",
@@ -34,6 +44,7 @@ export const en = {
   medDoneTitle: "Day complete",
   medDoneBody: "The next day unlocks when you want it. No guilt for rest days.",
   medBridgeSadhana: "Sit with a Gita verse",
+  medBridgePaths: "Themed Gita paths",
   medBridgeSupport: "Support the field (dāna)",
   medSignInHint: "Sign in to keep progress across devices.",
   medRateLabel: "Voice speed",
@@ -42,13 +53,15 @@ export const en = {
   medRateFast: "Faster",
   medBack: "Course home",
   medGuestSaved: "Saved on this device for now.",
+  medHomeContinue: "Continue sitting · day {n}",
+  medHomeStart: "Begin the sitting course",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
   medEyebrow: "ध्यान पाठ्यक्रम",
-  medTitle: "बैठने के सात दिन",
+  medTitle: "बैठने के दिन",
   medIntro:
-    "मुफ़्त क्रमिक बैठक — जप नहीं, बाज़ार नहीं। दिन पूर्ण होने पर अगला खुलता है। कैलेंडर का दिन छूटने से प्रगति नहीं मिटती।",
+    "मुफ़्त क्रमिक बैठक — नींव, आदत, और गहराई। दिन पूर्ण होने पर अगला खुलता है। कैलेंडर का दिन छूटने से प्रगति नहीं मिटती।",
   medContinue: "दिन {n} जारी रखें",
   medStart: "दिन १ आरंभ करें",
   medDayComplete: "पूर्ण",
@@ -57,6 +70,16 @@ export const hi: Record<keyof typeof en, string> = {
   medProgress: "{total} में से {done} दिन",
   medStreak: "{n} दिन की बैठक लकीर",
   medStreakNone: "अभी कोई लकीर नहीं — जब तैयार हों, आरंभ करें।",
+  medSectionFoundation: "नींव · दिन १–७",
+  medSectionHabit: "आदत · दिन ८–२१",
+  medSectionDeepening: "गहराई · दिन २२–४५",
+  medMilestoneTitle: "मील का पत्थर",
+  medMilestone7:
+    "नींव पूर्ण। आदत के सप्ताह जब तैयार हों खुलते हैं — विश्राम भी अभ्यास है।",
+  medMilestone21:
+    "इक्कीस दिन। आगे गहराई खुलती है, या यहाँ बिना अपराधबोध ठहरें।",
+  medMilestone45:
+    "पैंतालीस दिन। पाठ्यक्रम समाप्त; आसन रहता है। जब चाहें फिर आरंभ करें।",
   medDailiesTitle: "एक-बार बैठकें",
   medDailiesIntro: "सदैव खुली — अनलॉक श्रृंखला नहीं।",
   medMoodBefore: "बैठने से पहले मन कैसा है?",
@@ -78,6 +101,7 @@ export const hi: Record<keyof typeof en, string> = {
   medDoneTitle: "दिन पूर्ण",
   medDoneBody: "अगला दिन जब चाहें खुलेगा। विश्राम के लिए अपराधबोध नहीं।",
   medBridgeSadhana: "गीता श्लोक के साथ बैठें",
+  medBridgePaths: "विषयगत गीता पथ",
   medBridgeSupport: "क्षेत्र का समर्थन (दान)",
   medSignInHint: "डिवाइसों पर प्रगति रखने के लिए साइन इन करें।",
   medRateLabel: "आवाज़ गति",
@@ -86,4 +110,6 @@ export const hi: Record<keyof typeof en, string> = {
   medRateFast: "तेज़",
   medBack: "पाठ्यक्रम होम",
   medGuestSaved: "अभी इसी डिवाइस पर सहेजा गया।",
+  medHomeContinue: "बैठक जारी · दिन {n}",
+  medHomeStart: "बैठने का पाठ्यक्रम आरंभ करें",
 };

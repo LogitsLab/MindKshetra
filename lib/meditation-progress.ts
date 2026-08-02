@@ -1,13 +1,26 @@
 /**
  * Server helpers for meditation course progress + completions.
+ * Course unlock lives on journey_runs (sitting-course); mood check-ins stay
+ * on meditation_completions. Legacy foundation-7 / meditation-21 runs are
+ * unioned on read so nobody loses a week.
  */
 import { recordEvent } from "@/lib/events";
 import {
+  advanceRun,
+  isDayUnlocked,
+  nextDayFrom,
+  normalizeDays,
+} from "@/lib/journeys/core";
+import { loadJourney } from "@/lib/journeys/content";
+import {
   FOUNDATION_PROGRAM_ID,
+  SITTING_COURSE_ID,
+  SITTING_SEGMENT_IDS,
   getSessionById,
-  loadFoundationProgram,
-  nextUnlockedDay,
+  loadSittingProgram,
+  milestoneJustHit,
   type MeditationSession,
+  type SittingMilestone,
 } from "@/lib/meditation";
 import { logSadhanaSession } from "@/lib/sadhana";
 import { UUID_SHAPE } from "@/lib/sadhana-core";
@@ -20,18 +33,89 @@ export type MeditationProgress = {
   track: string | null;
   guest: boolean;
   streak: { current: number; longest: number } | null;
+  milestone?: SittingMilestone | null;
 };
+
+const LEGACY_JOURNEY_IDS = [
+  SITTING_COURSE_ID,
+  FOUNDATION_PROGRAM_ID,
+  "meditation-21",
+  "meditation-45",
+] as const;
+
+async function readUnionCompletedDays(
+  userId: string,
+  daysCount: number
+): Promise<{ completedDays: number[]; currentDay: number; track: string | null }> {
+  const supabase = await createClient();
+  const [{ data: journeyRows }, { data: meditationRun }] = await Promise.all([
+    supabase
+      .from("journey_runs")
+      .select("journey_id, current_day, completed_days, track")
+      .eq("user_id", userId)
+      .in("journey_id", [...LEGACY_JOURNEY_IDS]),
+    supabase
+      .from("meditation_runs")
+      .select("current_day, completed_days, track")
+      .eq("user_id", userId)
+      .eq("program_id", FOUNDATION_PROGRAM_ID)
+      .maybeSingle(),
+  ]);
+
+  const union = new Set<number>();
+  let furthestCursor = 1;
+  let track: string | null = null;
+
+  for (const row of journeyRows ?? []) {
+    for (const d of normalizeDays(row.completed_days, daysCount)) {
+      union.add(d);
+    }
+    furthestCursor = Math.max(
+      furthestCursor,
+      Number(row.current_day) || 1
+    );
+    if (row.journey_id === SITTING_COURSE_ID && row.track) {
+      track = row.track as string;
+    }
+  }
+  if (meditationRun) {
+    for (const d of normalizeDays(meditationRun.completed_days, daysCount)) {
+      union.add(d);
+    }
+    furthestCursor = Math.max(
+      furthestCursor,
+      Number(meditationRun.current_day) || 1
+    );
+    if (!track && meditationRun.track) track = meditationRun.track as string;
+  }
+
+  const completedDays = Array.from(union).sort((a, b) => a - b);
+  const currentDay = Math.max(
+    furthestCursor,
+    nextDayFrom(completedDays, daysCount, "chain")
+  );
+  return {
+    completedDays,
+    currentDay: Math.min(daysCount, Math.max(1, currentDay)),
+    track,
+  };
+}
 
 export async function getMeditationProgress(
   userId: string | null,
-  programId: string = FOUNDATION_PROGRAM_ID
+  programId: string = SITTING_COURSE_ID
 ): Promise<MeditationProgress> {
-  const program = loadFoundationProgram();
+  const program = loadSittingProgram();
   const daysCount = program?.days_count ?? 7;
+  const id =
+    programId === FOUNDATION_PROGRAM_ID ||
+    (SITTING_SEGMENT_IDS as readonly string[]).includes(programId)
+      ? SITTING_COURSE_ID
+      : programId;
 
   if (!userId) {
     return {
-      programId,
+      programId: id,
       currentDay: 1,
       completedDays: [],
       track: null,
@@ -41,31 +125,22 @@ export async function getMeditationProgress(
   }
 
   const supabase = await createClient();
-  const [{ data: run }, { data: streakRow }] = await Promise.all([
-    supabase
-      .from("meditation_runs")
-      .select("current_day, completed_days, track")
-      .eq("user_id", userId)
-      .eq("program_id", programId)
-      .maybeSingle(),
-    supabase
-      .from("sadhana_streaks")
-      .select("current_streak, longest_streak")
-      .eq("user_id", userId)
-      .eq("practice", "meditation")
-      .maybeSingle(),
-  ]);
-
-  const completedDays = (run?.completed_days as number[] | null) ?? [];
-  const currentDay =
-    run?.current_day ??
-    nextUnlockedDay(completedDays, daysCount);
+  const [{ completedDays, currentDay, track }, { data: streakRow }] =
+    await Promise.all([
+      readUnionCompletedDays(userId, daysCount),
+      supabase
+        .from("sadhana_streaks")
+        .select("current_streak, longest_streak")
+        .eq("user_id", userId)
+        .eq("practice", "meditation")
+        .maybeSingle(),
+    ]);
 
   return {
-    programId,
+    programId: id,
     currentDay,
     completedDays,
-    track: (run?.track as string | null) ?? null,
+    track,
     guest: false,
     streak: streakRow
       ? {
@@ -91,6 +166,8 @@ function clampMood(v: unknown): number | null {
   return n;
 }
 
+const COURSE_TIERS = new Set(["foundation", "habit", "deepening", "goal"]);
+
 export async function completeMeditationSession(
   userId: string,
   input: CompleteMeditationInput
@@ -98,6 +175,7 @@ export async function completeMeditationSession(
   progress: MeditationProgress;
   streak: { current: number; longest: number; graceUsedToday?: boolean };
   session: MeditationSession;
+  milestone: SittingMilestone | null;
 }> {
   const session = getSessionById(input.sessionId);
   if (!session) {
@@ -120,6 +198,23 @@ export async function completeMeditationSession(
       : undefined;
 
   const supabase = await createClient();
+  const journey = loadJourney(SITTING_COURSE_ID);
+  const daysCount = journey?.days_count ?? loadSittingProgram()?.days_count ?? 7;
+
+  // Server-side unlock for course days (dailies stay always-open).
+  if (COURSE_TIERS.has(session.tier) && session.day_number >= 1) {
+    const existing = await readUnionCompletedDays(userId, daysCount);
+    if (
+      !isDayUnlocked(
+        session.day_number,
+        existing.completedDays,
+        daysCount,
+        "chain"
+      )
+    ) {
+      throw new Error("Day is locked");
+    }
+  }
 
   const { error: completionError } = await supabase
     .from("meditation_completions")
@@ -140,48 +235,50 @@ export async function completeMeditationSession(
     throw new Error("Could not record completion");
   }
 
-  // Course days advance unlock; daily standalones do not touch foundation run.
+  let milestone: SittingMilestone | null = null;
   let progress: MeditationProgress;
-  if (session.tier === "foundation" && session.day_number >= 1) {
-    const program = loadFoundationProgram();
-    const daysCount = program?.days_count ?? 7;
-    const { data: existing } = await supabase
-      .from("meditation_runs")
-      .select("current_day, completed_days, track")
-      .eq("user_id", userId)
-      .eq("program_id", FOUNDATION_PROGRAM_ID)
-      .maybeSingle();
 
-    const completed = new Set<number>(
-      (existing?.completed_days as number[] | null) ?? []
-    );
-    completed.add(session.day_number);
-    const completedDays = Array.from(completed).sort((a, b) => a - b);
-    const nextDay = Math.min(
+  if (COURSE_TIERS.has(session.tier) && session.day_number >= 1) {
+    const existing = await readUnionCompletedDays(userId, daysCount);
+    const next = advanceRun(
+      existing.completedDays,
+      existing.currentDay,
+      session.day_number,
       daysCount,
-      Math.max(
-        existing?.current_day ?? 1,
-        nextUnlockedDay(completedDays, daysCount)
-      )
+      "chain"
     );
+    milestone = milestoneJustHit(next.completedDays, session.day_number);
 
-    const { error: runError } = await supabase.from("meditation_runs").upsert(
+    const { error: runError } = await supabase.from("journey_runs").upsert(
+      {
+        user_id: userId,
+        journey_id: SITTING_COURSE_ID,
+        current_day: next.currentDay,
+        completed_days: next.completedDays,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,journey_id" }
+    );
+    if (runError) {
+      console.error("[meditation] journey run upsert", runError.message);
+      throw new Error("Could not update progress");
+    }
+
+    // Keep legacy meditation_runs in sync for one release (rollback safety).
+    await supabase.from("meditation_runs").upsert(
       {
         user_id: userId,
         program_id: FOUNDATION_PROGRAM_ID,
-        current_day: nextDay,
-        completed_days: completedDays,
+        current_day: Math.min(7, next.currentDay),
+        completed_days: next.completedDays.filter((d) => d <= 7),
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id,program_id" }
     );
-    if (runError) {
-      console.error("[meditation] run upsert", runError.message);
-      throw new Error("Could not update progress");
-    }
-    progress = await getMeditationProgress(userId, FOUNDATION_PROGRAM_ID);
+
+    progress = await getMeditationProgress(userId, SITTING_COURSE_ID);
   } else {
-    progress = await getMeditationProgress(userId, FOUNDATION_PROGRAM_ID);
+    progress = await getMeditationProgress(userId, SITTING_COURSE_ID);
   }
 
   const logged = await logSadhanaSession(
@@ -207,13 +304,15 @@ export async function completeMeditationSession(
     moodBefore,
     moodAfter,
     tier: session.tier,
+    milestone,
   });
   await recordEvent("sadhana_logged", userId, { practice: "meditation" });
 
   return {
-    progress,
+    progress: { ...progress, milestone },
     streak: logged.streak,
     session,
+    milestone,
   };
 }
 
@@ -232,7 +331,7 @@ export async function mergeGuestMeditation(
   timezone?: string
 ): Promise<{ merged: number }> {
   let merged = 0;
-  for (const row of completions.slice(0, 20)) {
+  for (const row of completions.slice(0, 40)) {
     if (!row?.sessionId || !row.clientRef || !UUID_SHAPE.test(row.clientRef)) {
       continue;
     }
@@ -247,7 +346,7 @@ export async function mergeGuestMeditation(
       });
       merged += 1;
     } catch {
-      /* skip bad rows */
+      /* skip bad / locked rows */
     }
   }
   return { merged };

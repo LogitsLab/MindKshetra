@@ -9,6 +9,7 @@ import {
   type Journey,
   type JourneyRun,
 } from "@/lib/journeys/core";
+// nextDayFrom used by sitting-course union read
 import { loadJourney } from "@/lib/journeys/content";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,6 +35,58 @@ export async function getJourneyRun(
   if (!userId) return GUEST_RUN(journey.id);
 
   const supabase = await createClient();
+
+  // Sitting course unions legacy segment runs (foundation-7 / meditation-21)
+  // so a week finished before the compose still unlocks day 8.
+  if (journey.id === "sitting-course") {
+    const ids = [
+      "sitting-course",
+      "foundation-7",
+      "meditation-21",
+      "meditation-45",
+    ];
+    const { data, error } = await supabase
+      .from("journey_runs")
+      .select("current_day, completed_days")
+      .eq("user_id", userId)
+      .in("journey_id", ids);
+    if (error) {
+      console.error("[journeys] sitting run read failed:", error.message);
+      throw new Error("Could not read journey progress");
+    }
+    const union = new Set<number>();
+    let furthest = 1;
+    for (const row of data ?? []) {
+      for (const d of normalizeDays(row.completed_days, journey.days_count)) {
+        union.add(d);
+      }
+      furthest = Math.max(furthest, Number(row.current_day) || 1);
+    }
+    // Also pull pre-019 meditation_runs if present.
+    const { data: med } = await supabase
+      .from("meditation_runs")
+      .select("current_day, completed_days")
+      .eq("user_id", userId)
+      .eq("program_id", "foundation-7")
+      .maybeSingle();
+    if (med) {
+      for (const d of normalizeDays(med.completed_days, journey.days_count)) {
+        union.add(d);
+      }
+      furthest = Math.max(furthest, Number(med.current_day) || 1);
+    }
+    const completedDays = Array.from(union).sort((a, b) => a - b);
+    return {
+      journeyId: journey.id,
+      completedDays,
+      currentDay: Math.max(
+        furthest,
+        nextDayFrom(completedDays, journey.days_count, journey.unlock)
+      ),
+      guest: false,
+    };
+  }
+
   const { data, error } = await supabase
     .from("journey_runs")
     .select("current_day, completed_days")

@@ -325,6 +325,48 @@ group by 1
 order by 1;
 ```
 
+### Day 7 → Day 21 funnel (habit)
+
+```sql
+select
+  (props->>'day')::int as day,
+  count(distinct user_id) as users
+from app_events
+where name = 'meditation_completed'
+  and props->>'tier' = 'habit'
+  and created_at > now() - interval '12 weeks'
+group by 1
+order by 1;
+```
+
+### Day 21 → Day 45 funnel (deepening)
+
+```sql
+select
+  (props->>'day')::int as day,
+  count(distinct user_id) as users
+from app_events
+where name = 'meditation_completed'
+  and props->>'tier' = 'deepening'
+  and created_at > now() - interval '12 weeks'
+group by 1
+order by 1;
+```
+
+### Private milestones hit
+
+```sql
+select
+  (props->>'milestone')::int as milestone,
+  count(distinct user_id) as users
+from app_events
+where name = 'meditation_completed'
+  and props->>'milestone' is not null
+  and created_at > now() - interval '12 weeks'
+group by 1
+order by 1;
+```
+
 ### Mean mood delta (after − before)
 
 ```sql

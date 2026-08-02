@@ -7,7 +7,11 @@ import {
   type JourneyDay,
   type JourneyUnlock,
 } from "@/lib/journeys/core";
-import type { MeditationSession } from "@/lib/meditation-core";
+import {
+  SITTING_COURSE_ID,
+  SITTING_SEGMENT_IDS,
+  type MeditationSession,
+} from "@/lib/meditation-core";
 
 /**
  * Journey content loader. Directory-scanned on purpose — the meditation course
@@ -18,7 +22,9 @@ import type { MeditationSession } from "@/lib/meditation-core";
  *   data/journeys/*.json   native journeys (already the unified shape)
  *   data/paths/*.json      legacy themed paths  → kind "scripture", unlock open
  *   data/meditation/*.json legacy programs      → kind "meditation", unlock chain
- * Legacy files keep working untouched; nothing had to be rewritten to ship.
+ *
+ * Sitting segments (foundation-7, meditation-21, meditation-45) are composed
+ * into one `sitting-course` journey so day 8 unlocks after day 7 in the same run.
  */
 
 const ROOT = process.cwd();
@@ -31,8 +37,7 @@ const DIRS = {
 /** Display order: the long arcs first, then the themed weeks. */
 const ORDER = [
   "gita-21",
-  "foundation-7",
-  "meditation-21",
+  SITTING_COURSE_ID,
   "anxiety-7",
   "grief-7",
   "purpose-7",
@@ -42,6 +47,9 @@ const ORDER = [
 
 /** daily-sits is a catalog of one-off sits, not a journey — never a run. */
 const NOT_A_JOURNEY = new Set(["daily-sits"]);
+
+/** Segments are composed into sitting-course; do not list them alone. */
+const SITTING_SEGMENTS = new Set<string>(SITTING_SEGMENT_IDS);
 
 function readJson(file: string): Record<string, unknown> | null {
   try {
@@ -98,7 +106,9 @@ function normalizeMeditationDay(raw: unknown, index: number): JourneyDay | null 
   if (!Array.isArray(s.phases)) return null;
   const day = Number.isInteger(s.day_number)
     ? (s.day_number as number)
-    : index + 1;
+    : Number.isInteger(s.day)
+      ? (s.day as number)
+      : index + 1;
   const ref = s.ref as { chapter?: unknown; verse?: unknown } | undefined;
   const chapter = Number(ref?.chapter);
   const verse = Number(ref?.verse);
@@ -108,10 +118,15 @@ function normalizeMeditationDay(raw: unknown, index: number): JourneyDay | null 
     practice: "meditation",
     minutes: Number.isFinite(Number(s.duration_minutes))
       ? Number(s.duration_minutes)
-      : 5,
+      : Number.isFinite(Number(s.minutes))
+        ? Number(s.minutes)
+        : 5,
     title_en: str(s.title_en),
     title_hi: str(s.title_hi, str(s.title_en)),
-    session: raw as MeditationSession,
+    session: {
+      ...(raw as MeditationSession),
+      day_number: day,
+    },
     ...(Number.isInteger(chapter) && Number.isInteger(verse)
       ? { ref: { chapter, verse } }
       : {}),
@@ -167,6 +182,70 @@ function toJourney(
   };
 }
 
+function composeSittingCourse(segments: Journey[]): Journey | null {
+  const byId = new Map(segments.map((j) => [j.id, j]));
+  const days: JourneyDay[] = [];
+  for (const id of SITTING_SEGMENT_IDS) {
+    const seg = byId.get(id);
+    if (!seg) continue;
+    for (const d of seg.days) {
+      if (d.kind !== "meditation") continue;
+      if (days.some((x) => x.day === d.day)) continue;
+      days.push(d);
+    }
+  }
+  days.sort((a, b) => a.day - b.day);
+  if (!days.length) return null;
+
+  const highest = days[days.length - 1].day;
+  const foundation = byId.get("foundation-7");
+  const habit = byId.get("meditation-21");
+  const deepening = byId.get("meditation-45");
+
+  const title_en =
+    deepening?.title_en ||
+    habit?.title_en ||
+    foundation?.title_en ||
+    "Sitting course";
+  const title_hi =
+    deepening?.title_hi ||
+    habit?.title_hi ||
+    foundation?.title_hi ||
+    title_en;
+  const intro_en =
+    deepening?.intro_en ||
+    (highest >= 21
+      ? "A free progressive sit — foundation, habit, and deepening. Finish a day to unlock the next. Missing a calendar day never erases your place."
+      : foundation?.intro_en || "");
+  const intro_hi =
+    deepening?.intro_hi ||
+    (highest >= 21
+      ? "मुफ़्त क्रमिक बैठक — नींव, आदत, और गहराई। दिन पूर्ण होने पर अगला खुलता है। कैलेंडर का दिन छूटने से प्रगति नहीं मिटती।"
+      : foundation?.intro_hi || intro_en);
+
+  return {
+    id: SITTING_COURSE_ID,
+    kind: "meditation",
+    unlock: "chain",
+    days_count: highest,
+    title_en:
+      highest >= 45
+        ? "Forty-five days of sitting"
+        : highest >= 21
+          ? "Twenty-one days of sitting"
+          : title_en,
+    title_hi:
+      highest >= 45
+        ? "बैठने के पैंतालीस दिन"
+        : highest >= 21
+          ? "बैठने के इक्कीस दिन"
+          : title_hi,
+    intro_en,
+    intro_hi,
+    days,
+  };
+}
+
 let cache: Journey[] | null = null;
 
 export function listJourneys(): Journey[] {
@@ -174,22 +253,38 @@ export function listJourneys(): Journey[] {
   // the life of the instance — the surface stayed blank until a redeploy.
   if (cache && cache.length) return cache;
   const found = new Map<string, Journey>();
+  const sittingSegments: Journey[] = [];
 
   for (const file of listJson(DIRS.journeys)) {
     const data = readJson(path.join(DIRS.journeys, file));
     const j = data && toJourney(data, "scripture", "chain");
-    if (j) found.set(j.id, j);
+    if (!j) continue;
+    if (SITTING_SEGMENTS.has(j.id)) {
+      sittingSegments.push(j);
+      continue;
+    }
+    found.set(j.id, j);
   }
   for (const file of listJson(DIRS.paths)) {
     const data = readJson(path.join(DIRS.paths, file));
     const j = data && toJourney(data, "scripture", "open");
-    if (j && !found.has(j.id)) found.set(j.id, j);
+    if (j && !found.has(j.id) && !SITTING_SEGMENTS.has(j.id)) {
+      found.set(j.id, j);
+    }
   }
   for (const file of listJson(DIRS.meditation)) {
     const data = readJson(path.join(DIRS.meditation, file));
     const j = data && toJourney(data, "meditation", "chain");
-    if (j && !found.has(j.id)) found.set(j.id, j);
+    if (!j) continue;
+    if (SITTING_SEGMENTS.has(j.id)) {
+      sittingSegments.push(j);
+      continue;
+    }
+    if (!found.has(j.id)) found.set(j.id, j);
   }
+
+  const sitting = composeSittingCourse(sittingSegments);
+  if (sitting) found.set(sitting.id, sitting);
 
   cache = Array.from(found.values()).sort((a, b) => {
     const ia = ORDER.indexOf(a.id);
@@ -204,10 +299,19 @@ export function listJourneys(): Journey[] {
 
 export function loadJourney(id: string): Journey | null {
   if (!id || !JOURNEY_ID_SHAPE.test(id)) return null;
+  // Legacy segment ids resolve to the composed sitting course.
+  if (SITTING_SEGMENTS.has(id) || id === SITTING_COURSE_ID) {
+    return listJourneys().find((j) => j.id === SITTING_COURSE_ID) ?? null;
+  }
   return listJourneys().find((j) => j.id === id) ?? null;
 }
 
 /** Journeys of one kind — the hub lists meditation, /paths lists scripture. */
 export function listJourneysByKind(kind: Journey["kind"]): Journey[] {
   return listJourneys().filter((j) => j.kind === kind);
+}
+
+/** Clear loader cache (tests). */
+export function clearJourneyCache(): void {
+  cache = null;
 }

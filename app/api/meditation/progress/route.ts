@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { FOUNDATION_PROGRAM_ID } from "@/lib/meditation";
+import { SITTING_COURSE_ID } from "@/lib/meditation";
 import { getMeditationProgress } from "@/lib/meditation-progress";
 import { requireSupabase } from "@/lib/supabase/require";
 import { getSignedInUserId } from "@/lib/supabase/server";
@@ -7,10 +7,10 @@ import { getSignedInUserId } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** GET /api/meditation/progress?program=foundation-7 */
+/** GET /api/meditation/progress?program=sitting-course */
 export async function GET(request: NextRequest) {
   const program =
-    request.nextUrl.searchParams.get("program") ?? FOUNDATION_PROGRAM_ID;
+    request.nextUrl.searchParams.get("program") ?? SITTING_COURSE_ID;
   if (!/^[a-z0-9-]+$/i.test(program)) {
     return NextResponse.json({ error: "Invalid program" }, { status: 400 });
   }
