@@ -53,10 +53,45 @@ if (!token) {
 }
 
 const dir = path.join(__dirname, "..", "supabase", "migrations");
+
+/**
+ * --only 011,016   apply exactly these (by numeric prefix)
+ * --skip 016       apply everything except these
+ *
+ * Selection exists because the promotion order is not "all of them": the
+ * additive migrations are invisible to running old code and can land before a
+ * deploy, while 016 revokes journal grants and must land after. Without a flag
+ * the runbook's own step 1 could not be followed. See docs/runbooks/promotion.md.
+ */
+function flagList(name) {
+  const i = process.argv.indexOf(name);
+  if (i === -1 || !process.argv[i + 1]) return null;
+  return new Set(
+    process.argv[i + 1]
+      .split(",")
+      .map((v) => v.trim().padStart(3, "0"))
+      .filter(Boolean)
+  );
+}
+const only = flagList("--only");
+const skip = flagList("--skip");
+
 const files = fs
   .readdirSync(dir)
   .filter((f) => f.endsWith(".sql"))
+  .filter((f) => {
+    const num = f.slice(0, 3);
+    if (only) return only.has(num);
+    if (skip) return !skip.has(num);
+    return true;
+  })
   .sort();
+
+if (!files.length) {
+  console.error("No migrations matched the selection.");
+  process.exit(1);
+}
+console.log(`Applying ${files.length} migration(s) to ${ref}`);
 
 (async () => {
   let failed = 0;

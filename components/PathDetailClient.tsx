@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
-import type { Journey } from "@/lib/journeys/core";
+import { isDayUnlocked, type Journey } from "@/lib/journeys/core";
 import {
   readGuestJourneyDays as readGuest,
   writeGuestJourneyDays as writeGuest,
@@ -155,6 +155,15 @@ export default function PathDetailClient({
       <ol className="space-y-6">
         {path.days.map((day) => {
           const done = completed.has(day.day);
+          // Chained journeys gate the button rather than letting it 409
+          // silently — the server refuses, and a dead control with no message
+          // reads as a broken page.
+          const unlocked = isDayUnlocked(
+            day.day,
+            run?.completedDays ?? [],
+            path.days_count,
+            path.unlock
+          );
           const slokaId = verseByDay.get(day.day) ?? null;
           const practiceHref =
             slokaId != null
@@ -206,6 +215,10 @@ export default function PathDetailClient({
                 {done ? (
                   <span className="text-sm text-[var(--brass-soft)]">
                     {t("pathMarked")}
+                  </span>
+                ) : !unlocked ? (
+                  <span className="text-sm text-[var(--text-muted)]">
+                    {t("pathDayLocked")}
                   </span>
                 ) : (
                   <button

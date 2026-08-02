@@ -34,6 +34,13 @@ const nextConfig = {
       "/api/cron/votd-email": ["./ephemeris/**"],
       "/api/cron/push-dispatch": ["./ephemeris/**"],
       "/api/panchang/**": ["./ephemeris/**"],
+      // Madhav computes a chart inline when one is attached (app/api/chat
+      // dynamically imports lib/astrology/engine). /api/astrology/** covers
+      // the deprecated shim, not this route — so chart-linked replies were
+      // computing under Moshier while the astrology pages used Swiss: two
+      // different charts for one user, no error, and the health endpoint
+      // cannot see it.
+      "/api/chat": ["./ephemeris/**"],
 
       // Same trap, different directory: lib/journeys/content.ts, lib/paths.ts
       // and lib/meditation.ts read data/ at REQUEST time with

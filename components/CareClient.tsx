@@ -3,19 +3,13 @@
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
 
+// Numbers stay literal; the descriptions go through i18n. This is the page a
+// person in distress lands on — an English-only line here fails exactly the
+// reader the crisis path exists for.
 const HELPLINES = [
-  {
-    name: "tele-MANAS",
-    detail: "14416 · Government of India mental health helpline (24×7)",
-  },
-  {
-    name: "iCall",
-    detail: "9152987821 · Psychosocial helpline (TISS)",
-  },
-  {
-    name: "AASRA",
-    detail: "9820466726 · Suicide prevention (24×7)",
-  },
+  { name: "tele-MANAS", detailKey: "careTeleManas" },
+  { name: "iCall", detailKey: "careICall" },
+  { name: "AASRA", detailKey: "careAasra" },
 ] as const;
 
 export default function CareClient() {
@@ -32,7 +26,7 @@ export default function CareClient() {
             <li key={line.name} className="border-l-2 border-[var(--brass)]/50 pl-4">
               <p className="font-display text-lg text-[var(--text)]">{line.name}</p>
               <p className="mt-1 text-[15px] font-light text-[var(--text-muted)]">
-                {line.detail}
+                {t(line.detailKey)}
               </p>
             </li>
           ))}

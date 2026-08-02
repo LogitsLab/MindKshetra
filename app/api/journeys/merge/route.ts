@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { mergeGuestJourneys } from "@/lib/journeys/progress";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { requireSupabase } from "@/lib/supabase/require";
-import { getAuthUserId } from "@/lib/supabase/server";
+import { getSignedInUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +12,9 @@ export const dynamic = "force-dynamic";
  * Body: { journeys: [{ journeyId, completedDays }] }
  */
 export async function POST(request: NextRequest) {
-  const userId = await getAuthUserId();
+  // getSignedInUserId, not getAuthUserId: the run route reads with the
+  // same check, so accepting anonymous here would write rows nobody can read.
+  const userId = await getSignedInUserId();
   const rl = await rateLimit(
     `journeys:merge:${principalKey(userId, request)}`,
     20,

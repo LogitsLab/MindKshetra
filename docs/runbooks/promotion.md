@@ -27,13 +27,13 @@ Never run 016 before step 3 succeeds.
 ## 1 — Additive migrations
 
 ```bash
-node scripts/apply-migrations.cjs rqknmgzdzjpxepjmbzvb
+node scripts/apply-migrations.cjs rqknmgzdzjpxepjmbzvb --skip 016
 ```
 
-The runner re-applies every file; 001–010 converge (they were made
-re-runnable) and the additive ones create their tables. 016 is in that set —
-if you are following this runbook strictly, temporarily move it aside, or
-accept that 016 lands early and complete step 2 promptly. 019 is a no-op on a
+`--skip 016` is the whole point of this step: the runner re-applies every file
+in order, and without selection it would land 016 here — which this runbook
+forbids until step 4. 001–010 converge (they were made re-runnable) and the
+additive ones create their tables. 019 is a no-op on a
 database that has neither `path_runs` nor `meditation_runs` (its `to_regclass`
 guards skip the backfill), and it is safe to re-run afterwards once those
 tables exist.
@@ -72,7 +72,7 @@ migrations did not land.
 Only after step 3 is clean:
 
 ```bash
-node scripts/apply-migrations.cjs rqknmgzdzjpxepjmbzvb
+node scripts/apply-migrations.cjs rqknmgzdzjpxepjmbzvb --only 016
 ```
 
 Then confirm the boundary actually moved: as a signed-in user, a direct

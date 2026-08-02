@@ -39,9 +39,11 @@ export const en = {
   pathPractice_japa: "japa",
   pathPractice_pranayama: "pranayama",
   pathPractice_flow: "full sādhana",
+  pathPractice_meditation: "guided sit",
   pathDayMinutes: "min",
   pathMarkDone: "Mark day complete",
   pathMarked: "Day marked",
+  pathDayLocked: "Opens after the day before",
   pathRunProgress: "Day {n} of {total}",
   pathRunDone: "Completed",
   pathBeginPractice: "Begin day’s practice",
@@ -53,6 +55,9 @@ export const en = {
   careIntro:
     "MindKshetra is a Gita companion, not clinical care. If you are in immediate danger, contact local emergency services. These numbers are starting points; we partner with NGOs to keep the list honest.",
   careIndiaTitle: "India",
+  careTeleManas: "14416 · Government of India mental health helpline (24×7)",
+  careICall: "9152987821 · Psychosocial helpline (TISS)",
+  careAasra: "9820466726 · Suicide prevention (24×7)",
   careDisclaimer:
     "Listing a helpline is not an endorsement of every call outcome. Prefer local emergency services when life is at risk. Mentors in the community are facilitators, not therapists.",
   microSevaTitle: "Today’s seva (verse-linked)",
@@ -93,9 +98,11 @@ export const hi: Record<keyof typeof en, string> = {
   pathPractice_japa: "जप",
   pathPractice_pranayama: "प्राणायाम",
   pathPractice_flow: "पूर्ण साधना",
+  pathPractice_meditation: "निर्देशित बैठक",
   pathDayMinutes: "मि",
   pathMarkDone: "दिन पूर्ण करें",
   pathMarked: "दिन दर्ज",
+  pathDayLocked: "पिछला दिन पूरा होने पर खुलेगा",
   pathRunProgress: "{total} में से दिन {n}",
   pathRunDone: "पूर्ण",
   pathBeginPractice: "दिन का अभ्यास शुरू करें",
@@ -107,6 +114,9 @@ export const hi: Record<keyof typeof en, string> = {
   careIntro:
     "MindKshetra गीता साथी है, चिकित्सकीय देखभाल नहीं। तात्कालिक खतरे में स्थानीय आपातकालीन सेवाओं से संपर्क करें। ये नंबर आरंभ बिंदु हैं; सूची को ईमानदार रखने के लिए हम NGO से साझेदारी करते हैं।",
   careIndiaTitle: "भारत",
+  careTeleManas: "14416 · भारत सरकार की मानसिक स्वास्थ्य हेल्पलाइन (24×7)",
+  careICall: "9152987821 · मनोसामाजिक हेल्पलाइन (TISS)",
+  careAasra: "9820466726 · आत्महत्या रोकथाम (24×7)",
   careDisclaimer:
     "हेल्पलाइन सूची हर कॉल परिणाम का समर्थन नहीं है। जीवन जोखिम में स्थानीय आपातकाल प्राथमिक है। समुदाय के मार्गदर्शक सुविधाकार हैं, चिकित्सक नहीं।",
   microSevaTitle: "आज की सेवा (श्लोक से जुड़ी)",

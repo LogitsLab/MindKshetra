@@ -170,11 +170,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
+        // Anonymous sessions are excluded deliberately: /api/journeys/merge
+        // accepts them but /api/journeys/[id]/run does not, so merging under
+        // an anonymous id then clearing the device copy made a guest's days
+        // unreadable — visible progress simply vanished. Every other merge in
+        // the app guards the same way.
         // Journeys replay on sign-in, like chat, progress, sadhana and
         // meditation before it. Without this a guest's week of practice was
         // still on the device and never reached the account — the endpoint
         // existed and nothing called it.
-        const journeys = readAllGuestJourneys();
+        const journeys = nextUser.is_anonymous ? [] : readAllGuestJourneys();
         if (journeys.length) {
           try {
             const res = await fetch("/api/journeys/merge", {

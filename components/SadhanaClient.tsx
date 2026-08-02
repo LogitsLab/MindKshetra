@@ -8,7 +8,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { MilestoneLine, takeNewMilestone } from "@/components/MilestoneMarks";
 import type { Milestone } from "@/lib/milestones";
 import { moods } from "@/lib/moods-data";
-import { markGuestPathDay } from "@/lib/paths-local";
+import { markGuestJourneyDay } from "@/lib/journeys/local";
 import { splitVerseLines } from "@/lib/verseDisplay";
 
 type Sloka = {
@@ -326,7 +326,7 @@ export default function SadhanaClient() {
     let completedCount = 0;
 
     const markLocally = () => {
-      const days = markGuestPathDay(pc.pathId, pc.pathDay);
+      const days = markGuestJourneyDay(pc.pathId, pc.pathDay, pc.pathTotal ?? 400);
       completedCount = days.length;
       const upcoming = (days[days.length - 1] ?? 0) + 1;
       // Without days_count there is no honest clamp — mark, but say nothing.
