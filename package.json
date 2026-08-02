@@ -22,7 +22,9 @@
     "db:embeddings": "node scripts/seed-embeddings.cjs",
     "db:pregen-stories": "node scripts/pregen-stories.cjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "audio:tts": "node scripts/audio/generate-tts.mjs",
+    "audio:recitation": "node scripts/audio/fetch-recitation.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
