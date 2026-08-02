@@ -1,13 +1,37 @@
 "use client";
 
+import { track } from "@/lib/track";
+
 type Props = {
   title: string;
   text: string;
   url: string;
   imageUrl?: string;
+  /** Verse id, recorded in share_card props for per-verse share analytics. */
+  slokaId?: number;
+  /** Which card was shared: the verse block or the reflection story block. */
+  surface?: "verse" | "story";
 };
 
-export default function ShareButton({ title, text, url, imageUrl }: Props) {
+export default function ShareButton({
+  title,
+  text,
+  url,
+  imageUrl,
+  slokaId,
+  surface,
+}: Props) {
+  // `path` distinguishes the page the share happened on (/sloka/[id] vs
+  // /verse-of-the-day — both render this button through SlokaDetail).
+  function recordShare(method: "native" | "copy" | "image") {
+    track("share_card", {
+      method,
+      ...(surface ? { surface } : {}),
+      ...(typeof slokaId === "number" ? { slokaId } : {}),
+      path: window.location.pathname,
+    });
+  }
+
   async function share() {
     const shareData = {
       title,
@@ -18,6 +42,7 @@ export default function ShareButton({ title, text, url, imageUrl }: Props) {
     if (navigator.share) {
       try {
         await navigator.share(shareData);
+        recordShare("native");
         return;
       } catch {
         /* fall through */
@@ -25,11 +50,13 @@ export default function ShareButton({ title, text, url, imageUrl }: Props) {
     }
 
     await navigator.clipboard.writeText(url);
+    recordShare("copy");
     alert("Link copied.");
   }
 
   function downloadImage() {
     if (!imageUrl) return;
+    recordShare("image");
     window.open(imageUrl, "_blank", "noopener,noreferrer");
   }
 

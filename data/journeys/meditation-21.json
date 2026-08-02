@@ -1,0 +1,454 @@
+{
+  "id": "meditation-21",
+  "kind": "meditation",
+  "unlock": "chain",
+  "days_count": 21,
+  "title_en": "Twenty-one days of sitting",
+  "title_hi": "बैठने के इक्कीस दिन",
+  "intro_en": "The second and third weeks of the sitting course, days eight to twenty-one, picking up where the seven-day foundation left off. Counting the breath, meeting thoughts, opening to sound and body, practising friendliness, staying with what is difficult, and finally sitting with nothing chosen at all. Sits grow from nine minutes to twenty. Finishing a day opens the next, and a day that goes unpracticed never erases your place.",
+  "intro_hi": "बैठने के पाठ्यक्रम का दूसरा और तीसरा सप्ताह — आठवें से इक्कीसवें दिन तक, वहीं से आगे जहाँ सात दिन की नींव समाप्त हुई थी। श्वास गिनना, विचारों से मिलना, ध्वनि और शरीर के प्रति खुलना, मैत्री का अभ्यास, कठिन के साथ ठहरना, और अंत में बिना कोई आधार चुने बैठना। बैठक नौ मिनट से बढ़कर बीस मिनट तक जाती है। एक दिन पूरा होने पर अगला खुलता है, और कोई दिन बिना अभ्यास बीत जाए तो आपकी जगह नहीं मिटती।",
+  "days": [
+    {
+      "id": "meditation-21-d8",
+      "day_number": 8,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 9,
+      "title_en": "Counting the breath",
+      "title_hi": "श्वास गिनना",
+      "theme_en": "A count gives attention a handrail. One to ten on the out-breath, then start over.",
+      "theme_hi": "गिनती ध्यान को एक सहारा देती है। निःश्वास पर एक से दस, फिर आरंभ से।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat. Spine tall, shoulders down, hands resting. Let the breath be exactly as it is. On each out-breath, count silently: one, two, and on to ten. At ten, begin again at one.",
+          "text_hi": "आसन लें। रीढ़ सीधी, कंधे ढीले, हाथ विश्राम में। श्वास को ठीक वैसा रहने दें जैसा वह है। हर निःश्वास पर मौन में गिनें: एक, दो, और इसी तरह दस तक। दस पर फिर एक से आरंभ करें।"
+        },
+        { "type": "silence", "seconds": 150 },
+        {
+          "type": "speak",
+          "text_en": "You will lose the count. That is not a mistake. It is the moment you notice you had gone. Return to one, without any comment about it.",
+          "text_hi": "गिनती छूटेगी। यह भूल नहीं है। यही वह क्षण है जब आप जान पाते हैं कि मन कहीं चला गया था। बिना कुछ कहे फिर एक पर लौट आएँ।"
+        },
+        { "type": "silence", "seconds": 320 },
+        {
+          "type": "speak",
+          "text_en": "Let the numbers go. Two or three breaths without counting anything. Then open the eyes.",
+          "text_hi": "अंक छोड़ दें। दो-तीन श्वास बिना कुछ गिने। फिर आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d9",
+      "day_number": 9,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 10,
+      "title_en": "Beginning again",
+      "title_hi": "फिर से आरंभ",
+      "theme_en": "The skill here is not staying. It is returning — and today gives you many chances to practise the return.",
+      "theme_hi": "इस अभ्यास का कौशल टिके रहना नहीं, लौट आना है — और आज लौटने के कई अवसर मिलेंगे।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Settle and pick up the count on the out-breath, one to ten. Today, watch the moment of return itself: the small turn where attention comes back on its own.",
+          "text_hi": "स्थिर हों और निःश्वास पर गिनती उठाएँ, एक से दस। आज लौटने के उस क्षण को ही देखें: वह छोटा-सा मोड़ जहाँ ध्यान स्वयं वापस आ जाता है।"
+        },
+        { "type": "silence", "seconds": 170 },
+        {
+          "type": "speak",
+          "text_en": "If you find you were at forty-three, nothing went wrong — you simply woke up. Say one, and carry on. Use the tone you would use with a child learning to walk.",
+          "text_hi": "यदि आप पाएँ कि गिनती तैंतालीस तक पहुँच गई, तो कुछ बिगड़ा नहीं — आप बस जाग गए। एक कहें और आगे बढ़ें। वही स्वर रखें जो चलना सीखते बच्चे के लिए रखते हैं।"
+        },
+        { "type": "silence", "seconds": 360 },
+        {
+          "type": "speak",
+          "text_en": "Drop the count. Rest for a breath or two. Notice that returning cost you nothing at all.",
+          "text_hi": "गिनती छोड़ दें। एक-दो श्वास विश्राम करें। देखें कि लौटने में कुछ भी नहीं लगा।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d10",
+      "day_number": 10,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 10,
+      "title_en": "The breath without the count",
+      "title_hi": "बिना गिनती की श्वास",
+      "theme_en": "Numbers were scaffolding. Today the breath alone holds attention — the beginning, middle and end of a single out-breath.",
+      "theme_hi": "अंक केवल ढाँचा थे। आज केवल श्वास ही ध्यान को थामे — एक निःश्वास का आरंभ, मध्य और अंत।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit and let the counting go. Follow one out-breath the whole way: where it starts, how it thins in the middle, where it ends. Then the next one.",
+          "text_hi": "बैठें और गिनती छोड़ दें। एक निःश्वास को पूरा साथ दें: वह कहाँ से शुरू होता है, बीच में कैसे पतला होता है, कहाँ समाप्त होता है। फिर अगला।"
+        },
+        { "type": "silence", "seconds": 180 },
+        {
+          "type": "speak",
+          "text_en": "If the mind gets loose without the numbers, count again for a minute, then set them down. Using a tool when you need it is part of the practice, not a step backwards.",
+          "text_hi": "यदि अंकों के बिना मन ढीला पड़े, एक मिनट फिर गिनें और फिर रख दें। ज़रूरत पड़ने पर साधन का उपयोग अभ्यास का ही अंग है, पीछे हटना नहीं।"
+        },
+        { "type": "silence", "seconds": 350 },
+        {
+          "type": "speak",
+          "text_en": "Take one fuller breath and let the practice end. The breath stays available all day without any instruction.",
+          "text_hi": "एक भरपूर श्वास लें और अभ्यास समाप्त होने दें। श्वास दिन भर बिना किसी निर्देश के उपलब्ध रहती है।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d11",
+      "day_number": 11,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 11,
+      "title_en": "Noting what arrives",
+      "title_hi": "जो आता है, उसे नाम देना",
+      "theme_en": "One quiet word for whatever appears — thinking, planning, remembering, hearing. The word is a label, not a verdict.",
+      "theme_hi": "जो भी आए उसके लिए एक शांत शब्द — सोच, योजना, स्मृति, ध्वनि। वह शब्द नाम है, निर्णय नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Rest on the breath. When something pulls attention away, give it one soft word: thinking. Planning. Remembering. Then come back to the breath.",
+          "text_hi": "श्वास पर विश्राम करें। जब कोई चीज़ ध्यान खींचे, उसे एक कोमल शब्द दें: सोच। योजना। स्मृति। फिर श्वास पर लौट आएँ।"
+        },
+        { "type": "silence", "seconds": 200 },
+        {
+          "type": "speak",
+          "text_en": "Keep the word smaller than the thought. If you catch yourself explaining the label, that is thinking again — note it too, and return.",
+          "text_hi": "शब्द को विचार से छोटा रखें। यदि आप स्वयं को उस नाम की व्याख्या करते पाएँ, तो वह भी सोच है — उसे भी नोट करें और लौट आएँ।"
+        },
+        { "type": "silence", "seconds": 390 },
+        {
+          "type": "speak",
+          "text_en": "Let the words fall away. Sit plainly for a moment, then open the eyes.",
+          "text_hi": "शब्द गिर जाने दें। एक क्षण सहज बैठें, फिर आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d12",
+      "day_number": 12,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 12,
+      "title_en": "The story that repeats",
+      "title_hi": "जो कथा लौटती है",
+      "theme_en": "Most sits have one visitor that keeps coming back. Today you meet it without arguing with it and without following it.",
+      "theme_hi": "अधिकतर बैठकों में एक आगंतुक बार-बार लौटता है। आज उससे मिलें — न बहस करें, न उसके पीछे जाएँ।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit and note as you did yesterday. When the same story returns a second or third time, notice its shape: is it a rehearsal of something ahead, or a replay of something past?",
+          "text_hi": "बैठें और कल की तरह नोट करें। जब वही कथा दूसरी या तीसरी बार लौटे, उसका आकार देखें: क्या यह आने वाले किसी क्षण का पूर्वाभ्यास है, या बीते हुए किसी क्षण का दोहराव?"
+        },
+        { "type": "silence", "seconds": 210 },
+        {
+          "type": "speak",
+          "text_en": "You do not have to finish the story and you do not have to banish it. Let it stand at the edge of the room while you stay with the breath.",
+          "text_hi": "न इस कथा को पूरा करना है, न भगाना है। इसे कमरे के किनारे खड़ा रहने दें और आप श्वास के साथ रहें।"
+        },
+        { "type": "silence", "seconds": 440 },
+        {
+          "type": "speak",
+          "text_en": "Before you rise, notice whether it is still as loud as it was at the start. Whatever the answer, it is information and not a grade.",
+          "text_hi": "उठने से पहले देखें कि वह अब भी उतनी ही ऊँची है या नहीं। उत्तर जो भी हो, वह जानकारी है, अंक नहीं।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d13",
+      "day_number": 13,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 12,
+      "title_en": "Sound as the anchor",
+      "title_hi": "ध्वनि ही आधार",
+      "theme_en": "Hearing takes no effort — sound arrives on its own. Today the ear does the work the breath has been doing.",
+      "theme_hi": "सुनने में प्रयास नहीं लगता — ध्वनि स्वयं आती है। आज वह काम कान करेगा जो अब तक श्वास कर रही थी।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Let the eyes close. Stop reaching for the breath. Let sound come to you instead — traffic, a fan, a voice somewhere, the room’s own hum. There is no need to name what you hear.",
+          "text_hi": "आँखें बंद होने दें। श्वास को पकड़ने का प्रयास छोड़ दें। ध्वनि को स्वयं आने दें — वाहन, पंखा, कहीं कोई स्वर, कमरे की अपनी गूँज। जो सुनाई दे, उसे नाम देने की ज़रूरत नहीं।"
+        },
+        { "type": "silence", "seconds": 220 },
+        {
+          "type": "speak",
+          "text_en": "When you catch yourself deciding a sound is pleasant or annoying, drop the verdict and keep the sound. Notice the small gaps of quiet between sounds as well.",
+          "text_hi": "जब आप किसी ध्वनि को सुखद या कष्टप्रद ठहराते हुए स्वयं को पकड़ें, वह निर्णय छोड़ दें और ध्वनि रहने दें। ध्वनियों के बीच की छोटी-छोटी शांति भी देखें।"
+        },
+        { "type": "silence", "seconds": 430 },
+        {
+          "type": "speak",
+          "text_en": "Let hearing widen to include the whole room, then the whole body sitting in it. Open the eyes when you are ready.",
+          "text_hi": "सुनने को पूरे कमरे तक फैलने दें, फिर उसमें बैठे पूरे शरीर तक। तैयार हों तो आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d14",
+      "day_number": 14,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 13,
+      "title_en": "The whole body breathing",
+      "title_hi": "पूरा शरीर श्वास लेता है",
+      "theme_en": "Not a scan this time. The body is felt all at once, and the breath moves inside the whole of it.",
+      "theme_hi": "आज अन्वेषण नहीं। शरीर को एक साथ पूरा महसूस करें, और श्वास को उसी पूरे के भीतर चलने दें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Feel the body as one shape, from the seat to the crown, all at once. Do not travel through it part by part. Let the breath move inside that whole shape.",
+          "text_hi": "शरीर को एक ही आकार की तरह महसूस करें — आसन से सिर के शीर्ष तक, एक साथ। भाग-दर-भाग चलने की ज़रूरत नहीं। श्वास को उसी पूरे आकार के भीतर चलने दें।"
+        },
+        { "type": "silence", "seconds": 240 },
+        {
+          "type": "speak",
+          "text_en": "If the sense of the whole slips down into one part, that is fine. Feel that part fully, then let it widen back out to everything.",
+          "text_hi": "यदि पूरे का बोध किसी एक अंग में सिमट जाए, तो ठीक है। उस अंग को भरपूर महसूस करें, फिर उसे फिर से पूरे तक फैलने दें।"
+        },
+        { "type": "silence", "seconds": 470 },
+        {
+          "type": "speak",
+          "text_en": "Two weeks of sitting are behind you. Feel the whole body once more, then let the practice end.",
+          "text_hi": "बैठने के दो सप्ताह पूरे हुए। पूरे शरीर को एक बार फिर महसूस करें, फिर अभ्यास समाप्त होने दें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d15",
+      "day_number": 15,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 14,
+      "title_en": "Friendliness, starting here",
+      "title_hi": "मैत्री, यहीं से",
+      "theme_en": "Loving-kindness begins with the person you are hardest on. Plain wishes, said slowly, are enough.",
+      "theme_hi": "मैत्री उसी से आरंभ होती है जिसके साथ आप सबसे कठोर रहते हैं। सरल शुभकामनाएँ, धीरे कही हुईं, पर्याप्त हैं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit, and rest a hand on the chest if that helps. Say inwardly, slowly: may I be well. May I be at ease. May I be safe. Say each line the way you would say it about someone you love.",
+          "text_hi": "बैठें, और सहायक लगे तो एक हाथ छाती पर रखें। मन में धीरे कहें: मैं स्वस्थ रहूँ। मैं सहज रहूँ। मैं निर्भय रहूँ। हर पंक्ति उसी भाव से कहें जिस भाव से किसी प्रिय के लिए कहते।"
+        },
+        { "type": "silence", "seconds": 260 },
+        {
+          "type": "speak",
+          "text_en": "If the words feel false, do not manufacture warmth. Keep saying them plainly and let them be unanswered for now. The offering is the practice, not the feeling it produces.",
+          "text_hi": "यदि शब्द झूठे लगें, तो गर्माहट गढ़ने की चेष्टा न करें। उन्हें सहज रूप से कहते रहें और अभी अनुत्तरित रहने दें। अभ्यास यह भेंट है, इससे उपजी अनुभूति नहीं।"
+        },
+        { "type": "silence", "seconds": 510 },
+        {
+          "type": "speak",
+          "text_en": "Let the words rest. Sit for a moment as the one who was wished well, then open the eyes.",
+          "text_hi": "शब्दों को विश्राम दें। एक क्षण उसी की तरह बैठें जिसके लिए यह शुभकामना थी, फिर आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d16",
+      "day_number": 16,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 15,
+      "title_en": "Widening the circle",
+      "title_hi": "वृत्त बड़ा करना",
+      "theme_en": "The same few wishes, moved outward: someone easy to love, someone you barely know, someone difficult, and then no one in particular.",
+      "theme_hi": "वही थोड़ी-सी शुभकामनाएँ, बाहर की ओर बढ़ती हुईं: कोई प्रिय, कोई अनजाना, कोई कठिन, और फिर कोई विशेष नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Begin with yourself for a few breaths. Then bring to mind someone easy to love and offer them the same wishes: may you be well, at ease, safe.",
+          "text_hi": "कुछ श्वास स्वयं से आरंभ करें। फिर किसी ऐसे व्यक्ति को याद करें जिसे चाहना सहज है, और वही शुभकामनाएँ उन्हें दें: आप स्वस्थ रहें, सहज रहें, निर्भय रहें।"
+        },
+        { "type": "silence", "seconds": 280 },
+        {
+          "type": "speak",
+          "text_en": "Now someone you barely know — a face from the street, a shopkeeper. Then, only if you are willing, someone difficult. The same words. You are not excusing anything; you are declining to shrink.",
+          "text_hi": "अब कोई ऐसा जिसे आप मुश्किल से जानते हैं — राह का कोई चेहरा, कोई दुकानदार। फिर, केवल यदि आप तैयार हों, कोई कठिन व्यक्ति। वही शब्द। आप किसी बात को क्षमा नहीं कर रहे; आप बस सिकुड़ने से इनकार कर रहे हैं।"
+        },
+        { "type": "silence", "seconds": 550 },
+        {
+          "type": "speak",
+          "text_en": "Finally, let the wish go out with no name attached to it at all. Then let it go entirely and sit quietly.",
+          "text_hi": "अंत में, इस शुभकामना को बिना किसी नाम के जाने दें। फिर उसे भी छोड़ दें और शांत बैठें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d17",
+      "day_number": 17,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 16,
+      "title_en": "Turning toward discomfort",
+      "title_hi": "असुविधा की ओर मुड़ना",
+      "theme_en": "Physical discomfort first: not enduring it, not fixing it, but looking closely enough that it stops being one solid thing.",
+      "theme_hi": "पहले शारीरिक असुविधा: न सहना, न ठीक करना — बस इतने पास से देखना कि वह एक ठोस चीज़ न रह जाए।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit as usual. When a sensation asks for attention — an ache in the back, heat, an itch — move toward it rather than away. Feel its edges. Is it sharp or dull, still or moving?",
+          "text_hi": "सामान्य रूप से बैठें। जब कोई संवेदना ध्यान माँगे — पीठ में दर्द, गर्मी, खुजली — उससे दूर नहीं, उसकी ओर बढ़ें। उसके किनारे महसूस करें। वह तीखी है या मंद, स्थिर है या हिलती हुई?"
+        },
+        { "type": "silence", "seconds": 300 },
+        {
+          "type": "speak",
+          "text_en": "You may change posture at any point. If you do, move slowly and feel the whole movement. Comfort is not cheating here, and gentleness is not weakness.",
+          "text_hi": "आप कभी भी मुद्रा बदल सकते हैं। बदलें तो धीरे हिलें और पूरी गति को महसूस करें। यहाँ आराम कोई छूट नहीं है, और कोमलता कमज़ोरी नहीं।"
+        },
+        { "type": "silence", "seconds": 590 },
+        {
+          "type": "speak",
+          "text_en": "Let the body be as it is. Notice whether the sensation stayed exactly the same for the whole sit. Very little does.",
+          "text_hi": "शरीर को जैसा है वैसा रहने दें। देखें कि क्या वह संवेदना पूरी बैठक भर बिलकुल वैसी ही रही। बहुत कम चीज़ें वैसी रहती हैं।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d18",
+      "day_number": 18,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 17,
+      "title_en": "Staying with a hard feeling",
+      "title_hi": "कठिन भाव के साथ ठहरना",
+      "theme_en": "An emotion is felt in the body before it is understood. Today you stay long enough to feel it, and stop short of trying to solve it.",
+      "theme_hi": "भाव समझ में आने से पहले शरीर में महसूस होता है। आज इतनी देर ठहरें कि वह महसूस हो, और उसे सुलझाने की चेष्टा से पहले रुक जाएँ।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Settle. Let one difficult feeling come to mind — worry, anger, sadness, shame. Find where it lives in the body and place attention there, the way you would rest a hand on someone’s shoulder.",
+          "text_hi": "स्थिर हों। किसी एक कठिन भाव को आने दें — चिंता, क्रोध, उदासी, संकोच। देखें वह शरीर में कहाँ बसा है और वहाँ ध्यान रखें, जैसे किसी के कंधे पर हाथ रखते हैं।"
+        },
+        { "type": "silence", "seconds": 320 },
+        {
+          "type": "speak",
+          "text_en": "You are not being asked to like it or to be done with it. Breathe at its edge. If it becomes too much, come back to the feet on the floor and the sound of the room — that is good practice, not retreat.",
+          "text_hi": "इसे पसंद करने या इससे उबर जाने के लिए नहीं कहा जा रहा। इसके किनारे पर श्वास लें। यदि यह अधिक हो जाए, तो ज़मीन पर टिके पैरों और कमरे की ध्वनि पर लौट आएँ — यह अच्छा अभ्यास है, पीछे हटना नहीं।"
+        },
+        { "type": "silence", "seconds": 630 },
+        {
+          "type": "speak",
+          "text_en": "Notice what shifted and what did not. Both are honest. If this feeling needs more than a sit, it is worth saying out loud to someone you trust.",
+          "text_hi": "देखें क्या बदला और क्या नहीं। दोनों सच्चे हैं। यदि इस भाव को बैठक से अधिक की ज़रूरत है, तो इसे किसी विश्वसनीय व्यक्ति से कहना उचित है।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d19",
+      "day_number": 19,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 18,
+      "title_en": "Nothing chosen",
+      "title_hi": "कुछ भी चुना नहीं",
+      "theme_en": "No single object. Breath, sound, sensation, thought — whatever is most prominent is what you are with, until something else is.",
+      "theme_hi": "कोई एक आधार नहीं। श्वास, ध्वनि, संवेदना, विचार — जो सबसे स्पष्ट हो वही आपका साथी, जब तक कोई और न हो जाए।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit without picking anything to watch. Let attention rest wide, like the room rather than the lamp. Whatever becomes prominent is what you are with, and when it fades, let it fade.",
+          "text_hi": "बिना कुछ चुने बैठें। ध्यान को चौड़ा रहने दें — दीपक की तरह नहीं, कमरे की तरह। जो भी सबसे स्पष्ट हो जाए, वही आपका साथी; और जब वह मंद पड़े, पड़ने दें।"
+        },
+        { "type": "silence", "seconds": 345 },
+        {
+          "type": "speak",
+          "text_en": "If this feels too vague, use the breath for a minute as a home base, then let the edges soften again. Both the wide view and the home base are the practice.",
+          "text_hi": "यदि यह बहुत अस्पष्ट लगे, एक मिनट श्वास को घर बनाएँ, फिर किनारों को फिर कोमल होने दें। चौड़ी दृष्टि और वह घर — दोनों ही अभ्यास हैं।"
+        },
+        { "type": "silence", "seconds": 660 },
+        {
+          "type": "speak",
+          "text_en": "Let even the watching relax. Sit for one more breath, then open the eyes slowly.",
+          "text_hi": "देखने को भी ढीला छोड़ दें। एक और श्वास बैठें, फिर धीरे से आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d20",
+      "day_number": 20,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 19,
+      "title_en": "Almost nothing said",
+      "title_hi": "लगभग कुछ नहीं कहा जाएगा",
+      "theme_en": "Today the instruction is short on purpose. You already have what you need, and the sit is yours to run.",
+      "theme_hi": "आज निर्देश जानबूझकर छोटा है। जो चाहिए वह आपके पास है, और यह बैठक आपकी अपनी है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat. Settle in whatever way works for you — breath, counting, sound, the body, friendliness, or nothing chosen at all. Whatever you use, hold it lightly, and return whenever you notice you have gone. There will be no more voice until the end.",
+          "text_hi": "आसन लें। जिस भी तरह से आपको सहज लगे, स्थिर हों — श्वास, गिनती, ध्वनि, शरीर, मैत्री, या कुछ भी न चुनकर। जो भी चुनें, उसे हल्के से थामें, और जब भी लगे कि मन चला गया था, लौट आएँ। अंत तक अब कोई स्वर नहीं आएगा।"
+        },
+        { "type": "silence", "seconds": 1080 },
+        {
+          "type": "speak",
+          "text_en": "That was your own sit, run by you. Open the eyes when you are ready.",
+          "text_hi": "यह आपकी अपनी बैठक थी, आपके ही चलाए हुए। तैयार हों तो आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-21-d21",
+      "day_number": 21,
+      "tier": "habit",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 20,
+      "title_en": "Carrying it forward",
+      "title_hi": "आगे साथ ले चलना",
+      "theme_en": "Three weeks of sitting. Today you use whatever actually helped, and decide what this looks like off the cushion.",
+      "theme_hi": "बैठने के तीन सप्ताह। आज वही उपयोग करें जो सचमुच सहायक रहा, और तय करें कि आसन से उठकर यह कैसा दिखेगा।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Settle. Take three slow breaths. Then choose the practice that has helped you most these three weeks — counting, noting, sound, the whole body, friendliness, or open awareness. Use that one today, and only that one.",
+          "text_hi": "स्थिर हों। तीन धीमी श्वास लें। फिर इन तीन सप्ताहों में जो अभ्यास सबसे सहायक रहा, वही चुनें — गिनती, नोट करना, ध्वनि, पूरा शरीर, मैत्री, या खुली जागरूकता। आज केवल वही करें।"
+        },
+        { "type": "silence", "seconds": 400 },
+        {
+          "type": "speak",
+          "text_en": "Halfway. Stay with your chosen practice. Notice that you now know how to begin again without anyone telling you to.",
+          "text_hi": "आधा समय बीता। अपने चुने हुए अभ्यास के साथ रहें। देखें कि अब आप बिना किसी के कहे फिर से आरंभ करना जानते हैं।"
+        },
+        { "type": "silence", "seconds": 720 },
+        {
+          "type": "speak",
+          "text_en": "Before you rise, decide one thing: what would this look like on an ordinary Tuesday — five minutes, ten, and at what hour? Keep it small enough that it will actually happen. The course ends here; the sitting does not. Daily sits and scripture sādhana stay open whenever you want them. Thank yourself for these three weeks.",
+          "text_hi": "उठने से पहले एक बात तय करें: किसी साधारण मंगलवार को यह कैसा दिखेगा — पाँच मिनट, दस, और किस समय? इतना छोटा रखें कि सचमुच हो सके। पाठ्यक्रम यहाँ समाप्त होता है; बैठना नहीं। दैनिक बैठक और शास्त्र साधना जब चाहें तब खुली हैं। इन तीन सप्ताहों के लिए स्वयं को धन्यवाद दें।"
+        }
+      ]
+    }
+  ]
+}

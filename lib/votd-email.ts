@@ -122,8 +122,8 @@ export function buildVotdHtml(opts: {
       ${tags}
 
       <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e0d5;">
-        <p style="margin: 0 0 8px;"><a href="${site}/verse-of-the-day" style="color: #8a6a2f;">Open verse of the day →</a></p>
-        <p style="margin: 0 0 8px;"><a href="${site}/sloka/${sloka.id}" style="color: #8a6a2f;">Full verse page →</a></p>
+        <p style="margin: 0 0 8px;"><a href="${site}/verse-of-the-day?ref=votd" style="color: #8a6a2f;">Open verse of the day →</a></p>
+        <p style="margin: 0 0 8px;"><a href="${site}/sloka/${sloka.id}?ref=votd" style="color: #8a6a2f;">Full verse page →</a></p>
         <p style="margin: 0;"><a href="${site}/madhav" style="color: #8a6a2f;">Ask Madhav about this teaching →</a></p>
       </div>
       <p style="margin-top: 24px; font-size: 12px; color: #888;">
@@ -195,7 +195,8 @@ export async function loadTodaysVotdPayload(): Promise<VotdPayload | null> {
   if (storyEnText) {
     textParts.push("", "Story:", storyEnText);
   }
-  textParts.push("", `${site}/verse-of-the-day`);
+  // ref=votd marks arrivals from this email (see docs/impact-metrics.md).
+  textParts.push("", `${site}/verse-of-the-day?ref=votd`);
 
   return {
     sloka,

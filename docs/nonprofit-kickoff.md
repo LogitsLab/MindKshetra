@@ -1,0 +1,174 @@
+# Nonprofit kickoff — owner checklist
+
+Code can't do these. Every item here is external process with lead time, which
+is why they start on day 1 even though the product work they unlock (the
+`/support` page's UPI block, Sustainer badges, community links) ships later.
+Work the tracks in parallel — none block each other.
+
+**Dev-first (2026-08):** wire Preview / `dev` env vars and channels first.
+Do **not** promote `dev` → `main` or apply 011–016 to prod until soak is
+signed off in [dev-soak.md](dev-soak.md). Product chain stays:
+chart pressure → Gita guidance → daily practice → shared sangha.
+
+## Track 1 — Money rails (longest lead time, start first)
+
+### International / developer donations (live in days, no entity needed)
+
+- [ ] Apply to [Open Collective](https://opencollective.com/create) under the
+      **Open Source Collective** fiscal host. The fiscal host is the legal
+      entity, so this works before (and independent of) any Indian
+      registration. Approval is typically days for an active AGPL project.
+- [ ] Enable **GitHub Sponsors** on the `LogitsLab` org (payouts via Stripe;
+      available to Indian maintainers). Add a `FUNDING.yml` to both repos once
+      live.
+- [ ] When either is live: tell the dev team — the `/support` page (plan
+      Phase 1) links these first, before UPI exists.
+
+### Indian entity + UPI donations (weeks to months)
+
+- [ ] Decide the vehicle with a CA/CS professional: **Section 8 company**
+      (heavier compliance, strongest credibility for grants/CSR) vs
+      **registered public charitable trust** (lighter, faster). Get advice —
+      this checklist is not legal counsel.
+- [ ] Register the entity → PAN → bank account in the entity's name.
+- [ ] Apply for **12A + 80G** (donor tax deduction) once registered — 80G
+      materially helps Indian fundraising.
+- [ ] **Razorpay** onboarding on the entity account: business KYC, then a
+      hosted **Payment Link / donation page** (no SDK integration needed for
+      v1). Subscriptions need RBI e-mandate approval — defer; one-time dāna
+      is v1.
+- [ ] **FCRA rule — do not mix streams.** Foreign contributions to an Indian
+      nonprofit require FCRA registration (hard to get, easy to violate).
+      Keep it structural: international money → Open Collective / GitHub
+      Sponsors; Indian UPI/cards → the Indian entity via Razorpay. Never
+      route one into the other's account.
+- [ ] When Razorpay KYC clears: give the dev team the Payment Link URL — the
+      dark UPI block on `/support` flips on with a content change.
+
+## Track 2 — Community channels (an afternoon)
+
+- [ ] Create a **WhatsApp Channel** (broadcast): "MindKshetra — daily verse".
+      One-way by design; zero moderation load.
+- [ ] Create a **Telegram group** (discussion): weekly verse thread, satsang
+      coordination. Set it to admin-approval join initially.
+- [ ] Enable **GitHub Discussions** on both repos (builders + future
+      translation program).
+- [ ] Hand the two invite links to the dev team for: `SiteFooter.tsx`, the
+      VOTD email footer (`lib/votd-email.ts`), and the store listings.
+- [ ] Daily ritual (~2 min): post the day's verse to the Channel — reuse the
+      Verse of the Day + its OG card image
+      (`https://mind.logitslab.com/api/og/verse/<id>`).
+- [ ] Weekly ritual: Sunday discussion prompt in Telegram (the week's verse +
+      one question).
+
+## Track 3 — Partnerships (grow warm, not cold)
+
+First outreach to 2–3 of each; a working relationship with one of each kind
+beats a list of twenty:
+
+- [ ] **Mental-health NGOs** (e.g. orgs behind helplines you'd want in the
+      care path) — ask: may we list you in our helpline directory; would you
+      review our crisis-path copy? This buys credibility and safety review at
+      once.
+- [ ] **Temple trusts / satsang groups** — audience + venues for the monthly
+      online satsang; a Gita-native partner also sanity-checks cultural copy
+      (Kundli Milan phrasing, festival conventions).
+- [ ] **College clubs** (philosophy/yoga/wellness societies) — future homes
+      for the "battlefield of the mind" campus pack; for now, one pilot
+      circle per campus.
+
+Outreach note that works: what MindKshetra is (free forever, open source,
+no ads), what you're asking for (small, specific), what you offer back
+(free tool for their community, named credit on the transparency page).
+
+## Track 4 — Rhythm (once channels exist)
+
+- [ ] Announce the first **monthly online satsang** (Meet/YouTube live,
+      30–45 min: one verse, one sit, Q&A). Consistency beats production
+      value — same week each month.
+- [ ] Monthly **transparency ritual**: update infra costs in
+      `data/transparency.json` (Vercel, Supabase, Groq, Voyage, Resend,
+      Apple/Play fees, domain) once the `/support` page ships.
+- [ ] Monthly **impact review**: run `docs/impact-metrics.md` queries;
+      publish one honest paragraph to Discussions/Telegram.
+
+## Already done in code (this branch)
+
+- Paywall neutralized — Kundli Milan API is ungated; `entitlements` table
+  repurposed for Sustainer **recognition only** (nothing functional ever
+  locks).
+- First-party event instrumentation live on both clients + privacy pages
+  updated; impact queries in `docs/impact-metrics.md`.
+- CSRF/rate-limit hardening that community write-endpoints will rely on.
+
+## Launch gates (review amendment A2 — 2026-07-31)
+
+Built ≠ launched. The community/broadcast surfaces below are **merged but
+dark** behind env kill switches, and they stay dark until the numbered gates
+pass. Gate metrics come from `app_events` (queries in
+`docs/impact-metrics.md`); record every gate call as a dated note here.
+
+| Gate | Threshold | Unlocks |
+|---|---|---|
+| G1 — practice | ≥100 distinct users with ≥1 `sadhana_logged`/week, 2 consecutive weeks | shared-reflections surface public by default |
+| G2 — sangha | ≥25 distinct `sangha_attended` users/week, 4 consecutive weeks | in-app circles build + launch; push `community` kind |
+| G3 — safety spine | DPDP disclosure + named grievance contact + safeguarding/age posture + clinician-reviewed crisis copy | any UGC surface public (co-requirement with G1/G2) |
+
+Additional prerequisite for circles: a **second named steward** (moderation
+cannot be a single-human dependency). Review monthly.
+
+Freeze markers: festival push broadcasts, circles, and any public feed-like
+surface are **launch-frozen** regardless of code readiness until their gate
+row clears. Flipping a kill switch without its gate is a strategy regression,
+not a config change. Circles design (not a build ticket): [circles-design.md](circles-design.md).
+G3 external spine tracker: [safeguarding.md](safeguarding.md). Dev soak:
+[dev-soak.md](dev-soak.md).
+
+## Model A sangha (start here)
+
+In-app page: `/sangha` — join links (env) + “I attended” → `sangha_attended`.
+
+### Channel launch checklist (owner ops)
+
+1. Create WhatsApp Channel → copy invite URL
+2. Create Telegram group (admin-approval) → copy invite URL
+3. On Vercel **Preview / `dev`** (not prod yet), set:
+   - `NEXT_PUBLIC_WHATSAPP_CHANNEL_URL`
+   - `NEXT_PUBLIC_TELEGRAM_URL`
+4. Redeploy Preview; confirm `/sangha` shows join buttons (not “channels soon”)
+5. Schedule first weekly live (30–45 min Meet/YouTube): verse + sit + Q&A
+6. After live: attendees tap **I attended** on `/sangha` (counts toward G2)
+7. Daily: post VOTD + OG card to WhatsApp; weekly: one Telegram prompt
+
+- [ ] WhatsApp Channel live; set `NEXT_PUBLIC_WHATSAPP_CHANNEL_URL` on Preview
+- [ ] Telegram group (admin-approval); set `NEXT_PUBLIC_TELEGRAM_URL` on Preview
+- [ ] GitHub Discussions enabled on both repos
+- [ ] First weekly live scheduled (Meet/YouTube); attendees tap “I attended”
+- [ ] Seva board — monthly chapter-tied action (ops, not code-first)
+
+### Money rails on Preview (Track 1 → env)
+
+When OC / Sponsors / Razorpay URLs exist, set on Preview only first:
+
+- `NEXT_PUBLIC_OPEN_COLLECTIVE_URL`
+- `NEXT_PUBLIC_GITHUB_SPONSORS_URL`
+- `NEXT_PUBLIC_RAZORPAY_DONATION_URL` (after Indian entity + 12A/80G path)
+
+Monthly: update [`data/transparency.json`](../data/transparency.json) (`updated` month + amounts).
+
+## Gate call log
+
+| Date | Gate | Result | Notes |
+|---|---|---|---|
+| 2026-08-01 | G1 / G2 | miss (baseline) | Dev soak; habit started — run SQL weekly on MindKshetra-dev per impact-metrics.md |
+| 2026-08-01 | G3 | miss | Grievance + clinician review + second steward still open — see safeguarding.md |
+
+### Weekly gate SQL habit
+
+Every Friday (or after weekly live), in Supabase SQL editor on **MindKshetra-dev**:
+
+1. Run G1 + G2 queries from [impact-metrics.md](impact-metrics.md)
+2. Append a row to the table in [dev-soak.md](dev-soak.md) Gate query habit
+3. Append a dated call here (miss / watch / pass)
+
+Do **not** flip community kill switches on miss or watch.

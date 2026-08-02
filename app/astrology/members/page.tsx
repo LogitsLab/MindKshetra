@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import EmptyState from "@/components/EmptyState";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { AstrologyMember } from "@/lib/astrology/types";
 
@@ -57,7 +58,7 @@ export default function AstrologyMembersPage() {
   return (
     <div className="relative mx-auto max-w-3xl space-y-10 py-10 sm:py-14 animate-fade">
       <div
-        className="pointer-events-none absolute -right-8 top-0 select-none font-display text-[6rem] leading-none text-white/[0.04] sm:text-[8rem]"
+        className="pointer-events-none absolute -right-8 top-0 select-none font-devanagari text-[6rem] leading-none text-white/[0.04] sm:text-[8rem]"
         aria-hidden
       >
         कुण्डली
@@ -65,7 +66,7 @@ export default function AstrologyMembersPage() {
 
       <div className="relative flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[0.65rem] uppercase tracking-[0.28em] text-[var(--brass-soft)]">
+          <p className="eyebrow text-[var(--brass-soft)]">
             {t("astroEyebrow")}
           </p>
           <h1 className="mt-2 font-display text-3xl tracking-tight text-[var(--text)] sm:text-5xl">
@@ -94,14 +95,19 @@ export default function AstrologyMembersPage() {
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
       {members.length === 0 ? (
-        <div className="border-y border-[var(--hairline)] py-12 text-center">
-          <p className="text-[var(--text-muted)]">{t("astroEmptyMembers")}</p>
-          <Link
-            href="/astrology/members/new"
-            className="mt-4 inline-block text-sm text-[var(--brass-soft)] underline-offset-4 hover:underline"
-          >
-            {t("astroAddMember")}
-          </Link>
+        <div>
+          <EmptyState
+            title={t("astroEmptyMembers")}
+            body={t("astroEmptyMembersBody")}
+          />
+          <div className="mt-4 text-center">
+            <Link
+              href="/astrology/members/new"
+              className="text-sm text-[var(--brass-soft)] underline-offset-4 hover:underline"
+            >
+              {t("astroAddMember")}
+            </Link>
+          </div>
         </div>
       ) : (
         <ul className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">

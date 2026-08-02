@@ -1,0 +1,72 @@
+[
+  {
+    "id": "om",
+    "devanagari": "ॐ",
+    "iast": "oṁ",
+    "meaning_en": "The primal sound — the syllable the Gita names as Krishna himself (10.25).",
+    "meaning_hi": "प्रणव — वह अक्षर जिसे गीता में श्रीकृष्ण स्वयं कहते हैं (10.25)।"
+  },
+  {
+    "id": "om-namo-bhagavate-vasudevaya",
+    "devanagari": "ॐ नमो भगवते वासुदेवाय",
+    "iast": "oṁ namo bhagavate vāsudevāya",
+    "meaning_en": "Salutation to Vasudeva — the twelve-syllable mantra of devotion to Krishna.",
+    "meaning_hi": "वासुदेव को प्रणाम — श्रीकृष्ण की भक्ति का द्वादशाक्षर मंत्र।"
+  },
+  {
+    "id": "hare-krishna",
+    "devanagari": "हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे। हरे राम हरे राम राम राम हरे हरे॥",
+    "iast": "hare kṛṣṇa hare kṛṣṇa kṛṣṇa kṛṣṇa hare hare / hare rāma hare rāma rāma rāma hare hare",
+    "meaning_en": "The maha-mantra — calling the divine by name, again and again.",
+    "meaning_hi": "महामंत्र — भगवान का नाम, बार-बार पुकारना।"
+  },
+  {
+    "id": "so-ham",
+    "devanagari": "सोऽहम्",
+    "iast": "so'ham",
+    "meaning_en": "\"That I am\" — the breath's own mantra: so on the inhale, ham on the exhale.",
+    "meaning_hi": "\"वह मैं हूँ\" — श्वास का अपना मंत्र: श्वास भीतर 'सो', बाहर 'हम्'।"
+  },
+  {
+    "id": "om-namah-shivaya",
+    "devanagari": "ॐ नमः शिवाय",
+    "iast": "oṁ namaḥ śivāya",
+    "meaning_en": "Salutation to Shiva — the five-syllable mantra of stillness.",
+    "meaning_hi": "शिव को प्रणाम — स्थिरता का पंचाक्षर मंत्र।"
+  },
+  {
+    "id": "gayatri",
+    "devanagari": "ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि धियो यो नः प्रचोदयात्॥",
+    "iast": "oṁ bhūr bhuvaḥ svaḥ tat savitur vareṇyaṁ bhargo devasya dhīmahi dhiyo yo naḥ pracodayāt",
+    "meaning_en": "The Gayatri — may that radiance awaken and guide our understanding.",
+    "meaning_hi": "गायत्री — वह तेज हमारी बुद्धि को जगाए और दिशा दे।"
+  },
+  {
+    "id": "mahamrityunjaya",
+    "devanagari": "ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्। उर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय मामृतात्॥",
+    "iast": "oṁ tryambakaṁ yajāmahe sugandhiṁ puṣṭi-vardhanam / urvārukam iva bandhanān mṛtyor mukṣīya māmṛtāt",
+    "meaning_en": "The Mahamrityunjaya — a prayer for release from fear, as a ripe fruit slips from the vine.",
+    "meaning_hi": "महामृत्युंजय — भय से मुक्ति की प्रार्थना, जैसे पका फल बेल से सहज छूट जाता है।"
+  },
+  {
+    "id": "sri-ram",
+    "devanagari": "श्री राम जय राम जय जय राम",
+    "iast": "śrī rāma jaya rāma jaya jaya rāma",
+    "meaning_en": "The taraka mantra of Rama — steadiness of heart through the name.",
+    "meaning_hi": "राम का तारक मंत्र — नाम के सहारे हृदय की स्थिरता।"
+  },
+  {
+    "id": "om-gam-ganapataye",
+    "devanagari": "ॐ गं गणपतये नमः",
+    "iast": "oṁ gaṁ gaṇapataye namaḥ",
+    "meaning_en": "Salutation to Ganesha — traditionally chanted before a beginning.",
+    "meaning_hi": "गणपति को प्रणाम — किसी भी आरंभ से पहले का पारंपरिक मंत्र।"
+  },
+  {
+    "id": "om-shanti",
+    "devanagari": "ॐ शान्तिः शान्तिः शान्तिः",
+    "iast": "oṁ śāntiḥ śāntiḥ śāntiḥ",
+    "meaning_en": "Peace, three times — for the body, the world, and the unseen.",
+    "meaning_hi": "तीन बार शांति — अपने लिए, जगत के लिए, और अदृश्य के लिए।"
+  }
+]

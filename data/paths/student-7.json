@@ -1,0 +1,80 @@
+{
+  "id": "student-7",
+  "days_count": 7,
+  "title_en": "Seven days for the student mind",
+  "title_hi": "विद्यार्थी मन के लिए सात दिन",
+  "intro_en": "A week for exams, ambition, comparison, and the fear of falling behind — focus without panic, effort without self-hatred. One verse, one sit, one honest line. If pressure feels crushing, talk to a counselor or someone you trust.",
+  "intro_hi": "परीक्षा, महत्वाकांक्षा, तुलना और पिछड़ने के भय के लिए एक सप्ताह — घबराहट के बिना एकाग्रता, आत्म-घृणा के बिना प्रयास। प्रतिदिन श्लोक, बैठक, एक सच्ची पंक्ति। यदि दबाव कुचलता लगे, किसी परामर्शदाता या विश्वसनीय व्यक्ति से बात करें।",
+  "days": [
+    {
+      "day": 1,
+      "ref": { "chapter": 2, "verse": 41 },
+      "practice": "sit",
+      "minutes": 3,
+      "title_en": "One-pointed resolve",
+      "title_hi": "एकनिष्ठ संकल्प",
+      "prompt_en": "What is the one study or duty that matters most today — name only that?",
+      "prompt_hi": "आज का सबसे ज़रूरी अध्ययन या कर्तव्य क्या है — केवल वही लिखें?"
+    },
+    {
+      "day": 2,
+      "ref": { "chapter": 2, "verse": 47 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Marks are not the self",
+      "title_hi": "अंक आत्मा नहीं",
+      "prompt_en": "Separate the work you can do from the result you cannot force.",
+      "prompt_hi": "जो काम आप कर सकते हैं उसे उस फल से अलग करें जिसे ज़बरदस्ती नहीं ला सकते।"
+    },
+    {
+      "day": 3,
+      "ref": { "chapter": 6, "verse": 16 },
+      "practice": "pranayama",
+      "minutes": 5,
+      "title_en": "Sleep and food as practice",
+      "title_hi": "नींद और भोजन भी अभ्यास",
+      "prompt_en": "What one habit of rest or food would make tomorrow’s mind clearer?",
+      "prompt_hi": "किस एक विश्राम या भोजन की आदत से कल का मन अधिक स्पष्ट होगा?"
+    },
+    {
+      "day": 4,
+      "ref": { "chapter": 6, "verse": 17 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Measure in all things",
+      "title_hi": "सबमें माप",
+      "prompt_en": "Where did you overwork or under-rest today?",
+      "prompt_hi": "आज कहाँ अधिक मेहनत या कम विश्राम हुआ?"
+    },
+    {
+      "day": 5,
+      "ref": { "chapter": 6, "verse": 35 },
+      "practice": "japa",
+      "minutes": 5,
+      "title_en": "The restless mind can be trained",
+      "title_hi": "चंचल मन साधा जा सकता है",
+      "prompt_en": "Each time attention fled the page, what brought it back — even once?",
+      "prompt_hi": "जब-जब ध्यान पृष्ठ से भागा, उसे वापस क्या लाया — भले एक बार?"
+    },
+    {
+      "day": 6,
+      "ref": { "chapter": 2, "verse": 48 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Evenness under pressure",
+      "title_hi": "दबाव में भी समत्व",
+      "prompt_en": "Can you treat today’s mock test or deadline as practice, not verdict?",
+      "prompt_hi": "क्या आज की परीक्षा या समय-सीमा को फैसला नहीं, अभ्यास मान सकते हैं?"
+    },
+    {
+      "day": 7,
+      "ref": { "chapter": 18, "verse": 66 },
+      "practice": "sit",
+      "minutes": 10,
+      "title_en": "Surrender the scoreboard",
+      "title_hi": "स्कोरबोर्ड छोड़ दें",
+      "prompt_en": "What ranking or comparison are you ready to stop feeding for a week?",
+      "prompt_hi": "किस रैंकिंग या तुलना को एक सप्ताह के लिए पालना बंद करने को तैयार हैं?"
+    }
+  ]
+}

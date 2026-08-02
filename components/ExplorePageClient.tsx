@@ -28,7 +28,7 @@ export default function ExplorePageClient({
   return (
     <div className="animate-fade">
       <header className="max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
+        <p className="eyebrow text-[var(--brass-soft)]">
           {t("exploreEyebrow")}
         </p>
         <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-[var(--text)] sm:text-5xl">
@@ -49,7 +49,7 @@ export default function ExplorePageClient({
 
       {!searchActive ? (
         <div className="mt-12" id="chapters">
-          <p className="mb-4 text-xs uppercase tracking-[0.22em] text-[var(--text-muted)]">
+          <p className="eyebrow mb-4 text-[var(--text-muted)]">
             {t("chapters")}
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -70,7 +70,7 @@ export default function ExplorePageClient({
                   {String(chapter.number).padStart(2, "0")}
                 </span>
                 <div className="relative -mt-6">
-                  <p className="text-xs uppercase tracking-[0.16em] text-[var(--brass-soft)]">
+                  <p className="eyebrow text-[var(--brass-soft)]">
                     {t("chapter")} {chapter.number}
                   </p>
                   <h2 className="mt-1 font-display text-xl text-[var(--text)] transition group-hover:text-[var(--brass-soft)]">
@@ -88,7 +88,7 @@ export default function ExplorePageClient({
                   ) : null}
                   {chapterMoral(chapter, lang) ? (
                     <p className="mt-3 line-clamp-3 border-l border-[var(--brass)]/40 pl-3 text-sm leading-snug text-[var(--brass-soft)]">
-                      <span className="mb-1 block text-[0.65rem] uppercase tracking-[0.14em] text-[var(--text-muted)]">
+                      <span className="eyebrow mb-1 block text-[var(--text-muted)]">
                         {t("chapterMoral")}
                       </span>
                       {chapterMoral(chapter, lang)}

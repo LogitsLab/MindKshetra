@@ -16,6 +16,7 @@ import {
   incognitoMissReason,
   readChartSessionId,
 } from "@/lib/astrology/incognito";
+import { recordEvent } from "@/lib/events";
 import { redisEnabled, redisGet, redisSet } from "@/lib/redis";
 import { createClient, getSignedInUserId } from "@/lib/supabase/server";
 import { DateTime } from "luxon";
@@ -124,6 +125,11 @@ export async function POST(request: NextRequest) {
         { onConflict: "member_id,engine_version" }
       );
 
+      await recordEvent("predictions_viewed", signedInUserId, {
+        mode: "member",
+        source: chart.predictionsText.source ?? "llm",
+      });
+
       return NextResponse.json({
         chart,
         cached: false,
@@ -162,6 +168,10 @@ export async function POST(request: NextRequest) {
         }
         chart.predictionsText = await writePredictions(chart, language);
         await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
+        await recordEvent("predictions_viewed", signedInUserId, {
+          mode: "incognito",
+          source: chart.predictionsText.source ?? "llm",
+        });
         return NextResponse.json({
           ...echo,
           chart,
@@ -176,6 +186,10 @@ export async function POST(request: NextRequest) {
         chart = liveChart(computeChart(birthFromSession));
         chart.predictionsText = await writePredictions(chart, language);
         await cacheSet(key, JSON.stringify(chart), INCOGNITO_TTL_SEC);
+        await recordEvent("predictions_viewed", signedInUserId, {
+          mode: "incognito",
+          source: chart.predictionsText.source ?? "llm",
+        });
         return NextResponse.json({
           ...echo,
           chart,
@@ -208,6 +222,10 @@ export async function POST(request: NextRequest) {
     }
     chart = liveChart(computeChart(birth));
     chart.predictionsText = await writePredictions(chart, language);
+    await recordEvent("predictions_viewed", signedInUserId, {
+      mode: "birth",
+      source: chart.predictionsText.source ?? "llm",
+    });
     return NextResponse.json({
       chart,
       source: chart.predictionsText.source ?? "llm",

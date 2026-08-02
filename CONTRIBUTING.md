@@ -14,7 +14,9 @@ Use [Issues](https://github.com/LogitsLab/MindKshetra/issues) when you want to:
 Please search existing issues first. Clear titles and details help maintainers respond faster.
 
 ### Open a pull request
-1. Fork the repo and create a branch from `main`
+1. Fork the repo and create a branch from **`dev`** — `dev` is the
+   integration branch and every PR targets it. `main` is production and
+   auto-deploys; nothing merges to `main` except promotions from `dev`.
 2. Keep the change focused (one concern per PR)
 3. Follow existing TypeScript / UI patterns; don’t reformat unrelated files
 4. Add or update tests when you touch retrieval, astrology math, or API contracts

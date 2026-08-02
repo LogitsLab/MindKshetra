@@ -28,6 +28,12 @@ alter table favorites enable row level security;
 alter table journal_entries enable row level security;
 alter table user_streaks enable row level security;
 
+-- drop-if-exists first: the runner re-runs every file each invocation, so
+-- files must converge (42710 on re-run otherwise).
+drop policy if exists "favorites_own" on favorites;
+drop policy if exists "journal_own" on journal_entries;
+drop policy if exists "streaks_own" on user_streaks;
+
 create policy "favorites_own" on favorites
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -40,6 +46,11 @@ create policy "streaks_own" on user_streaks
 -- Tighten chat RLS for authenticated users
 drop policy if exists "chat_sessions_anon_all" on chat_sessions;
 drop policy if exists "chat_messages_anon_all" on chat_messages;
+drop policy if exists "chat_sessions_select" on chat_sessions;
+drop policy if exists "chat_sessions_insert" on chat_sessions;
+drop policy if exists "chat_sessions_update" on chat_sessions;
+drop policy if exists "chat_messages_select" on chat_messages;
+drop policy if exists "chat_messages_insert" on chat_messages;
 
 create policy "chat_sessions_select" on chat_sessions
   for select using (user_id is null or auth.uid() = user_id);

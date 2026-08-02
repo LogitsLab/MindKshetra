@@ -8,8 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
-
-type Theme = "dark" | "light";
+import { THEME_STORAGE_KEY, type Theme } from "@/lib/theme";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -17,7 +16,13 @@ type ThemeContextValue = {
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
-const STORAGE_KEY = "mindkshetra-theme";
+
+/**
+ * Same key the anti-flash script in app/layout.tsx reads. It lives in lib/theme
+ * rather than here because a server component cannot read a constant out of a
+ * "use client" module — see the note there.
+ */
+const STORAGE_KEY = THEME_STORAGE_KEY;
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark");

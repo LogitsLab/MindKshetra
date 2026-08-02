@@ -28,6 +28,9 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
   const { user } = useAuth();
   const { continueSlokaId } = useProgress();
   const [streak, setStreak] = useState(0);
+  // null = not known yet; the card shows its invitation and never an error.
+  const [sadhanaDone, setSadhanaDone] = useState<boolean | null>(null);
+  const [practiceStreak, setPracticeStreak] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -38,6 +41,45 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       .then((r) => r.json())
       .then((d) => setStreak(Number(d.current) || 0))
       .catch(() => {});
+  }, [user]);
+
+  useEffect(() => {
+    // Signed-out visitors get a guaranteed empty summary from this route —
+    // skip the no-op serverless hit on the highest-traffic page, and refresh
+    // when the session changes so the done-state follows sign-in.
+    if (!user) {
+      setSadhanaDone(null);
+      setPracticeStreak(0);
+      return;
+    }
+    let cancelled = false;
+    let tz: string | undefined;
+    try {
+      tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+      tz = undefined;
+    }
+    fetch(`/api/sadhana${tz ? `?tz=${encodeURIComponent(tz)}` : ""}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data) {
+          setSadhanaDone(Boolean(data.doneToday?.includes?.("flow")));
+          // The practice card must show the PRACTICE streak. It used to show
+          // the visit streak, which increments merely by loading this page —
+          // so someone who had opened the app for 14 days and practised once
+          // read "14 day streak" here and "1-day practice" on /sadhana.
+          const flow = (data.streaks ?? []).find(
+            (x: { practice?: string }) => x.practice === "flow"
+          );
+          setPracticeStreak(Number(flow?.current) || 0);
+        }
+      })
+      .catch(() => {
+        /* home never shows a practice error — the invitation stands */
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const entries = [
@@ -56,6 +98,13 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       icon: "/icons/paths/mood.svg",
     },
     {
+      href: "/meditation",
+      title: t("homeMeditationTitle"),
+      blurb: t("homeMeditationBlurb"),
+      image: "/images/paths/meditation.jpg",
+      icon: "/icons/paths/meditation.svg",
+    },
+    {
       href: "/madhav",
       title: t("homeMadhavTitle"),
       blurb: t("homeMadhavBlurb"),
@@ -66,13 +115,15 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       href: "/astrology",
       title: t("homeAstroTitle"),
       blurb: t("homeAstroBlurb"),
-      // PLACEHOLDER (des/D15). These are Explore's assets. There is no
-      // astrology image or icon anywhere in public/, so the half this product
-      // calls its moat is represented on the first screen by another section's
-      // photograph. Needs a commissioned illustration — not something a code
-      // change can supply. Tracked in TODOS.md.
-      image: "/images/paths/explore.jpg",
-      icon: "/icons/paths/explore.svg",
+      image: "/images/paths/astrology.jpg",
+      icon: "/icons/paths/astrology.svg",
+    },
+    {
+      href: "/paths",
+      title: t("homeBlockPathsTitle"),
+      blurb: t("homeBlockPathsBody"),
+      image: "/images/paths/paths.jpg",
+      icon: "/icons/paths/paths.svg",
     },
   ];
 
@@ -112,49 +163,35 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
           </p>
 
           <div className="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
-            {continueSlokaId ? (
+            {/* Today's practice leads while it is still undone; once it is
+                recorded the hero points back at the reading. */}
+            {sadhanaDone === false || !continueSlokaId ? (
+              <Link
+                href="/sadhana"
+                className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+              >
+                {t("homeCtaPractice")}
+              </Link>
+            ) : (
               <Link
                 href={`/sloka/${continueSlokaId}`}
                 className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
               >
                 {t("continueReading")}
               </Link>
-            ) : (
-              <Link
-                href="/madhav"
-                className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-              >
-                {t("homeCtaMadhav")}
-              </Link>
             )}
             <Link
-              href="/explore"
+              href="/madhav"
               className="min-h-11 border border-white/35 bg-white/10 px-6 py-3 text-sm text-white backdrop-blur-sm transition hover:border-[var(--brass)]/60 hover:bg-white/15"
+            >
+              {t("homeCtaMadhav")}
+            </Link>
+            <Link
+              href="/explore"
+              className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
             >
               {t("homeCtaExplore")}
             </Link>
-            {continueSlokaId ? (
-              <Link
-                href="/madhav"
-                className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
-              >
-                {t("homeCtaMadhav")}
-              </Link>
-            ) : null}
-            <Link
-              href="/verse-of-the-day"
-              className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
-            >
-              {t("homeVotdLink")}
-            </Link>
-            {streak > 0 ? (
-              <span
-                className="min-h-11 px-2 py-3 text-sm text-[var(--brass)]"
-                title={t("streakLabel")}
-              >
-                {streak} {t("homeStreakLabel")}
-              </span>
-            ) : null}
           </div>
         </div>
       </section>
@@ -164,7 +201,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
         <p className="mb-8 text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
           {t("homePaths")}
         </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {entries.map((entry, i) => (
             <Link
               key={entry.href}
@@ -207,18 +244,158 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
         </div>
       </section>
 
+      {/* Today's practice — flagship + lifestyle grid */}
+      <section className="border-t border-[var(--hairline)] py-14">
+        <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[var(--brass)]">
+          {t("homeLifestyleEyebrow")}
+        </p>
+        <h2 className="font-display text-3xl text-[var(--text)] sm:text-4xl">
+          {t("homeLifestyleTitle")}
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-[var(--text-soft)] sm:text-base">
+          {t("homeLifestyleBlurb")}
+        </p>
+
+        <Link
+          href="/sadhana"
+          className="group mt-8 block border border-[var(--line)] transition hover:border-[var(--brass)]/40"
+        >
+          <div className="border-l-2 border-[var(--brass)]/70 px-6 py-8 sm:px-8 sm:py-9">
+            <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass)]">
+              {t("sadhanaEyebrow")}
+            </p>
+            <h3 className="mt-3 font-display text-3xl text-[var(--text)] transition group-hover:text-[var(--brass-hover)] sm:text-4xl">
+              {t("sadhanaHomeLink")}
+            </h3>
+            <p
+              className={`mt-2 max-w-xl text-sm font-light leading-relaxed sm:text-base ${
+                sadhanaDone === true
+                  ? "text-[var(--brass-soft)]"
+                  : "text-[var(--text-soft)]"
+              }`}
+            >
+              {sadhanaDone === true ? t("sadhanaDoneToday") : t("sadhanaHomeBody")}
+            </p>
+            {practiceStreak > 0 ? (
+              <p
+                className="mt-4 text-xs tracking-[0.12em] text-[var(--brass-soft)]"
+                title={t("streakLabel")}
+              >
+                {t("sadhanaStreakLine").replace("{n}", String(practiceStreak))}
+              </p>
+            ) : null}
+          </div>
+        </Link>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {(
+            [
+              {
+                href: "/meditation",
+                title: t("homeBlockCourseTitle"),
+                body: t("homeBlockCourseBody"),
+                image: "/images/paths/meditation.jpg",
+              },
+              {
+                href: "/sadhana#japa",
+                title: t("homeBlockJapaTitle"),
+                body: t("homeBlockJapaBody"),
+                image: "/images/paths/sadhana.jpg",
+              },
+              {
+                href: "/panchang",
+                title: t("homeBlockPanchangTitle"),
+                body: t("homeBlockPanchangBody"),
+                image: "/images/paths/panchang-ring.jpg",
+              },
+            ] as const
+          ).map((block) => (
+            <Link
+              key={block.href + block.title}
+              href={block.href}
+              className="group relative flex min-h-[160px] flex-col justify-end overflow-hidden border border-[var(--line)] transition hover:border-[var(--brass)]/45"
+            >
+              <Image
+                src={block.image}
+                alt=""
+                fill
+                sizes="(max-width: 640px) 100vw, 33vw"
+                className="object-cover opacity-45 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-60"
+              />
+              <div
+                className="absolute inset-0 bg-gradient-to-t from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-transparent"
+                aria-hidden
+              />
+              <div className="relative z-10 px-5 py-5">
+                <h3 className="font-display text-xl text-[var(--on-media)] transition group-hover:text-[var(--brass-hover)]">
+                  {block.title}
+                </h3>
+                <p className="mt-2 text-sm font-light leading-relaxed text-[var(--on-media-muted)]">
+                  {block.body}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Together — sangha, care, dāna, reminders */}
+      <section className="border-t border-[var(--hairline)] py-14">
+        <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[var(--brass)]">
+          {t("homeTogetherEyebrow")}
+        </p>
+        <h2 className="font-display text-3xl text-[var(--text)] sm:text-4xl">
+          {t("homeTogetherTitle")}
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-[var(--text-soft)] sm:text-base">
+          {t("homeTogetherBlurb")}
+        </p>
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {(
+            [
+              {
+                href: "/community",
+                title: t("homeBlockSanghaTitle"),
+                body: t("homeBlockSanghaBody"),
+              },
+              {
+                href: "/care",
+                title: t("homeBlockCareTitle"),
+                body: t("homeBlockCareBody"),
+              },
+              {
+                href: "/support",
+                title: t("homeBlockSupportTitle"),
+                body: t("homeBlockSupportBody"),
+              },
+              {
+                href: "/account",
+                title: t("homeBlockNotifTitle"),
+                body: t("homeBlockNotifBody"),
+              },
+            ] as const
+          ).map((block) => (
+            <Link
+              key={block.href}
+              href={block.href}
+              className="group border border-[var(--line)] px-5 py-6 transition hover:border-[var(--brass)]/45"
+            >
+              <h3 className="font-display text-xl text-[var(--text)] transition group-hover:text-[var(--brass-hover)]">
+                {block.title}
+              </h3>
+              <p className="mt-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
+                {block.body}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Verse of the day */}
       <section className="border-t border-[var(--hairline)] py-14">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
-            {t("homeFeaturedEyebrow")}
-          </p>
-          {streak > 0 ? (
-            <p className="text-xs tracking-[0.12em] text-[var(--brass-soft)]">
-              {streak} {t("homeStreakLabel")}
-            </p>
-          ) : null}
-        </div>
+        <p className="mb-6 text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
+          {t("homeFeaturedEyebrow")}
+        </p>
         <div className="glass relative overflow-hidden px-6 py-10 sm:px-10 sm:py-12">
           <Image
             src="/ornaments/chapter.svg"

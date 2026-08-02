@@ -1,0 +1,234 @@
+{
+  "id": "foundation-7",
+  "days_count": 7,
+  "title_en": "Seven days of sitting",
+  "title_hi": "बैठने के सात दिन",
+  "intro_en": "A free progressive course: one short guided sit a day. Unlock the next day when you finish today. Missing a calendar day never erases your place — only kindness, never guilt. This is not japa and not a marketplace.",
+  "intro_hi": "मुफ़्त क्रमिक पाठ्यक्रम: प्रतिदिन एक छोटी निर्देशित बैठक। आज पूर्ण होने पर अगला दिन खुलता है। कोई दिन छूटने से प्रगति नहीं मिटती — केवल प्रोत्साहन, अपराधबोध नहीं। यह जप नहीं, और बाज़ार भी नहीं।",
+  "days": [
+    {
+      "id": "foundation-7-d1",
+      "day_number": 1,
+      "tier": "foundation",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 6,
+      "title_en": "Posture and setup",
+      "title_hi": "मुद्रा और तैयारी",
+      "theme_en": "A steady seat is enough. Comfort over perfection — the mind follows the body that feels safe.",
+      "theme_hi": "स्थिर आसन पर्याप्त है। पूर्णता से अधिक आराम — मन उसी शरीर का अनुसरण करता है जो सुरक्षित महसूस करे।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Welcome. Find a seat where your spine can be tall but soft. Feet on the floor, or legs crossed if that is natural. Rest your hands. Soften the jaw. You are not performing — you are arriving.",
+          "text_hi": "स्वागत है। ऐसा आसन चुनें जहाँ रीढ़ सीधी पर कोमल रहे। पैर ज़मीन पर, या सहज रूप से पालथी। हाथ विश्राम में। जबड़ा ढीला। आप प्रदर्शन नहीं कर रहे — आप पहुँच रहे हैं।"
+        },
+        { "type": "silence", "seconds": 45 },
+        {
+          "type": "speak",
+          "text_en": "Notice three places of contact: seat, feet or legs, and the air at the nostrils. No need to change anything. Simply know that you are here.",
+          "text_hi": "तीन संपर्क बिंदु देखें: आसन, पैर या टाँगें, और नासिका पर वायु। कुछ बदलने की ज़रूरत नहीं। केवल जानें कि आप यहाँ हैं।"
+        },
+        { "type": "silence", "seconds": 120 },
+        {
+          "type": "speak",
+          "text_en": "When you are ready, open the eyes slowly. Today’s practice was simply arriving. That is enough.",
+          "text_hi": "जब तैयार हों, धीरे से आँखें खोलें। आज का अभ्यास केवल पहुँचना था। यही पर्याप्त है।"
+        }
+      ]
+    },
+    {
+      "id": "foundation-7-d2",
+      "day_number": 2,
+      "tier": "foundation",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 7,
+      "title_en": "Breath awareness",
+      "title_hi": "श्वास जागरूकता",
+      "theme_en": "The breath is always available. You do not invent it — you notice it.",
+      "theme_hi": "श्वास सदैव उपलब्ध है। आप इसे बनाते नहीं — आप इसे देखते हैं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Settle into your seat. Soften the belly. Feel the natural breath without forcing it longer or shorter.",
+          "text_hi": "आसन में स्थिर हों। पेट कोमल रखें। स्वाभाविक श्वास महसूस करें — लंबा या छोटा करने का दबाव न डालें।"
+        },
+        { "type": "silence", "seconds": 30 },
+        {
+          "type": "speak",
+          "text_en": "Rest attention at the nostrils or the rise of the chest. When the mind wanders — and it will — gently return to one breath.",
+          "text_hi": "ध्यान नासिका पर या छाती के उठने-गिरने पर रखें। मन भटकेगा — और भटकेगा ही — तो कोमलता से एक श्वास पर लौट आएँ।"
+        },
+        { "type": "silence", "seconds": 180 },
+        {
+          "type": "speak",
+          "text_en": "Take one clearer breath. Release the practice. Carry this gentle return into the next hour.",
+          "text_hi": "एक स्पष्ट श्वास लें। अभ्यास छोड़ें। यह कोमल लौटना अगले घंटे में साथ रखें।"
+        }
+      ]
+    },
+    {
+      "id": "foundation-7-d3",
+      "day_number": 3,
+      "tier": "foundation",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 8,
+      "title_en": "Body scan",
+      "title_hi": "शरीर अन्वेषण",
+      "theme_en": "Sensation is information, not a problem to solve. Move attention through the body with kindness.",
+      "theme_hi": "संवेदना जानकारी है, सुलझाने की समस्या नहीं। करुणा से ध्यान शरीर में घुमाएँ।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Close the eyes if you wish. Begin at the crown of the head. Notice warmth, coolness, or nothing at all — all are welcome.",
+          "text_hi": "चाहें तो आँखें बंद करें। सिर के शीर्ष से आरंभ करें। गर्मी, ठंडक, या कुछ नहीं — सब स्वागत योग्य है।"
+        },
+        { "type": "silence", "seconds": 40 },
+        {
+          "type": "speak",
+          "text_en": "Move slowly: face, neck, shoulders, arms, hands. Then chest, belly, back. Then hips, legs, feet. Pause wherever tension asks for breath.",
+          "text_hi": "धीरे चलें: मुख, गर्दन, कंधे, बाँहें, हाथ। फिर छाती, पेट, पीठ। फिर कूल्हे, टाँगें, पैर। जहाँ तनाव हो, वहाँ श्वास से रुकें।"
+        },
+        { "type": "silence", "seconds": 200 },
+        {
+          "type": "speak",
+          "text_en": "Feel the body as one field again. Thank it for carrying you. Open the eyes when ready.",
+          "text_hi": "पूरे शरीर को एक क्षेत्र की तरह फिर महसूस करें। उसे धन्यवाद दें। तैयार होने पर आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "foundation-7-d4",
+      "day_number": 4,
+      "tier": "foundation",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 8,
+      "title_en": "Thoughts without judgment",
+      "title_hi": "निर्णय के बिना विचार",
+      "theme_en": "Thoughts are weather. You are the sky that holds them — not every cloud needs chasing.",
+      "theme_hi": "विचार मौसम हैं। आप आकाश हैं जो उन्हें धारण करता है — हर बादल का पीछा ज़रूरी नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit. Rest on the breath. When a thought appears, silently note: thinking. Then return. No lecture to yourself.",
+          "text_hi": "बैठें। श्वास पर विश्राम करें। जब विचार आए, मौन में कहें: सोच। फिर लौटें। स्वयं को उपदेश न दें।"
+        },
+        { "type": "silence", "seconds": 30 },
+        {
+          "type": "speak",
+          "text_en": "If the same story returns, note it again with the same soft tone. Curiosity, not criticism.",
+          "text_hi": "यदि वही कथा लौटे, उसी कोमल स्वर में फिर नोट करें। आलोचना नहीं, जिज्ञासा।"
+        },
+        { "type": "silence", "seconds": 210 },
+        {
+          "type": "speak",
+          "text_en": "Finish with three breaths. The practice was noticing — not emptying the mind.",
+          "text_hi": "तीन श्वासों के साथ समाप्त करें। अभ्यास था देखना — मन को खाली करना नहीं।"
+        }
+      ]
+    },
+    {
+      "id": "foundation-7-d5",
+      "day_number": 5,
+      "tier": "foundation",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 8,
+      "title_en": "Labeling emotions",
+      "title_hi": "भावनाओं को नाम देना",
+      "theme_en": "Naming a feeling lightly can loosen its grip. One word is enough: sad, tight, hopeful, restless.",
+      "theme_hi": "भावना को हल्के से नाम देना उसकी पकड़ ढीली कर सकता है। एक शब्द पर्याप्त: उदास, तनाव, आशा, बेचैनी।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Arrive in the body. Ask gently: what is here? If an emotion is present, give it a short label. Then breathe once into that place.",
+          "text_hi": "शरीर में पहुँचें। कोमलता से पूछें: यहाँ क्या है? यदि कोई भाव है, छोटा नाम दें। फिर उस स्थान पर एक श्वास लें।"
+        },
+        { "type": "silence", "seconds": 40 },
+        {
+          "type": "speak",
+          "text_en": "Labels can change. Stay with what is true now, not what you think you should feel.",
+          "text_hi": "नाम बदल सकते हैं। अभी जो सत्य है उसी के साथ रहें — जो महसूस करना चाहिए वह नहीं।"
+        },
+        { "type": "silence", "seconds": 200 },
+        {
+          "type": "speak",
+          "text_en": "Release the labels. Feel the whole body again. Soften the eyes open.",
+          "text_hi": "नाम छोड़ दें। पूरा शरीर फिर महसूस करें। आँखें कोमलता से खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "foundation-7-d6",
+      "day_number": 6,
+      "tier": "foundation",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 7,
+      "title_en": "Gratitude",
+      "title_hi": "कृतज्ञता",
+      "theme_en": "Gratitude here is not forced positivity. It is noticing one ordinary gift without arguing with it.",
+      "theme_hi": "यहाँ कृतज्ञता जबरन सकारात्मकता नहीं। बिना बहस के एक सामान्य उपहार देखना है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit quietly. Bring to mind one simple thing that supported you today — a person, a meal, a moment of rest. Hold it lightly.",
+          "text_hi": "शांत बैठें। आज जिस एक साधारण बात ने सहारा दिया — व्यक्ति, भोजन, विश्राम का क्षण — उसे हल्के से याद करें।"
+        },
+        { "type": "silence", "seconds": 45 },
+        {
+          "type": "speak",
+          "text_en": "Feel any warmth or resistance. Both are allowed. Stay with the breath and that single gift.",
+          "text_hi": "कोई गर्माहट या प्रतिरोध महसूस करें। दोनों ठीक हैं। श्वास और उस एक उपहार के साथ रहें।"
+        },
+        { "type": "silence", "seconds": 150 },
+        {
+          "type": "speak",
+          "text_en": "Silently thank that support. Return to the room. Carry one kind act if it arises naturally.",
+          "text_hi": "मौन में उस सहारे का धन्यवाद करें। कमरे में लौटें। यदि स्वाभाविक लगे तो एक दयालु काम साथ रखें।"
+        }
+      ]
+    },
+    {
+      "id": "foundation-7-d7",
+      "day_number": 7,
+      "tier": "foundation",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 9,
+      "title_en": "Integration and review",
+      "title_hi": "समेकन और समीक्षा",
+      "theme_en": "You practiced arriving, breath, body, thought, feeling, and thanks. Today you weave them without forcing a perfect sit.",
+      "theme_hi": "आपने पहुँचना, श्वास, शरीर, विचार, भाव और धन्यवाद का अभ्यास किया। आज उन्हें बिना पूर्ण बैठक के दबाव के जोड़ें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Settle. Feel the seat. Take three natural breaths. Scan the body once, lightly.",
+          "text_hi": "स्थिर हों। आसन महसूस करें। तीन स्वाभाविक श्वास। शरीर को एक बार हल्के से स्कैन करें।"
+        },
+        { "type": "silence", "seconds": 60 },
+        {
+          "type": "speak",
+          "text_en": "For a few minutes, rest with breath. Note thinking or feeling when they arise, then return. No scorecard.",
+          "text_hi": "कुछ मिनट श्वास के साथ रहें। सोच या भाव आने पर नोट करें, फिर लौटें। कोई अंकतालिका नहीं।"
+        },
+        { "type": "silence", "seconds": 210 },
+        {
+          "type": "speak",
+          "text_en": "Before you rise: what helped this week? Keep that one thing. The course continues only if you want — daily one-offs and scripture sādhana remain open. Thank yourself for showing up.",
+          "text_hi": "उठने से पहले: इस सप्ताह क्या सहायक रहा? वही एक बात रखें। पाठ्यक्रम तभी आगे जब चाहें — दैनिक एक-बार बैठक और शास्त्र साधना खुली हैं। आने के लिए स्वयं को धन्यवाद दें।"
+        }
+      ]
+    }
+  ]
+}

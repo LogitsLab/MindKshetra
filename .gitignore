@@ -57,7 +57,6 @@ next-env.d.ts
 
 # local / internal planning (not for the public tree)
 *.plan.md
-TODOS.md
 .gstack/
 
 # generated verse stories

@@ -27,11 +27,49 @@ function configuredProductionOrigin(): string {
   return PRODUCTION_ORIGIN;
 }
 
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+/**
+ * CSRF guard for cookie-authenticated API writes. `Access-Control-Allow-Origin:
+ * *` blocks credentialed cross-origin *fetch*, but a cross-site HTML form can
+ * still POST text/plain JSON with the session cookies attached. Reject writes
+ * that arrive with sb-* cookies, no Bearer header, and cross-site evidence.
+ * Same-origin browser fetches and Bearer mobile clients are untouched; so are
+ * cookie-less callers (cron, curl), which carry no session to forge.
+ */
+function isCrossSiteCookieWrite(request: NextRequest): boolean {
+  if (SAFE_METHODS.has(request.method)) return false;
+  if (request.headers.get("authorization")?.toLowerCase().startsWith("bearer ")) {
+    return false;
+  }
+  const hasAuthCookies = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith("sb-"));
+  if (!hasAuthCookies) return false;
+
+  if (request.headers.get("sec-fetch-site") === "cross-site") return true;
+
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+  try {
+    return new URL(origin).host !== request.nextUrl.host;
+  } catch {
+    return true;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const isApi = request.nextUrl.pathname.startsWith("/api/");
 
   if (isApi && request.method === "OPTIONS") {
     return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+  }
+
+  if (isApi && isCrossSiteCookieWrite(request)) {
+    return withCors(
+      NextResponse.json({ error: "Cross-site request rejected" }, { status: 403 }),
+      true
+    );
   }
 
   // Supabase Site URL misconfig lands PKCE ?code= on localhost even when

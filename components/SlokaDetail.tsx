@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import CompleteVerseButton from "@/components/CompleteVerseButton";
 import FavoriteButton from "@/components/FavoriteButton";
 import JournalBox from "@/components/JournalBox";
+import VerseReflections from "@/components/VerseReflections";
 import ShareButton from "@/components/ShareButton";
 import VerseStory from "@/components/VerseStory";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -13,7 +14,7 @@ import { useProgress } from "@/components/ProgressProvider";
 import type { ChapterMeta } from "@/lib/chapters";
 import type { Sloka } from "@/lib/types";
 import { formatVerseRef } from "@/lib/sloka-utils";
-import type { TeachingPassage } from "@/lib/sloka-utils";
+import type { RelatedVersePreview, TeachingPassage } from "@/lib/sloka-utils";
 import {
   cleanCommentary,
   hasCommentary,
@@ -26,6 +27,7 @@ type Props = {
   prev?: Sloka | null;
   next?: Sloka | null;
   passage?: TeachingPassage | null;
+  related?: RelatedVersePreview[];
 };
 
 export default function SlokaDetail({
@@ -34,6 +36,7 @@ export default function SlokaDetail({
   prev = null,
   next = null,
   passage = null,
+  related = [],
 }: Props) {
   const { lang, t } = useLanguage();
   const { recordOpen, markManyComplete, isComplete } = useProgress();
@@ -70,13 +73,22 @@ export default function SlokaDetail({
   return (
     <article className="animate-fade">
       <header className="border-b border-[var(--hairline)] pb-8 text-center">
-        <p className="font-body text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-          {lang === "hi" ? "भगवद्गीता" : "Bhagavad Gita"} ·{" "}
-          {formatVerseRef(sloka)}
+        <p className="eyebrow font-body text-[var(--brass-soft)]">
+          {/* Devanagari inside a tracked Latin eyebrow: the globals.css guard
+              only fires under html[lang="hi"], so an EN reader was getting
+              0.22em pulled through "भगवद्गीता" — matras off their base
+              consonants, exactly what DESIGN.md forbids. */}
+          <span className="font-devanagari tracking-normal">
+            {lang === "hi" ? "भगवद्गीता" : "Bhagavad Gita"}
+          </span>{" "}
+          · {formatVerseRef(sloka)}
           {chapterTitle ? ` · ${chapterTitle}` : ""}
         </p>
 
-        <h1 className="mx-auto mt-6 max-w-3xl space-y-3 font-display text-[1.65rem] font-semibold leading-[1.75] tracking-wide text-[var(--text)] sm:text-[2rem] md:text-[2.15rem]">
+        {/* No `tracking-*` here: the html[lang="hi"] reset in globals.css only
+            matches bracketed Tailwind values, so a bare `tracking-wide` slipped
+            past it and tracked the verse in both languages. */}
+        <h1 className="mx-auto mt-6 max-w-3xl space-y-3 font-devanagari text-[1.65rem] font-semibold leading-[1.75] text-[var(--text)] sm:text-[2rem] md:text-[2.15rem]">
           {sanskritLines.map((line, i) => (
             <span key={i} className="block">
               {line}
@@ -137,6 +149,8 @@ export default function SlokaDetail({
             text={translation}
             url={`${typeof window !== "undefined" ? window.location.origin : ""}/sloka/${sloka.id}`}
             imageUrl={`/api/og/verse/${sloka.id}`}
+            slokaId={sloka.id}
+            surface="verse"
           />
         </div>
       </nav>
@@ -180,7 +194,7 @@ export default function SlokaDetail({
         <section className="min-w-0 space-y-7 border border-[var(--line)] bg-[var(--panel)] p-5 sm:p-7 lg:rounded-none lg:border-r-0">
           {/* Primary reading: translation first */}
           <div>
-            <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+            <h2 className="eyebrow mb-3 text-[var(--brass-soft)]">
               {t("translation")}
             </h2>
             <p className="font-display text-xl leading-relaxed text-[var(--text)] sm:text-[1.35rem]">
@@ -191,7 +205,7 @@ export default function SlokaDetail({
           <div className="h-px bg-[var(--line)]" />
 
           <div>
-            <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+            <h2 className="eyebrow mb-3 text-[var(--brass-soft)]">
               {t("meaning")}
             </h2>
             {commentary ? (
@@ -228,7 +242,7 @@ export default function SlokaDetail({
             <>
               <div className="h-px bg-[var(--line)]" />
               <details className="group" open={passage.verses.length > 1}>
-                <summary className="cursor-pointer list-none text-[0.7rem] uppercase tracking-[0.2em] text-[var(--brass-soft)] marker:content-none [&::-webkit-details-marker]:hidden">
+                <summary className="eyebrow cursor-pointer list-none text-[var(--brass-soft)] marker:content-none [&::-webkit-details-marker]:hidden">
                   <span className="inline-flex items-center gap-2">
                     {lang === "hi" ? passage.titleHi : passage.titleEn}
                     <span className="text-[var(--text-muted)]">
@@ -298,7 +312,7 @@ export default function SlokaDetail({
             <>
               <div className="h-px bg-[var(--line)]" />
               <details className="group">
-                <summary className="cursor-pointer list-none text-[0.7rem] uppercase tracking-[0.2em] text-[var(--text-muted)] marker:content-none [&::-webkit-details-marker]:hidden">
+                <summary className="eyebrow cursor-pointer list-none text-[var(--text-muted)] marker:content-none [&::-webkit-details-marker]:hidden">
                   <span className="inline-flex items-center gap-2">
                     {t("wordMeanings")}
                     <span className="text-[var(--text-muted)]/70 transition group-open:rotate-90">
@@ -329,7 +343,7 @@ export default function SlokaDetail({
             <>
               <div className="h-px bg-[var(--line)]" />
               <div>
-                <h2 className="mb-3 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                <h2 className="eyebrow mb-3 text-[var(--text-muted)]">
                   {t("themes")}
                 </h2>
                 <ul className="flex flex-wrap gap-2">
@@ -368,7 +382,34 @@ export default function SlokaDetail({
         </aside>
       </div>
 
+      {related.length > 0 ? (
+        <section className="mt-6 border-t border-[var(--line)] pt-6">
+          <h2 className="eyebrow text-[var(--brass-soft)]">
+            {t("relatedVerses")}
+          </h2>
+          {/* Hairline list, not cards — the citation-list idiom. */}
+          <ul className="mt-3">
+            {related.map((r) => (
+              <li key={r.id} className="border-t border-[var(--hairline)]">
+                <Link
+                  href={`/sloka/${r.id}`}
+                  className="group flex min-h-11 flex-wrap items-baseline gap-x-4 gap-y-0.5 py-3"
+                >
+                  <span className="font-display text-sm text-[var(--brass-soft)] transition group-hover:text-[var(--brass)]">
+                    {r.chapter}.{r.verse_number}
+                  </span>
+                  <span className="min-w-0 flex-1 basis-56 text-sm font-light leading-relaxed text-[var(--text-muted)] transition group-hover:text-[var(--text-soft)]">
+                    {lang === "hi" ? r.previewHi : r.previewEn}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <JournalBox slokaId={sloka.id} />
+      <VerseReflections slokaId={sloka.id} />
     </article>
   );
 }

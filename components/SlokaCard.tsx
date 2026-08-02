@@ -39,7 +39,7 @@ export default function SlokaCard({
     >
       <div className="flex items-baseline justify-between gap-3">
         <div>
-          <p className="font-body text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
+          <p className="eyebrow font-body text-[var(--brass-soft)]">
             {formatVerseRef(sloka)}
             {completed ? (
               <span className="ml-2 text-[var(--brass)]" title={t("markedComplete")}>

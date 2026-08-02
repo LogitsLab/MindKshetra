@@ -1,0 +1,80 @@
+{
+  "id": "grief-7",
+  "days_count": 7,
+  "title_en": "Seven days with grief",
+  "title_hi": "शोक के साथ सात दिन",
+  "intro_en": "A week for the mind that has lost someone or something — one verse, one short sit, one honest line. Grief is not a problem to solve; it is love with nowhere to go. If you feel unsafe or unable to cope, please reach a helpline or a professional.",
+  "intro_hi": "जिस मन ने किसी को या कुछ खोया है — उसके लिए एक सप्ताह: एक श्लोक, छोटी बैठक, एक सच्ची पंक्ति। शोक कोई हल करने योग्य समस्या नहीं; यह प्रेम है जिसे जाने की जगह नहीं मिली। यदि आप असुरक्षित महसूस करें, हेल्पलाइन या विशेषज्ञ से बात करें।",
+  "days": [
+    {
+      "day": 1,
+      "ref": { "chapter": 2, "verse": 13 },
+      "practice": "sit",
+      "minutes": 3,
+      "title_en": "The body changes; the self continues",
+      "title_hi": "देह बदलती है; आत्मा चलती है",
+      "prompt_en": "What changed that you are mourning — and what, if anything, still feels present?",
+      "prompt_hi": "क्या बदला जिस पर शोक है — और क्या अभी भी उपस्थित लगता है?"
+    },
+    {
+      "day": 2,
+      "ref": { "chapter": 2, "verse": 22 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Clothes of the soul",
+      "title_hi": "आत्मा के वस्त्र",
+      "prompt_en": "If life is a change of garments, what are you being asked to set down gently?",
+      "prompt_hi": "यदि जीवन वस्त्र बदलने जैसा है, तो आपसे कोमलता से क्या छोड़ने को कहा जा रहा है?"
+    },
+    {
+      "day": 3,
+      "ref": { "chapter": 2, "verse": 27 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Certain as birth",
+      "title_hi": "जन्म जितना निश्चित",
+      "prompt_en": "Can you name one fear about this loss that is actually about the future, not the past?",
+      "prompt_hi": "इस हानि में कौन-सा भय वास्तव में भविष्य का है, अतीत का नहीं?"
+    },
+    {
+      "day": 4,
+      "ref": { "chapter": 2, "verse": 56 },
+      "practice": "pranayama",
+      "minutes": 5,
+      "title_en": "Steady in sorrow",
+      "title_hi": "दुःख में भी स्थिर",
+      "prompt_en": "Where did sorrow visit today — and where did you stay without hardening?",
+      "prompt_hi": "आज दुःख कहाँ आया — और आप कहाँ कठोर हुए बिना रहे?"
+    },
+    {
+      "day": 5,
+      "ref": { "chapter": 12, "verse": 15 },
+      "practice": "japa",
+      "minutes": 5,
+      "title_en": "Neither agitating nor agitated",
+      "title_hi": "न विचलित करने वाले, न विचलित",
+      "prompt_en": "Who around you needs your steadiness more than your answers?",
+      "prompt_hi": "आपके आसपास किसे उत्तरों से अधिक आपकी स्थिरता चाहिए?"
+    },
+    {
+      "day": 6,
+      "ref": { "chapter": 12, "verse": 18 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Equal to friend and foe",
+      "title_hi": "मित्र-शत्रु में सम",
+      "prompt_en": "Is there a story about this loss you are ready to soften — not erase?",
+      "prompt_hi": "इस हानि की कौन-सी कथा आप मिटाने नहीं, कोमल करने को तैयार हैं?"
+    },
+    {
+      "day": 7,
+      "ref": { "chapter": 18, "verse": 66 },
+      "practice": "sit",
+      "minutes": 10,
+      "title_en": "Hand over what you cannot carry",
+      "title_hi": "जो न उठा सकें, सौंप दें",
+      "prompt_en": "What one piece of this grief are you willing to set down for today — without pretending it is gone?",
+      "prompt_hi": "इस शोक का कौन-सा एक अंश आज के लिए रख देने को तैयार हैं — यह दिखावा किए बिना कि वह चला गया?"
+    }
+  ]
+}

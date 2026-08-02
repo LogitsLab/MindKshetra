@@ -1,0 +1,80 @@
+{
+  "id": "relationships-7",
+  "days_count": 7,
+  "title_en": "Seven days with relationships",
+  "title_hi": "संबंधों के साथ सात दिन",
+  "intro_en": "A week for the mind tangled in love, family, or friendship — steadiness without coldness, care without control. One verse, one sit, one honest line. Not couples therapy; a practice of seeing the other as they are.",
+  "intro_hi": "प्रेम, परिवार या मित्रता में उलझे मन के लिए एक सप्ताह — शीतलता के बिना स्थिरता, नियंत्रण के बिना देखभाल। प्रतिदिन श्लोक, बैठक, एक सच्ची पंक्ति। युगल चिकित्सा नहीं; दूसरे को जैसा है वैसा देखने का अभ्यास।",
+  "days": [
+    {
+      "day": 1,
+      "ref": { "chapter": 12, "verse": 13 },
+      "practice": "sit",
+      "minutes": 3,
+      "title_en": "Friendly and compassionate",
+      "title_hi": "मैत्री और करुणा",
+      "prompt_en": "Toward whom can you soften one degree today — without rewriting the whole story?",
+      "prompt_hi": "किसके प्रति आज एक अंश कोमल हो सकते हैं — पूरी कथा बदले बिना?"
+    },
+    {
+      "day": 2,
+      "ref": { "chapter": 12, "verse": 14 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Content and self-controlled",
+      "title_hi": "संतुष्ट और संयमी",
+      "prompt_en": "What demand on someone else is really a demand on your own peace?",
+      "prompt_hi": "दूसरे से आपकी कौन-सी माँग वास्तव में आपकी शांति की माँग है?"
+    },
+    {
+      "day": 3,
+      "ref": { "chapter": 12, "verse": 15 },
+      "practice": "pranayama",
+      "minutes": 5,
+      "title_en": "Do not agitate; do not be agitated",
+      "title_hi": "न विचलित करें, न विचलित हों",
+      "prompt_en": "Where did you poke a wound today — or let one poke you?",
+      "prompt_hi": "आज आपने कहाँ घाव छेड़ा — या छेड़ने दिया?"
+    },
+    {
+      "day": 4,
+      "ref": { "chapter": 16, "verse": 2 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Non-harm and truth",
+      "title_hi": "अहिंसा और सत्य",
+      "prompt_en": "What true sentence could you say more kindly — or leave unsaid?",
+      "prompt_hi": "कौन-सा सत्य वाक्य अधिक कोमलता से कह सकते हैं — या न कहें?"
+    },
+    {
+      "day": 5,
+      "ref": { "chapter": 6, "verse": 5 },
+      "practice": "japa",
+      "minutes": 5,
+      "title_en": "Lift yourself first",
+      "title_hi": "पहले स्वयं को उठाएँ",
+      "prompt_en": "Are you asking another person to do the inner work that is yours?",
+      "prompt_hi": "क्या आप किसी और से वह आंतरिक कार्य करवा रहे हैं जो आपका है?"
+    },
+    {
+      "day": 6,
+      "ref": { "chapter": 9, "verse": 27 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Offer whatever you do",
+      "title_hi": "जो करें, अर्पित करें",
+      "prompt_en": "One ordinary act of care today — offered without keeping score.",
+      "prompt_hi": "आज एक साधारण देखभाल का कर्म — हिसाब रखे बिना अर्पित।"
+    },
+    {
+      "day": 7,
+      "ref": { "chapter": 12, "verse": 19 },
+      "practice": "sit",
+      "minutes": 10,
+      "title_en": "Equal praise and blame",
+      "title_hi": "प्रशंसा-निंदा में सम",
+      "prompt_en": "What opinion about you (or them) are you ready to stop feeding?",
+      "prompt_hi": "अपने या उनके बारे में कौन-सी राय अब पालने को तैयार नहीं?"
+    }
+  ]
+}

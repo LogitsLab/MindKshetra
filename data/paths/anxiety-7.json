@@ -1,0 +1,80 @@
+{
+  "id": "anxiety-7",
+  "days_count": 7,
+  "title_en": "Seven days with anxiety",
+  "title_hi": "चिंता के साथ सात दिन",
+  "intro_en": "A week of sitting with the mind that worries — one verse, one short sit, one honest line a day. Not a cure; a practice. If anxiety is overwhelming your daily life, please also talk to a professional.",
+  "intro_hi": "चिंतित मन के साथ बैठने का एक सप्ताह — प्रतिदिन एक श्लोक, एक छोटा ध्यान, एक सच्ची पंक्ति। यह उपचार नहीं, अभ्यास है। यदि चिंता दैनिक जीवन पर हावी है, तो कृपया किसी विशेषज्ञ से भी बात करें।",
+  "days": [
+    {
+      "day": 1,
+      "ref": { "chapter": 2, "verse": 14 },
+      "practice": "sit",
+      "minutes": 3,
+      "title_en": "Weather, not climate",
+      "title_hi": "मौसम, स्थायी नहीं",
+      "prompt_en": "What worry visited today — and can you watch it as weather passing through?",
+      "prompt_hi": "आज कौन-सी चिंता आई — क्या आप उसे गुज़रते मौसम की तरह देख सकते हैं?"
+    },
+    {
+      "day": 2,
+      "ref": { "chapter": 2, "verse": 47 },
+      "practice": "sit",
+      "minutes": 3,
+      "title_en": "The work, not the fruit",
+      "title_hi": "कर्म, फल नहीं",
+      "prompt_en": "Which outcome are you gripping? Name the one next action that is actually yours.",
+      "prompt_hi": "किस परिणाम को पकड़े हुए हैं? वह एक अगला कदम लिखें जो सचमुच आपके हाथ में है।"
+    },
+    {
+      "day": 3,
+      "ref": { "chapter": 2, "verse": 48 },
+      "practice": "pranayama",
+      "minutes": 5,
+      "title_en": "Evenness is the yoga",
+      "title_hi": "समत्व ही योग है",
+      "prompt_en": "Where did you stay even today, even for a moment?",
+      "prompt_hi": "आज आप कहाँ सम रहे — भले ही एक क्षण के लिए?"
+    },
+    {
+      "day": 4,
+      "ref": { "chapter": 6, "verse": 5 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Be your own friend",
+      "title_hi": "अपने मित्र बनें",
+      "prompt_en": "Write one sentence to yourself the way you would to a dear friend who is anxious.",
+      "prompt_hi": "स्वयं को एक वाक्य लिखें — वैसे, जैसे किसी चिंतित प्रिय मित्र को लिखते।"
+    },
+    {
+      "day": 5,
+      "ref": { "chapter": 6, "verse": 26 },
+      "practice": "japa",
+      "minutes": 5,
+      "title_en": "Bring it back, gently",
+      "title_hi": "धीरे से लौटा लाएँ",
+      "prompt_en": "Each time the mind ran today, what brought it back?",
+      "prompt_hi": "आज जब-जब मन भागा, उसे वापस क्या लाया?"
+    },
+    {
+      "day": 6,
+      "ref": { "chapter": 12, "verse": 15 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Unshaken, unshaking",
+      "title_hi": "न विचलित, न विचलित करने वाले",
+      "prompt_en": "What would today have looked like if the worry had no vote?",
+      "prompt_hi": "यदि चिंता का कोई मत न होता, तो आज का दिन कैसा होता?"
+    },
+    {
+      "day": 7,
+      "ref": { "chapter": 18, "verse": 66 },
+      "practice": "sit",
+      "minutes": 10,
+      "title_en": "Set the burden down",
+      "title_hi": "बोझ रख दें",
+      "prompt_en": "After seven days: what is one worry you are ready to set down — or hand over?",
+      "prompt_hi": "सात दिनों के बाद: कौन-सी एक चिंता अब आप रख देने — या सौंप देने — के लिए तैयार हैं?"
+    }
+  ]
+}

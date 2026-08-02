@@ -59,3 +59,16 @@ export function clientKey(request: Request): string {
   if (real) return real.trim();
   return "local";
 }
+
+/**
+ * Rate-limit principal: the user when known, the IP only as a fallback.
+ * Indian carrier NAT puts many users behind one IP, so IP-keyed budgets on
+ * authenticated writes collapse under real traffic. Every authenticated or
+ * write-heavy route should key on this, not on clientKey directly.
+ */
+export function principalKey(
+  userId: string | null | undefined,
+  request: Request
+): string {
+  return userId ? `u:${userId}` : `ip:${clientKey(request)}`;
+}

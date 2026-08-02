@@ -75,6 +75,16 @@ alter table mood_tags enable row level security;
 alter table stories enable row level security;
 alter table sloka_embeddings enable row level security;
 
+-- drop-if-exists first: the migration runner re-runs every file on every
+-- invocation, so files must converge, not assume a blank slate (002+ already
+-- follow this; 001/003 predate the rule and broke re-runs with 42710).
+drop policy if exists "slokas_public_read" on slokas;
+drop policy if exists "tags_public_read" on tags;
+drop policy if exists "sloka_tags_public_read" on sloka_tags;
+drop policy if exists "moods_public_read" on moods;
+drop policy if exists "mood_tags_public_read" on mood_tags;
+drop policy if exists "stories_public_read" on stories;
+drop policy if exists "sloka_embeddings_public_read" on sloka_embeddings;
 create policy "slokas_public_read" on slokas for select using (true);
 create policy "tags_public_read" on tags for select using (true);
 create policy "sloka_tags_public_read" on sloka_tags for select using (true);

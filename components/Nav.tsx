@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import AuthButton from "@/components/AuthButton";
 import { BrandNavWordmark } from "@/components/BrandWordmark";
@@ -15,17 +15,51 @@ export default function Nav() {
   const pathname = usePathname();
   const { lang, setLang, t } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement | null>(null);
 
-  const links = [
+  // Seven equal links crowded the bar and wrapped "Ask Madhav" onto two
+  // lines. Four carry the daily journey; the rest live behind More; Madhav
+  // is the flagship and gets its own accent. Mobile still lists everything.
+  const primaryLinks = [
     { href: "/explore", label: t("navExplore") },
     { href: "/mood", label: t("navMood") },
+    { href: "/sadhana", label: t("navPractice") },
     { href: "/astrology", label: t("navAstrology") },
-    { href: "/madhav", label: t("navMadhav") },
   ];
+  const moreLinks = [
+    { href: "/panchang", label: t("navPanchang") },
+    { href: "/community", label: t("navSangha") },
+    { href: "/meditation", label: t("homeMeditationTitle") },
+    { href: "/support", label: t("navSupport") },
+  ];
+  const madhavLink = { href: "/madhav", label: t("navMadhav") };
+  const links = [...primaryLinks, ...moreLinks, madhavLink];
+
+  const moreActive = moreLinks.some((l) => pathname.startsWith(l.href));
 
   useEffect(() => {
     setMenuOpen(false);
+    setMoreOpen(false);
   }, [pathname]);
+
+  // Close More on outside click or Escape — a dropdown that traps focus or
+  // lingers after navigation is worse than no dropdown.
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (!moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMoreOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [moreOpen]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -62,7 +96,7 @@ export default function Nav() {
         {/* Desktop nav */}
         <div className="hidden items-center gap-3 md:flex">
           <nav className="flex items-center gap-1">
-            {links.map((link) => {
+            {primaryLinks.map((link) => {
               const active =
                 pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
@@ -79,7 +113,51 @@ export default function Nav() {
                 </Link>
               );
             })}
+
+            <div className="relative" ref={moreRef}>
+              <button
+                type="button"
+                onClick={() => setMoreOpen((v) => !v)}
+                aria-expanded={moreOpen}
+                aria-haspopup="true"
+                className={`px-3 py-2.5 text-[15px] transition ${
+                  moreActive || moreOpen
+                    ? "text-[var(--brass-soft)]"
+                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                }`}
+              >
+                {t("navMore")}
+              </button>
+              {moreOpen ? (
+                <div className="absolute right-0 top-full z-50 mt-1 min-w-[11rem] border border-[var(--line)] bg-[var(--nav-bg)] py-1 backdrop-blur-xl">
+                  {moreLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`block px-4 py-2.5 text-sm transition ${
+                        pathname.startsWith(link.href)
+                          ? "text-[var(--brass-soft)]"
+                          : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </nav>
+
+          <Link
+            href={madhavLink.href}
+            className={`min-h-9 border px-3.5 py-2 text-sm transition ${
+              pathname.startsWith(madhavLink.href)
+                ? "border-[var(--brass)]/60 text-[var(--brass-soft)]"
+                : "border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
+            }`}
+          >
+            {madhavLink.label}
+          </Link>
           <LangToggle lang={lang} setLang={setLang} t={t} />
           <ThemeToggle />
           <AuthButton />

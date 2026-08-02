@@ -3,6 +3,9 @@
   "version": "0.1.5",
   "private": true,
   "license": "AGPL-3.0-or-later",
+  "engines": {
+    "node": ">=18.17"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,7 +17,7 @@
     "qa:passages": "node scripts/assert-passage-coverage.cjs",
     "qa:astrology": "node scripts/qa-astrology-golden.cjs",
     "fetch:ephe": "node scripts/fetch-ephe.cjs",
-    "db:migrate": "node scripts/db-migrate.cjs",
+    "db:migrate": "node scripts/apply-migrations.cjs",
     "db:seed": "node scripts/seed-slokas.cjs && node scripts/seed-stories.cjs",
     "db:embeddings": "node scripts/seed-embeddings.cjs",
     "db:pregen-stories": "node scripts/pregen-stories.cjs",

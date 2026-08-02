@@ -1,31 +1,17 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { EventName } from "@/lib/events-names";
 
 /**
  * First-party, privacy-respecting event sink (migration 010). Writes are
  * fire-and-forget: measurement must never break or slow a user-facing path.
  * No IP, no user agent — a name, optional owner, optional small props.
+ *
+ * The name allowlist lives in lib/events-names.ts (isomorphic) so browser
+ * callers (lib/track.ts) can share it without pulling in `server-only`.
  */
-export const EVENT_NAMES = [
-  "permission_prompted",
-  "permission_granted",
-  "permission_denied",
-  "notif_opened",
-  "verse_completed",
-  "streak_recorded",
-  "milestone_shown",
-  "share_card",
-  "chart_cast",
-  "predictions_viewed",
-] as const;
-
-export type EventName = (typeof EVENT_NAMES)[number];
-
-export function isEventName(value: unknown): value is EventName {
-  return (
-    typeof value === "string" && (EVENT_NAMES as readonly string[]).includes(value)
-  );
-}
+export { EVENT_NAMES, isEventName } from "@/lib/events-names";
+export type { EventName } from "@/lib/events-names";
 
 const MAX_PROPS_BYTES = 2048;
 

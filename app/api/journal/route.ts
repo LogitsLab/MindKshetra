@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireSupabase } from "@/lib/supabase/require";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUserId } from "@/lib/supabase/server";
 
 export async function GET() {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
@@ -23,6 +26,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
   const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

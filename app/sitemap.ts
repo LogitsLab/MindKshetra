@@ -38,6 +38,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.85,
     },
+    // Practice + lifestyle surfaces: all real destinations, none were listed.
+    ...[
+      { path: "/sadhana", priority: 0.85 },
+      { path: "/meditation", priority: 0.8 },
+      { path: "/paths", priority: 0.8 },
+      { path: "/astrology", priority: 0.8 },
+      { path: "/panchang", priority: 0.7 },
+      { path: "/community", priority: 0.6 },
+      { path: "/care", priority: 0.6 },
+      { path: "/support", priority: 0.5 },
+    ].map((r) => ({
+      url: `${site}${r.path}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: r.priority,
+    })),
     {
       url: `${site}/privacy`,
       lastModified: now,

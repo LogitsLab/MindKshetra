@@ -47,7 +47,6 @@
   --media-scrim-soft: rgba(7, 9, 15, 0.2);
   --on-media: #f4f6fa;
   --on-media-muted: rgba(238, 242, 247, 0.78);
-  --hero-panel: transparent;
 }
 
 /* Cool mist / ink — translucent so the field image shows through */
@@ -75,7 +74,6 @@
   --danger: #9f1239;
   --danger-bg: rgba(159, 18, 57, 0.1);
   --nav-bg: rgba(248, 250, 252, 0.55);
-  --hero-panel: rgba(255, 255, 255, 0.55);
   --atmosphere-veil: linear-gradient(
     180deg,
     rgba(7, 9, 15, 0.25) 0%,
@@ -94,6 +92,60 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+@layer base {
+  /*
+   * The focus ring.
+   *
+   * Before this, exactly two components in the app styled focus at all, so
+   * keyboard navigation across every link, card and button was following the
+   * browser default — which several surfaces then removed with `outline-none`
+   * while only restyling `:focus` on inputs. A keyboard user could tab through
+   * a page with no idea where they were.
+   *
+   * Deliberately in @layer base, not after the utilities: base loses to
+   * `outline-none`, so the inputs that already signal focus through their
+   * border keep their design instead of growing a second, redundant ring. A
+   * default, not a decree.
+   *
+   * :focus-visible, never :focus — a brass ring appearing on every mouse click
+   * is the reason people delete focus styles in the first place.
+   */
+  :focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+  }
+}
+
+/*
+ * Skip to content. The first focusable thing in the document, and invisible
+ * until it is focused — the nav is 8+ links deep on desktop and every one of
+ * them stood between a keyboard user and the page they had just opened.
+ *
+ * :focus rather than :focus-visible: nothing reaches this link except a
+ * keyboard or assistive tech, so there is no mouse case to guard against.
+ */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 1.15rem;
+  background: var(--brass);
+  color: var(--on-brass);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 1.5rem));
+  transition: transform 0.15s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 body {
@@ -148,18 +200,6 @@ body {
   border: 1px solid var(--line);
   backdrop-filter: blur(16px) saturate(1.1);
   -webkit-backdrop-filter: blur(16px) saturate(1.1);
-}
-
-.glass-hero {
-  background: var(--hero-panel);
-  border: 1px solid transparent;
-  backdrop-filter: blur(18px) saturate(1.15);
-  -webkit-backdrop-filter: blur(18px) saturate(1.15);
-}
-
-[data-theme="light"] .glass-hero {
-  border-color: rgba(12, 18, 32, 0.1);
-  box-shadow: 0 12px 40px rgba(12, 18, 32, 0.12);
 }
 
 .site-atmosphere::before {
@@ -410,7 +450,17 @@ body {
  *
  * `text-[11px] uppercase tracking-[0.16em] text-[var(--brass-soft)]` was pasted
  * as a string literal across ChatWindow, ChapterPageClient and AccountPageClient
- * (where it was already a named const at line 14). New code uses .eyebrow.
+ * (where it was already a named const at line 14).
+ *
+ * It then sat at zero usages while eight surfaces went on inlining eight
+ * different tracking values — 0.14em, 0.16em, 0.18em, 0.2em, 0.22em, 0.28em,
+ * 0.32em — at four different sizes. Documenting an idiom nobody adopts is
+ * indistinguishable from not having one, so the label sites now use the class.
+ *
+ * Deliberately three properties. Colour and spacing stay at the call site: a
+ * --text-muted chrome label and a --brass-soft section label are the same idiom
+ * carrying different weights of attention, and baking either in would force the
+ * next surface back to inlining.
  */
 .eyebrow {
   font-size: 11px;

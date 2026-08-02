@@ -8,6 +8,10 @@ import {
   useMemo,
   useState,
 } from "react";
+import {
+  clearGuestJourney,
+  readAllGuestJourneys,
+} from "@/lib/journeys/local";
 import { createClient } from "@/lib/supabase/client";
 import { supabaseBrowserConfigured } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -163,6 +167,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             });
           } catch {
             /* ignore */
+          }
+        }
+
+        // Anonymous sessions are excluded deliberately: /api/journeys/merge
+        // accepts them but /api/journeys/[id]/run does not, so merging under
+        // an anonymous id then clearing the device copy made a guest's days
+        // unreadable — visible progress simply vanished. Every other merge in
+        // the app guards the same way.
+        // Journeys replay on sign-in, like chat, progress, sadhana and
+        // meditation before it. Without this a guest's week of practice was
+        // still on the device and never reached the account — the endpoint
+        // existed and nothing called it.
+        const journeys = nextUser.is_anonymous ? [] : readAllGuestJourneys();
+        if (journeys.length) {
+          try {
+            const res = await fetch("/api/journeys/merge", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ journeys }),
+            });
+            // Only clear once the server has them; a failed replay must stay
+            // on the device to be retried at the next sign-in.
+            if (res.ok) {
+              for (const j of journeys) clearGuestJourney(j.journeyId);
+            }
+          } catch {
+            /* keep the local copy */
           }
         }
       }
