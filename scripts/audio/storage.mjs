@@ -10,7 +10,13 @@ import { createClient } from "@supabase/supabase-js";
 export const BUCKET = "audio";
 
 export function loadEnv() {
-  for (const file of [".env.local", ".env"]) {
+  // AUDIO_ENV_FILE pins generation to one project. Without it, .env.local
+  // (the dev database) would silently win over .env and audio would upload
+  // to a bucket production clients never see.
+  const files = process.env.AUDIO_ENV_FILE
+    ? [process.env.AUDIO_ENV_FILE]
+    : [".env.local", ".env"];
+  for (const file of files) {
     try {
       for (const line of readFileSync(file, "utf8").split("\n")) {
         const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
