@@ -118,30 +118,6 @@ function clearDeviceLog(): void {
   }
 }
 
-function guestPathKey(id: string) {
-  return `mindkshetra-path-${id}`;
-}
-
-function markPathGuest(pathId: string, day: number) {
-  try {
-    const raw = localStorage.getItem(guestPathKey(pathId));
-    const parsed = raw
-      ? (JSON.parse(raw) as { completedDays?: unknown })
-      : { completedDays: [] };
-    const prior = Array.isArray(parsed.completedDays)
-      ? parsed.completedDays.filter(
-          (d): d is number => typeof d === "number" && Number.isInteger(d)
-        )
-      : [];
-    const next = Array.from(new Set([...prior, day])).sort((a, b) => a - b);
-    localStorage.setItem(
-      guestPathKey(pathId),
-      JSON.stringify({ completedDays: next })
-    );
-  } catch {
-    /* ignore */
-  }
-}
 
 async function logPractice(
   body: Record<string, unknown>

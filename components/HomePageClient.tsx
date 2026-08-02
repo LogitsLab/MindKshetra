@@ -30,6 +30,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
   const [streak, setStreak] = useState(0);
   // null = not known yet; the card shows its invitation and never an error.
   const [sadhanaDone, setSadhanaDone] = useState<boolean | null>(null);
+  const [practiceStreak, setPracticeStreak] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -48,6 +49,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
     // when the session changes so the done-state follows sign-in.
     if (!user) {
       setSadhanaDone(null);
+      setPracticeStreak(0);
       return;
     }
     let cancelled = false;
@@ -62,6 +64,14 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       .then((data) => {
         if (!cancelled && data) {
           setSadhanaDone(Boolean(data.doneToday?.includes?.("flow")));
+          // The practice card must show the PRACTICE streak. It used to show
+          // the visit streak, which increments merely by loading this page —
+          // so someone who had opened the app for 14 days and practised once
+          // read "14 day streak" here and "1-day practice" on /sadhana.
+          const flow = (data.streaks ?? []).find(
+            (x: { practice?: string }) => x.practice === "flow"
+          );
+          setPracticeStreak(Number(flow?.current) || 0);
         }
       })
       .catch(() => {
@@ -266,12 +276,12 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
             >
               {sadhanaDone === true ? t("sadhanaDoneToday") : t("sadhanaHomeBody")}
             </p>
-            {streak > 0 ? (
+            {practiceStreak > 0 ? (
               <p
                 className="mt-4 text-xs tracking-[0.12em] text-[var(--brass-soft)]"
                 title={t("streakLabel")}
               >
-                {streak} {t("homeStreakLabel")}
+                {t("sadhanaStreakLine").replace("{n}", String(practiceStreak))}
               </p>
             ) : null}
           </div>

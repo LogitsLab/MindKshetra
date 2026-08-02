@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import { reflectionsOpen } from "@/lib/kill-switch-public";
 
 type Props = {
   slokaId: number;
@@ -135,7 +136,7 @@ export default function JournalBox({ slokaId }: Props) {
         </p>
       ) : null}
 
-      {saved && savedId ? (
+      {saved && savedId && reflectionsOpen() ? (
         <div className="pt-1">
           {shareState === "shared" ? (
             <p className="text-sm text-[var(--brass-soft)]">

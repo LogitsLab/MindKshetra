@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { REFLECTION_SHARED_EVENT } from "@/components/JournalBox";
 import { useLanguage } from "@/components/LanguageProvider";
+import { reflectionsOpen, reportsOpen } from "@/lib/kill-switch-public";
 
 type Reflection = {
   id: string;
@@ -70,6 +71,9 @@ export default function VerseReflections({ slokaId }: { slokaId: number }) {
 
   // Loading and empty both render nothing extra beyond the invitation line —
   // a verse page must never feel like an empty forum.
+  // Paused surfaces render nothing — an invitation the API will refuse is
+  // worse than silence.
+  if (!reflectionsOpen()) return null;
   if (!reflections) return null;
 
   return (
@@ -99,6 +103,7 @@ export default function VerseReflections({ slokaId }: { slokaId: number }) {
                 ) : (
                   <span>{t("reflectionsSeeker")}</span>
                 )}
+                {reportsOpen() ? (
                 <button
                   type="button"
                   onClick={() => report(item.id)}
@@ -107,6 +112,7 @@ export default function VerseReflections({ slokaId }: { slokaId: number }) {
                 >
                   {reported.has(item.id) ? t("reflectReported") : t("reflectReport")}
                 </button>
+                ) : null}
               </p>
             </li>
           ))}
