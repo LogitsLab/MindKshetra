@@ -1,12 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  isSpeechSynthesisSupported,
-  speakText,
-  stopSpeaking,
-  type SpeakLang,
-} from "@/lib/tts";
+import { playOrSpeak, stopNarration } from "@/lib/audio/narration";
+import { isSpeechSynthesisSupported, type SpeakLang } from "@/lib/tts";
 
 type Props = {
   text: string;
@@ -32,7 +28,9 @@ export default function SpeakButton({
   const [speaking, setSpeaking] = useState(false);
 
   useEffect(() => {
-    setSupported(isSpeechSynthesisSupported());
+    // Pre-generated audio plays through a plain <audio> element, so the
+    // control is useful even where speechSynthesis is absent.
+    setSupported(true);
     if (!isSpeechSynthesisSupported()) return;
 
     const warm = () => {
@@ -42,30 +40,31 @@ export default function SpeakButton({
     window.speechSynthesis.addEventListener("voiceschanged", warm);
     return () => {
       window.speechSynthesis.removeEventListener("voiceschanged", warm);
-      stopSpeaking();
+      stopNarration();
     };
   }, []);
 
   // Stop if the text/lang changes mid-playback
   useEffect(() => {
-    stopSpeaking();
+    stopNarration();
     setSpeaking(false);
   }, [text, lang]);
 
   const toggle = useCallback(() => {
     if (!supported) return;
     if (speaking) {
-      stopSpeaking();
+      stopNarration();
       setSpeaking(false);
       return;
     }
-    const ok = speakText(text, {
+    void playOrSpeak(text, {
       lang,
       onStart: () => setSpeaking(true),
       onEnd: () => setSpeaking(false),
       onError: () => setSpeaking(false),
+    }).then((ok) => {
+      if (!ok) setSpeaking(false);
     });
-    if (!ok) setSpeaking(false);
   }, [supported, speaking, text, lang]);
 
   if (!supported) {

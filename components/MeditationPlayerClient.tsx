@@ -12,11 +12,8 @@ import {
   sessionTranscript,
 } from "@/lib/meditation-core";
 import { markGuestJourneyDay } from "@/lib/journeys/local";
-import {
-  isSpeechSynthesisSupported,
-  speakText,
-  stopSpeaking,
-} from "@/lib/tts";
+import { playOrSpeak, stopNarration } from "@/lib/audio/narration";
+import { isSpeechSynthesisSupported } from "@/lib/tts";
 
 type Stage = "moodBefore" | "play" | "moodAfter" | "done";
 
@@ -177,11 +174,11 @@ export default function MeditationPlayerClient({
   }, [isCourse, session.day_number, daysCount, user]);
 
   useEffect(() => {
-    return () => stopSpeaking();
+    return () => stopNarration();
   }, []);
 
   const advancePhase = useCallback(() => {
-    stopSpeaking();
+    stopNarration();
     setSpeaking(false);
     setSilenceLeft(null);
     silenceStartRef.current = null;
@@ -218,24 +215,28 @@ export default function MeditationPlayerClient({
     if (stage !== "play" || !phase || phase.type !== "speak") return;
     autoAdvanceRef.current = true;
     const text = lang === "hi" ? phase.text_hi : phase.text_en;
-    const started = speakText(text, {
+    let cancelled = false;
+    void playOrSpeak(text, {
       lang,
       rate,
-      onStart: () => setSpeaking(true),
+      onStart: () => {
+        if (!cancelled) setSpeaking(true);
+      },
       onEnd: () => {
+        if (cancelled) return;
         setSpeaking(false);
         if (autoAdvanceRef.current) advancePhase();
       },
       onError: () => {
-        setSpeaking(false);
+        if (!cancelled) setSpeaking(false);
       },
+    }).then((started) => {
+      if (!started && !cancelled) setSpeaking(false);
     });
-    if (!started) {
-      setSpeaking(false);
-    }
     return () => {
+      cancelled = true;
       autoAdvanceRef.current = false;
-      stopSpeaking();
+      stopNarration();
     };
   }, [stage, phaseIdx, phase, lang, rate, advancePhase]);
 
@@ -422,7 +423,7 @@ export default function MeditationPlayerClient({
                     type="button"
                     onClick={() => {
                       autoAdvanceRef.current = false;
-                      stopSpeaking();
+                      stopNarration();
                       setSpeaking(false);
                     }}
                     className="min-h-10 border border-[var(--line)] px-4 py-2 text-sm text-[var(--text-muted)]"
@@ -434,7 +435,7 @@ export default function MeditationPlayerClient({
                   type="button"
                   onClick={() => {
                     autoAdvanceRef.current = false;
-                    stopSpeaking();
+                    stopNarration();
                     advancePhase();
                   }}
                   className="min-h-10 border border-[var(--line)] px-4 py-2 text-sm text-[var(--brass-soft)]"
