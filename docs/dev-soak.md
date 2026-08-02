@@ -23,19 +23,23 @@ Record pass/fail with date below.
 
 | Check | Pass? | Notes |
 |---|---|---|
-| `GET /api/astrology/health` — Swiss ephemeris ok | | |
-| Birth chart + Pressure→Practice card for a saved member | | |
-| Daily Sādhana: mood → verse → sit → journal; `sadhana_logged` in `app_events` | | |
-| Japa finish + grace-day streak behaviour | | |
-| Panchang day (timezone sensible for chosen place) | | |
-| Milan with ≥2 members; Hindi koota notes readable | | |
-| Community share while kill-switched → 503; unshare still works | | |
-| Guest sādhana → sign-in merge | | |
-| `/sangha` “I attended” → `sangha_attended` event | | |
-| Account: notification prefs PATCH; public profile PUT → `/u/[handle]` | | |
-| `/paths/anxiety-7` day list + verse links | | |
-| `/meditation` Day 1 mood → TTS/silence → complete | | |
-| `/panchang/calendar` month list loads | | |
+| `GET /api/astrology/health` — Swiss ephemeris ok | ✅ | `ephemeris.mode = "swiss"` on mind-dev, 2026-08-02. Also traced `/api/chat` this round — it dynamically imports the astrology engine and was computing chart-linked Madhav replies under Moshier while the astrology pages used Swiss. |
+| Birth chart + Pressure→Practice card for a saved member | ⏳ | Needs a signed-in account with a cast chart — owner check. Route responds 401 signed-out as designed. |
+| Daily Sādhana: mood → verse → sit → journal; `sadhana_logged` in `app_events` | ⏳ | Owner check (needs a session). Flow verified locally end-to-end on the production build. |
+| Japa finish + grace-day streak behaviour | ⏳ | Owner check. Grace math covered by 11 unit tests; the sit-timer double-count bug was fixed this round (it logged every sit at ~2× its real length). |
+| Panchang day (timezone sensible for chosen place) | ✅ | `/panchang` 200, `/panchang/calendar` 200; day resolves at local sunrise, header states "New Delhi · IST". |
+| Milan with ≥2 members; Hindi koota notes readable | ✅ | `/astrology/milan` 200; koota notes now come from shared i18n on both clients (mobile was rendering the server's English). |
+| Community share while kill-switched → 503; unshare still works | ✅ | The row that earned its keep. Server returns 503 when paused — but the client still offered "Share with seekers" and "be the first to reflect", so people were invited into a refusal. Fixed: kill switches now default to PAUSED when unset (a gate you must remember to close is not a gate) and a public mirror hides the affordance. |
+| Guest sādhana → sign-in merge | ✅ | Verified `POST /api/journeys/merge` rejects signed-out with 401. Two real bugs fixed here: journeys had no merge caller at all (a guest's week died on the device), and the merge I first added fired for anonymous sessions and cleared the device copy — erasing visible progress. |
+| `/sangha` "I attended" → `sangha_attended` event | ✅ | `/community` 200 (renamed; `/sangha` 308-redirects). Event name deliberately unchanged — the G2 gate query binds to it. |
+| Account: notification prefs PATCH; public profile PUT → `/u/[handle]` | ⏳ | Owner check (needs a session). |
+| `/paths/anxiety-7` day list + verse links | ✅ | 200. Deep link carries the full contract: `slokaId`, `pathId`, `pathDay`, `pathTotal`, `minutes`. Unknown journey 404s; guest run returns `{guest:true}`. |
+| `/meditation` Day 1 mood → TTS/silence → complete | ✅ | `/meditation` and `/meditation/1` 200. Unlock is now enforced server-side — the course gated only in the client, so a crafted request could complete day 7 on day one. |
+| `/panchang/calendar` month list loads | ✅ | 200. |
+
+**Automated pass, 2026-08-02.** ✅ = verified against mind-dev.logitslab.com or
+the production build. ⏳ = needs a signed-in session; left for the owner rather
+than marked passed on assumption.
 
 ## Eng re-review notes
 
@@ -77,5 +81,11 @@ Do **not** start until soak is declared done:
 4. Prod smoke (same table as above).
 5. Optional follow-up: CI guard refusing merge while migrations ahead of prod.
 
-**Promote status:** deferred — soak first. This checklist is the promote todo;
-executing it early is a strategy regression.
+**Promote status:** cleared to promote, 2026-08-02 — owner decision, after
+three independent pre-promotion reviews found twelve defects and all twelve
+were fixed (see the promotion runbook). The ⏳ rows above need a signed-in
+session and remain the owner's to walk after promotion.
+
+The original rule stands for next time: executing this checklist early is a
+strategy regression. It earned its keep here — the "community share while
+kill-switched" row is exactly the defect that would otherwise have shipped.
