@@ -81,24 +81,36 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  // The content write happens FIRST and its failure aborts the whole
+  // resolution. Resolving the queue row on a failed removal would drop the
+  // item out of review forever while the content stayed published — the one
+  // outcome a moderation queue must never produce.
   if (item.content_type === "reflection") {
     const entryId = Number(item.content_id);
     if (Number.isInteger(entryId)) {
-      if (resolution === "kept") {
-        await admin
+      const patch =
+        resolution === "kept"
+          ? { status: "published", held_reason: null }
+          : resolution === "removed"
+            ? { status: "removed" }
+            : null;
+      if (patch) {
+        const { error } = await admin
           .from("journal_entries")
-          .update({ status: "published", held_reason: null })
+          .update(patch)
           .eq("id", entryId);
-      } else if (resolution === "removed") {
-        await admin
-          .from("journal_entries")
-          .update({ status: "removed" })
-          .eq("id", entryId);
+        if (error) {
+          console.error("[moderation] content update failed:", error.message);
+          return NextResponse.json(
+            { error: "Could not update the content" },
+            { status: 500 }
+          );
+        }
       }
     }
   }
 
-  await admin
+  const { error: queueError } = await admin
     .from("moderation_queue")
     .update({
       status: "resolved",
@@ -107,13 +119,25 @@ export async function POST(request: NextRequest) {
       resolved_at: new Date().toISOString(),
     })
     .eq("id", id);
+  if (queueError) {
+    console.error("[moderation] queue update failed:", queueError.message);
+    return NextResponse.json(
+      { error: "Could not resolve the report" },
+      { status: 500 }
+    );
+  }
 
-  await admin.from("moderation_actions").insert({
+  // The audit trail must not be the reason a resolution fails, but a silent
+  // gap in it is worse than a log line.
+  const { error: auditError } = await admin.from("moderation_actions").insert({
     actor: userId,
     action: `queue:${resolution}`,
     content_type: item.content_type,
     content_id: item.content_id,
   });
+  if (auditError) {
+    console.error("[moderation] audit insert failed:", auditError.message);
+  }
 
   return NextResponse.json({ ok: true });
 }

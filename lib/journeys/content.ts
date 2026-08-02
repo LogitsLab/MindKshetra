@@ -46,7 +46,10 @@ const NOT_A_JOURNEY = new Set(["daily-sits"]);
 function readJson(file: string): Record<string, unknown> | null {
   try {
     return JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>;
-  } catch {
+  } catch (err) {
+    // Never swallow silently: a missing data/ directory in a lambda is the
+    // difference between "no journeys today" and "the feature is gone".
+    console.error(`[journeys] unreadable ${file}:`, (err as Error).message);
     return null;
   }
 }
@@ -54,7 +57,8 @@ function readJson(file: string): Record<string, unknown> | null {
 function listJson(dir: string): string[] {
   try {
     return readdirSync(dir).filter((f) => f.endsWith(".json"));
-  } catch {
+  } catch (err) {
+    console.error(`[journeys] unreadable dir ${dir}:`, (err as Error).message);
     return [];
   }
 }
@@ -166,7 +170,9 @@ function toJourney(
 let cache: Journey[] | null = null;
 
 export function listJourneys(): Journey[] {
-  if (cache) return cache;
+  // Only cache a NON-empty result. Caching [] froze a cold-start failure for
+  // the life of the instance — the surface stayed blank until a redeploy.
+  if (cache && cache.length) return cache;
   const found = new Map<string, Journey>();
 
   for (const file of listJson(DIRS.journeys)) {

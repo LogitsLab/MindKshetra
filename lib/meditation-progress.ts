@@ -232,7 +232,7 @@ export async function mergeGuestMeditation(
   timezone?: string
 ): Promise<{ merged: number }> {
   let merged = 0;
-  for (const row of completions.slice(0, 90)) {
+  for (const row of completions.slice(0, 20)) {
     if (!row?.sessionId || !row.clientRef || !UUID_SHAPE.test(row.clientRef)) {
       continue;
     }

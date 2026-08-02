@@ -6,7 +6,7 @@ import {
   type MilestoneStats,
 } from "@/lib/milestones";
 import { PRACTICES } from "@/lib/sadhana-core";
-import { listPracticePaths } from "@/lib/paths";
+import { listJourneys } from "@/lib/journeys/content";
 import { getAllSlokas } from "@/lib/slokas";
 import { requireSupabase } from "@/lib/supabase/require";
 import { createClient, getAuthUserId } from "@/lib/supabase/server";
@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
  * its own user (anonymous sessions included: their practice rows are as real
  * as anyone's). Everything is computed from tables that already exist —
  * user_streaks, sadhana_streaks, sadhana_sessions, verse_completions,
- * path_runs — through the pure ladder in lib/milestones.ts.
+ * journey_runs — through the pure ladder in lib/milestones.ts.
  *
  * Fail-soft: signed-out callers get { guest: true } and compute locally;
  * individual read failures degrade to empty slices of the stats rather than
@@ -56,8 +56,8 @@ export async function GET() {
         .select("sloka_id")
         .eq("user_id", userId),
       supabase
-        .from("path_runs")
-        .select("path_id, completed_days")
+        .from("journey_runs")
+        .select("journey_id, completed_days")
         .eq("user_id", userId),
       getAllSlokas(),
     ]);
@@ -67,7 +67,7 @@ export async function GET() {
     ["sadhana_streaks", practiceRes],
     ["sadhana_sessions", japaRes],
     ["verse_completions", versesRes],
-    ["path_runs", runsRes],
+    ["journey_runs", runsRes],
   ] as const) {
     if (res.error) console.error(`[milestones] ${label}:`, res.error.message);
   }
@@ -102,9 +102,11 @@ export async function GET() {
     .map(([chapter]) => chapter)
     .sort((a, b) => a - b);
 
-  const pathDefs = new Map(listPracticePaths().map((p) => [p.id, p]));
+  // Every journey, not just the legacy themed paths: a finished meditation
+  // course earns its mark too.
+  const pathDefs = new Map(listJourneys().map((p) => [p.id, p]));
   const pathsCompleted = (runsRes.data ?? []).flatMap((run) => {
-    const def = pathDefs.get(String(run.path_id));
+    const def = pathDefs.get(String(run.journey_id));
     const doneDays = Array.isArray(run.completed_days)
       ? run.completed_days.length
       : 0;

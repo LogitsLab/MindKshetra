@@ -34,6 +34,21 @@ const nextConfig = {
       "/api/cron/votd-email": ["./ephemeris/**"],
       "/api/cron/push-dispatch": ["./ephemeris/**"],
       "/api/panchang/**": ["./ephemeris/**"],
+
+      // Same trap, different directory: lib/journeys/content.ts, lib/paths.ts
+      // and lib/meditation.ts read data/ at REQUEST time with
+      // process.cwd() + readdirSync. A directory scan cannot be traced even in
+      // principle, and every read is wrapped in a swallow-and-return-empty
+      // catch — so without these entries the journeys, paths and meditation
+      // surfaces come up blank in production with nothing logged, while every
+      // local build passes because the build container has the files.
+      "/paths/**": ["./data/**"],
+      "/meditation/**": ["./data/**"],
+      "/sadhana": ["./data/**"],
+      "/api/journeys/**": ["./data/**"],
+      "/api/paths/**": ["./data/**"],
+      "/api/meditation/**": ["./data/**"],
+      "/api/account/milestones": ["./data/**"],
     },
   },
   webpack: (config, { isServer }) => {

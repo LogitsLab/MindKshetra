@@ -7,6 +7,9 @@ import { getAuthUserId } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Each replayed completion is ~9 sequential round trips; without a raised
+// ceiling a real guest history times out on the sign-in path.
+export const maxDuration = 60;
 
 /** POST /api/meditation/merge — replay guest completions after sign-in. */
 export async function POST(request: NextRequest) {

@@ -336,7 +336,7 @@ export default function SadhanaClient() {
     if (signedInRef.current) {
       try {
         const res = await fetch(
-          `/api/paths/${encodeURIComponent(pc.pathId)}/run`,
+          `/api/journeys/${encodeURIComponent(pc.pathId)}/run`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

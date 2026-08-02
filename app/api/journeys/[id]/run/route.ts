@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loadJourney } from "@/lib/journeys/content";
-import { isDayUnlocked } from "@/lib/journeys/core";
+import { isDayUnlocked, journeyDay } from "@/lib/journeys/core";
 import { getJourneyRun, markJourneyDay } from "@/lib/journeys/progress";
 import { principalKey, rateLimit } from "@/lib/rateLimit";
 import { requireSupabase } from "@/lib/supabase/require";
@@ -72,7 +72,15 @@ export async function POST(
 
   const body = await request.json().catch(() => null);
   const day = Number((body as { day?: unknown } | null)?.day);
-  if (!Number.isInteger(day) || day < 1 || day > journey.days_count) {
+  // days_count describes the arc; a file may not define every day of it
+  // (meditation-21 declares 21 and ships 8-21). An undefined day must not
+  // count, or it becomes a free step through a chained journey.
+  if (
+    !Number.isInteger(day) ||
+    day < 1 ||
+    day > journey.days_count ||
+    !journeyDay(journey, day)
+  ) {
     return NextResponse.json({ error: "Invalid day" }, { status: 400 });
   }
 

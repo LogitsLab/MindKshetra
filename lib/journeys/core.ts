@@ -152,3 +152,27 @@ export function normalizeDays(value: unknown, daysCount: number): number[] {
 export function journeyDay(journey: Journey, day: number): JourneyDay | null {
   return journey.days.find((d) => d.day === day) ?? null;
 }
+
+/**
+ * The longest run of days a replayed guest log could legitimately have earned.
+ *
+ * A merge used to accept whatever array the client sent, so one request could
+ * complete a 21-day chained arc without a day of practice. Chained journeys
+ * now keep only the unbroken prefix from day 1; open journeys keep everything,
+ * because every day was always reachable there anyway.
+ */
+export function claimableDays(
+  completedDays: number[],
+  daysCount: number,
+  unlock: JourneyUnlock = "chain"
+): number[] {
+  const days = normalizeDays(completedDays, daysCount);
+  if (unlock === "open") return days;
+  const set = new Set(days);
+  const out: number[] = [];
+  for (let d = 1; d <= daysCount; d++) {
+    if (!set.has(d)) break;
+    out.push(d);
+  }
+  return out;
+}

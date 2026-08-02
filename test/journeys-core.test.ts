@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   advanceRun,
+  claimableDays,
   isDayUnlocked,
   isJourneyComplete,
   nextDayFrom,
@@ -89,5 +90,23 @@ describe("isJourneyComplete", () => {
     expect(isJourneyComplete([1, 2, 3, 4, 5, 6, 7], 7)).toBe(true);
     expect(isJourneyComplete([1, 2, 3, 4, 5, 6, 8], 7)).toBe(false);
     expect(isJourneyComplete([], 7)).toBe(false);
+  });
+});
+
+describe("claimableDays — what a guest replay may claim", () => {
+  it("keeps only the unbroken prefix on a chained journey", () => {
+    // The bypass: one merge request used to hand over a finished 21-day arc.
+    expect(claimableDays([1, 2, 3, 8, 9, 21], 21, "chain")).toEqual([1, 2, 3]);
+    expect(claimableDays([5, 6, 7], 21, "chain")).toEqual([]);
+    expect(claimableDays(Array.from({ length: 21 }, (_, i) => i + 1), 21, "chain"))
+      .toHaveLength(21);
+  });
+
+  it("keeps everything on an open journey, where each day was always reachable", () => {
+    expect(claimableDays([1, 4, 7], 7, "open")).toEqual([1, 4, 7]);
+  });
+
+  it("drops junk and out-of-range days before claiming", () => {
+    expect(claimableDays([1, 2, 99, -1], 7, "chain")).toEqual([1, 2]);
   });
 });

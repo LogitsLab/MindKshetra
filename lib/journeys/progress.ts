@@ -1,6 +1,9 @@
 import "server-only";
 import {
   advanceRun,
+  claimableDays,
+  isDayUnlocked,
+  journeyDay,
   nextDayFrom,
   normalizeDays,
   type Journey,
@@ -64,6 +67,11 @@ export async function markJourneyDay(
   day: number
 ): Promise<JourneyRun> {
   const existing = await getJourneyRun(userId, journey);
+  if (
+    !isDayUnlocked(day, existing.completedDays, journey.days_count, journey.unlock)
+  ) {
+    throw new Error("Day is locked");
+  }
   const next = advanceRun(
     existing.completedDays,
     existing.currentDay,
@@ -108,6 +116,8 @@ export async function mergeGuestJourneys(
 ): Promise<{ merged: number; received: number }> {
   const rows = Array.isArray(payload) ? payload.slice(0, 50) : [];
   let merged = 0;
+  // One client for the whole replay: it used to be constructed per row.
+  const supabase = await createClient();
 
   for (const raw of rows) {
     if (!raw || typeof raw !== "object") continue;
@@ -115,7 +125,15 @@ export async function mergeGuestJourneys(
     if (typeof journeyId !== "string") continue;
     const journey = loadJourney(journeyId);
     if (!journey) continue;
-    const days = normalizeDays(completedDays, journey.days_count);
+    // Only the unbroken prefix: a replay may not unlock a chained journey
+    // wholesale, and days the file does not define are not days.
+    const days = claimableDays(
+      normalizeDays(completedDays, journey.days_count).filter((d) =>
+        journeyDay(journey, d)
+      ),
+      journey.days_count,
+      journey.unlock
+    );
     if (!days.length) continue;
 
     const existing = await getJourneyRun(userId, journey);
@@ -125,7 +143,6 @@ export async function mergeGuestJourneys(
     );
     if (union.length === existing.completedDays.length) continue;
 
-    const supabase = await createClient();
     const { error } = await supabase.from("journey_runs").upsert(
       {
         user_id: userId,
