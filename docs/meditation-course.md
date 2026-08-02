@@ -6,48 +6,48 @@ Peer to scripture **sādhana** — not japa, not a Calm marketplace. Free foreve
 
 | Surface | Role |
 |---------|------|
-| `/meditation` | Foundation-7 course hub + one-off dailies |
+| `/meditation` | Progressive sitting course hub + one-off dailies |
 | `/sadhana` | Verse + silent sit + reflection (Gita) |
 | `/paths` | Themed multi-day Gita journeys |
 
-**Unlock:** Day N+1 opens only after Day N is completed. Missing a calendar day never resets course progress. Streaks use the shared grace-day model (`practice = 'meditation'` on `sadhana_streaks`).
+**Unlock:** Day N+1 opens only after Day N is completed (server-enforced on complete). Missing a calendar day never resets course progress. Streaks use the shared grace-day model (`practice = 'meditation'` on `sadhana_streaks`).
 
-**v1 audio:** On-device TTS + timed silence (scripts in `data/meditation/`). `audio_url` is reserved for Phase 2 volunteer recordings (prefer **CC BY-SA**).
+**v1 audio:** On-device TTS + timed silence (scripts in `data/`). `audio_url` is reserved for recorded audio (prefer **CC BY-SA**); player falls back to TTS when null.
 
-## Content files
+## Sitting course (composed)
 
-- [`data/meditation/foundation-7.json`](../data/meditation/foundation-7.json) — Days 1–7
-- [`data/meditation/daily-sits.json`](../data/meditation/daily-sits.json) — always-unlocked short sits
+One journey id: **`sitting-course`**. Progress on `journey_runs`. Legacy `foundation-7` / `meditation-21` runs are unioned on read.
 
-Mobile mirrors copies under `MindKshetra-app/src/data/meditation/`.
+| Segment file | Days | Tier | Duration |
+|--------------|------|------|----------|
+| [`data/meditation/foundation-7.json`](../data/meditation/foundation-7.json) | 1–7 | foundation | 6–9 min |
+| [`data/journeys/meditation-21.json`](../data/journeys/meditation-21.json) | 8–21 | habit | 9–20 min |
+| [`data/journeys/meditation-45.json`](../data/journeys/meditation-45.json) | 22–45 | deepening | 20–25 min |
+| [`data/meditation/daily-sits.json`](../data/meditation/daily-sits.json) | — | daily | always unlocked |
+
+Mobile mirrors under `MindKshetra-app/src/data/meditation/`.
+
+**Milestones (private):** day 7, 21, 45 — no public leaderboards.
 
 ## Schema
 
-Migration [`018_meditation_progress.sql`](../supabase/migrations/018_meditation_progress.sql):
-
-- `meditation_runs` — unlock state per `program_id`
-- `meditation_completions` — mood_before / mood_after + `client_ref`
-- Extends sadhana practice check to include `meditation`
-
-Apply on MindKshetra-dev before soak:
-
-```bash
-npm run db:migrate -- <dev-project-ref>
-```
+- `meditation_completions` — mood_before / mood_after + `client_ref` (migration 018)
+- `journey_runs` — unlock state for `sitting-course` (migration 019)
+- Legacy `meditation_runs` kept in sync for one release
 
 ## APIs
 
-- `GET /api/meditation/catalog`
-- `GET /api/meditation/progress?program=foundation-7`
-- `POST /api/meditation/complete`
+- `GET /api/meditation/catalog` — composed program + dailies
+- `GET /api/meditation/progress?program=sitting-course`
+- `POST /api/meditation/complete` — unlock enforced; returns `milestone`
 - `POST /api/meditation/merge` — guest queue replay
+- Journeys: `GET|POST /api/journeys/sitting-course/run`
 
-## Phase 2 (after Tier 1 retention)
+## Later (after retention)
 
-- Days 8–28 habit course content
-- Recorded audio + CDN + offline download
-- Tier 3 goal tracks (anxiety / sleep / focus / stress)
-- Named content steward before scaling scripts/languages
+- Volunteer recorded audio + CDN + offline download
+- Tier 3 goal tracks (`track`: anxiety / sleep / focus / stress) — see `data/meditation/goal-tracks.md`
+- Soft bell at sit end (owner call)
 
 ## Impact
 

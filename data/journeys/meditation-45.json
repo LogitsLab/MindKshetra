@@ -1,0 +1,940 @@
+{
+  "id": "meditation-45",
+  "kind": "meditation",
+  "unlock": "chain",
+  "days_count": 45,
+  "title_en": "Forty-five days of sitting",
+  "title_hi": "बैठने के पैंतालीस दिन",
+  "intro_en": "The deepening arc — days twenty-two to forty-five — after foundation and habit. Sits lengthen toward twenty-five minutes. Guidance thins. Kindness, steadiness, and a few verse companions. Finish a day to unlock the next; a missed calendar day never erases your place.",
+  "intro_hi": "गहराई का चाप — बाईसवें से पैंतालीसवें दिन — नींव और आदत के बाद। बैठक पच्चीस मिनट की ओर बढ़ती है। निर्देश पतले होते हैं। करुणा, स्थिरता, और कुछ श्लोक साथी। दिन पूर्ण होने पर अगला खुलता है; कैलेंडर का छूटा दिन प्रगति नहीं मिटाता।",
+  "days": [
+    {
+      "id": "meditation-45-d22",
+      "day_number": 22,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 20,
+      "title_en": "Fewer words",
+      "title_hi": "कम शब्द",
+      "theme_en": "The guidance thins. You already know how to begin.",
+      "theme_hi": "निर्देश पतले होते हैं। आरंभ करना आप पहले से जानते हैं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 22. Spine easy, hands soft. Let the breath be as it is. Today’s theme: The guidance thins.",
+          "text_hi": "दिन 22 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: निर्देश पतले होते हैं।"
+        },
+        {
+          "type": "silence",
+          "seconds": 336
+        },
+        {
+          "type": "speak",
+          "text_en": "Use fewer words inside. A label is enough; a story is optional.",
+          "text_hi": "भीतर कम शब्द। एक नाम पर्याप्त; कहानी वैकल्पिक।"
+        },
+        {
+          "type": "silence",
+          "seconds": 576
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d23",
+      "day_number": 23,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 20,
+      "title_en": "The whole breath",
+      "title_hi": "पूरी श्वास",
+      "theme_en": "Not counting — simply riding the whole length of one breath after another.",
+      "theme_hi": "गिनती नहीं — केवल एक के बाद एक श्वास की पूरी लंबाई पर चलना।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 23. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Not counting — simply riding the whole length of one breath after another.",
+          "text_hi": "दिन 23 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: गिनती नहीं — केवल एक के बाद एक श्वास की पूरी लंबाई पर चलना।"
+        },
+        {
+          "type": "silence",
+          "seconds": 336
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 576
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d24",
+      "day_number": 24,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 21,
+      "title_en": "Sounds as they are",
+      "title_hi": "ध्वनियाँ जैसी हैं",
+      "theme_en": "Open the field to whatever is sounding, without choosing a favourite.",
+      "theme_hi": "जो भी बज रहा है उसे क्षेत्र में आने दें, बिना पसंदीदा चुने।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 24. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Open the field to whatever is sounding, without choosing a favourite.",
+          "text_hi": "दिन 24 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: जो भी बज रहा है उसे क्षेत्र में आने दें, बिना पसंदीदा चुने।"
+        },
+        {
+          "type": "silence",
+          "seconds": 352
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 604
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d25",
+      "day_number": 25,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 21,
+      "title_en": "The body at rest",
+      "title_hi": "विश्राम में शरीर",
+      "theme_en": "A soft scan from crown to soles — notice, do not fix.",
+      "theme_hi": "शीर्ष से तलवों तक कोमल स्कैन — देखें, ठीक न करें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 25. Spine easy, hands soft. Let the breath be as it is. Today’s theme: A soft scan from crown to soles — notice, do not fix.",
+          "text_hi": "दिन 25 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: शीर्ष से तलवों तक कोमल स्कैन — देखें, ठीक न करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 352
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 604
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d26",
+      "day_number": 26,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 22,
+      "title_en": "Returning without comment",
+      "title_hi": "बिना टिप्पणी लौटना",
+      "theme_en": "Each return is complete. No story about how often you left.",
+      "theme_hi": "हर लौटना पूर्ण है। कितनी बार गए इसकी कहानी नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 26. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Each return is complete.",
+          "text_hi": "दिन 26 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: हर लौटना पूर्ण है।"
+        },
+        {
+          "type": "silence",
+          "seconds": 369
+        },
+        {
+          "type": "speak",
+          "text_en": "Each return counts as success. Count returns if you wish, never failures.",
+          "text_hi": "हर लौटना सफलता है। चाहें तो लौटना गिनें, असफलता कभी नहीं।"
+        },
+        {
+          "type": "silence",
+          "seconds": 633
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d27",
+      "day_number": 27,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 22,
+      "title_en": "Sitting with restlessness",
+      "title_hi": "बेचैनी के साथ बैठना",
+      "theme_en": "Restlessness is allowed in the room. You do not have to leave with it.",
+      "theme_hi": "बेचैनी कमरे में रह सकती है। उसके साथ जाने की ज़रूरत नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 27. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Restlessness is allowed in the room.",
+          "text_hi": "दिन 27 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: बेचैनी कमरे में रह सकती है।"
+        },
+        {
+          "type": "silence",
+          "seconds": 369
+        },
+        {
+          "type": "speak",
+          "text_en": "Name restlessness once — ‘restless’ — and stay. The urge to stand will pass or soften.",
+          "text_hi": "एक बार नाम लें — ‘बेचैन’ — और ठहरें। खड़े होने की इच्छा गुज़रेगी या नरम होगी।"
+        },
+        {
+          "type": "silence",
+          "seconds": 633
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d28",
+      "day_number": 28,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 22,
+      "title_en": "Open and quiet",
+      "title_hi": "खुला और शांत",
+      "theme_en": "No technique for a stretch of time — only sitting, and knowing you sit.",
+      "theme_hi": "कुछ समय के लिए कोई विधि नहीं — केवल बैठना, और जानना कि आप बैठे हैं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 28. Spine easy, hands soft. Let the breath be as it is. Today’s theme: No technique for a stretch of time — only sitting, and knowing you sit.",
+          "text_hi": "दिन 28 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: कुछ समय के लिए कोई विधि नहीं — केवल बैठना, और जानना कि आप बैठे हैं।"
+        },
+        {
+          "type": "silence",
+          "seconds": 369
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 633
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d29",
+      "day_number": 29,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 22,
+      "title_en": "Kindness toward yourself",
+      "title_hi": "अपने प्रति करुणा",
+      "theme_en": "The tone you would use with a friend who is learning.",
+      "theme_hi": "वही स्वर जो सीखते मित्र के लिए रखते हैं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 29. Spine easy, hands soft. Let the breath be as it is. Today’s theme: The tone you would use with a friend who is learning.",
+          "text_hi": "दिन 29 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: वही स्वर जो सीखते मित्र के लिए रखते हैं।"
+        },
+        {
+          "type": "silence",
+          "seconds": 369
+        },
+        {
+          "type": "speak",
+          "text_en": "Silently: may I be at ease. May I meet this hour kindly.",
+          "text_hi": "मौन में: मैं सहज रहूँ। इस घड़ी से करुणा से मिलूँ।"
+        },
+        {
+          "type": "silence",
+          "seconds": 633
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d30",
+      "day_number": 30,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 23,
+      "title_en": "Kindness toward others",
+      "title_hi": "दूसरों के प्रति करुणा",
+      "theme_en": "Silently offer ease to someone easy, then someone ordinary, then yourself.",
+      "theme_hi": "मौन में किसी सहज व्यक्ति को, फिर साधारण को, फिर स्वयं को आराम दें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 30. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Silently offer ease to someone easy, then someone ordinary, then yourself.",
+          "text_hi": "दिन 30 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: मौन में किसी सहज व्यक्ति को, फिर साधारण को, फिर स्वयं को आराम दें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 386
+        },
+        {
+          "type": "speak",
+          "text_en": "Picture someone easy to care for. Wish them ease. Then someone neutral. Then yourself.",
+          "text_hi": "किसी सहज प्रिय व्यक्ति की कल्पना करें। उन्हें आराम दें। फिर तटस्थ को। फिर स्वयं को।"
+        },
+        {
+          "type": "silence",
+          "seconds": 662
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d31",
+      "day_number": 31,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 23,
+      "title_en": "Meeting difficulty",
+      "title_hi": "कठिनाई से मिलना",
+      "theme_en": "When a hard thought comes, stay one breath longer than the urge to leave.",
+      "theme_hi": "कठिन विचार आए तो छोड़ने की इच्छा से एक श्वास अधिक ठहरें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 31. Spine easy, hands soft. Let the breath be as it is. Today’s theme: When a hard thought comes, stay one breath longer than the urge to leave.",
+          "text_hi": "दिन 31 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: कठिन विचार आए तो छोड़ने की इच्छा से एक श्वास अधिक ठहरें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 386
+        },
+        {
+          "type": "speak",
+          "text_en": "When difficulty arrives, widen the breath slightly. Stay one round longer.",
+          "text_hi": "कठिनाई आए तो श्वास थोड़ी चौड़ी करें। एक चक्र अधिक ठहरें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 662
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d32",
+      "day_number": 32,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 23,
+      "title_en": "The middle of the sit",
+      "title_hi": "बैठक का मध्य",
+      "theme_en": "The middle is where most people quit. Today you practise staying through it.",
+      "theme_hi": "मध्य वह जगह है जहाँ अधिकतर छोड़ देते हैं। आज उसी में ठहरने का अभ्यास।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 32. Spine easy, hands soft. Let the breath be as it is. Today’s theme: The middle is where most people quit.",
+          "text_hi": "दिन 32 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: मध्य वह जगह है जहाँ अधिकतर छोड़ देते हैं।"
+        },
+        {
+          "type": "silence",
+          "seconds": 386
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 662
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d33",
+      "day_number": 33,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 24,
+      "title_en": "Breath as home",
+      "title_hi": "घर के रूप में श्वास",
+      "theme_en": "Whenever you notice you have wandered, the breath is already waiting.",
+      "theme_hi": "जब भी ध्यान भटके, श्वास पहले से प्रतीक्षा में है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 33. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Whenever you notice you have wandered, the breath is already waiting.",
+          "text_hi": "दिन 33 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: जब भी ध्यान भटके, श्वास पहले से प्रतीक्षा में है।"
+        },
+        {
+          "type": "silence",
+          "seconds": 403
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 691
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d34",
+      "day_number": 34,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 24,
+      "title_en": "Nothing special",
+      "title_hi": "कुछ विशेष नहीं",
+      "theme_en": "An ordinary sit. No peak experience required.",
+      "theme_hi": "साधारण बैठक। किसी चरम अनुभव की ज़रूरत नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 34. Spine easy, hands soft. Let the breath be as it is. Today’s theme: An ordinary sit.",
+          "text_hi": "दिन 34 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: साधारण बैठक।"
+        },
+        {
+          "type": "silence",
+          "seconds": 403
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 691
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d35",
+      "day_number": 35,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 24,
+      "title_en": "Body and world",
+      "title_hi": "शरीर और संसार",
+      "theme_en": "Feel the contact of the seat; hear the room; let both be true at once.",
+      "theme_hi": "आसन का संपर्क महसूस करें; कमरा सुनें; दोनों एक साथ सत्य रहें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 35. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Feel the contact of the seat; hear the room; let both be true at once.",
+          "text_hi": "दिन 35 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: आसन का संपर्क महसूस करें; कमरा सुनें; दोनों एक साथ सत्य रहें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 403
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 691
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d36",
+      "day_number": 36,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 24,
+      "title_en": "Steady through boredom",
+      "title_hi": "उबाऊपन में स्थिर",
+      "theme_en": "Boredom is a teacher of patience. Stay curious about its texture.",
+      "theme_hi": "उबाऊपन धैर्य का गुरु है। उसकी बनावट के प्रति जिज्ञासु रहें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 36. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Boredom is a teacher of patience.",
+          "text_hi": "दिन 36 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: उबाऊपन धैर्य का गुरु है।"
+        },
+        {
+          "type": "silence",
+          "seconds": 403
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 691
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d37",
+      "day_number": 37,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 25,
+      "title_en": "Soft belly, tall spine",
+      "title_hi": "कोमल पेट, ऊँची रीढ़",
+      "theme_en": "A physical reminder that ease and dignity can share a seat.",
+      "theme_hi": "शारीरिक स्मरण कि सहजता और गरिमा एक साथ बैठ सकती हैं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 37. Spine easy, hands soft. Let the breath be as it is. Today’s theme: A physical reminder that ease and dignity can share a seat.",
+          "text_hi": "दिन 37 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: शारीरिक स्मरण कि सहजता और गरिमा एक साथ बैठ सकती हैं।"
+        },
+        {
+          "type": "silence",
+          "seconds": 420
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 720
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d38",
+      "day_number": 38,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 25,
+      "title_en": "Letting go of the sit",
+      "title_hi": "बैठक छोड़ना",
+      "theme_en": "Practice ending without grabbing the next task. One breath of nothing.",
+      "theme_hi": "अगले काम को पकड़े बिना समाप्त करने का अभ्यास। कुछ न करने की एक श्वास।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 38. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Practice ending without grabbing the next task.",
+          "text_hi": "दिन 38 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: अगले काम को पकड़े बिना समाप्त करने का अभ्यास।"
+        },
+        {
+          "type": "silence",
+          "seconds": 420
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 720
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d39",
+      "day_number": 39,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 25,
+      "title_en": "Verse and silence",
+      "title_hi": "श्लोक और मौन",
+      "theme_en": "A short Gita companion — then silence that does not explain it.",
+      "theme_hi": "गीता का छोटा साथ — फिर मौन जो उसकी व्याख्या नहीं करता।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 39. Spine easy, hands soft. Let the breath be as it is. Today’s theme: A short Gita companion — then silence that does not explain it.",
+          "text_hi": "दिन 39 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: गीता का छोटा साथ — फिर मौन जो उसकी व्याख्या नहीं करता।"
+        },
+        {
+          "type": "silence",
+          "seconds": 420
+        },
+        {
+          "type": "speak",
+          "text_en": "Hold the verse lightly: you have a right to action, not to its fruits. Then sit in silence.",
+          "text_hi": "श्लोक को हल्के से रखें: कर्म पर अधिकार है, फल पर नहीं। फिर मौन में बैठें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 720
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ],
+      "ref": {
+        "chapter": 2,
+        "verse": 47
+      }
+    },
+    {
+      "id": "meditation-45-d40",
+      "day_number": 40,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 25,
+      "title_en": "Action without clinging",
+      "title_hi": "आसक्ति रहित कर्म",
+      "theme_en": "Sit with the teaching of effort without ownership of fruit.",
+      "theme_hi": "फल के स्वामित्व के बिना प्रयास की शिक्षा के साथ बैठें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 40. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Sit with the teaching of effort without ownership of fruit.",
+          "text_hi": "दिन 40 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: फल के स्वामित्व के बिना प्रयास की शिक्षा के साथ बैठें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 420
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 720
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ],
+      "ref": {
+        "chapter": 2,
+        "verse": 48
+      }
+    },
+    {
+      "id": "meditation-45-d41",
+      "day_number": 41,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 25,
+      "title_en": "Evenness of mind",
+      "title_hi": "समत्व",
+      "theme_en": "Notice preference and aversion; return to evenness without forcing it.",
+      "theme_hi": "पसंद-नापसंद देखें; ज़बरदस्ती किए बिना समत्व पर लौटें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 41. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Notice preference and aversion; return to evenness without forcing it.",
+          "text_hi": "दिन 41 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: पसंद-नापसंद देखें; ज़बरदस्ती किए बिना समत्व पर लौटें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 420
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 720
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ],
+      "ref": {
+        "chapter": 2,
+        "verse": 14
+      }
+    },
+    {
+      "id": "meditation-45-d42",
+      "day_number": 42,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 25,
+      "title_en": "The field of practice",
+      "title_hi": "अभ्यास का क्षेत्र",
+      "theme_en": "This seat is the field. Whatever arises belongs to the practice.",
+      "theme_hi": "यह आसन ही क्षेत्र है। जो भी उठे, अभ्यास का है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 42. Spine easy, hands soft. Let the breath be as it is. Today’s theme: This seat is the field.",
+          "text_hi": "दिन 42 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: यह आसन ही क्षेत्र है।"
+        },
+        {
+          "type": "silence",
+          "seconds": 420
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 720
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ],
+      "ref": {
+        "chapter": 13,
+        "verse": 1
+      }
+    },
+    {
+      "id": "meditation-45-d43",
+      "day_number": 43,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 25,
+      "title_en": "Walking back to life",
+      "title_hi": "जीवन में लौटना",
+      "theme_en": "Imagine rising and carrying the sit into the next ordinary hour.",
+      "theme_hi": "उठने और अगले साधारण घंटे में बैठक ले जाने की कल्पना करें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 43. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Imagine rising and carrying the sit into the next ordinary hour.",
+          "text_hi": "दिन 43 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: उठने और अगले साधारण घंटे में बैठक ले जाने की कल्पना करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 420
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 720
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d44",
+      "day_number": 44,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 25,
+      "title_en": "Review without judgment",
+      "title_hi": "बिना निर्णय समीक्षा",
+      "theme_en": "Silently name what grew across these weeks. No score.",
+      "theme_hi": "मौन में नाम लें कि इन सप्ताहों में क्या बढ़ा। कोई अंक नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 44. Spine easy, hands soft. Let the breath be as it is. Today’s theme: Silently name what grew across these weeks.",
+          "text_hi": "दिन 44 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: मौन में नाम लें कि इन सप्ताहों में क्या बढ़ा।"
+        },
+        {
+          "type": "silence",
+          "seconds": 420
+        },
+        {
+          "type": "speak",
+          "text_en": "If the mind has wandered, that is the practice noticing. Return without a lecture. Soften the shoulders once.",
+          "text_hi": "यदि मन भटक गया, यही अभ्यास का ध्यान है। बिना व्याख्यान लौट आएँ। कंधे एक बार ढीले करें।"
+        },
+        {
+          "type": "silence",
+          "seconds": 720
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "meditation-45-d45",
+      "day_number": 45,
+      "tier": "deepening",
+      "track": null,
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 25,
+      "title_en": "Beginning again",
+      "title_hi": "फिर से आरंभ",
+      "theme_en": "The course ends; the practice does not. Day one is always available.",
+      "theme_hi": "पाठ्यक्रम समाप्त; अभ्यास नहीं। दिन एक सदैव उपलब्ध है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Take your seat for day 45. Spine easy, hands soft. Let the breath be as it is. Today’s theme: The course ends; the practice does not.",
+          "text_hi": "दिन 45 के लिए आसन लें। रीढ़ सहज, हाथ कोमल। श्वास जैसी है वैसी रहने दें। आज का विषय: पाठ्यक्रम समाप्त; अभ्यास नहीं।"
+        },
+        {
+          "type": "silence",
+          "seconds": 420
+        },
+        {
+          "type": "speak",
+          "text_en": "Thank the seat. The course is complete; tomorrow you may begin again at day one, or simply sit.",
+          "text_hi": "आसन का धन्यवाद। पाठ्यक्रम पूर्ण; कल दिन एक से आरंभ कर सकते हैं, या केवल बैठ सकते हैं।"
+        },
+        {
+          "type": "silence",
+          "seconds": 720
+        },
+        {
+          "type": "speak",
+          "text_en": "Let the technique go for a few breaths. Feel the whole body sitting. When ready, open the eyes slowly.",
+          "text_hi": "कुछ श्वासों के लिए विधि छोड़ दें। पूरे शरीर को बैठे हुए महसूस करें। जब तैयार हों, धीरे आँखें खोलें।"
+        }
+      ]
+    }
+  ]
+}

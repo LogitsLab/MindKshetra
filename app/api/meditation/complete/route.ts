@@ -49,10 +49,16 @@ export async function POST(request: NextRequest) {
       progress: result.progress,
       streak: result.streak,
       sessionId: result.session.id,
+      milestone: result.milestone,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed";
-    const status = message === "Session not found" ? 404 : 500;
+    const status =
+      message === "Session not found"
+        ? 404
+        : message === "Day is locked"
+          ? 409
+          : 500;
     return NextResponse.json({ error: message }, { status });
   }
 }

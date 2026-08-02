@@ -3,17 +3,17 @@ import MeditationHubClient from "@/components/MeditationHubClient";
 import {
   enrichTranscripts,
   loadDailySits,
-  loadFoundationProgram,
+  loadSittingProgram,
 } from "@/lib/meditation";
 
 export const metadata: Metadata = {
   title: "Meditation course · MindKshetra",
   description:
-    "A free progressive seven-day sit — not japa, not a marketplace. Unlock day by day.",
+    "A free progressive sit — foundation, habit, and deepening. Unlock day by day. Not japa, not a marketplace.",
 };
 
 export default function MeditationPage() {
-  const program = loadFoundationProgram();
+  const program = loadSittingProgram();
   const dailies = loadDailySits();
   if (!program) {
     return (

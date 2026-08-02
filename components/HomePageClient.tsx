@@ -31,6 +31,8 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
   // null = not known yet; the card shows its invitation and never an error.
   const [sadhanaDone, setSadhanaDone] = useState<boolean | null>(null);
   const [practiceStreak, setPracticeStreak] = useState(0);
+  const [medContinueDay, setMedContinueDay] = useState<number | null>(null);
+  const [medDoneCount, setMedDoneCount] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -41,6 +43,42 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
       .then((r) => r.json())
       .then((d) => setStreak(Number(d.current) || 0))
       .catch(() => {});
+  }, [user]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/meditation/progress?program=sitting-course")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        if (data.guest) {
+          try {
+            const raw =
+              localStorage.getItem("mindkshetra-journey-sitting-course") ||
+              localStorage.getItem("mindkshetra-meditation-run-foundation-7");
+            const parsed = raw
+              ? (JSON.parse(raw) as { completedDays?: number[] })
+              : {};
+            const days = Array.isArray(parsed.completedDays)
+              ? parsed.completedDays
+              : [];
+            setMedDoneCount(days.length);
+            setMedContinueDay(
+              days.length ? Math.max(...days) + 1 : 1
+            );
+          } catch {
+            setMedContinueDay(1);
+            setMedDoneCount(0);
+          }
+          return;
+        }
+        setMedDoneCount((data.completedDays as number[] | undefined)?.length ?? 0);
+        setMedContinueDay(Number(data.currentDay) || 1);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   useEffect(() => {
@@ -286,6 +324,25 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
             ) : null}
           </div>
         </Link>
+
+        {medContinueDay != null ? (
+          <Link
+            href={`/meditation/${Math.min(45, Math.max(1, medContinueDay))}`}
+            className="mt-4 block border border-[var(--line)] px-6 py-5 transition hover:border-[var(--brass)]/40"
+          >
+            <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass)]">
+              {t("medEyebrow")}
+            </p>
+            <p className="mt-2 font-display text-xl text-[var(--text)]">
+              {medDoneCount === 0
+                ? t("medHomeStart")
+                : t("medHomeContinue").replace(
+                    "{n}",
+                    String(Math.min(45, Math.max(1, medContinueDay)))
+                  )}
+            </p>
+          </Link>
+        ) : null}
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(
