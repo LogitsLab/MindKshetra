@@ -34,6 +34,21 @@ const RELATIONS: Relationship[] = [
   "other",
 ];
 
+/*
+ * Honest privacy copy for the incognito cast, verified against the code: the
+ * birth details live in this tab's sessionStorage, and the cast chart in a
+ * server-side incognito session that expires after 6 hours
+ * (INCOGNITO_TTL_SEC in lib/astrology/incognito.ts). Nothing touches an
+ * account unless the user chooses to save. Kept inline rather than in the
+ * i18n dictionary only because this change is scoped to this component and
+ * the landing page; fold into lib/i18n/namespaces/astrology.ts when that
+ * file is next open.
+ */
+const PRIVACY_NOTE = {
+  en: "Your birth details stay in this browser tab; the cast chart lives in a temporary session that expires after 6 hours. Nothing is saved to an account unless you choose to save it.",
+  hi: "आपके जन्म विवरण इसी ब्राउज़र टैब में रहते हैं; बनी कुंडली एक अस्थायी सत्र में रहती है जो 6 घंटे बाद समाप्त हो जाता है। जब तक आप स्वयं सहेजना न चुनें, खाते में कुछ नहीं सहेजा जाता।",
+} as const;
+
 const fieldClass =
   "w-full border border-[var(--line)] bg-[var(--input-bg)] px-3 py-3 text-[var(--text)] outline-none transition placeholder:text-[var(--text-muted)]/45 focus:border-[var(--brass)]/70";
 
@@ -47,7 +62,7 @@ export default function BirthForm({
   compact,
   onSubmit,
 }: Props) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [name, setName] = useState(initial?.name || "");
   const [relationship, setRelationship] = useState<Relationship>(
     initial?.relationship || "self"
@@ -80,6 +95,17 @@ export default function BirthForm({
     };
   }, []);
 
+  async function fetchGeocode(q: string): Promise<GeocodeResult[]> {
+    const res = await fetch("/api/astrology/geocode", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: q }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Geocode failed");
+    return data.results || [];
+  }
+
   async function searchPlace(query: string) {
     const q = query.trim();
     if (q.length < 2) {
@@ -90,15 +116,9 @@ export default function BirthForm({
     setSearching(true);
     setError(null);
     try {
-      const res = await fetch("/api/astrology/geocode", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: q }),
-      });
-      const data = await res.json();
+      const results = await fetchGeocode(q);
       if (reqId !== placeRequestId.current) return;
-      if (!res.ok) throw new Error(data.error || "Geocode failed");
-      setSuggestions(data.results || []);
+      setSuggestions(results);
     } catch (err) {
       if (reqId !== placeRequestId.current) return;
       setError(err instanceof Error ? err.message : "Geocode failed");
@@ -117,16 +137,36 @@ export default function BirthForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!selected) {
-      setError(t("astroPlaceRequired"));
-      return;
-    }
     if (!dob) {
       setError(t("astroDobRequired"));
       return;
     }
     setBusy(true);
     try {
+      // If the user typed a place but never picked a suggestion, resolve the
+      // top geocode hit instead of erroring. setSelected keeps the resolved
+      // place + timezone visible in the brass confirm panel so a wrong guess
+      // can be corrected after the fact.
+      let place = selected;
+      if (!place) {
+        const q = placeQuery.trim();
+        if (q.length < 2) {
+          setError(t("astroPlaceRequired"));
+          return;
+        }
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        placeRequestId.current++; // drop any in-flight suggestion search
+        setSearching(false);
+        const results = await fetchGeocode(q);
+        if (results.length === 0) {
+          setError(t("astroPlaceRequired"));
+          return;
+        }
+        place = results[0];
+        setSelected(place);
+        setPlaceQuery(place.label);
+        setSuggestions([]);
+      }
       await onSubmit({
         name: name.trim() || (mode === "incognito" ? "Guest" : "Member"),
         relationship,
@@ -134,10 +174,10 @@ export default function BirthForm({
         tob: tobUnknown ? "" : tob,
         tobUnknown,
         gender,
-        placeLabel: selected.label,
-        lat: selected.lat,
-        lng: selected.lng,
-        ianaTz: selected.ianaTz,
+        placeLabel: place.label,
+        lat: place.lat,
+        lng: place.lng,
+        ianaTz: place.ianaTz,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submit failed");
@@ -266,6 +306,7 @@ export default function BirthForm({
               ) : null}
             </span>
             <input
+              required
               value={placeQuery}
               onChange={(e) => onPlaceChange(e.target.value)}
               onKeyDown={(e) => {
@@ -322,13 +363,20 @@ export default function BirthForm({
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={busy || !selected}
-        className="mt-2 w-full bg-[var(--brass)] px-4 py-3.5 text-sm font-medium tracking-wide text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
-      >
-        {busy ? t("astroWorking") : submitLabel}
-      </button>
+      <div className="mt-2 space-y-3">
+        <button
+          type="submit"
+          disabled={busy}
+          className="w-full bg-[var(--brass)] px-4 py-3.5 text-sm font-medium tracking-wide text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)] disabled:opacity-50"
+        >
+          {busy ? t("astroWorking") : submitLabel}
+        </button>
+        {mode === "incognito" ? (
+          <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
+            {PRIVACY_NOTE[lang] ?? PRIVACY_NOTE.en}
+          </p>
+        ) : null}
+      </div>
     </form>
   );
 }
