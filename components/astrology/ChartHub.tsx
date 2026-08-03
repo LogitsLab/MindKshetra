@@ -7,7 +7,13 @@ import NorthIndianChart from "@/components/astrology/NorthIndianChart";
 import PlanetDetailSheet from "@/components/astrology/PlanetDetailSheet";
 import PressurePracticeCard from "@/components/astrology/PressurePracticeCard";
 import SouthIndianChart from "@/components/astrology/SouthIndianChart";
+import {
+  usePredictions,
+  type PredictionsErrorKind,
+  type PredictionsStage,
+} from "@/components/astrology/usePredictions";
 import { useLanguage } from "@/components/LanguageProvider";
+import type { DictKey } from "@/lib/i18n/dictionary";
 import {
   PLANET_LABELS,
   SIGN_LABELS,
@@ -78,6 +84,20 @@ const GLOSS_KEYS = {
   remedies: "astroGlossRemedies",
 } as const;
 
+/** Honest elapsed-time copy for the 20-60s write-up — no fake percentages. */
+const STAGE_LABEL_KEYS: Record<PredictionsStage, DictKey> = {
+  0: "astroPredStage0",
+  1: "astroPredStage1",
+  2: "astroPredStage2",
+};
+
+const PRED_ERROR_KEYS: Record<PredictionsErrorKind, DictKey> = {
+  "rate-limited": "astroPredErrRateLimited",
+  expired: "astroPredErrExpired",
+  server: "astroPredErrServer",
+  network: "astroPredErrNetwork",
+};
+
 function topBlended(blended: BlendedVerdict[]): BlendedVerdict | undefined {
   return [...blended].sort(
     (a, b) => CONF_RANK[b.confidence] - CONF_RANK[a.confidence]
@@ -122,8 +142,6 @@ export default function ChartHub({
 
   const [tab, setTab] = useState<Tab>("overview");
   const [chart, setChart] = useState(initial);
-  const [predBusy, setPredBusy] = useState(false);
-  const [predError, setPredError] = useState<string | null>(null);
   const [asOfBusy, setAsOfBusy] = useState(false);
   const [showCusps, setShowCusps] = useState(false);
   const [showVerdictDrawer, setShowVerdictDrawer] = useState(false);
@@ -194,27 +212,54 @@ export default function ChartHub({
     { id: "remedies", label: t("astroTabRemedies") },
   ];
 
-  async function loadPredictions(force = false) {
-    if (!onRequestPredictions) return;
-    setPredBusy(true);
-    setPredError(null);
-    try {
-      const next = await onRequestPredictions(force);
-      setChart(next);
-    } catch (err) {
-      setPredError(err instanceof Error ? err.message : "Failed");
-    } finally {
-      setPredBusy(false);
-    }
-  }
+  // Identity of the birth moment this chart was cast for. Deliberately
+  // excludes asOfDate — the write-up is keyed on the birth, not the view date.
+  const chartKey = `${chartSessionId ?? memberId ?? "anon"}|${chart.birth.dob}|${
+    chart.birth.tob ?? ""
+  }|${chart.birth.lat}|${chart.birth.lng}|${chart.birth.ianaTz}`;
 
+  const {
+    busy: predBusy,
+    stage: predStage,
+    error: predError,
+    errorKind: predErrorKind,
+    retryAfterSec: predRetryAfterSec,
+    predictionsByLang,
+    load: loadPredictions,
+    cancel: cancelPredictions,
+  } = usePredictions({
+    chartSessionId,
+    memberId,
+    birth: chart.birth,
+    chartKey,
+    initialText: chart.predictionsText ?? null,
+    fallbackRequest: onRequestPredictions,
+  });
+
+  const predText = predictionsByLang[lang];
+  const canRequestPredictions = Boolean(
+    chartSessionId || memberId || onRequestPredictions
+  );
+
+  // Eager prefetch: fire the write-up as soon as a computed chart renders so
+  // the 20-60s Groq call overlaps with the user reading the other tabs. The
+  // predictions tab consumes this same in-flight promise instead of firing a
+  // second request. load() itself no-ops when the language is already cached.
   useEffect(() => {
-    if (tab !== "predictions") return;
-    if (chart.predictionsText?.portrait) return;
-    if (predBusy || !onRequestPredictions) return;
-    void loadPredictions(false);
+    if (!canRequestPredictions) return;
+    void loadPredictions(lang, { auto: true });
+    // Prefetch exactly once per chart identity; lang switches are handled by
+    // the tab effect below so browsing in HI doesn't burn a second LLM call.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, chart.predictionsText?.portrait, onRequestPredictions]);
+  }, [chartKey, canRequestPredictions]);
+
+  // Opening the tab (or switching language on it) consumes the shared request
+  // or fires a fresh one for an uncached language. Cached languages render
+  // instantly and this effect no-ops.
+  useEffect(() => {
+    if (tab !== "predictions" || !canRequestPredictions) return;
+    void loadPredictions(lang, { auto: true });
+  }, [tab, lang, canRequestPredictions, loadPredictions]);
 
   async function handleAsOfChange(nextDate: string) {
     if (!onAsOfDateChange || nextDate === chart.asOfDate) return;
@@ -1348,7 +1393,7 @@ export default function ChartHub({
                 ? t("astroHideVerdicts")
                 : t("astroShowVerdicts")}
             </button>
-            {chart.predictionsText ? (
+            {predText ? (
               <div className="flex gap-1 border border-[var(--line)] p-0.5 text-xs">
                 <button
                   type="button"
@@ -1411,28 +1456,37 @@ export default function ChartHub({
             </div>
           ) : null}
 
-          {!chart.predictionsText ? (
-            <div className="space-y-3">
-              <p className="text-[var(--text-muted)]">{t("astroPredBlurb")}</p>
-              {predBusy ? (
-                <p className="text-sm text-[var(--brass-soft)]">{t("astroWorking")}</p>
-              ) : (
+          {!predText ? (
+            predBusy ? (
+              <PredictionsSkeleton
+                stage={predStage}
+                onCancel={cancelPredictions}
+                t={t}
+              />
+            ) : predErrorKind ? (
+              <PredictionsError
+                kind={predErrorKind}
+                detail={predError}
+                retryAfterSec={predRetryAfterSec}
+                onRetry={() => void loadPredictions(lang)}
+                t={t}
+              />
+            ) : (
+              <div className="space-y-3">
+                <p className="text-[var(--text-muted)]">{t("astroPredBlurb")}</p>
                 <button
                   type="button"
-                  onClick={() => loadPredictions(false)}
-                  disabled={!onRequestPredictions}
+                  onClick={() => void loadPredictions(lang)}
+                  disabled={!canRequestPredictions}
                   className="bg-[var(--brass)] px-4 py-2.5 text-sm text-[var(--on-brass)] disabled:opacity-50"
                 >
                   {t("astroGeneratePred")}
                 </button>
-              )}
-              {predError ? (
-                <p className="text-sm text-red-400">{predError}</p>
-              ) : null}
-            </div>
+              </div>
+            )
           ) : (
             <div className="space-y-10">
-              {chart.predictionsText.source === "rules" ? (
+              {predText.source === "rules" ? (
                 <p className="border border-[var(--brass)]/30 bg-[var(--brass)]/5 px-3 py-2 text-sm text-[var(--brass-soft)]">
                   {t("astroPredRulesBanner")}
                 </p>
@@ -1443,34 +1497,51 @@ export default function ChartHub({
                 </h2>
                 <p className="text-xs text-[var(--text-muted)]">
                   {t("astroAsOf")} {chart.asOfDate}
-                  {chart.predictionsText.generatedAt
+                  {predText.generatedAt
                     ? ` · ${t("astroGenerated")} ${new Date(
-                        chart.predictionsText.generatedAt
+                        predText.generatedAt
                       ).toLocaleString()}`
                     : ""}
-                  {` · ${chart.predictionsText.language.toUpperCase()}`}
+                  {` · ${predText.language.toUpperCase()}`}
                 </p>
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--text)]">
-                  {chart.predictionsText.portrait}
+                  {predText.portrait}
                 </p>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <button
                     type="button"
-                    onClick={() => loadPredictions(true)}
+                    onClick={() => void loadPredictions(lang, { force: true })}
                     disabled={predBusy}
                     className="text-xs text-[var(--brass-soft)] underline-offset-2 hover:underline disabled:opacity-50"
                   >
-                    {predBusy ? t("astroWorking") : t("astroRegeneratePred")}
+                    {predBusy
+                      ? t(STAGE_LABEL_KEYS[predStage])
+                      : t("astroRegeneratePred")}
                   </button>
-                  <span className="text-[0.7rem] text-[var(--text-muted)]">
-                    {t("astroPredRegenerateHint")}
-                  </span>
+                  {predBusy ? (
+                    <button
+                      type="button"
+                      onClick={cancelPredictions}
+                      className="text-xs text-[var(--text-muted)] underline-offset-2 hover:underline"
+                    >
+                      {t("astroPredCancel")}
+                    </button>
+                  ) : (
+                    <span className="text-[0.7rem] text-[var(--text-muted)]">
+                      {t("astroPredRegenerateHint")}
+                    </span>
+                  )}
                 </div>
+                {!predBusy && predErrorKind ? (
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {t(PRED_ERROR_KEYS[predErrorKind])}
+                  </p>
+                ) : null}
               </article>
 
               <AreaPredictionBlock
                 area={featuredArea}
-                row={chart.predictionsText.areas[featuredArea]}
+                row={predText.areas[featuredArea]}
                 blended={blendedByArea.get(featuredArea)}
                 predDetail={predDetail}
                 featured
@@ -1489,7 +1560,7 @@ export default function ChartHub({
                     <AreaPredictionBlock
                       key={area}
                       area={area}
-                      row={chart.predictionsText!.areas[area]}
+                      row={predText.areas[area]}
                       blended={blendedByArea.get(area)}
                       predDetail={predDetail}
                       t={t}
@@ -1541,6 +1612,114 @@ export default function ChartHub({
         labelPlanet={labelPlanet}
         labelSign={labelSign}
       />
+    </div>
+  );
+}
+
+function SkeletonBar({ className }: { className: string }) {
+  return <div className={`pred-skeleton-bar ${className}`} aria-hidden />;
+}
+
+/**
+ * Content-shaped placeholder for the 20-60s write-up: the blocks mirror the
+ * eventual layout (portrait panel, then a featured life-area card) so nothing
+ * jumps when the text lands. Shimmer lives in globals.css behind the
+ * reduced-motion wildcard (des/D10).
+ */
+function PredictionsSkeleton({
+  stage,
+  onCancel,
+  t,
+}: {
+  stage: PredictionsStage;
+  onCancel: () => void;
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
+  return (
+    <div className="space-y-10" role="status" aria-live="polite">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-sm text-[var(--brass-soft)]">
+            {t(STAGE_LABEL_KEYS[stage])}
+          </p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            {t("astroPredWaitHint")}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="shrink-0 border border-[var(--line)] px-3 py-1.5 text-xs text-[var(--text-muted)] transition hover:border-[var(--brass)]/40 hover:text-[var(--text)]"
+        >
+          {t("astroPredCancel")}
+        </button>
+      </div>
+
+      {/* Portrait panel */}
+      <div className="space-y-3 border border-[var(--brass)]/25 bg-[var(--brass)]/5 px-4 py-5">
+        <SkeletonBar className="h-7 w-44 max-w-full" />
+        <SkeletonBar className="h-3 w-60 max-w-full" />
+        <div className="space-y-2.5 pt-1">
+          <SkeletonBar className="h-3.5 w-full" />
+          <SkeletonBar className="h-3.5 w-full" />
+          <SkeletonBar className="h-3.5 w-11/12" />
+          <SkeletonBar className="h-3.5 w-4/5" />
+        </div>
+      </div>
+
+      {/* Featured life-area card */}
+      <div className="space-y-5 border-t border-[var(--hairline)] pt-8">
+        <div className="space-y-2">
+          <SkeletonBar className="h-3 w-28" />
+          <SkeletonBar className="h-6 w-72 max-w-full" />
+        </div>
+        <div className="space-y-2.5">
+          <SkeletonBar className="h-3.5 w-full" />
+          <SkeletonBar className="h-3.5 w-10/12" />
+          <SkeletonBar className="h-3.5 w-3/4" />
+        </div>
+        <div className="space-y-2 border-l-2 border-[var(--brass)]/30 pl-3">
+          <SkeletonBar className="h-3 w-20" />
+          <SkeletonBar className="h-3.5 w-2/3" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PredictionsError({
+  kind,
+  detail,
+  retryAfterSec,
+  onRetry,
+  t,
+}: {
+  kind: PredictionsErrorKind;
+  detail: string | null;
+  retryAfterSec: number | null;
+  onRetry: () => void;
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
+  const counting = kind === "rate-limited" && retryAfterSec != null;
+  return (
+    <div className="space-y-3 border border-[var(--line)] px-4 py-4" role="alert">
+      <p className="text-sm text-[var(--text)]">{t(PRED_ERROR_KEYS[kind])}</p>
+      {detail && kind !== "rate-limited" ? (
+        <p className="text-xs text-[var(--text-muted)]">{detail}</p>
+      ) : null}
+      {counting ? (
+        <p className="text-sm text-[var(--brass-soft)]" aria-live="polite">
+          {t("astroPredRetryCountdown")} {Math.max(retryAfterSec, 0)}s
+        </p>
+      ) : (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="bg-[var(--brass)] px-4 py-2 text-sm text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+        >
+          {t("astroPredRetry")}
+        </button>
+      )}
     </div>
   );
 }
