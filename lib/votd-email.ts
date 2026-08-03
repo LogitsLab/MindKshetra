@@ -222,11 +222,26 @@ export function parseResendError(status: number, body: string): string {
   return "Could not send email. Check RESEND_API_KEY / RESEND_FROM.";
 }
 
+/** The bare address inside `Name <address>` (or the string itself). */
+function fromAddress(from: string): string {
+  return /<([^>]+)>/.exec(from)?.[1]?.trim() || from.trim();
+}
+
 export async function sendVotdEmail(
   to: string,
   payload: VotdPayload,
-  resendKey: string
+  resendKey: string,
+  opts: { unsubscribeUrl?: string } = {}
 ): Promise<{ ok: true; id?: string } | { ok: false; error: string; status: number }> {
+  // RFC 2369 + RFC 8058: List-Unsubscribe with a one-click POST target keeps
+  // Gmail/Yahoo bulk-sender compliance and gives readers a native way out.
+  const headers = opts.unsubscribeUrl
+    ? {
+        "List-Unsubscribe": `<mailto:${fromAddress(payload.from)}?subject=unsubscribe>, <${opts.unsubscribeUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      }
+    : undefined;
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -239,6 +254,7 @@ export async function sendVotdEmail(
       subject: payload.subject,
       html: payload.html,
       text: payload.text,
+      ...(headers ? { headers } : {}),
     }),
   });
 

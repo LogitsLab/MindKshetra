@@ -319,6 +319,32 @@ body {
   animation: nav-progress-slide 1.05s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
+/*
+ * Predictions skeleton — content-shaped placeholder while the 20-60s Groq
+ * write-up runs. Brass at low alpha (the streaming-pulse register) so it works
+ * over both themes. Under prefers-reduced-motion the wildcard (des/D10) stops
+ * the sweep and the bar degrades to its static gradient.
+ */
+.pred-skeleton-bar {
+  background: linear-gradient(
+    90deg,
+    rgba(201, 162, 39, 0.07) 0%,
+    rgba(201, 162, 39, 0.16) 50%,
+    rgba(201, 162, 39, 0.07) 100%
+  );
+  background-size: 200% 100%;
+  animation: pred-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes pred-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
 @keyframes stream-caret {
   0%,
   45% {
@@ -431,6 +457,7 @@ body {
   .animate-rise-delay-3,
   .animate-fade,
   .nav-progress-indeterminate,
+  .pred-skeleton-bar,
   .stream-caret,
   .watermark-sanskrit,
   .astro-zodiac-ring,

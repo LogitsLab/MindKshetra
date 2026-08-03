@@ -1,4 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  UnsubscribeConfigError,
+  unsubscribeUrl,
+} from "@/lib/notifications/unsubscribe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadTodaysVotdPayload, sendVotdEmail } from "@/lib/votd-email";
 
@@ -95,8 +99,28 @@ export async function GET(request: NextRequest) {
   let failed = 0;
   const errors: { email: string; error: string }[] = [];
 
+  // List-Unsubscribe links are per-recipient HMAC tokens. A missing
+  // UNSUB_SECRET must not stop the broadcast — warn once and send without
+  // the headers until the env is configured.
+  let unsubConfigured = true;
+  const unsubLinkFor = (userId: string): string | undefined => {
+    if (!unsubConfigured) return undefined;
+    try {
+      return unsubscribeUrl(userId, payload.site);
+    } catch (err) {
+      if (err instanceof UnsubscribeConfigError) {
+        unsubConfigured = false;
+        console.warn("[cron/votd-email]", err.message);
+        return undefined;
+      }
+      throw err;
+    }
+  };
+
   for (const recipient of recipients) {
-    const result = await sendVotdEmail(recipient.email, payload, resendKey);
+    const result = await sendVotdEmail(recipient.email, payload, resendKey, {
+      unsubscribeUrl: unsubLinkFor(recipient.id),
+    });
     if (result.ok) {
       sent += 1;
     } else {

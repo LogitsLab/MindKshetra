@@ -1,12 +1,14 @@
 name: Push dispatch
 
-# Half-hourly tick for /api/cron/push-dispatch (per-user local-hour windows
+# Half-hourly tick for /api/cron/notify-dispatch (per-user local-hour windows
 # need finer granularity than Vercel cron offers on this plan; a few minutes
 # of GitHub cron jitter is fine for a morning verse).
 #
-# Harmless until mobile ships expo-notifications and users opt in — the
-# route answers {sent: 0} when no cohort is due. Requires the CRON_SECRET
-# repository secret to match the Vercel env var of the same name.
+# notify-dispatch is the v2 dispatcher (notification_log claim-then-send,
+# receipts, sweeper); it supersedes /api/cron/push-dispatch, which stays
+# routable but unscheduled. Requires the CRON_SECRET repository secret to
+# match the Vercel env var of the same name. The route 500s with a clear
+# message until migration 020 is applied — that run is a no-op, not a loop.
 
 on:
   schedule:
@@ -27,4 +29,4 @@ jobs:
         run: |
           curl -fsS --max-time 90 \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ vars.PUSH_DISPATCH_URL || 'https://mind.logitslab.com/api/cron/push-dispatch' }}"
+            "${{ vars.PUSH_DISPATCH_URL || 'https://mind.logitslab.com/api/cron/notify-dispatch' }}"

@@ -277,164 +277,144 @@ export default function AstrologyLanding() {
 
   return (
     <div className="relative">
-      {/* Beat 1 — brand hero (matches home cinematic weight) */}
-      <section className="relative flex min-h-[min(78dvh,40rem)] flex-col justify-center overflow-hidden py-12 sm:min-h-[min(82dvh,44rem)] sm:py-16">
-        <div className="hero-bleed pointer-events-none absolute inset-y-0 -z-10">
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent"
-            aria-hidden
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/30"
-            aria-hidden
-          />
-        </div>
-
-        <ZodiacRing className="astro-zodiac-ring pointer-events-none absolute -right-20 top-1/2 h-[26rem] w-[26rem] -translate-y-1/2 text-[var(--brass)] opacity-[0.18] sm:-right-10 sm:h-[34rem] sm:w-[34rem]" />
+      {/*
+       * Single beat — the form IS the hero. Two columns at md+ (headline left,
+       * cast form right); on mobile the form sits directly under a short
+       * headline. No full-viewport hero, no anchor CTA, no fake step ribbon.
+       */}
+      <section className="relative overflow-hidden py-10 sm:py-14">
+        <ZodiacRing className="astro-zodiac-ring pointer-events-none absolute -left-32 top-8 hidden h-[30rem] w-[30rem] text-[var(--brass)] opacity-[0.1] md:block" />
 
         <p
-          className="watermark-sanskrit pointer-events-none absolute right-[4%] top-[18%] select-none font-devanagari text-[clamp(5rem,20vw,10rem)] leading-none"
+          className="watermark-sanskrit pointer-events-none absolute bottom-[6%] left-[2%] hidden select-none font-devanagari text-[clamp(4rem,12vw,8rem)] leading-none md:block"
           aria-hidden
         >
           ज्योतिष
         </p>
 
-        <div className="relative z-10 max-w-3xl">
-          <p className="eyebrow animate-rise mb-4 text-[var(--brass)]">
-            {t("astroEyebrow")}
-          </p>
-          <h1 className="animate-rise-delay-1 font-display text-[2.75rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-7xl md:text-8xl">
-            {t("astroTitle")}
-          </h1>
-          <p className="animate-rise-delay-2 mt-5 max-w-xl font-display text-lg leading-snug text-[var(--brass-hover)] sm:mt-6 sm:text-2xl">
-            {t("astroTagline")}
-          </p>
-          <p className="animate-rise-delay-3 mt-4 max-w-lg text-[0.95rem] font-light leading-relaxed text-white/75 sm:text-lg">
-            {t("astroIntroNew")}
-          </p>
+        <div className="relative z-10 grid gap-10 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:items-start lg:gap-16">
+          {/* Left column — headline, value prop, privacy line */}
+          <div className="md:sticky md:top-24 md:pt-6">
+            <p className="eyebrow animate-rise mb-3 text-[var(--brass)]">
+              {t("astroEyebrow")}
+            </p>
+            <h1 className="animate-rise-delay-1 font-display text-4xl font-semibold leading-[0.98] tracking-tight text-[var(--text)] sm:text-5xl lg:text-6xl">
+              {t("astroTitle")}
+            </h1>
+            <p className="animate-rise-delay-2 mt-4 max-w-md font-display text-lg leading-snug text-[var(--brass-soft)] sm:text-xl">
+              {t("astroTagline")}
+            </p>
+            <p className="animate-rise-delay-3 mt-3 hidden max-w-md text-[0.95rem] font-light leading-relaxed text-[var(--text-muted)] md:block">
+              {t("astroIntroNew")}
+            </p>
+            <p className="animate-rise-delay-3 mt-4 max-w-md text-[11px] leading-relaxed text-[var(--brass-soft)] md:mt-5">
+              {t("astroIncognitoBanner")}
+            </p>
 
-          <div className="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
-            <a
-              href="#cast"
-              className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-            >
-              {t("astroCast")}
-            </a>
+            <div className="animate-rise-delay-3 mt-8 hidden flex-wrap items-center gap-3 md:flex">
+              <Link
+                href={signedIn ? "/astrology/members" : "/account"}
+                className="min-h-11 border border-[var(--line)] px-5 py-3 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 hover:text-[var(--text)]"
+              >
+                {signedIn ? t("astroManageLink") : t("astroSignInToSave")}
+              </Link>
+              {signedIn ? (
+                <Link
+                  href="/astrology/milan"
+                  className="min-h-11 border border-[var(--line)] px-5 py-3 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 hover:text-[var(--text)]"
+                >
+                  {t("milanEyebrow")}
+                </Link>
+              ) : null}
+            </div>
+          </div>
+
+          {/* Right column — the cast form, above the fold */}
+          <div
+            id="cast"
+            className="panel scroll-mt-24 border border-[var(--line)] p-5 sm:p-7"
+          >
+            <h2 className="font-display text-2xl tracking-tight text-[var(--text)] sm:text-3xl">
+              {t("astroCastTitle")}
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-muted)]">
+              {t("astroCastBlurb")}
+            </p>
+
+            {notice ? (
+              <p
+                className="mt-4 border border-[var(--brass)]/25 bg-[var(--brass)]/5 px-3 py-2.5 text-sm text-[var(--brass-soft)]"
+                role="status"
+              >
+                {notice}
+              </p>
+            ) : null}
+
+            {error ? (
+              <p className="mt-4 text-sm text-red-400" role="alert">
+                {error}
+              </p>
+            ) : null}
+
+            <div className="mt-6">
+              <BirthForm
+                mode="incognito"
+                compact
+                submitLabel={t("astroCast")}
+                onSubmit={async (values) => {
+                  setError(null);
+                  setNotice(null);
+                  const res = await fetch("/api/astrology/compute", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      ...values,
+                      gender: values.gender || null,
+                    }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.error || "Compute failed");
+                  const id = data.chartSessionId ?? data.sessionId;
+                  writeStoredSession(id, data.chart.birth);
+                  setChartSessionId(id);
+                  setChart(data.chart);
+                }}
+              />
+            </div>
+
+            <p className="mt-6 text-[11px] leading-relaxed tracking-wide text-[var(--text-muted)]">
+              {t("astroEngineNote")}
+            </p>
+
+            {signedIn ? (
+              <p className="mt-3 text-sm">
+                <Link
+                  href="/astrology/members/new"
+                  className="text-[var(--brass-soft)] underline-offset-4 hover:underline"
+                >
+                  {t("astroSaveAsMember")}
+                </Link>
+              </p>
+            ) : null}
+          </div>
+
+          {/* Secondary links repeat under the form on mobile only */}
+          <div className="flex flex-wrap items-center gap-3 md:hidden">
             <Link
               href={signedIn ? "/astrology/members" : "/account"}
-              className="min-h-11 border border-white/25 px-5 py-3 text-sm text-white/85 transition hover:border-[var(--brass)]/50 hover:text-white"
+              className="min-h-11 border border-[var(--line)] px-5 py-3 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 hover:text-[var(--text)]"
             >
               {signedIn ? t("astroManageLink") : t("astroSignInToSave")}
             </Link>
             {signedIn ? (
               <Link
                 href="/astrology/milan"
-                className="min-h-11 border border-white/25 px-5 py-3 text-sm text-white/85 transition hover:border-[var(--brass)]/50 hover:text-white"
+                className="min-h-11 border border-[var(--line)] px-5 py-3 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 hover:text-[var(--text)]"
               >
                 {t("milanEyebrow")}
               </Link>
             ) : null}
           </div>
-        </div>
-      </section>
-
-      {/* Beat 2 — cast form */}
-      <section
-        id="cast"
-        className="relative scroll-mt-24 border-t border-[var(--brass)]/20 pb-20 pt-12 sm:pt-16"
-      >
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/40 to-transparent"
-          aria-hidden
-        />
-
-        <div className="relative mx-auto max-w-3xl">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="eyebrow text-[var(--brass-soft)]">
-                {t("astroCastStep")}
-              </p>
-              <h2 className="mt-2 font-display text-3xl tracking-tight text-[var(--text)] sm:text-4xl">
-                {t("astroCastTitle")}
-              </h2>
-              <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-                {t("astroCastBlurb")}
-              </p>
-            </div>
-            <p className="max-w-[12rem] text-right text-[11px] leading-relaxed text-[var(--brass-soft)]">
-              {t("astroIncognitoBanner")}
-            </p>
-          </div>
-
-          {/* Quiet step labels */}
-          <ol className="mb-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-[var(--text-muted)]">
-            <li className="flex items-center gap-2">
-              <span className="font-display text-[var(--brass-soft)]">01</span>
-              {t("astroStepBirth")}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="font-display text-[var(--brass-soft)]">02</span>
-              {t("astroStepPlace")}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="font-display text-[var(--brass-soft)]">03</span>
-              {t("astroStepCast")}
-            </li>
-          </ol>
-
-          {notice ? (
-            <p
-              className="mb-4 border border-[var(--brass)]/25 bg-[var(--brass)]/5 px-3 py-2.5 text-sm text-[var(--brass-soft)]"
-              role="status"
-            >
-              {notice}
-            </p>
-          ) : null}
-
-          {error ? (
-            <p className="mb-4 text-sm text-red-400" role="alert">
-              {error}
-            </p>
-          ) : null}
-
-          <BirthForm
-            mode="incognito"
-            compact
-            submitLabel={t("astroCast")}
-            onSubmit={async (values) => {
-              setError(null);
-              setNotice(null);
-              const res = await fetch("/api/astrology/compute", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  ...values,
-                  gender: values.gender || null,
-                }),
-              });
-              const data = await res.json();
-              if (!res.ok) throw new Error(data.error || "Compute failed");
-              const id = data.chartSessionId ?? data.sessionId;
-              writeStoredSession(id, data.chart.birth);
-              setChartSessionId(id);
-              setChart(data.chart);
-            }}
-          />
-
-          <p className="mt-10 text-center text-[11px] leading-relaxed tracking-wide text-[var(--text-muted)]">
-            {t("astroEngineNote")}
-          </p>
-
-          {signedIn ? (
-            <p className="mt-4 text-center text-sm">
-              <Link
-                href="/astrology/members/new"
-                className="text-[var(--brass-soft)] underline-offset-4 hover:underline"
-              >
-                {t("astroSaveAsMember")}
-              </Link>
-            </p>
-          ) : null}
         </div>
       </section>
     </div>
