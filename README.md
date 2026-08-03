@@ -8,6 +8,7 @@ Open-source web companion for the Bhagavad Gita — and Jyotish birth charts —
 
 **Mobile app:** [LogitsLab/MindKshetra-app](https://github.com/LogitsLab/MindKshetra-app)
 
+
 ## Features
 
 - **Explore** — 701 verses (Sanskrit, IAST, Hindi, English), search, favorites, journal

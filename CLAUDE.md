@@ -5,7 +5,8 @@ TypeScript, Tailwind, Supabase, Groq.
 
 Design and scope decisions live in
 [docs/designs/gita-jyotish-integration.md](docs/designs/gita-jyotish-integration.md).
-Open work lives in [TODOS.md](TODOS.md).
+Open work lives in [TODOS.md](TODOS.md)..
+
 
 ---
 
