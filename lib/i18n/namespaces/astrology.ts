@@ -92,6 +92,20 @@ export const en = {
   astroPredWhatChartSays: "What the chart says",
   astroPredTryThis: "Try this",
   astroPredRegenerateHint: "Not landing? Regenerate for a fresher write-up from the same facts.",
+  astroPredStage0: "Reading the chart…",
+  astroPredStage1: "Weighing dasha and transits…",
+  astroPredStage2: "Composing your reading…",
+  astroPredWaitHint:
+    "A written reading usually takes under a minute. You can keep exploring the chart — it will be ready here.",
+  astroPredCancel: "Cancel",
+  astroPredRetry: "Try again",
+  astroPredErrServer:
+    "The reading could not be prepared this time. Your chart is unaffected.",
+  astroPredErrNetwork: "The connection dropped while preparing the reading.",
+  astroPredErrExpired:
+    "This chart session has expired — cast the chart again for a written reading.",
+  astroPredErrRateLimited: "Too many readings requested just now.",
+  astroPredRetryCountdown: "Retrying automatically in",
   astroChatSend: "Send",
   astroChatEmpty: "I couldn’t form a reply — try again in a moment.",
   astroIntroNew: "Enter a birth moment. We cast the chart from Swiss Ephemeris — then read dashas, yogas, and a detailed forecast.",
@@ -396,6 +410,20 @@ export const hi: Record<keyof typeof en, string> = {
   astroPredWhatChartSays: "कुंडली क्या कहती है",
   astroPredTryThis: "यह आज़माएँ",
   astroPredRegenerateHint: "ठीक नहीं लग रहा? उन्हीं तथ्यों से नया लेखन बनाएँ।",
+  astroPredStage0: "कुंडली पढ़ी जा रही है…",
+  astroPredStage1: "दशा और गोचर तौले जा रहे हैं…",
+  astroPredStage2: "आपका पठन लिखा जा रहा है…",
+  astroPredWaitHint:
+    "लिखित पठन में प्रायः एक मिनट से कम लगता है। आप कुंडली देखते रहें — तैयार होते ही यहीं मिलेगा।",
+  astroPredCancel: "रद्द करें",
+  astroPredRetry: "फिर कोशिश करें",
+  astroPredErrServer:
+    "इस बार पठन तैयार नहीं हो सका। आपकी कुंडली पर कोई असर नहीं है।",
+  astroPredErrNetwork: "पठन तैयार करते समय कनेक्शन टूट गया।",
+  astroPredErrExpired:
+    "यह कुंडली सत्र समाप्त हो गया — लिखित पठन के लिए कुंडली फिर से बनाएँ।",
+  astroPredErrRateLimited: "अभी बहुत से पठन-अनुरोध हो गए हैं।",
+  astroPredRetryCountdown: "स्वतः पुनः प्रयास:",
   astroChatSend: "भेजें",
   astroChatEmpty: "उत्तर नहीं बन पाया — थोड़ी देर बाद फिर कोशिश करें।",
   astroIntroNew: "जन्म क्षण दर्ज करें। हम स्विस एफमेरिस से कुंडली बनाते हैं — फिर दशा, योग और विस्तृत पठन।",
