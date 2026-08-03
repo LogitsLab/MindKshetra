@@ -307,6 +307,32 @@ export default function AstrologyLanding() {
             <p className="animate-rise-delay-3 mt-3 hidden max-w-md text-[0.95rem] font-light leading-relaxed text-[var(--text-muted)] md:block">
               {t("astroIntroNew")}
             </p>
+            <div className="animate-rise-delay-3 mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+              <Link
+                href="/panchang"
+                className="text-[var(--brass-soft)] underline-offset-4 hover:underline"
+              >
+                Panchang
+              </Link>
+              <Link
+                href="/astrology/muhurat"
+                className="text-[var(--brass-soft)] underline-offset-4 hover:underline"
+              >
+                Muhurats
+              </Link>
+              <Link
+                href="/astrology/horoscope"
+                className="text-[var(--brass-soft)] underline-offset-4 hover:underline"
+              >
+                Horoscope
+              </Link>
+              <Link
+                href="/astrology/transits"
+                className="text-[var(--brass-soft)] underline-offset-4 hover:underline"
+              >
+                Transits
+              </Link>
+            </div>
             <p className="animate-rise-delay-3 mt-4 max-w-md text-[11px] leading-relaxed text-[var(--brass-soft)] md:mt-5">
               {t("astroIncognitoBanner")}
             </p>

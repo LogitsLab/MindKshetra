@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 
 export default function MainShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const fullBleed = pathname === "/madhav";
+  const fullBleed = pathname === "/madhav" || pathname === "/welcome";
 
   return (
     <main
@@ -15,7 +15,11 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
       tabIndex={-1}
       className={
         fullBleed
-          ? "relative flex h-[calc(100dvh-4rem)] min-h-[calc(100dvh-4rem)] w-full flex-col overflow-hidden p-0 focus-visible:outline-none"
+          ? `relative flex w-full flex-col overflow-hidden p-0 focus-visible:outline-none ${
+              pathname === "/madhav"
+                ? "h-[calc(100dvh-4rem)] min-h-[calc(100dvh-4rem)]"
+                : "min-h-[calc(100dvh-4rem)]"
+            }`
           : "relative mx-auto min-h-[calc(100dvh-4rem)] w-full max-w-6xl px-4 pb-12 pt-5 focus-visible:outline-none sm:px-6 sm:pb-16 sm:pt-8"
       }
     >

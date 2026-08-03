@@ -9,6 +9,7 @@ import MainShell from "@/components/MainShell";
 import SkipLink from "@/components/SkipLink";
 import SiteFooter from "@/components/SiteFooter";
 import NavigationProgress from "@/components/NavigationProgress";
+import WelcomeGate from "@/components/WelcomeGate";
 import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -107,6 +108,7 @@ export default function RootLayout({
                 <div className="site-atmosphere" aria-hidden />
                 <NavigationProgress />
                 <Nav />
+                <WelcomeGate />
                 <MainShell>{children}</MainShell>
                 <SiteFooter />
               </ProgressProvider>

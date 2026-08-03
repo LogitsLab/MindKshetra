@@ -502,6 +502,10 @@ export default function AccountPageClient() {
       { href: "/verse-of-the-day", label: t("homeVotdLink"), accent: !continueSlokaId },
       { href: "/favorites", label: t("favorites"), accent: false },
       { href: "/account/reflections", label: t("myReflections"), accent: false },
+      { href: "/account/personalize", label: "Personalize", accent: false },
+      { href: "/account/achievements", label: "Achievements", accent: false },
+      { href: "/account/progress", label: "Progress", accent: false },
+      { href: "/journal", label: "Journal", accent: false },
       { href: "/madhav", label: t("navMadhav"), accent: false },
     ];
 

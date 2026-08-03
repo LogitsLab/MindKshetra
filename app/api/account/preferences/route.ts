@@ -1,4 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  isGuidanceStyleId,
+  sanitizeDailyTime,
+  sanitizeGoals,
+  sanitizeInspirations,
+  type GuidanceStyleId,
+  type GoalId,
+  type InspirationId,
+} from "@/lib/personalization";
 import { requireSupabase } from "@/lib/supabase/require";
 import { createClient, getAuthUserId } from "@/lib/supabase/server";
 import { isValidTimezone } from "@/lib/streaks";
@@ -16,6 +25,13 @@ export type UserPreferences = {
   notifDailyVerseHour: number;
   notifStreakReminder: boolean;
   notifCommunity: boolean;
+  goals: GoalId[];
+  inspirations: InspirationId[];
+  dailyTimeMinutes: number | null;
+  guidanceStyle: GuidanceStyleId | null;
+  onboardingVersion: number;
+  onboardingCompletedAt: string | null;
+  onboardingSkipped: boolean;
 };
 
 const DEFAULTS = {
@@ -30,10 +46,17 @@ const DEFAULTS = {
   notifDailyVerseHour: 8,
   notifStreakReminder: false,
   notifCommunity: true,
+  goals: [] as GoalId[],
+  inspirations: [] as InspirationId[],
+  dailyTimeMinutes: null as number | null,
+  guidanceStyle: null as GuidanceStyleId | null,
+  onboardingVersion: 0,
+  onboardingCompletedAt: null as string | null,
+  onboardingSkipped: false,
 };
 
 const PREF_COLUMNS =
-  "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone, notif_daily_verse, notif_daily_verse_hour, notif_streak_reminder, notif_community";
+  "votd_email_enabled, display_name, date_of_birth, place, preferred_language, about, timezone, notif_daily_verse, notif_daily_verse_hour, notif_streak_reminder, notif_community, goals, inspirations, daily_time_minutes, guidance_style, onboarding_version, onboarding_completed_at, onboarding_skipped";
 
 function normalizeLang(value: unknown): "en" | "hi" | null {
   if (value === "en" || value === "hi") return value;
@@ -59,9 +82,20 @@ function mapRow(
     notif_daily_verse_hour?: number | null;
     notif_streak_reminder?: boolean | null;
     notif_community?: boolean | null;
+    goals?: string[] | null;
+    inspirations?: string[] | null;
+    daily_time_minutes?: number | null;
+    guidance_style?: string | null;
+    onboarding_version?: number | null;
+    onboarding_completed_at?: string | null;
+    onboarding_skipped?: boolean | null;
   } | null,
   email: string | null
 ): UserPreferences {
+  const guidance =
+    data?.guidance_style && isGuidanceStyleId(data.guidance_style)
+      ? data.guidance_style
+      : null;
   return {
     votdEmailEnabled: data?.votd_email_enabled ?? DEFAULTS.votdEmailEnabled,
     displayName: data?.display_name ?? "",
@@ -77,6 +111,13 @@ function mapRow(
     notifStreakReminder:
       data?.notif_streak_reminder ?? DEFAULTS.notifStreakReminder,
     notifCommunity: data?.notif_community ?? DEFAULTS.notifCommunity,
+    goals: sanitizeGoals(data?.goals ?? []),
+    inspirations: sanitizeInspirations(data?.inspirations ?? []),
+    dailyTimeMinutes: sanitizeDailyTime(data?.daily_time_minutes ?? null),
+    guidanceStyle: guidance,
+    onboardingVersion: data?.onboarding_version ?? 0,
+    onboardingCompletedAt: data?.onboarding_completed_at ?? null,
+    onboardingSkipped: data?.onboarding_skipped ?? false,
   };
 }
 
@@ -180,6 +221,27 @@ export async function PATCH(request: NextRequest) {
       typeof body.notifCommunity === "boolean"
         ? body.notifCommunity
         : (existing?.notif_community ?? DEFAULTS.notifCommunity),
+    goals:
+      body.goals !== undefined
+        ? sanitizeGoals(body.goals)
+        : sanitizeGoals(existing?.goals ?? []),
+    inspirations:
+      body.inspirations !== undefined
+        ? sanitizeInspirations(body.inspirations)
+        : sanitizeInspirations(existing?.inspirations ?? []),
+    daily_time_minutes:
+      body.dailyTimeMinutes !== undefined
+        ? sanitizeDailyTime(body.dailyTimeMinutes)
+        : sanitizeDailyTime(existing?.daily_time_minutes ?? null),
+    guidance_style:
+      body.guidanceStyle !== undefined
+        ? typeof body.guidanceStyle === "string" &&
+          isGuidanceStyleId(body.guidanceStyle)
+          ? body.guidanceStyle
+          : null
+        : existing?.guidance_style && isGuidanceStyleId(existing.guidance_style)
+          ? existing.guidance_style
+          : null,
     updated_at: new Date().toISOString(),
   };
 
@@ -235,7 +297,11 @@ export async function PATCH(request: NextRequest) {
     typeof body.notifDailyVerse === "boolean" ||
     typeof body.notifDailyVerseHour === "number" ||
     typeof body.notifStreakReminder === "boolean" ||
-    typeof body.notifCommunity === "boolean";
+    typeof body.notifCommunity === "boolean" ||
+    body.goals !== undefined ||
+    body.inspirations !== undefined ||
+    body.dailyTimeMinutes !== undefined ||
+    body.guidanceStyle !== undefined;
 
   if (!hasAnyField) {
     return NextResponse.json(
