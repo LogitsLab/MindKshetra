@@ -39,6 +39,27 @@ const args = Object.fromEntries(
   })
 );
 
+/**
+ * With --wayback, the pattern is the ORIGINAL host URL and each verse is
+ * resolved through the Internet Archive's CDX index to whichever capture
+ * actually exists — coverage varies per file, so a fixed snapshot date
+ * misses verses that were crawled in other years.
+ */
+async function waybackResolve(originalUrl) {
+  const cdx =
+    "https://web.archive.org/cdx/search/cdx?output=json&limit=-1" +
+    "&filter=statuscode:200&fl=timestamp&url=" +
+    encodeURIComponent(originalUrl);
+  const res = await fetch(cdx, {
+    headers: { "User-Agent": "MindKshetra-audio-pipeline (non-profit)" },
+  });
+  if (!res.ok) throw new Error(`CDX ${res.status}`);
+  const rows = await res.json();
+  const timestamp = rows?.[1]?.[0];
+  if (!timestamp) throw new Error("no archived capture");
+  return `https://web.archive.org/web/${timestamp}id_/${originalUrl}`;
+}
+
 function isRealAudio(buffer) {
   if (buffer.length < 128) return false;
   const head = buffer.subarray(0, 12);
@@ -103,7 +124,7 @@ async function main() {
     }
     if (fetched >= limit) break;
 
-    const url = args.pattern
+    let url = args.pattern
       .replaceAll("{chapter}", String(s.chapter))
       .replaceAll("{verse}", String(s.verse_number));
 
@@ -114,6 +135,7 @@ async function main() {
     }
 
     try {
+      if (args.wayback) url = await waybackResolve(url);
       const res = await fetch(url, {
         headers: { "User-Agent": "MindKshetra-audio-pipeline (non-profit)" },
       });
@@ -134,7 +156,8 @@ async function main() {
     } catch (err) {
       failed += 1;
       console.error(`[fail] ${key}: ${err.message}`);
-      if (failed > 10) {
+      const cap = args["max-failures"] ? Number(args["max-failures"]) : 10;
+      if (failed > cap) {
         console.error("Too many failures — stopping (wrong pattern?).");
         break;
       }
