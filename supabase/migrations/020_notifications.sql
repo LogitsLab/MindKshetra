@@ -72,3 +72,26 @@ create index if not exists notification_log_status_created_idx
   on notification_log (status, created_at);
 
 alter table notification_log enable row level security;
+
+-- ---------------------------------------------------------------------------
+-- v1 -> v2 carry-over. The 012_push.sql system (push_tokens / push_sends /
+-- notif_* columns on user_preferences) is superseded by these tables, but
+-- production devices registered under v1 and users set v1 preferences, so
+-- copy them forward. v1 tables stay in place until a later cleanup migration;
+-- /api/push/register dual-writes so pre-v2 app builds keep tokens fresh here.
+insert into device_push_tokens
+  (user_id, expo_push_token, platform, last_seen_at, disabled_at)
+select user_id, token, platform, last_seen_at, disabled_at
+from push_tokens
+on conflict (expo_push_token) do nothing;
+
+-- v1 allowed hour 22; v2 caps at 21 — clamp rather than drop the row.
+insert into notification_preferences
+  (user_id, daily_verse, streak_reminder, send_hour_local)
+select
+  user_id,
+  notif_daily_verse,
+  notif_streak_reminder,
+  least(notif_daily_verse_hour, 21)
+from user_preferences
+on conflict (user_id) do nothing;

@@ -59,6 +59,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Could not register" }, { status: 500 });
   }
 
+  // v2 dual-write: pre-v2 app builds only call this route, so keep their
+  // tokens fresh in device_push_tokens too. Best-effort — migration 020 may
+  // not be applied yet, and this device IS registered in v1 either way.
+  const { error: v2Error } = await admin.from("device_push_tokens").upsert(
+    {
+      user_id: userId,
+      expo_push_token: token,
+      platform,
+      last_seen_at: new Date().toISOString(),
+      disabled_at: null,
+      failure_count: 0,
+    },
+    { onConflict: "expo_push_token" }
+  );
+  if (v2Error) {
+    console.warn("[push/register] v2 dual-write:", v2Error.message);
+  }
+
   // Retire the oldest tokens beyond the newest MAX_ACTIVE_TOKENS. The device
   // above IS registered at this point, so cap-enforcement failures are logged
   // rather than turned into a 500 that would lie to that device.
@@ -110,6 +128,15 @@ export async function DELETE(request: NextRequest) {
     // A silently failed disable means pushes keep arriving after sign-out.
     console.warn("[push/register] disable failed:", error.message);
     return NextResponse.json({ error: "Could not disable" }, { status: 500 });
+  }
+  // Mirror the disable into v2 (best-effort, see POST).
+  const { error: v2Error } = await admin
+    .from("device_push_tokens")
+    .update({ disabled_at: new Date().toISOString() })
+    .eq("expo_push_token", token)
+    .eq("user_id", userId);
+  if (v2Error) {
+    console.warn("[push/register] v2 disable dual-write:", v2Error.message);
   }
   return NextResponse.json({ ok: true });
 }
