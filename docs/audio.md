@@ -59,6 +59,23 @@ npm run audio:recitation -- \
 It validates responses are real audio (magic bytes — Gita Supersite's old URL
 patterns now soft-404 with HTML), re-encodes to m4a, and uploads.
 
+### Current coverage: two sources, all 701 verses (2026-08-03)
+
+- **Swami Brahmananda — Gita Supersite, IIT Kanpur** (65 verses): recovered via
+  the Internet Archive; these are the only per-verse files the Wayback Machine
+  ever captured (verified by domain-wide CDX enumeration — the live site's 2026
+  redesign dropped audio entirely). Owner-confirmed permission, 2026-08-02.
+- **Shri Ved Vyas Foundation — bhagavadgita.io** (remaining 636 verses):
+  per-verse recitations from https://github.com/gita/gita
+  (`data/verse_recitation/{chapter}/{verse}.mp3`), released under **The
+  Unlicense** (public domain). Versification matches `data/slokas.json`
+  exactly (701 verses, chapter-by-chapter).
+
+The fetcher gap-fills — existing manifest keys are skipped — so re-running the
+gita/gita pattern never overwrites the Brahmananda files. If the full IIT
+Kanpur archive ever arrives, point the fetcher at it after deleting the keys
+to replace; a single-reciter corpus is preferable for consistency.
+
 ### Getting permission from IIT Kanpur (Gita Supersite)
 
 The Gita Supersite (gitasupersite.in, formerly gitasupersite.iitk.ac.in) hosts
