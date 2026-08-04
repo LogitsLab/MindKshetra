@@ -286,6 +286,35 @@ body {
   }
 }
 
+@keyframes hero-ken {
+  from {
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@keyframes hero-breath {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.hero-ken {
+  animation: hero-ken 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.hero-breath {
+  animation: hero-breath 7s ease-in-out infinite;
+  will-change: opacity;
+}
+
 .animate-rise {
   animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -461,8 +490,14 @@ body {
   .stream-caret,
   .watermark-sanskrit,
   .astro-zodiac-ring,
-  .site-atmosphere::before {
+  .site-atmosphere::before,
+  .hero-ken,
+  .hero-breath {
     animation: none !important;
+  }
+
+  .hero-ken {
+    transform: none !important;
   }
 
   .path-mark,
