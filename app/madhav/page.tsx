@@ -13,20 +13,20 @@ function MadhavContent() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col animate-fade">
-      <header className="flex shrink-0 items-center gap-3 border-b border-[var(--hairline)] px-4 py-3 sm:gap-4 sm:px-6 sm:py-3.5">
+      <header className="flex shrink-0 items-center gap-3 border-b border-[var(--line)] bg-[rgba(14,20,32,.55)] px-4 py-3 backdrop-blur-md sm:gap-4 sm:px-6 sm:py-4">
         <Image
           src="/brand/madhav.jpg"
           alt=""
-          width={40}
-          height={40}
-          className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-[var(--brass)]/40"
+          width={44}
+          height={44}
+          className="h-11 w-11 shrink-0 rounded-full object-cover ring-1 ring-[var(--brass)]/50"
           priority
         />
         <div className="min-w-0 flex-1">
           <p className="text-[0.65rem] uppercase tracking-[0.22em] text-[var(--brass-soft)]">
             {t("madhavEyebrow")}
           </p>
-          <h1 className="mt-0.5 font-display text-xl font-semibold text-[var(--text)] sm:text-2xl">
+          <h1 className="mt-0.5 font-display text-xl font-semibold text-[var(--brass-soft)] sm:text-2xl">
             {t("madhavTitle")}
           </h1>
         </div>
