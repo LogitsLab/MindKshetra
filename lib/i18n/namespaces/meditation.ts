@@ -55,6 +55,7 @@ export const en = {
   medGuestSaved: "Saved on this device for now.",
   medHomeContinue: "Continue sitting · day {n}",
   medHomeStart: "Begin the sitting course",
+  medHomeNextReady: "Your next seat is ready",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
@@ -112,4 +113,5 @@ export const hi: Record<keyof typeof en, string> = {
   medGuestSaved: "अभी इसी डिवाइस पर सहेजा गया।",
   medHomeContinue: "बैठक जारी · दिन {n}",
   medHomeStart: "बैठने का पाठ्यक्रम आरंभ करें",
+  medHomeNextReady: "अगला आसन तैयार है",
 };

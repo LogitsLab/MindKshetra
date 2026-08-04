@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
-import { useProgress } from "@/components/ProgressProvider";
 import { moodLabel } from "@/lib/mood-utils";
 import { getMoodVisual } from "@/lib/moodVisuals";
 import type { Mood } from "@/lib/types";
@@ -23,26 +22,40 @@ type Props = {
   previewMoods: Mood[];
 };
 
-/**
- * Option A — Atmosphere Sit:
- * Full-bleed meditation hero + slim VOTD + 6 equal path tiles (incl. Explore).
- * Full companion lifestyle hub retained below.
- */
+type PracticeProgress = {
+  done: boolean | null;
+  streak: number;
+  meditationDay: number | null;
+  meditationDone: number;
+};
+
+const ENTRY_LAYOUT = [
+  "lg:col-span-7 lg:row-span-2 lg:min-h-[27rem]",
+  "lg:col-span-5 lg:min-h-[13rem]",
+  "lg:col-span-5 lg:min-h-[13rem]",
+  "lg:col-span-4 lg:min-h-[16rem]",
+  "lg:col-span-4 lg:min-h-[16rem]",
+  "lg:col-span-4 lg:min-h-[16rem]",
+] as const;
+
 export default function HomePageClient({ featured, previewMoods }: Props) {
   const { lang, t } = useLanguage();
   const { user } = useAuth();
-  const { continueSlokaId } = useProgress();
-  const [sadhanaDone, setSadhanaDone] = useState<boolean | null>(null);
-  const [practiceStreak, setPracticeStreak] = useState(0);
-  const [medContinueDay, setMedContinueDay] = useState<number | null>(null);
-  const [medDoneCount, setMedDoneCount] = useState(0);
+  const [progress, setProgress] = useState<PracticeProgress>({
+    done: null,
+    streak: 0,
+    meditationDay: null,
+    meditationDone: 0,
+  });
 
   useEffect(() => {
     let cancelled = false;
+
     fetch("/api/meditation/progress?program=sitting-course")
-      .then((r) => (r.ok ? r.json() : null))
+      .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
         if (cancelled || !data) return;
+
         if (data.guest) {
           try {
             const raw =
@@ -54,20 +67,30 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
             const days = Array.isArray(parsed.completedDays)
               ? parsed.completedDays
               : [];
-            setMedDoneCount(days.length);
-            setMedContinueDay(days.length ? Math.max(...days) + 1 : 1);
+            setProgress((current) => ({
+              ...current,
+              meditationDone: days.length,
+              meditationDay: days.length ? Math.max(...days) + 1 : 1,
+            }));
           } catch {
-            setMedContinueDay(1);
-            setMedDoneCount(0);
+            setProgress((current) => ({
+              ...current,
+              meditationDone: 0,
+              meditationDay: 1,
+            }));
           }
           return;
         }
-        setMedDoneCount(
-          (data.completedDays as number[] | undefined)?.length ?? 0
-        );
-        setMedContinueDay(Number(data.currentDay) || 1);
+
+        setProgress((current) => ({
+          ...current,
+          meditationDone:
+            (data.completedDays as number[] | undefined)?.length ?? 0,
+          meditationDay: Number(data.currentDay) || 1,
+        }));
       })
       .catch(() => {});
+
     return () => {
       cancelled = true;
     };
@@ -75,33 +98,68 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
 
   useEffect(() => {
     if (!user) {
-      setSadhanaDone(null);
-      setPracticeStreak(0);
+      setProgress((current) => ({ ...current, done: null, streak: 0 }));
       return;
     }
+
     let cancelled = false;
-    let tz: string | undefined;
+    let timezone: string | undefined;
     try {
-      tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     } catch {
-      tz = undefined;
+      timezone = undefined;
     }
-    fetch(`/api/sadhana${tz ? `?tz=${encodeURIComponent(tz)}` : ""}`)
-      .then((res) => (res.ok ? res.json() : null))
+
+    fetch(
+      `/api/sadhana${timezone ? `?tz=${encodeURIComponent(timezone)}` : ""}`
+    )
+      .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
-        if (!cancelled && data) {
-          setSadhanaDone(Boolean(data.doneToday?.includes?.("flow")));
-          const flow = (data.streaks ?? []).find(
-            (x: { practice?: string }) => x.practice === "flow"
-          );
-          setPracticeStreak(Number(flow?.current) || 0);
-        }
+        if (cancelled || !data) return;
+        const flow = (data.streaks ?? []).find(
+          (item: { practice?: string }) => item.practice === "flow"
+        );
+        setProgress((current) => ({
+          ...current,
+          done: Boolean(data.doneToday?.includes?.("flow")),
+          streak: Number(flow?.current) || 0,
+        }));
       })
       .catch(() => {});
+
     return () => {
       cancelled = true;
     };
   }, [user]);
+
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>(".home-premium");
+    root?.classList.add("home-motion-ready");
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-home-reveal]")
+    );
+    if (!sections.length || !("IntersectionObserver" in window)) {
+      sections.forEach((section) => section.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.12 }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => {
+      observer.disconnect();
+      root?.classList.remove("home-motion-ready");
+    };
+  }, []);
 
   const entries = [
     {
@@ -141,7 +199,7 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
     },
     {
       href: "/paths",
-      title: t("homeBlockPathsTitle"),
+      title: lang === "hi" ? "मार्ग" : "Paths",
       blurb: t("homeBlockPathsBody"),
       image: "/images/paths/paths.jpg",
       eyebrow: "Journeys",
@@ -149,422 +207,507 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
   ];
 
   const translation = lang === "hi" ? featured.hindi : featured.english;
+  const sitTotal = 45;
+  const sitDone = Math.min(sitTotal, Math.max(0, progress.meditationDone));
+  const sitDay = Math.min(
+    sitTotal,
+    Math.max(1, progress.meditationDay ?? 1)
+  );
   const sitHref =
-    medContinueDay != null
-      ? `/meditation/${Math.min(45, Math.max(1, medContinueDay))}`
-      : "/meditation";
+    progress.meditationDay == null
+      ? "/meditation"
+      : `/meditation/${sitDay}`;
   const sitLabel =
-    medDoneCount === 0
+    progress.meditationDone === 0
       ? t("medHomeStart")
-      : t("medHomeContinue").replace(
-          "{n}",
-          String(Math.min(45, Math.max(1, medContinueDay ?? 1)))
-        );
+      : t("medHomeContinue").replace("{n}", String(sitDay));
+  const sitProgressLabel = t("medProgress")
+    .replace("{done}", String(sitDone))
+    .replace("{total}", String(sitTotal));
+  const ringCircumference = 2 * Math.PI * 22;
+  const ringOffset =
+    ringCircumference * (1 - Math.max(0, sitDone) / sitTotal);
+
+  const practiceLinks = [
+    {
+      href: sitHref,
+      title: sitLabel,
+      body: sitProgressLabel,
+      image: "/images/paths/meditation.jpg",
+    },
+    {
+      href: "/sadhana#japa",
+      title: t("homeBlockJapaTitle"),
+      body: t("homeBlockJapaBody"),
+      image: "/images/paths/sadhana.jpg",
+    },
+    {
+      href: "/panchang",
+      title: t("homeBlockPanchangTitle"),
+      body: t("homeBlockPanchangBody"),
+      image: "/images/paths/panchang-ring.jpg",
+    },
+  ];
+
+  const togetherLinks = [
+    {
+      href: "/community",
+      title: t("homeBlockSanghaTitle"),
+      body: t("homeBlockSanghaBody"),
+    },
+    {
+      href: "/care",
+      title: t("homeBlockCareTitle"),
+      body: t("homeBlockCareBody"),
+    },
+    {
+      href: "/support",
+      title: t("homeBlockSupportTitle"),
+      body: t("homeBlockSupportBody"),
+    },
+    {
+      href: "/account",
+      title: t("homeBlockNotifTitle"),
+      body: t("homeBlockNotifBody"),
+    },
+  ];
 
   return (
-    <div className="relative pb-8">
-      {/* ── Atmosphere Sit hero ── */}
-      <section className="hero-bleed relative flex min-h-[calc(100dvh-4.5rem)] flex-col justify-end overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+    <div className="home-premium relative overflow-hidden pb-10">
+      <section className="home-hero hero-bleed relative min-h-[88dvh] overflow-hidden lg:min-h-[82dvh]">
+        <div className="absolute inset-0">
           <Image
             src="/images/hero.jpg"
             alt=""
             fill
             priority
             sizes="100vw"
-            className="hero-ken object-cover object-[center_42%] opacity-70"
+            className="hero-ken object-cover object-[center_44%]"
           />
-          <div className="hero-breath absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(61,122,106,0.18),transparent_58%)]" />
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-[var(--void)] via-[rgba(7,9,15,.55)] to-[rgba(7,9,15,.35)]"
-            aria-hidden
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-[rgba(7,9,15,.55)] via-transparent to-[rgba(7,9,15,.25)]"
-            aria-hidden
-          />
+          <div className="home-hero__wash absolute inset-0" aria-hidden />
+          <div className="home-hero__orb absolute" aria-hidden />
+          <div className="home-hero__grain absolute inset-0" aria-hidden />
         </div>
 
-        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-4 pb-6 pt-16 sm:px-6 sm:pb-8 sm:pt-20">
-          <div className="max-w-2xl">
-            <Image
-              src="/brand/mark.svg"
-              alt=""
-              width={48}
-              height={48}
-              className="animate-rise opacity-95"
-              priority
-            />
-            <h1 className="animate-rise-delay-1 mt-5 font-display text-5xl font-medium leading-[0.95] tracking-tight text-[var(--brass-soft)] sm:text-7xl md:text-8xl">
-              MindKshetra
-            </h1>
-            <p className="animate-rise-delay-2 mt-4 max-w-xl font-display text-lg leading-snug text-white/90 sm:text-2xl">
+        <div className="relative z-10 mx-auto grid min-h-[88dvh] w-full max-w-[80rem] grid-cols-[minmax(0,1fr)] items-end gap-9 px-5 pb-10 pt-24 sm:px-8 sm:pb-12 lg:min-h-[82dvh] lg:grid-cols-[minmax(0,1.08fr)_minmax(21rem,.72fr)] lg:gap-12 lg:px-10 lg:pb-14 xl:px-12">
+          <div className="min-w-0 max-w-4xl">
+            <div className="animate-rise flex items-center gap-4 sm:gap-5">
+              <Image
+                src="/brand/mark.svg"
+                alt=""
+                width={52}
+                height={52}
+                className="hero-lotus h-11 w-11 shrink-0 sm:h-[3.25rem] sm:w-[3.25rem]"
+                priority
+              />
+              <h1 className="max-w-4xl whitespace-nowrap font-display text-[clamp(2.75rem,5.2vw,5.25rem)] font-medium leading-[0.9] tracking-[-0.05em] text-[var(--on-media)]">
+                Mind
+                <span className="italic text-[var(--brass-soft)]">
+                  Kshetra
+                </span>
+              </h1>
+            </div>
+
+            <p className="animate-rise-delay-2 mt-7 max-w-xl font-display text-[clamp(1.25rem,1.9vw,1.75rem)] leading-[1.22] text-white/92">
               {t("homeTagline")}
             </p>
-            <p className="animate-rise-delay-3 mt-3 max-w-lg text-sm font-light leading-relaxed text-white/70 sm:text-base">
+            <p className="animate-rise-delay-3 mt-4 max-w-lg text-sm font-light leading-6 text-white/64 sm:text-[15px]">
               {t("homeBody")}
             </p>
 
-            <div className="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3">
+            <div className="animate-rise-delay-4 mt-7 flex flex-wrap items-center gap-3">
+              <Link
+                href="/madhav"
+                className="home-button home-button--primary group"
+              >
+                <span>{t("homeCtaMadhav")}</span>
+                <span className="home-arrow" aria-hidden>
+                  ↗
+                </span>
+              </Link>
+              <Link href="/mood" className="home-button home-button--ghost">
+                {t("homeMoodsTitle")}
+              </Link>
+            </div>
+          </div>
+
+          <aside className="animate-rise-delay-3 home-verse min-w-0">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="eyebrow text-[var(--brass-soft)]">
+                  {t("homeFeaturedEyebrow")}
+                </p>
+                <p className="mt-2 text-[11px] tracking-[.14em] text-white/45">
+                  {featured.ref}
+                </p>
+              </div>
+              <div className="relative flex h-12 w-12 items-center justify-center">
+                <svg
+                  className="-rotate-90 text-[var(--brass-soft)]"
+                  viewBox="0 0 56 56"
+                  width="48"
+                  height="48"
+                  aria-hidden
+                >
+                  <circle
+                    cx="28"
+                    cy="28"
+                    r="22"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    opacity=".2"
+                  />
+                  <circle
+                    cx="28"
+                    cy="28"
+                    r="22"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeDasharray={ringCircumference}
+                    strokeDashoffset={ringOffset}
+                    className="hero-progress-ring__value"
+                  />
+                </svg>
+                <Image
+                  src="/brand/mark.svg"
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="absolute opacity-85"
+                />
+              </div>
+            </div>
+
+            <p className="mt-6 font-devanagari text-xl leading-[1.5] text-[var(--brass-soft)] sm:text-[1.4rem]">
+              {featured.sanskritLines.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </p>
+            <p className="mt-4 font-display text-base italic leading-relaxed text-white/82 sm:text-lg">
+              “{translation}”
+            </p>
+
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 border-t border-white/10 pt-4 text-[13px]">
+              <Link
+                href={`/sloka/${featured.id}`}
+                className="text-[var(--brass-soft)] transition hover:text-white"
+              >
+                {t("homeFeaturedDetail")} ↗
+              </Link>
               <Link
                 href={sitHref}
-                className="min-h-12 bg-[var(--brass)] px-7 py-3.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+                className="text-white/58 transition hover:text-white"
               >
                 {sitLabel}
               </Link>
-              <Link
-                href="/madhav"
-                className="min-h-12 border border-white/30 bg-white/5 px-6 py-3.5 text-sm text-white backdrop-blur-sm transition hover:border-[var(--brass)]/55 hover:bg-white/10"
-              >
-                {t("homeCtaMadhav")}
-              </Link>
-              {sadhanaDone === false ? (
-                <Link
-                  href="/sadhana"
-                  className="min-h-12 px-2 py-3.5 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-soft)] hover:underline"
-                >
-                  {t("homeCtaPractice")}
-                </Link>
-              ) : continueSlokaId ? (
-                <Link
-                  href={`/sloka/${continueSlokaId}`}
-                  className="min-h-12 px-2 py-3.5 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-soft)] hover:underline"
-                >
-                  {t("continueReading")}
-                </Link>
-              ) : (
-                <Link
-                  href="/explore"
-                  className="min-h-12 px-2 py-3.5 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-soft)] hover:underline"
-                >
-                  {t("homeCtaExplore")}
-                </Link>
-              )}
             </div>
-          </div>
+          </aside>
         </div>
 
-        {/* Slim VOTD strip — not a bulky centered card */}
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-8 sm:px-6 sm:pb-10">
-          <div className="glass flex flex-col gap-4 overflow-hidden border-[var(--line)] px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8 sm:px-7 sm:py-6">
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[var(--brass-soft)]">
-                {t("homeFeaturedEyebrow")} · {featured.ref}
-              </p>
-              <p className="mt-2 truncate font-devanagari text-lg text-[var(--brass-soft)] sm:text-xl">
-                {featured.sanskritLines[0]}
-                {featured.sanskritLines.length > 1 ? " …" : " ॥"}
-              </p>
-              <p className="mt-2 line-clamp-2 max-w-2xl font-display text-sm italic leading-relaxed text-[var(--text-soft)] sm:text-base">
-                “{translation}”
-              </p>
-            </div>
-            <div className="flex shrink-0 flex-wrap gap-3">
-              <Link
-                href={`/sloka/${featured.id}`}
-                className="text-xs uppercase tracking-[0.16em] text-[var(--brass-soft)] hover:underline"
-              >
-                {t("homeFeaturedDetail")}
-              </Link>
-              <Link
-                href="/verse-of-the-day"
-                className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)] hover:text-[var(--brass-soft)] hover:underline"
-              >
-                {t("homeFeaturedCta")}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Six equal path tiles (Explore included) ── */}
-      <section className="border-t border-[var(--hairline)] py-14">
-        <p className="mb-6 text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--brass)]">
-          {t("homePaths")}
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {entries.map((entry) => (
-            <Link
-              key={entry.href}
-              href={entry.href}
-              className="group relative flex min-h-[220px] flex-col justify-end overflow-hidden border border-[var(--line)] transition hover:border-[var(--brass)]/45 sm:min-h-[260px]"
-            >
-              <Image
-                src={entry.image}
-                alt=""
-                fill
-                sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover opacity-55 transition duration-700 group-hover:scale-105 group-hover:opacity-70"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-t from-[var(--void)] via-[rgba(7,9,15,.4)] to-transparent"
-                aria-hidden
-              />
-              <div className="relative z-10 p-6 sm:p-7">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
-                  {entry.eyebrow}
-                </p>
-                <h2 className="mt-2 font-display text-2xl text-white sm:text-3xl">
-                  {entry.title}
-                </h2>
-                <p className="mt-2 text-sm font-light leading-relaxed text-white/65">
-                  {entry.blurb}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Practice lifestyle ── */}
-      <section className="border-t border-[var(--hairline)] py-14">
-        <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--brass)]">
-          {t("homeLifestyleEyebrow")}
-        </p>
-        <h2 className="font-display text-3xl text-[var(--text)] sm:text-4xl">
-          {t("homeLifestyleTitle")}
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-[var(--text-soft)] sm:text-base">
-          {t("homeLifestyleBlurb")}
-        </p>
-
-        <Link
-          href="/sadhana"
-          className="glass group mt-8 block overflow-hidden transition hover:border-[var(--brass)]/40"
+        <a
+          href="#begin"
+          className="home-scroll-cue absolute bottom-7 right-6 z-20 hidden items-center gap-3 text-[10px] uppercase tracking-[.24em] text-white/44 transition hover:text-[var(--brass-soft)] sm:flex lg:right-12 xl:right-16"
         >
-          <div className="border-l-2 border-[var(--brass)]/70 px-6 py-8 sm:px-8 sm:py-9">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--brass)]">
-              {t("sadhanaEyebrow")}
-            </p>
-            <h3 className="mt-3 font-display text-3xl text-[var(--text)] transition group-hover:text-[var(--brass-hover)] sm:text-4xl">
-              {t("sadhanaHomeLink")}
-            </h3>
-            <p
-              className={`mt-2 max-w-xl text-sm font-light leading-relaxed sm:text-base ${
-                sadhanaDone === true
-                  ? "text-[var(--brass-soft)]"
-                  : "text-[var(--text-soft)]"
-              }`}
-            >
-              {sadhanaDone === true
-                ? t("sadhanaDoneToday")
-                : t("sadhanaHomeBody")}
-            </p>
-            {practiceStreak > 0 ? (
-              <p className="mt-4 text-xs tracking-[0.12em] text-[var(--brass-soft)]">
-                {t("sadhanaStreakLine").replace(
-                  "{n}",
-                  String(practiceStreak)
-                )}
-              </p>
-            ) : null}
-          </div>
-        </Link>
-
-        {medContinueDay != null ? (
-          <Link
-            href={`/meditation/${Math.min(45, Math.max(1, medContinueDay))}`}
-            className="glass mt-4 block px-6 py-5 transition hover:border-[var(--brass)]/40"
-          >
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--brass)]">
-              {t("medEyebrow")}
-            </p>
-            <p className="mt-2 font-display text-xl text-[var(--text)]">
-              {sitLabel}
-            </p>
-          </Link>
-        ) : null}
-
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {(
-            [
-              {
-                href: "/meditation",
-                title: t("homeBlockCourseTitle"),
-                body: t("homeBlockCourseBody"),
-                image: "/images/paths/meditation.jpg",
-              },
-              {
-                href: "/sadhana#japa",
-                title: t("homeBlockJapaTitle"),
-                body: t("homeBlockJapaBody"),
-                image: "/images/paths/sadhana.jpg",
-              },
-              {
-                href: "/panchang",
-                title: t("homeBlockPanchangTitle"),
-                body: t("homeBlockPanchangBody"),
-                image: "/images/paths/panchang-ring.jpg",
-              },
-            ] as const
-          ).map((block) => (
-            <Link
-              key={block.href + block.title}
-              href={block.href}
-              className="group relative flex min-h-[160px] flex-col justify-end overflow-hidden border border-[var(--line)] transition hover:border-[var(--brass)]/45"
-            >
-              <Image
-                src={block.image}
-                alt=""
-                fill
-                sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover opacity-45 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-60"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-t from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-transparent"
-                aria-hidden
-              />
-              <div className="relative z-10 px-5 py-5">
-                <h3 className="font-display text-xl text-[var(--on-media)] transition group-hover:text-[var(--brass-hover)]">
-                  {block.title}
-                </h3>
-                <p className="mt-2 text-sm font-light leading-relaxed text-[var(--on-media-muted)]">
-                  {block.body}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
+          <span className="home-scroll-cue__line" aria-hidden />
+          {t("homePaths")}
+        </a>
       </section>
 
-      {/* ── Together ── */}
-      <section className="border-t border-[var(--hairline)] py-14">
-        <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--brass)]">
-          {t("homeTogetherEyebrow")}
-        </p>
-        <h2 className="font-display text-3xl text-[var(--text)] sm:text-4xl">
-          {t("homeTogetherTitle")}
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-[var(--text-soft)] sm:text-base">
-          {t("homeTogetherBlurb")}
-        </p>
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {(
-            [
-              {
-                href: "/community",
-                title: t("homeBlockSanghaTitle"),
-                body: t("homeBlockSanghaBody"),
-              },
-              {
-                href: "/care",
-                title: t("homeBlockCareTitle"),
-                body: t("homeBlockCareBody"),
-              },
-              {
-                href: "/support",
-                title: t("homeBlockSupportTitle"),
-                body: t("homeBlockSupportBody"),
-              },
-              {
-                href: "/account",
-                title: t("homeBlockNotifTitle"),
-                body: t("homeBlockNotifBody"),
-              },
-            ] as const
-          ).map((block) => (
-            <Link
-              key={block.href}
-              href={block.href}
-              className="group border border-[var(--line)] bg-[var(--panel)] px-5 py-6 backdrop-blur-sm transition hover:border-[var(--brass)]/45"
-            >
-              <h3 className="font-display text-xl text-[var(--text)] transition group-hover:text-[var(--brass-hover)]">
-                {block.title}
-              </h3>
-              <p className="mt-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
-                {block.body}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mood preview ── */}
-      <section className="border-t border-[var(--hairline)] py-14">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-xl">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-              {t("homeMoodsEyebrow")}
-            </p>
-            <h2 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-4xl">
+      <div className="mx-auto w-full max-w-[80rem] px-5 sm:px-8 lg:px-10 xl:px-12">
+        <section
+          id="begin"
+          data-home-reveal
+          className="home-reveal scroll-mt-20 py-14 sm:py-16"
+        >
+          <header className="mb-9 grid gap-4 border-b border-[var(--hairline)] pb-7 lg:grid-cols-[1fr_1.4fr] lg:items-end">
+            <p className="eyebrow text-[var(--brass)]">{t("homePaths")}</p>
+            <h2 className="max-w-3xl font-display text-[clamp(2rem,3.2vw,3.2rem)] leading-[1] tracking-[-.025em] text-[var(--text)]">
               {t("homeMoodsTitle")}
             </h2>
-            <p className="mt-2 text-sm font-light text-[var(--text-muted)] sm:text-base">
-              {t("homeMoodsBlurb")}
-            </p>
-          </div>
-          <Link
-            href="/mood"
-            className="text-sm text-[var(--brass)] transition hover:text-[var(--brass-soft)]"
-          >
-            {t("homeMoodsAll")} →
-          </Link>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-          {previewMoods.map((mood) => {
-            const visual = getMoodVisual(mood);
-            return (
-              <Link
-                key={mood.id}
-                href={`/mood/${mood.id}`}
-                className="surface group relative flex min-h-[96px] items-center justify-between gap-3 overflow-hidden px-5 py-5 backdrop-blur-md"
-              >
-                <span
-                  className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100"
-                  style={{
-                    background: `radial-gradient(ellipse 80% 70% at 90% 10%, color-mix(in srgb, ${visual.accent} 22%, transparent), transparent 60%)`,
-                  }}
-                  aria-hidden
-                />
-                <span className="relative font-display text-xl text-[var(--text)] transition group-hover:text-[var(--brass-soft)]">
-                  {moodLabel(mood, lang)}
-                </span>
-                <span
-                  className="mood-glyph relative inline-block h-8 w-8 shrink-0 opacity-75 transition duration-300 group-hover:scale-105 group-hover:opacity-100"
-                  style={{
-                    backgroundColor: visual.accent,
-                    WebkitMaskImage: `url(${visual.icon})`,
-                    maskImage: `url(${visual.icon})`,
-                    WebkitMaskSize: "contain",
-                    maskSize: "contain",
-                    WebkitMaskRepeat: "no-repeat",
-                    maskRepeat: "no-repeat",
-                    WebkitMaskPosition: "center",
-                    maskPosition: "center",
-                  }}
-                  aria-hidden
-                />
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+          </header>
 
-      {/* ── Closing Madhav band ── */}
-      <section className="relative mt-4 flex min-h-[260px] flex-col items-center justify-center overflow-hidden border border-[var(--line)] py-16 text-center sm:min-h-[300px]">
-        <Image
-          src="/images/paths/madhav.jpg"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover object-center opacity-40"
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-[rgba(7,9,15,.55)] via-[rgba(7,9,15,.72)] to-[var(--void)]"
-          aria-hidden
-        />
-        <div className="relative z-10 max-w-xl px-6">
-          <p className="font-display text-3xl text-[var(--on-media)] sm:text-4xl">
-            {t("homeCloseLine")}
-          </p>
-          <Link
-            href="/madhav"
-            className="mt-6 inline-block bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-          >
-            {t("homeCloseCta")}
-          </Link>
-        </div>
-      </section>
+          <div className="grid gap-3 lg:grid-cols-12">
+            {entries.map((entry, index) => (
+              <Link
+                key={entry.href}
+                href={entry.href}
+                className={`home-path group relative flex min-h-[18rem] flex-col justify-between overflow-hidden border border-[var(--line)] p-6 sm:p-6 ${ENTRY_LAYOUT[index]}`}
+              >
+                <Image
+                  src={entry.image}
+                  alt=""
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  className="home-path__image object-cover"
+                />
+                <div className="home-path__scrim absolute inset-0" aria-hidden />
+
+                {index === 0 ? (
+                  <p className="eyebrow relative z-10 text-white/68">
+                    {entry.eyebrow}
+                  </p>
+                ) : (
+                  <span aria-hidden />
+                )}
+
+                <div className="relative z-10 max-w-xl">
+                  <div className="flex items-end justify-between gap-5">
+                    <h3
+                      className={`font-display leading-[.96] tracking-[-.035em] text-white transition duration-500 group-hover:text-[var(--brass-soft)] ${
+                        index === 0
+                          ? "text-[clamp(2.15rem,3.5vw,3rem)]"
+                          : "text-[clamp(1.65rem,2.4vw,2rem)]"
+                      }`}
+                    >
+                      {entry.title}
+                    </h3>
+                    <span className="home-path__arrow" aria-hidden>
+                      ↗
+                    </span>
+                  </div>
+                  <p
+                    className={`max-w-md text-[13px] font-light leading-5 text-white/68 sm:text-sm ${
+                      index === 0
+                        ? "mt-4"
+                        : "mt-0 max-h-0 translate-y-2 overflow-hidden opacity-0 transition-all duration-500 group-hover:mt-3 group-hover:max-h-16 group-hover:translate-y-0 group-hover:opacity-100"
+                    }`}
+                  >
+                    {entry.blurb}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section
+          data-home-reveal
+          className="home-reveal border-t border-[var(--hairline)] py-14 sm:py-16"
+        >
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,.9fr)_minmax(30rem,1.1fr)] lg:gap-14">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <p className="eyebrow text-[var(--brass)]">
+                {t("homeLifestyleEyebrow")}
+              </p>
+              <h2 className="mt-4 max-w-xl font-display text-[clamp(2.1rem,3.2vw,3.2rem)] leading-[1] tracking-[-.03em] text-[var(--text)]">
+                {t("homeLifestyleTitle")}
+              </h2>
+              <p className="mt-4 max-w-lg text-sm font-light leading-6 text-[var(--text-soft)]">
+                {t("homeLifestyleBlurb")}
+              </p>
+
+              <Link
+                href="/sadhana"
+                className="group mt-8 block border-l border-[var(--brass)] py-1 pl-5"
+              >
+                <p className="eyebrow text-[var(--brass-soft)]">
+                  {t("sadhanaEyebrow")}
+                </p>
+                <p className="mt-2 font-display text-xl text-[var(--text)] transition group-hover:text-[var(--brass-soft)]">
+                  {t("sadhanaHomeLink")} ↗
+                </p>
+                <p className="mt-3 text-sm leading-6 text-[var(--text-soft)]">
+                  {progress.done
+                    ? t("sadhanaDoneToday")
+                    : t("sadhanaHomeBody")}
+                </p>
+                {progress.streak > 0 ? (
+                  <p className="mt-4 text-xs tracking-[.12em] text-[var(--brass-soft)]">
+                    {t("sadhanaStreakLine").replace(
+                      "{n}",
+                      String(progress.streak)
+                    )}
+                  </p>
+                ) : null}
+              </Link>
+            </div>
+
+            <div className="border-t border-[var(--hairline)]">
+              {practiceLinks.map((item, index) => (
+                <Link
+                  key={item.href + item.title}
+                  href={item.href}
+                  className="home-practice-row group grid gap-4 border-b border-[var(--hairline)] py-5 sm:grid-cols-[3rem_6rem_1fr_auto] sm:items-center"
+                >
+                  <span className="font-display text-lg italic text-[var(--text-muted)]">
+                    0{index + 1}
+                  </span>
+                  <span className="relative hidden aspect-[4/3] overflow-hidden sm:block">
+                    <Image
+                      src={item.image}
+                      alt=""
+                      fill
+                      sizes="112px"
+                      className="object-cover opacity-65 grayscale-[25%] transition duration-700 group-hover:scale-105 group-hover:opacity-90 group-hover:grayscale-0"
+                    />
+                  </span>
+                  <span>
+                    <span className="block font-display text-lg text-[var(--text)] transition group-hover:text-[var(--brass-soft)]">
+                      {item.title}
+                    </span>
+                    <span className="mt-2 block text-sm font-light leading-6 text-[var(--text-soft)]">
+                      {item.body}
+                    </span>
+                  </span>
+                  <span className="home-arrow text-[var(--brass)]" aria-hidden>
+                    ↗
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
+          data-home-reveal
+          className="home-reveal border-t border-[var(--hairline)] py-14 sm:py-16"
+        >
+          <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:gap-14">
+            <div>
+              <p className="eyebrow text-[var(--brass)]">
+                {t("homeMoodsEyebrow")}
+              </p>
+              <h2 className="mt-4 font-display text-[clamp(2.1rem,3.2vw,3.2rem)] leading-[1] tracking-[-.03em] text-[var(--text)] sm:whitespace-nowrap">
+                {t("homeMoodsTitle")}
+              </h2>
+              <p className="mt-4 max-w-md text-sm font-light leading-6 text-[var(--text-soft)]">
+                {t("homeMoodsBlurb")}
+              </p>
+              <Link
+                href="/mood"
+                className="mt-8 inline-flex items-center gap-3 text-sm text-[var(--brass-soft)] transition hover:text-[var(--text)]"
+              >
+                {t("homeMoodsAll")} <span aria-hidden>↗</span>
+              </Link>
+            </div>
+
+            <div className="grid border-t border-[var(--hairline)] sm:grid-cols-2">
+              {previewMoods.map((mood, index) => {
+                const visual = getMoodVisual(mood);
+                return (
+                  <Link
+                    key={mood.id}
+                    href={`/mood/${mood.id}`}
+                    className={`home-mood group relative flex min-h-24 items-center justify-between overflow-hidden border-b border-[var(--hairline)] px-5 py-4 sm:min-h-28 sm:px-6 ${
+                      index % 2 === 0
+                        ? "sm:border-r sm:border-[var(--hairline)]"
+                        : ""
+                    }`}
+                  >
+                    <span
+                      className="absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100"
+                      style={{
+                        background: `radial-gradient(ellipse at 85% 20%, color-mix(in srgb, ${visual.accent} 18%, transparent), transparent 62%)`,
+                      }}
+                      aria-hidden
+                    />
+                    <span className="relative">
+                      <span className="block text-[10px] tracking-[.18em] text-[var(--text-muted)]">
+                        0{index + 1}
+                      </span>
+                      <span className="mt-2 block font-display text-lg text-[var(--text)] transition group-hover:translate-x-1 group-hover:text-[var(--brass-soft)] sm:text-xl">
+                        {moodLabel(mood, lang)}
+                      </span>
+                    </span>
+                    <span
+                      className="relative h-9 w-9 opacity-55 transition duration-500 group-hover:scale-110 group-hover:opacity-100"
+                      style={{
+                        backgroundColor: visual.accent,
+                        WebkitMask: `url(${visual.icon}) center / contain no-repeat`,
+                        mask: `url(${visual.icon}) center / contain no-repeat`,
+                      }}
+                      aria-hidden
+                    />
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section
+          data-home-reveal
+          className="home-reveal border-t border-[var(--hairline)] py-14 sm:py-16"
+        >
+          <div className="mb-9 grid gap-4 lg:grid-cols-[.6fr_1.4fr] lg:items-end">
+            <p className="eyebrow text-[var(--brass)]">
+              {t("homeTogetherEyebrow")}
+            </p>
+            <div>
+              <h2 className="font-display text-[clamp(2.1rem,3.2vw,3.2rem)] leading-[1] tracking-[-.03em] text-[var(--text)]">
+                {t("homeTogetherTitle")}
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm font-light leading-6 text-[var(--text-soft)]">
+                {t("homeTogetherBlurb")}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid border-y border-[var(--hairline)] md:grid-cols-2 xl:grid-cols-4">
+            {togetherLinks.map((item, index) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group min-h-44 border-b border-[var(--hairline)] p-5 transition hover:bg-[var(--surface)] md:odd:border-r xl:border-b-0 xl:border-r xl:last:border-r-0"
+              >
+                <div className="flex items-start justify-between">
+                  <span className="font-display text-lg italic text-[var(--text-muted)]">
+                    0{index + 1}
+                  </span>
+                  <span
+                    className="home-arrow text-[var(--brass)] opacity-55 transition group-hover:opacity-100"
+                    aria-hidden
+                  >
+                    ↗
+                  </span>
+                </div>
+                <h3 className="mt-7 font-display text-lg text-[var(--text)] transition group-hover:text-[var(--brass-soft)]">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-[13px] font-light leading-5 text-[var(--text-soft)]">
+                  {item.body}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section
+          data-home-reveal
+          className="home-reveal relative mb-4 min-h-[22rem] overflow-hidden border border-[var(--line)]"
+        >
+          <Image
+            src="/images/paths/madhav.jpg"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover object-center opacity-75 transition duration-[1800ms] hover:scale-[1.02]"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,9,15,.95)_0%,rgba(7,9,15,.72)_48%,rgba(7,9,15,.25)_100%)]" />
+          <div className="relative z-10 flex min-h-[22rem] max-w-3xl flex-col justify-center px-7 py-10 sm:px-10 lg:px-12">
+            <p className="eyebrow text-[var(--brass-soft)]">
+              {t("homeMadhavTitle")}
+            </p>
+            <h2 className="mt-4 font-display text-[clamp(2.2rem,3.6vw,3.6rem)] leading-[1] tracking-[-.03em] text-white">
+              {t("homeCloseLine")}
+            </h2>
+            <Link
+              href="/madhav"
+              className="home-button home-button--primary mt-9 self-start"
+            >
+              <span>{t("homeCloseCta")}</span>
+              <span className="home-arrow" aria-hidden>
+                ↗
+              </span>
+            </Link>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

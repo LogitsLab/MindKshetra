@@ -84,6 +84,9 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="dark"
+      /* Lets Next disable smooth scroll during App Router navigations so new
+         pages land at the top instead of animating from the previous Y. */
+      data-scroll-behavior="smooth"
       /* The script above rewrites data-theme before hydration, so the server's
          "dark" and the client's actual value legitimately differ on <html>. */
       suppressHydrationWarning

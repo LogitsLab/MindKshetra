@@ -972,6 +972,12 @@ export default function ChatWindow({
             {/*
               des/D2 — chart epigraph. Fraunces at full --text, upright, brass
               left rule, no panel, no label, no glyph: the sentence names the
+              Product truth (2026): chart-linked chats stream astrology-only
+              via /api/chat — no merged two-voice (epigraph + Gita). `msg.reading`
+              / `chartContext` remain for historical sessions only; new streams
+              do not emit those SSE events.
+
+              Chart epigraph (when present on legacy messages) is identified as
               chart by content, so a "CHART READING" label above it would be
               pure chrome. One face in the reply.
 

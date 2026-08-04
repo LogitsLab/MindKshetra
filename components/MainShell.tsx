@@ -1,10 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 export default function MainShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const fullBleed = pathname === "/madhav" || pathname === "/welcome";
+  const fullBleed =
+    pathname === "/" || pathname === "/madhav" || pathname === "/welcome";
+
+  // Belt-and-suspenders with data-scroll-behavior on <html>: soft-nav from a
+  // scrolled Home can still leave window.scrollY mid-page when Suspense swaps
+  // content under a smooth-scroll rule.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
 
   return (
     <main
