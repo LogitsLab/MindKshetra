@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#11131a",
+                        "background": "#07090f",
+                        "inverse-primary": "#755b00",
+                        "on-tertiary-container": "#004538",
+                        "tertiary-fixed": "#b0efdc",
+                        "primary": "#ecc246",
+                        "outline-variant": "#4d4635",
+                        "on-surface-variant": "#d1c5af",
+                        "on-secondary-container": "#fff3d8",
+                        "inverse-surface": "#e1e2eb",
+                        "on-primary-fixed": "#241a00",
+                        "on-tertiary": "#00382d",
+                        "on-background": "#e1e2eb",
+                        "tertiary-container": "#76b3a1",
+                        "surface-bright": "#373940",
+                        "surface-variant": "#33353c",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-surface": "#e1e2eb",
+                        "on-error-container": "#ffdad6",
+                        "inverse-on-surface": "#2e3037",
+                        "tertiary": "#95d3c0",
+                        "on-secondary-fixed": "#231b00",
+                        "primary-fixed": "#ffe08e",
+                        "surface-container-highest": "#33353c",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "secondary": "#e2c45a",
+                        "on-primary-fixed-variant": "#584400",
+                        "on-primary-container": "#4b3a00",
+                        "on-tertiary-fixed": "#002019",
+                        "on-secondary-fixed-variant": "#554500",
+                        "on-primary": "#3d2e00",
+                        "on-error": "#690005",
+                        "surface-tint": "#ecc246",
+                        "surface-container-low": "#191b22",
+                        "secondary-container": "#856d01",
+                        "outline": "#99907b",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "surface": "#11131a",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "surface-container": "#1d1f26",
+                        "surface-container-high": "#282a31",
+                        "surface-container-lowest": "#0c0e14",
+                        "on-secondary": "#3b2f00",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "primary-container": "#c9a227",
+                        "secondary-fixed": "#ffe179"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "section-gap": "64px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Sora"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "body-lg": ["Sora"],
+                        "title-md": ["Sora"],
+                        "sanskrit-text": ["Noto Serif"],
+                        "body-md": ["Sora"],
+                        "headline-lg-mobile": ["Libre Caslon Text"],
+                        "display-lg": ["Libre Caslon Text"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #07090f;
+            color: #e1e2eb;
+            -webkit-font-smoothing: antialiased;
+        }
+        .brass-border {
+            border: 1px solid rgba(201, 162, 39, 0.22);
+        }
+        .scrim-bottom {
+            background: linear-gradient(to top, rgba(7, 9, 15, 0.95) 0%, rgba(7, 9, 15, 0.4) 60%, transparent 100%);
+        }
+        .aura-glow {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background: radial-gradient(circle, rgba(61, 122, 106, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .photo-path-tile {
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .photo-path-tile:active {
+            transform: scale(0.98);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md overflow-x-hidden selection:bg-primary/30">
+<!-- Aura Background -->
+<div class="aura-glow"></div>
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl flex flex-col items-center pt-8 pb-4 px-container-margin">
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">
+                spa
+            </span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">MindKshetra</h1>
+</div>
+<p class="mt-4 text-center text-on-surface-variant/80 font-body-md leading-relaxed max-w-[280px]">
+            Meet the mind where it is — with a verse, a chart, or a quiet sit.
+        </p>
+</header>
+<!-- Main Content -->
+<main class="relative z-10 pt-48 pb-32 px-container-margin flex flex-col gap-10">
+<!-- Verse of the Day -->
+<section class="relative">
+<div class="glass-panel brass-border bg-white/5 backdrop-blur-md rounded-xl p-6 flex flex-col gap-4">
+<div class="flex justify-between items-baseline">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Verse of the Day</span>
+<span class="font-title-md text-title-md text-primary/70">BG 2.47</span>
+</div>
+<blockquote class="font-sanskrit-text text-sanskrit-text italic text-on-surface/90 leading-snug">
+                    "You have a right to perform your prescribed duties, but you are not entitled to the fruits of your actions."
+                </blockquote>
+<a class="font-label-sm text-label-sm text-primary flex items-center gap-1 self-end group" href="#">
+                    Read more <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_right_alt</span>
+</a>
+</div>
+</section>
+<!-- Path Tiles -->
+<section class="flex flex-col gap-4">
+<!-- Mood -->
+<div class="photo-path-tile relative h-48 w-full rounded-xl overflow-hidden brass-border group">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A cinematic, atmospheric photography of a serene morning landscape with soft fog rolling over a calm lake, muted teal and gold lighting, ultra-minimalist composition, reflecting a spiritual and tranquil mood of the MindKshetra brand." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDir_NIwyg9XN863BNsE-fZUse2IkmhbyXh6BWtiF2edTe0cO9pCGmcQ3LJCQx5iAhI3T6YJUhWEyGQEUWO6h0Y8OE3u9vSdkUFprvRaxzYWmUsJyhy_MHnG7NhYr7jbUc0WyFHR0uKiP8XvWztNOltszO83rOMps1esoMc4M4rHPY1AdqJ7FiJl-d0m8sFccYdvpGhIDCzWFgm9zKjblmcY6W0VtCDW5td-fow9dVMB6T1OvV3ZvtKhTORngV3P44dZMMWNAEi-Yk')"></div>
+<div class="absolute inset-0 scrim-bottom"></div>
+<div class="absolute inset-0 p-6 flex items-end justify-between">
+<h3 class="font-headline-lg text-white">Mood</h3>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<!-- Ask Madhav -->
+<div class="photo-path-tile relative h-48 w-full rounded-xl overflow-hidden brass-border group">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A close-up shot of an ancient, weathered Sanskrit manuscript resting on a dark wood surface, illuminated by a single warm candle light, creating a sense of sacred wisdom and timeless guidance, consistent with the cinematic minimalist MindKshetra aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuClr_qwyjuzDU9ss9rBMiiTHTBsaL9mmpIuteiKERihDUMIiBf2J_etreqNMxktjHfqpFfjb-myTNv3YG7QVkGG8TjttAFw1i_lmQQrwuG7c5XqMeSaCltwAeATYBNm6H1b8aXsCOkEKAH-s4PiS7WscpzI8GS5tQvjG1mVZ-uLi_aN0BGrzECdfa-RG0GHOpmutoRrvjwmb-zBNttOs1-MAp3KaSTUCcs9XakFCEkbHmgnj_luSaWWn7P26vb2VtItyPLs4Wnk_SI')"></div>
+<div class="absolute inset-0 scrim-bottom"></div>
+<div class="absolute inset-0 p-6 flex items-end justify-between">
+<h3 class="font-headline-lg text-white">Ask Madhav</h3>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<!-- Practice -->
+<div class="photo-path-tile relative h-48 w-full rounded-xl overflow-hidden brass-border group">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A silhouette of a person in a meditation pose atop a dark rocky outcrop at sunrise, with light rays piercing through a misty mountain valley and a distant ancient temple silhouette, high-contrast cinematic spiritual photography with golden hour lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBnQD-FiNP9kU9suxu4AbLONWBPQ-RjKtp-ZIaLh2P6CrrwCIzwq725binj3IRI151s8iav4BSll8tUWMthXb2G9x_zf3vMVHoYbGzIrx0HqfXgSQutv1ynhZHNMyInr36vrHlBJMJp6OM3zHiytzYzAI1f76jFzac-uimIONI-Zuyte21zKBgs3SzFJ5HUpbV2Plbn144qxXkUfN8_aafRkGtSReBykaMLvf7vsiDecFPd8_vB6VaUvq4un4V9Jhje-33VxRJIPrk')"></div>
+<div class="absolute inset-0 scrim-bottom"></div>
+<div class="absolute inset-0 p-6 flex items-end justify-between">
+<h3 class="font-headline-lg text-white">Practice</h3>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<!-- Astrology -->
+<div class="photo-path-tile relative h-48 w-full rounded-xl overflow-hidden brass-border group">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A deep cosmic starfield with subtle golden geometric constellations overlaying the celestial nebula, dark cinematic void aesthetics with pinpoints of bright light, elegant and mysterious spiritual mood, matching the luxury spiritual brand identity." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDltpWsHbMLf2_ZsdhWRInNMpfGQM9ol2tqfdsX4GOHDcslUBXvxgFofL9FM6sLgRCMCGgSwdfuLYJvhIB_bwWoJ4qprtXAZziQGuQKBe3DMiYz1G5-AhzDB2L114bf6gFZds86HTp-rO4b_SZYLjq7IHyCrrbefUAXwvToX_FRjRbCm_zTlIu9BbGYAqMMNQvtGIi8kS5WBu1ERbvvR-6a_sU0aHL5xhuCZuwMWzzaLuZmtG8ulc9KFP5buk_5CcUrH5S_6giTFdg')"></div>
+<div class="absolute inset-0 scrim-bottom"></div>
+<div class="absolute inset-0 p-6 flex items-end justify-between">
+<h3 class="font-headline-lg text-white">Astrology</h3>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Footer Links -->
+<footer class="flex justify-center gap-4 py-8 opacity-40">
+<a class="font-label-sm text-label-sm uppercase tracking-[0.2em]" href="#">Community</a>
+<span class="text-primary/50">·</span>
+<a class="font-label-sm text-label-sm uppercase tracking-[0.2em]" href="#">Care</a>
+<span class="text-primary/50">·</span>
+<a class="font-label-sm text-label-sm uppercase tracking-[0.2em]" href="#">Support</a>
+</footer>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-2xl flex items-center justify-center z-[60] active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">
+            auto_awesome
+        </span>
+</button>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-surface-container-low/90 backdrop-blur-2xl border-t border-primary/20 rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-primary font-bold bg-primary-container/10 rounded-full px-4 py-2 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">auto_stories</span>
+<span class="font-label-sm text-label-sm">Mood</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">stars</span>
+<span class="font-label-sm text-label-sm">Astrology</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for scroll depth
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-lg');
+            } else {
+                header.classList.remove('shadow-lg');
+            }
+        });
+
+        // Soft pulse effect for the FAB
+        const fab = document.querySelector('button');
+        setInterval(() => {
+            fab.style.boxShadow = '0 0 20px rgba(236, 194, 70, 0.2)';
+            setTimeout(() => {
+                fab.style.boxShadow = 'none';
+            }, 1000);
+        }, 3000);
+    </script>
+</body></html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra | Spiritual Companion</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --void: #07090f;
+            --brass: #c9a227;
+        }
+        body {
+            background-color: var(--void);
+            color: #e1e2eb;
+            font-family: 'Sora', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-serif-display { font-family: 'Libre Caslon Text', serif; }
+        .font-sanskrit { font-family: 'Noto Serif', serif; }
+        
+        .glass-panel {
+            background: rgba(14, 20, 32, 0.6);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(201, 162, 39, 0.2);
+        }
+        
+        .gold-pulse:hover {
+            animation: gold-pulse-anim 2s infinite;
+        }
+
+        @keyframes gold-pulse-anim {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .soft-rise {
+            transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+        .soft-rise:hover {
+            transform: translateY(-4px);
+        }
+
+        .scrim-bottom {
+            background: linear-gradient(to top, rgba(7, 9, 15, 0.9) 0%, rgba(7, 9, 15, 0) 100%);
+        }
+
+        .scrim-full {
+            background: linear-gradient(to bottom, rgba(7, 9, 15, 0.4) 0%, rgba(7, 9, 15, 0.8) 100%);
+        }
+
+        .brass-hairline {
+            border: 0.5px solid rgba(201, 162, 39, 0.3);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--void);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--brass);
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#e1e2eb",
+                      "surface-container-low": "#191b22",
+                      "primary-fixed-dim": "#ecc246",
+                      "on-primary-container": "#4b3a00",
+                      "on-primary": "#3d2e00",
+                      "surface-dim": "#11131a",
+                      "secondary-fixed": "#ffe179",
+                      "surface-container": "#1d1f26",
+                      "on-primary-fixed": "#241a00",
+                      "on-surface": "#e1e2eb",
+                      "inverse-primary": "#755b00",
+                      "secondary-fixed-dim": "#e2c45a",
+                      "outline-variant": "#4d4635",
+                      "surface-container-lowest": "#0c0e14",
+                      "surface-container-highest": "#33353c",
+                      "on-tertiary-fixed": "#002019",
+                      "on-surface-variant": "#d1c5af",
+                      "tertiary-fixed": "#b0efdc",
+                      "tertiary-container": "#76b3a1",
+                      "on-primary-fixed-variant": "#584400",
+                      "on-tertiary-fixed-variant": "#095042",
+                      "on-secondary-container": "#fff3d8",
+                      "primary": "#ecc246",
+                      "outline": "#99907b",
+                      "on-error-container": "#ffdad6",
+                      "surface-variant": "#33353c",
+                      "error-container": "#93000a",
+                      "tertiary-fixed-dim": "#95d3c0",
+                      "surface-tint": "#ecc246",
+                      "on-secondary": "#3b2f00",
+                      "surface-container-high": "#282a31",
+                      "primary-container": "#c9a227",
+                      "primary-fixed": "#ffe08e",
+                      "surface-bright": "#373940",
+                      "on-secondary-fixed-variant": "#554500",
+                      "surface": "#11131a",
+                      "secondary-container": "#856d01",
+                      "on-secondary-fixed": "#231b00",
+                      "on-error": "#690005",
+                      "on-background": "#e1e2eb",
+                      "inverse-on-surface": "#2e3037",
+                      "secondary": "#e2c45a",
+                      "tertiary": "#95d3c0",
+                      "error": "#ffb4ab",
+                      "on-tertiary": "#00382d",
+                      "on-tertiary-container": "#004538",
+                      "background": "#11131a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "unit": "8px",
+                      "gutter": "16px",
+                      "section-gap": "64px",
+                      "container-margin": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Libre Caslon Text"],
+                      "body-md": ["Sora"],
+                      "sanskrit-text": ["Noto Serif"],
+                      "display-lg": ["Libre Caslon Text"],
+                      "body-lg": ["Sora"],
+                      "title-md": ["Sora"],
+                      "label-sm": ["Sora"]
+              },
+              "fontSize": {
+                      "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                      "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                      "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary/30">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 left-0 w-full z-50 transition-all duration-500 backdrop-blur-md bg-surface/30">
+<nav class="flex justify-between items-center w-full px-container-margin py-unit max-w-full">
+<div class="flex items-center gap-12">
+<a class="font-headline-lg text-primary tracking-tighter hover:-translate-y-0.5 transition-transform" href="#">MindKshetra</a>
+<div class="hidden md:flex gap-8">
+<a class="text-on-surface-variant font-label-sm uppercase tracking-widest hover:text-primary transition-colors" href="#">Explore</a>
+<a class="text-on-surface-variant font-label-sm uppercase tracking-widest hover:text-primary transition-colors" href="#">Mood</a>
+<a class="text-on-surface-variant font-label-sm uppercase tracking-widest hover:text-primary transition-colors" href="#">Practice</a>
+<a class="text-on-surface-variant font-label-sm uppercase tracking-widest hover:text-primary transition-colors" href="#">Astrology</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="bg-primary px-6 py-2.5 rounded-full text-on-primary font-title-md text-sm uppercase tracking-widest hover:opacity-80 transition-all gold-pulse">
+                    Ask Madhav
+                </button>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors" data-icon="notifications">notifications</span>
+<div class="w-10 h-10 rounded-full border border-primary/30 overflow-hidden cursor-pointer hover:border-primary transition-colors">
+<img class="w-full h-full object-cover" data-alt="A dignified and serene close-up portrait of a practitioner in profile, illuminated by soft golden rim lighting against a deep dark navy background. The individual has an expression of profound peace, embodying a modern spiritual aesthetic with high contrast and cinematic depth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyK_I3NWkpzhZyIPOil46V65gJOwQUsNuu0n7FDmREVum8697F42alV72thY-3ZvNQLkleBg4dcFfa_xB8K4AYcrEDB27lQSvSGseWFsm1EYtjFQFmZh5naXFsKEL-K4cRfl_JohISrJsj7KzJa4Koeag2sL7c5jgvHTUcSOa4RjBAsTDt_Y2qp6929pfCsjwR9Of9cTLpt9bhMKxfqNEWeE7iAzj8os-emhsteQPLazpWEaR6vzWIOwLaPpSwUn-QRQClpHmkVcU"/>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<main class="pt-32">
+<!-- Hero Section -->
+<section class="relative min-h-[716px] flex flex-col items-center justify-center text-center px-gutter overflow-hidden">
+<!-- Background Aura Glow -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-tertiary/5 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="z-10 animate-fade-in flex flex-col items-center">
+<span class="material-symbols-outlined text-[84px] text-primary mb-6" data-icon="sparkles" style="font-variation-settings: 'FILL' 1;">arrow_back_ios_new</span>
+<h1 class="font-display-lg text-primary mb-4 opacity-0 animate-[fadeIn_1s_ease-out_forwards]">MindKshetra</h1>
+<p class="max-w-2xl font-body-lg text-on-surface-variant opacity-0 animate-[fadeIn_1.2s_ease-out_0.3s_forwards]">
+                    Meet the mind where it is — with a verse, a chart, or a quiet sit.
+                </p>
+</div>
+<!-- Verse of the Day (Floating Panel) -->
+<div class="mt-20 z-20 w-full max-w-3xl opacity-0 animate-[fadeIn_1.5s_ease-out_0.6s_forwards]">
+<div class="glass-panel p-10 relative overflow-hidden rounded-xl">
+<!-- Ornamental corner -->
+<div class="absolute top-0 right-0 w-24 h-24 border-t-2 border-r-2 border-primary/20 rounded-tr-xl"></div>
+<div class="relative z-10 flex flex-col items-center">
+<span class="font-label-sm text-primary uppercase tracking-[0.3em] mb-6">Verse of the Day</span>
+<h2 class="font-sanskrit text-sanskrit-text text-primary mb-6 text-center italic">
+                            कर्मण्येवाधिकारस्ते मा फलेषु कदाचन ।<br/>
+                            मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ॥
+                        </h2>
+<p class="font-body-md text-on-surface-variant text-center max-w-xl mb-8 leading-relaxed italic">
+                            "You have a right to perform your prescribed duties, but you are not entitled to the fruits of your actions. Never consider yourself to be the cause of the results of your activities, and never be attached to not doing your duty."
+                        </p>
+<div class="flex items-center gap-4">
+<span class="text-on-surface-variant font-label-sm">Bhagavad Gita 2.47</span>
+<div class="w-12 h-px bg-primary/30"></div>
+<a class="font-label-sm text-primary uppercase tracking-widest hover:underline transition-all" href="#">Read More</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Path Tiles Section (Bento Style Layout) -->
+<section class="max-w-[1400px] mx-auto px-container-margin py-section-gap">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-[800px]">
+<!-- Mood (Large Vertical) -->
+<div class="md:col-span-4 relative group overflow-hidden rounded-xl brass-hairline soft-rise">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="A cinematic, high-contrast photograph of a minimalist Zen rock garden at dusk. Precise rake marks in the sand form concentric circles around smooth dark stones. Soft golden light touches the edges of the rocks, while the rest is shrouded in deep shadow, evoking a sense of profound stillness and internal focus." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDiEyCICE3R0rsBXfuMfOecd-b4rdU3AsKVXk4fCpZuyHTcvc4tAN19HtvuyUzoySmGCmmbOBwU4S4WVIN3cLRjQ5zJDpXsbpUxOQw4wTG92nvbWpMnwMI7vyNH1b1tkPLstiX3ZzZ7P-arj_57M_va7z1IfGf4MeHTkXUeRC2nUbehFiCX6wNI8Pv_-tIg78RDXWg2-1pvwArpJgTnnuuzSnpgEfEppHkrn3KHIJgraHU6PtsFGjmOyqf4Dp38_6BTuZhCjMAUd6E')"></div>
+<div class="absolute inset-0 scrim-full opacity-60"></div>
+<div class="absolute inset-0 opacity-0 group-hover:opacity-20 bg-primary transition-opacity duration-500"></div>
+<div class="absolute bottom-0 left-0 p-10 w-full">
+<span class="font-label-sm text-primary uppercase tracking-widest mb-2 block">The Spectrum</span>
+<h3 class="font-headline-lg text-white mb-4">Mood</h3>
+<p class="text-on-surface-variant text-sm mb-6 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">Navigate your emotional landscape through the lens of ancient wisdom.</p>
+<div class="w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Right Column Split -->
+<div class="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Ask Madhav (Large Square/Horizontal) -->
+<div class="md:col-span-2 relative group overflow-hidden rounded-xl brass-hairline soft-rise">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="An atmospheric interior of a grand, scholarly library filled with ancient leather-bound manuscripts and Sanskrit scrolls. Warm, dust-moted sunlight streams through a high window, illuminating a heavy wooden table. The aesthetic is dark, reverent, and sophisticated, with rich textures of aged paper and polished wood in a cinematic deep-shadow palette." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDX0P2eCOVmusooPX8z-yKrGvu-QHzzHBNZi_IDtLjILDUqxfq1aHUsqLcCY0a5w3Rt8tyfkDarsPZ2rW5PxZOuh2N1WzM31Qi8HC3CoFYltWdIMS79v_TyzcEoVEmFbnqSYXpUQvTEg8k8J4uDor1-m_keeeOEh7FTfH-YMFnO-GiXHjR4Usq1zKc7AGFS9UaztweQLLY9CA5v0aN5g_XsA9i6mB0M4aa2ShP86gvMJDjO8jTazXpbHzYI954jgJlp0FX6OOaRHJE')"></div>
+<div class="absolute inset-0 scrim-full opacity-60"></div>
+<div class="absolute inset-0 opacity-0 group-hover:opacity-20 bg-primary transition-opacity duration-500"></div>
+<div class="absolute bottom-0 left-0 p-10 w-full">
+<span class="font-label-sm text-primary uppercase tracking-widest mb-2 block">AI Companion</span>
+<h3 class="font-headline-lg text-white mb-2">Ask Madhav</h3>
+<p class="text-on-surface-variant text-sm max-w-md">Seek clarity on Dharma, duty, and the self through our enlightened guide.</p>
+</div>
+</div>
+<!-- Practice -->
+<div class="relative group overflow-hidden rounded-xl brass-hairline soft-rise h-full">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="A breathtaking view of a misty mountain peak at sunrise, where a solitary silhouette sits in deep meditation. The lighting is a blend of cool blue shadows and a piercing, thin line of gold on the horizon. The composition is wide and airy, focusing on the vastness of the natural world and the serenity of the practice." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAfKAfNKBRJuNMmuFIzG2i2Kv4V2w4TVKcKMCz0iUTRERw0wzF16Vo4gufsxElWL9joo5pHdo9rE0G_NYP-B_ckECDpkCnezqhwjdNuOa4IYoKEVrUGoRTRxbpxM2213sogUFQwfolVfxdSF-OG-zR4YP-c1rGnRQcFgfrYS_EvUOttrbh0Et9ymrqLvxyz3LTcKm9V-MZO4WzO-b6et8Pn33u8BOEvbs8kdNHexRQWeZLYToeAaj8IwdLI5q8fnYsIsQpFRUrF4AA')"></div>
+<div class="absolute inset-0 scrim-full opacity-60"></div>
+<div class="absolute inset-0 opacity-0 group-hover:opacity-20 bg-primary transition-opacity duration-500"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full">
+<span class="font-label-sm text-primary uppercase tracking-widest mb-2 block">Silent Sit</span>
+<h3 class="font-headline-lg text-white mb-2">Practice</h3>
+<span class="material-symbols-outlined text-primary" data-icon="self_improvement">self_improvement</span>
+</div>
+</div>
+<!-- Astrology -->
+<div class="relative group overflow-hidden rounded-xl brass-hairline soft-rise h-full">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="A sophisticated cosmic mandala design overlaying a deep-space starfield. The geometry is rendered in thin, glowing gold lines that pulse softly. The palette is dominated by the 'Void' navy and black, with tiny points of starlight creating a sense of infinite depth and celestial order." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC1couRDR0xtQo-vz0jeppUm0DtYYqQMPZAb3okgTbF7sdrApsimY8SlPqeIr23DU1ZjIjKo36f2TPVR2jTtp3kHcHRExxyKOD1cf1PM2pFdZaohnRVrYmDe3MaWoytdyrrqsx2D5IwWTj9wDX4ctHnSFvKImx28fxDrpIbMjwVl4FWfXbitaUKzGOrW3lAy4ulVIgUjIKoTsQX5xmXQoGFs7d0lrv6Zx6KCioncfvJhJ1Bn9jj0v7mXYOri18d67fb9p6o1YHG1O8')"></div>
+<div class="absolute inset-0 scrim-full opacity-60"></div>
+<div class="absolute inset-0 opacity-0 group-hover:opacity-20 bg-primary transition-opacity duration-500"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full">
+<span class="font-label-sm text-primary uppercase tracking-widest mb-2 block">Cosmic Chart</span>
+<h3 class="font-headline-lg text-white mb-2">Astrology</h3>
+<span class="material-symbols-outlined text-primary" data-icon="stars">stars</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer with Atmospheric Image -->
+<footer class="relative mt-24 overflow-hidden">
+<div class="w-full h-[400px] relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A serene, wide-angle landscape of a traditional temple silhouette against a misty sunrise. Ethereal fog rolls between ancient pillars while the sky transitions from a deep indigo to a soft, hazy gold. The mood is one of profound peace, morning devotion, and the awakening of consciousness." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB3HKseD_m5-MD-jXt39gDuC491Q1b2CqAEdxxoPBfcIgRNU4sJ75p_LMSJw1prPPiCNNCn3xp5ydksSIkyyD6venYF98HNjO7kRu2mr46WkJHpEWAmf5bTJs8mM5EzfkuYL9tbFAkoxj5LCWQ8eQX4-qFU2Yfu8vHJYw3pdLhSA4WFMyG76agBoN-J-JQja1xpbQr_2mGUwV1pm8ViTEAwtLQ5q9jtGnNhV4RbTJQaGlLT3X1w5ZwztHZtuuJxI5zTP7pDrtiiAOM')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
+<div class="absolute inset-0 flex flex-col justify-end px-container-margin pb-12">
+<div class="max-w-[1400px] mx-auto w-full flex flex-col md:flex-row justify-between items-end gap-12">
+<div class="flex flex-col gap-6">
+<h2 class="font-headline-lg text-primary">MindKshetra</h2>
+<p class="font-body-md text-on-surface-variant max-w-sm">The journey inward is the only one that truly matters. Walk the path with reverence.</p>
+<div class="flex gap-8">
+<a class="text-on-surface-variant font-label-sm uppercase tracking-widest hover:text-primary transition-colors" href="#">Community</a>
+<a class="text-on-surface-variant font-label-sm uppercase tracking-widest hover:text-primary transition-colors" href="#">Care</a>
+<a class="text-on-surface-variant font-label-sm uppercase tracking-widest hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</div>
+<div class="flex flex-col items-end gap-4">
+<div class="flex gap-6 mb-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer" data-icon="public">public</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer" data-icon="heart_plus">heart_plus</span>
+</div>
+<span class="font-label-sm text-on-surface-variant opacity-50">© 2024 MindKshetra Spiritual Companion</span>
+</div>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions and Scroll effects
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'bg-surface/80');
+                header.classList.remove('py-unit', 'bg-surface/30');
+            } else {
+                header.classList.add('py-unit', 'bg-surface/30');
+                header.classList.remove('py-2', 'bg-surface/80');
+            }
+        });
+
+        // Simple animation trigger for hero
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in-up');
+                    }
+                });
+            }, observerOptions);
+
+            // Add custom animations via style
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in { animation: fadeIn 1s ease-out forwards; }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body></html>

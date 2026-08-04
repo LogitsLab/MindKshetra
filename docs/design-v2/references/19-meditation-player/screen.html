@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra - Sacred Breath</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital@0;1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#93000a",
+                        "inverse-on-surface": "#2e3037",
+                        "tertiary": "#95d3c0",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-secondary": "#3b2f00",
+                        "secondary-fixed": "#ffe179",
+                        "primary-fixed": "#ffe08e",
+                        "surface-variant": "#33353c",
+                        "on-primary": "#3d2e00",
+                        "on-error": "#690005",
+                        "secondary": "#e2c45a",
+                        "outline-variant": "#4d4635",
+                        "on-surface-variant": "#d1c5af",
+                        "primary": "#ecc246",
+                        "primary-container": "#c9a227",
+                        "on-tertiary": "#00382d",
+                        "on-tertiary-container": "#004538",
+                        "surface-container": "#1d1f26",
+                        "on-primary-fixed": "#241a00",
+                        "on-secondary-container": "#fff3d8",
+                        "inverse-surface": "#e1e2eb",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "tertiary-container": "#76b3a1",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "surface-container-highest": "#33353c",
+                        "surface-container-high": "#282a31",
+                        "error": "#ffb4ab",
+                        "on-background": "#e1e2eb",
+                        "surface-container-low": "#191b22",
+                        "on-primary-fixed-variant": "#584400",
+                        "background": "#11131a",
+                        "on-secondary-fixed-variant": "#554500",
+                        "secondary-container": "#856d01",
+                        "surface-dim": "#11131a",
+                        "surface-tint": "#ecc246",
+                        "tertiary-fixed": "#b0efdc",
+                        "on-surface": "#e1e2eb",
+                        "surface-bright": "#373940",
+                        "outline": "#99907b",
+                        "on-primary-container": "#4b3a00",
+                        "inverse-primary": "#755b00",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#231b00",
+                        "surface-container-lowest": "#0c0e14",
+                        "surface": "#11131a",
+                        "on-tertiary-fixed": "#002019"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "section-gap": "64px",
+                        "container-margin": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "title-md": ["Sora"],
+                        "headline-lg-mobile": ["Libre Caslon Text"],
+                        "body-lg": ["Sora"],
+                        "body-md": ["Sora"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "sanskrit-text": ["Noto Serif"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "label-sm": ["Sora"]
+                    },
+                    "fontSize": {
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes breath-ring {
+            0%, 100% { transform: scale(0.95); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .breath-ring-animate {
+            animation: breath-ring 8s ease-in-out infinite;
+        }
+
+        .scrim-bottom {
+            background: linear-gradient(to top, rgba(7, 9, 15, 0.9) 0%, rgba(7, 9, 15, 0) 100%);
+        }
+
+        .scrim-top {
+            background: linear-gradient(to bottom, rgba(7, 9, 15, 0.7) 0%, rgba(7, 9, 15, 0) 100%);
+        }
+
+        .brass-glow {
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.15);
+        }
+
+        .aura-halo {
+            background: radial-gradient(circle, rgba(61, 122, 106, 0.08) 0%, rgba(7, 9, 15, 0) 70%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#07090f] text-on-surface selection:bg-primary/30 selection:text-primary overflow-hidden h-screen w-screen flex flex-col font-body-md">
+<!-- Cinematic Background -->
+<div class="fixed inset-0 z-0">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A cinematic, ultra-high-definition panoramic view of the twilight Himalayan mountains. Massive peaks are shrouded in ethereal blue mist and deep navy shadows, illuminated by the last golden slivers of a setting sun. The atmosphere is quiet, sacred, and vast, with a minimalist spiritual aesthetic dominated by dark tonal values and soft atmospheric depth. The lighting is low-key, emphasizing the silhouette of the jagged mountain range against a fading dusky sky." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBjwj1Ha5bmFYcPQOF0k4PZxZ0bNbg9-3yaga_Zb_qDHbHRkzhV9dW6L-nJKjmtin0GTN-SDHgXWIAMDzziRWE71hIkM33Nf2dfyWiGGdHVqlwcAxSq4RDksW6miwNZ1z9b44xKWrF1AoCB1os9pAJG5sd0BqKIAkShpJrrIEe8DCeovjIsDoUZydsH-M2Lg4PiKb3z0TlLkah43iQ-rJehG57v-8z9VllhBOr8j9rlwdkiTKgyYtfKm97RGpwDef1DH46HHSvkXxg')">
+</div>
+<div class="absolute inset-0 scrim-top h-1/4"></div>
+<div class="absolute inset-0 scrim-bottom h-full"></div>
+<div class="absolute inset-0 aura-halo"></div>
+</div>
+<!-- Top Chrome -->
+<header class="relative z-50 flex justify-between items-center px-container-margin py-8">
+<div class="flex flex-col">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight leading-none">MindKshetra</span>
+<span class="font-label-sm text-label-sm text-primary/60 tracking-widest uppercase mt-1">Sacred Space</span>
+</div>
+<button class="w-12 h-12 flex items-center justify-center rounded-full border border-primary/20 hover:border-primary/60 hover:bg-surface/20 transition-all duration-300 group">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">close</span>
+</button>
+</header>
+<!-- Main Player Canvas -->
+<main class="relative z-10 flex-grow flex flex-col items-center justify-center px-container-margin">
+<!-- Pacer Container -->
+<div class="relative flex items-center justify-center">
+<!-- Breath Pacer Ring -->
+<div class="breath-ring-animate w-64 h-64 md:w-80 md:h-80 rounded-full border-[1px] border-primary/40 flex flex-col items-center justify-center brass-glow backdrop-blur-[2px]" id="breath-ring">
+<div class="flex flex-col items-center text-center space-y-1">
+<span class="font-headline-lg text-headline-lg text-primary transition-opacity duration-1000" id="breath-instruction">Inhale</span>
+<span class="font-title-md text-title-md text-primary/80" id="breath-timer">4s</span>
+</div>
+<!-- Inner Decorative Accents -->
+<div class="absolute inset-4 rounded-full border border-primary/10 pointer-events-none"></div>
+<div class="absolute inset-8 rounded-full border border-primary/5 pointer-events-none"></div>
+</div>
+<!-- Pulsing Particles Effect (Subtle) -->
+<div class="absolute inset-0 -z-10 blur-3xl opacity-20 bg-primary w-full h-full rounded-full animate-pulse"></div>
+</div>
+<!-- Guidance Line -->
+<div class="mt-section-gap text-center">
+<p class="font-sanskrit-text text-sanskrit-text italic text-on-surface-variant/90 tracking-wide">
+                Fill the void within
+            </p>
+</div>
+</main>
+<!-- Bottom Controls Shell -->
+<footer class="relative z-50 px-container-margin pb-12 pt-8 w-full max-w-2xl mx-auto">
+<!-- Progress Bar -->
+<div class="relative w-full h-[2px] bg-white/10 mb-10 group cursor-pointer overflow-hidden rounded-full">
+<div class="absolute top-0 left-0 h-full w-1/3 bg-primary brass-glow"></div>
+<div class="absolute top-0 right-0 h-full w-full bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<!-- Transport Controls -->
+<div class="flex items-center justify-center space-x-12">
+<!-- Prev -->
+<button class="text-primary/60 hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-3xl">skip_previous</span>
+</button>
+<!-- Play/Pause -->
+<button class="w-16 h-16 rounded-full border-[1px] border-primary flex items-center justify-center group hover:bg-primary/10 transition-all duration-500 active:scale-95" id="play-pause">
+<span class="material-symbols-outlined text-primary text-4xl group-hover:scale-110 transition-transform">pause</span>
+</button>
+<!-- Next -->
+<button class="text-primary/60 hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-3xl">skip_next</span>
+</button>
+</div>
+<!-- Contextual Info -->
+<div class="flex justify-between items-center mt-10">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary/40 text-lg">graphic_eq</span>
+<span class="font-label-sm text-label-sm text-primary/40 uppercase tracking-[0.2em]">Himalayan Echoes</span>
+</div>
+<div class="flex items-center space-x-6">
+<button class="text-on-surface-variant/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">timer</span>
+</button>
+<button class="text-on-surface-variant/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">volume_up</span>
+</button>
+</div>
+</div>
+</footer>
+<!-- Micro-Interactions Script -->
+<script>
+        const breathInstruction = document.getElementById('breath-instruction');
+        const breathTimer = document.getElementById('breath-timer');
+        const playPauseBtn = document.getElementById('play-pause');
+        const playPauseIcon = playPauseBtn.querySelector('.material-symbols-outlined');
+        
+        let cycle = 0;
+        const phases = [
+            { label: 'Inhale', duration: 4 },
+            { label: 'Hold', duration: 4 },
+            { label: 'Exhale', duration: 4 },
+            { label: 'Wait', duration: 4 }
+        ];
+
+        function updateBreathCycle() {
+            const currentPhase = phases[cycle % phases.length];
+            breathInstruction.style.opacity = '0';
+            
+            setTimeout(() => {
+                breathInstruction.innerText = currentPhase.label;
+                breathTimer.innerText = `${currentPhase.duration}s`;
+                breathInstruction.style.opacity = '1';
+                cycle++;
+            }, 500);
+        }
+
+        // Initialize breath cycle
+        setInterval(updateBreathCycle, 4000);
+
+        // Simple Toggle for Play/Pause
+        let isPlaying = true;
+        playPauseBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            playPauseIcon.innerText = isPlaying ? 'pause' : 'play_arrow';
+            
+            const ring = document.getElementById('breath-ring');
+            if (isPlaying) {
+                ring.classList.add('breath-ring-animate');
+                ring.style.animationPlayState = 'running';
+            } else {
+                ring.style.animationPlayState = 'paused';
+            }
+        });
+
+        // Interactive "Void" cursor glow
+        document.body.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            const glow = document.querySelector('.aura-halo');
+            glow.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(61, 122, 106, 0.1) 0%, rgba(7, 9, 15, 0) 50%)`;
+        });
+    </script>
+</body></html>

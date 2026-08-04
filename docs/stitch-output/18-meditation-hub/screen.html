@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra | Meditation Discovery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#99907b",
+                        "primary": "#ecc246",
+                        "on-primary": "#3d2e00",
+                        "on-error": "#690005",
+                        "surface-container": "#1d1f26",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#d1c5af",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "inverse-surface": "#e1e2eb",
+                        "on-tertiary-container": "#004538",
+                        "surface-container-lowest": "#0c0e14",
+                        "on-primary-container": "#4b3a00",
+                        "on-tertiary": "#00382d",
+                        "on-primary-fixed-variant": "#584400",
+                        "outline-variant": "#4d4635",
+                        "surface": "#11131a",
+                        "on-secondary-fixed-variant": "#554500",
+                        "background": "#11131a",
+                        "inverse-on-surface": "#2e3037",
+                        "on-primary-fixed": "#241a00",
+                        "surface-tint": "#ecc246",
+                        "surface-dim": "#11131a",
+                        "surface-container-highest": "#33353c",
+                        "on-background": "#e1e2eb",
+                        "error": "#ffb4ab",
+                        "inverse-primary": "#755b00",
+                        "surface-container-high": "#282a31",
+                        "tertiary": "#95d3c0",
+                        "surface-container-low": "#191b22",
+                        "on-surface": "#e1e2eb",
+                        "surface-bright": "#373940",
+                        "on-secondary-container": "#fff3d8",
+                        "surface-variant": "#33353c",
+                        "on-tertiary-fixed": "#002019",
+                        "primary-container": "#c9a227",
+                        "secondary": "#e2c45a",
+                        "on-secondary": "#3b2f00",
+                        "tertiary-container": "#76b3a1",
+                        "tertiary-fixed": "#b0efdc",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "on-secondary-fixed": "#231b00",
+                        "primary-fixed": "#ffe08e",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "error-container": "#93000a",
+                        "secondary-fixed": "#ffe179",
+                        "secondary-container": "#856d01"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-margin": "24px",
+                        "section-gap": "64px",
+                        "gutter": "16px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Libre Caslon Text"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "title-md": ["Sora"],
+                        "label-sm": ["Sora"],
+                        "body-md": ["Sora"],
+                        "sanskrit-text": ["Noto Serif"],
+                        "body-lg": ["Sora"],
+                        "headline-lg-mobile": ["Libre Caslon Text"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #07090f;
+            color: #e1e2eb;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(29, 31, 38, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(201, 162, 39, 0.15);
+        }
+        .scrim-bottom {
+            background: linear-gradient(to top, rgba(7, 9, 15, 0.9) 0%, rgba(7, 9, 15, 0.4) 50%, transparent 100%);
+        }
+        .gold-glow {
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.1);
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md selection:bg-primary/30">
+<!-- Background Atmosphere -->
+<div class="fixed inset-0 pointer-events-none z-0">
+
+<div class="absolute inset-0 bg-radial-gradient from-primary/5 to-transparent"></div>
+</div>
+<!-- Top App Bar (From Shared Components) -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-xl border-b border-primary/20 flex justify-between items-center px-container-margin h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary active:scale-95 transition-transform cursor-pointer">menu</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">MindKshetra</h1>
+</div>
+<div class="w-8 h-8 rounded-full border border-primary/30 overflow-hidden active:scale-95 transition-transform">
+<img class="w-full h-full object-cover" data-alt="A refined close-up portrait of a scholarly seeker in low-key lighting. The character has a calm, intelligent gaze and is draped in textured dark fabric with gold embroidery. The lighting is cinematic and focused, with deep shadows and warm metallic highlights, reflecting a premium spiritual aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx8gOCop-J7KOis8hYY2RySQIVyFqjc8H-C-VOdeiL3l9fa-0xYn-3BnBbZghG39tTOt6rpPB6eafKL6_IjORB3rRko-DRHkIln4ApRFpkS2e-afRf76PkAVWYuhbb7aQ9YCnFCm-09-i9h8mMO0b_92uFZ0-y2orf-FGvhhxYpMvjukGdR7HO2c0UwbnlviSQqDZiSa4aYzxnKqdIjFx9x4JPgoIG4jSv6Bbt767rR170poPHwKFncZkUAkYxpU3eemSHVa9VQc4"/>
+</div>
+</header>
+<main class="relative z-10 pt-20 pb-32 px-container-margin min-h-screen">
+<!-- Welcome Header -->
+<section class="mt-4 mb-8">
+<h2 class="font-headline-lg text-primary mb-1">Namaste, Seeker</h2>
+<p class="font-sanskrit-text italic text-on-surface-variant/60 text-sm">Path to the Inner Temple</p>
+<div class="mt-6 relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-low/50 border-b-2 border-primary/20 focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/40 py-3 pl-12 pr-4 transition-all duration-500 rounded-t-lg" placeholder="Explore ancient wisdom..." type="text"/>
+<div class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-700 group-focus-within:w-full"></div>
+</div>
+</section>
+<!-- Filter Chips -->
+<section class="mb-10 -mx-container-margin overflow-x-auto">
+<div class="flex gap-3 px-container-margin pb-2">
+<button class="flex-shrink-0 px-6 py-2 rounded-full bg-primary text-on-primary font-label-sm text-label-sm tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(236,194,70,0.2)]">Calm</button>
+<button class="flex-shrink-0 px-6 py-2 rounded-full border border-primary/30 text-on-surface-variant/80 font-label-sm text-label-sm tracking-widest uppercase hover:bg-primary/5 transition-all">Focus</button>
+<button class="flex-shrink-0 px-6 py-2 rounded-full border border-primary/30 text-on-surface-variant/80 font-label-sm text-label-sm tracking-widest uppercase hover:bg-primary/5 transition-all">Sleep</button>
+<button class="flex-shrink-0 px-6 py-2 rounded-full border border-primary/30 text-on-surface-variant/80 font-label-sm text-label-sm tracking-widest uppercase hover:bg-primary/5 transition-all">Energy</button>
+<button class="flex-shrink-0 px-6 py-2 rounded-full border border-primary/30 text-on-surface-variant/80 font-label-sm text-label-sm tracking-widest uppercase hover:bg-primary/5 transition-all">Healing</button>
+</div>
+</section>
+<!-- Recommended Photo Path Tiles -->
+<section class="mb-12">
+<div class="flex justify-between items-end mb-6">
+<h3 class="font-title-md text-primary uppercase tracking-[0.2em] text-sm">Recommended Path</h3>
+<span class="text-xs text-on-surface-variant/50 uppercase tracking-widest">View All</span>
+</div>
+<div class="flex flex-col gap-6">
+<!-- Item 1 -->
+<div class="relative h-[240px] w-full rounded-xl overflow-hidden border border-primary/10 group cursor-pointer active:scale-[0.98] transition-transform">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110" data-alt="A serene zen garden at dawn, captured in a high-contrast cinematic style. Carefully raked sand patterns create flowing lines around dark mossy stones. Soft morning light filters through a light mist, highlighting the golden hues of autumn leaves in the background. The mood is tranquil, minimalist, and deeply focused on the present moment." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCODIM8cKA-mTT0zZaI4nmvc7R3LdPI3oiT2PAik6faZ56CSE4NyZNhbRMVa8KY9QqJF09kllc-ggc6rJ6B-_k7J83ca6Dgvs5T_VZRpqoqCRL3HwYmj-8RKwVnzEE9HrlAASwevUE195qZdWCCk8hPoi0MCUE5mHTovG5It79QOoLRlHYmt8d01eTqXRAbi9D61YG8IvbBtc3XVObLiZRAKeBFQlwlWYci-1zuV3XaIwEFEPyD-SU-mMXoWWcoAoDJgv5Rp4Y21tk')"></div>
+<div class="absolute inset-0 scrim-bottom"></div>
+<div class="absolute bottom-0 p-6 w-full">
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 rounded border border-primary/40 text-[10px] text-primary uppercase font-bold tracking-tighter">Breath Awareness</span>
+<span class="text-[10px] text-on-surface/60 uppercase tracking-widest">10 MIN</span>
+</div>
+<h4 class="font-headline-lg text-white mb-1">Morning Calm</h4>
+<p class="font-sanskrit-text text-primary/70 text-sm italic">Pranayama Shanti</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="relative h-[240px] w-full rounded-xl overflow-hidden border border-primary/10 group cursor-pointer active:scale-[0.98] transition-transform">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110" data-alt="An ethereal view of the Himalayan peaks shrouded in dense, swirling blue mist. A single peak catches a sliver of golden sunlight at the very top. The composition is atmospheric and grand, emphasizing the vastness of nature. The visual style is painterly and scholarly, evoking ancient spiritual journeys through the clouds." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC8Pge7OtYGDHvHfMwKbllruH10iBYlWCeC740kU_JYdjyRcroIpZMpHC38dRN_7fpfVj-MK8nyfGF6kMe2pT0vJ0wl8etFI0wnnbkRlBWxDWqiCR4Q-V33nQM_kCodrQo_Oj6Hc2PpYzb0wt7GC4cCGAFvMui7ghTKe6_Z7PM9jrYK2ijkpjyjRuq4zAaHO8a4aWQXZkqDLG4qArJCMUDoRtWO2eKkZ_UqCYzi0hlZYIHr3kx4pILN9N-c0GxW9UO-n9FmwMV6RY8')"></div>
+<div class="absolute inset-0 scrim-bottom"></div>
+<div class="absolute bottom-0 p-6 w-full">
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 rounded border border-primary/40 text-[10px] text-primary uppercase font-bold tracking-tighter">Visual Focus</span>
+<span class="text-[10px] text-on-surface/60 uppercase tracking-widest">15 MIN</span>
+</div>
+<h4 class="font-headline-lg text-white mb-1">Eternal Echoes</h4>
+<p class="font-sanskrit-text text-primary/70 text-sm italic">Akasha Dhvani</p>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="relative h-[240px] w-full rounded-xl overflow-hidden border border-primary/10 group cursor-pointer active:scale-[0.98] transition-transform">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110" data-alt="Macro photography of a single burning incense stick in a dark, sacred chamber. The smoke spirals upward in intricate, hypnotic patterns, illuminated by a warm golden candle glow from the side. The background is a deep, obsidian void. The texture of the smoke is crisp and detailed, creating a mood of heart-opening reverence and ritual." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDcwlIDSw4GEuisUGYkrEm81KKj4L9DyyOZZHTbO7qtsTR2ayxdOmn-VcFTa5AlMOYoErytbwqmaWUsbWXb2UkHMmyrfdTNM6YSHsKYKy75syAUlg5ofJVPEv_JS2-DzPjA8_SnOJaBbh_db23_5ZbvmV0umrqbJhdgacjDk1vpHkFtEU0hQMMiGA3QOWLvWPvtSymQjGQOQswculh9rQbckTVVjg28tmrFCYGFO6YDlFIHv6OC3RQAOTZYaRt-MrDHd70iNZ3Wj7Q')"></div>
+<div class="absolute inset-0 scrim-bottom"></div>
+<div class="absolute bottom-0 p-6 w-full">
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 rounded border border-primary/40 text-[10px] text-primary uppercase font-bold tracking-tighter">Heart Opening</span>
+<span class="text-[10px] text-on-surface/60 uppercase tracking-widest">7 MIN</span>
+</div>
+<h4 class="font-headline-lg text-white mb-1">Sacred Space</h4>
+<p class="font-sanskrit-text text-primary/70 text-sm italic">Anahata Kshetra</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Journey -->
+<section class="mb-12">
+<h3 class="font-title-md text-primary uppercase tracking-[0.2em] text-sm mb-6">Quick Journey</h3>
+<div class="grid grid-cols-4 gap-4">
+<button class="aspect-square border border-primary/40 flex flex-col items-center justify-center hover:bg-primary/10 transition-all group">
+<span class="font-headline-lg text-primary group-hover:scale-110 transition-transform">5</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant/50 tracking-tighter">MIN</span>
+</button>
+<button class="aspect-square border border-primary/40 flex flex-col items-center justify-center hover:bg-primary/10 transition-all group">
+<span class="font-headline-lg text-primary group-hover:scale-110 transition-transform">7</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant/50 tracking-tighter">MIN</span>
+</button>
+<button class="aspect-square border border-primary/40 flex flex-col items-center justify-center hover:bg-primary/10 transition-all group">
+<span class="font-headline-lg text-primary group-hover:scale-110 transition-transform">10</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant/50 tracking-tighter">MIN</span>
+</button>
+<button class="aspect-square border border-primary/40 flex flex-col items-center justify-center hover:bg-primary/10 transition-all group">
+<span class="font-headline-lg text-primary group-hover:scale-110 transition-transform">15</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant/50 tracking-tighter">MIN</span>
+</button>
+</div>
+</section>
+<!-- Footer Link -->
+<section class="text-center pb-8">
+<button class="inline-flex items-center gap-2 text-primary/60 font-body-md text-sm hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">event_note</span>
+                Sitting course (Day 12 of 45)
+            </button>
+</section>
+</main>
+<!-- Madhav FAB -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-2xl flex items-center justify-center z-50 active:scale-90 transition-transform gold-glow">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</button>
+<!-- Bottom Nav Bar (From Shared Components) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-low/90 backdrop-blur-2xl border-t border-primary/30 flex justify-around items-center px-4 pb-6 pt-2 shadow-[0_-4px_20px_rgba(236,194,70,0.1)] rounded-t-full">
+<!-- Home (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary/80 transition-all" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<!-- Explore (Active) -->
+<a class="flex flex-col items-center justify-center text-primary font-bold bg-primary-container/10 rounded-full px-4 py-1.5 transition-all scale-105" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-label-sm text-label-sm mt-0.5">Explore</span>
+</a>
+<!-- Mood (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary/80 transition-all" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-label-sm text-label-sm mt-1">Mood</span>
+</a>
+<!-- Astrology (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary/80 transition-all" href="#">
+<span class="material-symbols-outlined">stars</span>
+<span class="font-label-sm text-label-sm mt-1">Astrology</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interactions for input and tiles
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('scale-[1.02]');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('scale-[1.02]');
+            });
+        });
+
+        // Soft rise animation on cards
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.relative.rounded-xl').forEach(card => {
+            card.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+            observer.observe(card);
+        });
+    </script>
+</body></html>

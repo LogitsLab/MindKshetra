@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra — Meditation Showcase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital@0;1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#0c0e14",
+                        "secondary-fixed": "#ffe179",
+                        "primary-fixed": "#ffe08e",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "surface-tint": "#ecc246",
+                        "primary-fixed-dim": "#ecc246",
+                        "outline": "#99907b",
+                        "surface-bright": "#373940",
+                        "background": "#07090f",
+                        "inverse-primary": "#755b00",
+                        "tertiary-container": "#76b3a1",
+                        "on-surface-variant": "#d1c5af",
+                        "on-background": "#e1e2eb",
+                        "surface-dim": "#11131a",
+                        "secondary-container": "#856d01",
+                        "error-container": "#93000a",
+                        "surface-container-highest": "#33353c",
+                        "surface-container-high": "#282a31",
+                        "surface-container": "#1d1f26",
+                        "outline-variant": "#4d4635",
+                        "tertiary-fixed": "#b0efdc",
+                        "surface-variant": "#33353c",
+                        "on-tertiary": "#00382d",
+                        "tertiary": "#95d3c0",
+                        "primary-container": "#c9a227",
+                        "primary": "#ecc246",
+                        "on-secondary-fixed-variant": "#554500",
+                        "on-tertiary-container": "#004538",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "on-surface": "#e1e2eb",
+                        "surface-container-low": "#191b22",
+                        "on-primary-fixed-variant": "#584400",
+                        "on-primary-container": "#4b3a00",
+                        "surface": "#11131a",
+                        "on-primary": "#3d2e00",
+                        "inverse-surface": "#e1e2eb",
+                        "error": "#ffb4ab",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "on-primary-fixed": "#241a00",
+                        "on-secondary": "#3b2f00",
+                        "on-secondary-fixed": "#231b00",
+                        "on-error": "#690005",
+                        "secondary": "#e2c45a",
+                        "on-secondary-container": "#fff3d8",
+                        "inverse-on-surface": "#2e3037",
+                        "on-tertiary-fixed": "#002019"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "container-margin": "24px",
+                        "unit": "8px",
+                        "section-gap": "64px",
+                        "gutter": "16px"
+                    },
+                    fontFamily: {
+                        "display-lg": ["Libre Caslon Text"],
+                        "body-lg": ["Sora"],
+                        "title-md": ["Sora"],
+                        "sanskrit-text": ["Noto Serif"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "body-md": ["Sora"],
+                        "label-sm": ["Sora"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #07090f; color: #e1e2eb; overflow-x: hidden; }
+        .glass { background: rgba(14, 20, 32, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(201, 162, 39, 0.15); }
+        .gold-border { border: 1px solid rgba(201, 162, 39, 0.3); }
+        .brass-accent { color: #c9a227; }
+        .iphone-frame { width: 280px; height: 580px; border-radius: 40px; border: 8px solid #1d1f26; background: #07090f; position: relative; overflow: hidden; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); }
+        .iphone-screen { width: 100%; height: 100%; padding: 32px 16px 16px 16px; display: flex; flex-direction: column; }
+        .breathing-circle { animation: breathe 8s ease-in-out infinite; }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.4); opacity: 1; } }
+        .mandala-rotate { animation: spin 20s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .gold-glow { text-shadow: 0 0 15px rgba(201, 162, 39, 0.5); }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased">
+<!-- MAIN SHOWCASE LAYOUT -->
+<main class="flex h-screen w-full overflow-hidden">
+<!-- SIDEBAR -->
+<aside class="w-[420px] flex-shrink-0 flex flex-col p-12 bg-surface-container-lowest border-r border-outline-variant/10 relative z-10">
+<div class="mb-12">
+<span class="material-symbols-outlined brass-accent text-5xl mb-4" style="font-variation-settings: 'FILL' 1;">arrow_back_ios_new</span>
+<h1 class="font-headline-lg text-headline-lg brass-accent mb-2">MindKshetra</h1>
+<p class="font-title-md text-title-md tracking-widest text-on-surface-variant uppercase">Your Spiritual Companion</p>
+</div>
+<section class="space-y-8 mb-auto">
+<h2 class="font-headline-lg text-[24px] brass-accent">Why it matters</h2>
+<div class="space-y-6">
+<div class="flex gap-4">
+<span class="material-symbols-outlined brass-accent">auto_awesome</span>
+<p class="font-body-lg text-on-surface-variant">Elevates the traditional meditation experience into a cinematic journey of the soul.</p>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined brass-accent">stars</span>
+<p class="font-body-lg text-on-surface-variant">Expertly curated Vedic wisdom packaged for the modern, discerning practitioner.</p>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined brass-accent">self_improvement</span>
+<p class="font-body-lg text-on-surface-variant">Fosters internal silence through high-contrast minimalist interface design.</p>
+</div>
+</div>
+</section>
+<!-- CINEMATIC LANDSCAPE CONTAINER -->
+<div class="mt-12 rounded-xl overflow-hidden gold-border h-48 relative">
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent z-10"></div>
+<img class="w-full h-full object-cover" data-alt="A cinematic, wide-angle landscape of the Himalayan mountains during the golden hour. The peaks are covered in pristine snow, glowing with a soft metallic gold light. The atmosphere is filled with a light mist and deep shadows in the valleys. The visual style is highly dramatic, minimalist, and serene, mirroring the premium spiritual aesthetic of the brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCPPEiY4Ix1yO-sudgxYD7gMvUCYyU1wa9gWCPW5Z717ysdseYFVlab5CJg5eqWUL45voRr6d8G81_VN_UcO_aAc3voiFPjl-bBYXjf9AjoBkQGMcgHtjVtFOHq8gXNGs9vEADOdXV6x5OLra3OpFQAHhZU2tbKhdT2tJoGyFeRetSXqIahl_0yP8UnclyrvjLYp21b4ufbnwyPMvgz4-N0NauiitMn2wlbOirFk1oxI2xw88iOShq6tORXIITmHPvAEbLc9W9awk"/>
+<div class="absolute bottom-4 left-4 z-20">
+<p class="font-label-sm brass-accent uppercase tracking-widest">Himalayan Sanctuary</p>
+</div>
+</div>
+</aside>
+<!-- CENTER CANVAS (PHONES) -->
+<section class="flex-grow bg-background flex flex-col items-center justify-center p-8 relative overflow-hidden">
+<!-- Background Atmosphere -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-tertiary/5 blur-[120px] rounded-full pointer-events-none"></div>
+<div class="flex gap-8 items-end max-w-full overflow-x-auto pb-12 px-8 no-scrollbar">
+<!-- PHONE 01: HOME -->
+<div class="flex flex-col items-center gap-4">
+<span class="font-label-sm text-primary/50">01</span>
+<div class="iphone-frame">
+<div class="iphone-screen">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-lg text-[22px]">Namaste, Seeker</h3>
+<span class="material-symbols-outlined brass-accent">account_circle</span>
+</div>
+<div class="relative mb-6">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container-high/50 border-none rounded-full pl-10 pr-4 py-2 text-xs font-body-md focus:ring-1 focus:ring-primary/30" placeholder="Explore practices..." type="text"/>
+</div>
+<div class="flex gap-2 mb-6 overflow-x-auto no-scrollbar">
+<span class="px-4 py-1.5 rounded-full border border-primary bg-primary text-on-primary text-[10px] font-bold uppercase tracking-wider">Calm</span>
+<span class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Focus</span>
+<span class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Sleep</span>
+</div>
+<div class="rounded-xl overflow-hidden gold-border flex-grow mb-6 relative group">
+<img class="w-full h-full object-cover" data-alt="A lush, deep green ancient forest at dawn with shafts of golden sunlight piercing through the heavy morning mist. The ground is covered in vibrant moss and ferns. The scene is incredibly peaceful and quiet, shot in a cinematic style with high depth of field to emphasize the morning calm meditation theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHRKDHa78WhqAXTXQIjYYQeAwHfowEla-hXrdIML1d22R7HF7Db9eA6NFxZhKH7QuknLIZCv-Y_hGFkjjJ0T_SrRg8YRwYgl2j1aIgIWjmxD1CUFyD8AQoXTgjNgT55fpjR-7ll-YZRincVkIqznXeNYpb1v6OuxuX1g6xhhMQ-g9fSa9JbHexOwwQSUWPF02IYUODTBLC8K9nzauNUJpN-5wMh_hWoJOvzix4tHowN8u8-YQuYIsfiwCmGyosCGZSGNbAyA_hS7o"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent p-4 flex flex-col justify-end">
+<h4 class="font-headline-lg text-lg">Morning Calm</h4>
+<p class="font-body-md text-[10px] text-on-surface-variant">10 min • Breath Awareness</p>
+</div>
+</div>
+<div class="grid grid-cols-4 gap-2 mb-4">
+<button class="aspect-square rounded-lg bg-surface-container-high flex items-center justify-center font-title-md text-sm brass-accent hover:bg-primary/10 transition-colors">5</button>
+<button class="aspect-square rounded-lg bg-surface-container-high flex items-center justify-center font-title-md text-sm brass-accent">7</button>
+<button class="aspect-square rounded-lg bg-surface-container-high flex items-center justify-center font-title-md text-sm brass-accent">10</button>
+<button class="aspect-square rounded-lg bg-surface-container-high flex items-center justify-center font-title-md text-sm brass-accent">15</button>
+</div>
+<!-- Bottom Nav -->
+<div class="mt-auto flex justify-between px-2 pt-4 border-t border-outline-variant/10">
+<div class="flex flex-col items-center gap-1 brass-accent">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[8px] font-bold">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-[8px] font-bold">Explore</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">mood</span>
+<span class="text-[8px] font-bold">Mood</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="text-[8px] font-bold">Astrology</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- PHONE 02: GUIDED SESSION -->
+<div class="flex flex-col items-center gap-4">
+<span class="font-label-sm text-primary/50">02</span>
+<div class="iphone-frame">
+<div class="iphone-screen p-0 relative">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A breathtaking view of jagged mountain peaks silhouetted against a deep indigo and magenta twilight sky. A few distant stars are beginning to appear. The lighting is low and atmospheric, emphasizing the vast stillness and cosmic scale of the landscape. The color palette consists of deep purples, dark blues, and subtle hints of warm twilight glow." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAhltklMOVAXey5Dl12ZHf15k_dOHWr_wLlqxx7Y-puMD5568LYhDywfOyyRhFCGgmO6QcY--EemD0B3zkUw6tNercuYUUke1-YxNKG9C0lK-uT8We9x4BCgqKMw_jkQfjE6yxy0EzBZSTLThQbBkM-rwLLrTFjlQhTJGRB6FrP2HCyRMZmGA-jsHs4eRYa8LiPbNWO7Y7vp6crNRzgSyb5JFAKHqmyjS7RX--JBMm_8ryhxJUcgnNz31ArXlee2TGYBL-C7wQszk"/>
+<div class="absolute inset-0 bg-background/40"></div>
+<div class="relative z-10 h-full flex flex-col items-center p-8">
+<div class="flex justify-between w-full mb-auto">
+<span class="material-symbols-outlined text-white/50">close</span>
+<span class="material-symbols-outlined text-white/50">volume_up</span>
+</div>
+<div class="flex-grow flex flex-col items-center justify-center">
+<div class="w-48 h-48 rounded-full border-2 border-primary/30 flex items-center justify-center relative">
+<div class="breathing-circle w-40 h-40 rounded-full bg-primary/20 absolute"></div>
+<div class="z-20 text-center">
+<p class="font-headline-lg text-2xl mb-1 gold-glow uppercase tracking-widest">Inhale</p>
+<p class="font-body-md text-lg text-primary">4s</p>
+</div>
+</div>
+</div>
+<div class="w-full mt-auto pb-8 text-center">
+<div class="w-full h-1 bg-white/10 rounded-full mb-8 overflow-hidden">
+<div class="w-1/3 h-full bg-primary"></div>
+</div>
+<button class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- PHONE 03: BREATHING -->
+<div class="flex flex-col items-center gap-4">
+<span class="font-label-sm text-primary/50">03</span>
+<div class="iphone-frame">
+<div class="iphone-screen">
+<div class="mb-12 text-center">
+<h3 class="font-headline-lg text-2xl mb-2">4-7-8 Breathing</h3>
+<p class="font-label-sm text-on-surface-variant uppercase tracking-widest">Deep Nervous System Reset</p>
+</div>
+<div class="flex-grow flex items-center justify-center mb-12">
+<div class="relative w-56 h-56 flex items-center justify-center">
+<svg class="mandala-rotate absolute inset-0 w-full h-full opacity-20 fill-primary" viewbox="0 0 100 100">
+<path d="M50 0 L55 35 L90 20 L75 50 L90 80 L55 65 L50 100 L45 65 L10 80 L25 50 L10 20 L45 35 Z"></path>
+<circle cx="50" cy="50" r="10"></circle>
+</svg>
+<div class="text-center z-10">
+<p class="font-headline-lg text-xl gold-glow">Hold 7s</p>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-center px-4">
+<div class="text-center opacity-40">
+<p class="text-[8px] font-bold uppercase tracking-wider">Inhale</p>
+<p class="font-title-md">4s</p>
+</div>
+<span class="material-symbols-outlined text-xs text-primary">arrow_forward</span>
+<div class="text-center">
+<p class="text-[8px] font-bold uppercase tracking-wider brass-accent">Hold</p>
+<p class="font-title-md brass-accent">7s</p>
+</div>
+<span class="material-symbols-outlined text-xs text-primary/30">arrow_forward</span>
+<div class="text-center opacity-40">
+<p class="text-[8px] font-bold uppercase tracking-wider">Exhale</p>
+<p class="font-title-md">8s</p>
+</div>
+</div>
+<div class="text-center pt-8 border-t border-outline-variant/10">
+<p class="font-body-md text-on-surface-variant uppercase tracking-widest text-[10px]">Cycle 2 / 12</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- PHONE 04: COMPLETE -->
+<div class="flex flex-col items-center gap-4">
+<span class="font-label-sm text-primary/50">04</span>
+<div class="iphone-frame">
+<div class="iphone-screen items-center py-16">
+<h3 class="font-headline-lg text-3xl mb-12">Well Done</h3>
+<div class="w-40 h-40 mb-12 flex items-center justify-center">
+<span class="material-symbols-outlined text-8xl brass-accent" style="font-variation-settings: 'FILL' 1;">spa</span>
+</div>
+<div class="text-center mb-12">
+<h4 class="font-title-md mb-2">Morning Calm</h4>
+<p class="font-label-sm text-on-surface-variant uppercase tracking-widest">10 min Session Complete</p>
+</div>
+<div class="w-full space-y-4 mb-12 px-4">
+<p class="text-center font-label-sm text-on-surface-variant uppercase tracking-tighter mb-4">How do you feel now?</p>
+<div class="grid grid-cols-2 gap-2">
+<button class="py-3 border border-outline-variant text-xs font-bold rounded hover:border-primary hover:text-primary transition-all">GREAT</button>
+<button class="py-3 border border-outline-variant text-xs font-bold rounded">GOOD</button>
+<button class="py-3 border border-outline-variant text-xs font-bold rounded">NEUTRAL</button>
+<button class="py-3 border border-outline-variant text-xs font-bold rounded">LOW</button>
+</div>
+</div>
+<button class="w-full mt-auto py-4 bg-primary text-on-primary font-bold uppercase tracking-widest text-xs rounded-lg shadow-lg">Save &amp; Continue</button>
+</div>
+</div>
+</div>
+<!-- PHONE 05: PROGRESS -->
+<div class="flex flex-col items-center gap-4">
+<span class="font-label-sm text-primary/50">05</span>
+<div class="iphone-frame">
+<div class="iphone-screen">
+<div class="flex gap-4 mb-8 border-b border-outline-variant/10">
+<button class="pb-2 border-b-2 border-primary text-primary text-xs font-bold uppercase tracking-wider">Overview</button>
+<button class="pb-2 text-on-surface-variant text-xs font-bold uppercase tracking-wider">Stats</button>
+<button class="pb-2 text-on-surface-variant text-xs font-bold uppercase tracking-wider">History</button>
+</div>
+<div class="flex items-center justify-center mb-8">
+<div class="w-32 h-32 rounded-full border-[6px] border-primary/20 flex items-center justify-center relative">
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle cx="64" cy="64" fill="none" r="61" stroke="#c9a227" stroke-dasharray="383" stroke-dashoffset="100" stroke-linecap="round" stroke-width="6"></circle>
+</svg>
+<div class="text-center">
+<p class="font-headline-lg text-2xl leading-none">14</p>
+<p class="font-label-sm text-[8px] uppercase tracking-tighter text-on-surface-variant">Day Streak</p>
+</div>
+</div>
+</div>
+<div class="mb-8">
+<p class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest mb-4">Weekly Dedication</p>
+<div class="flex items-end justify-between h-20 gap-1 px-2">
+<div class="w-full bg-primary/20 h-1/2 rounded-t"></div>
+<div class="w-full bg-primary/20 h-2/3 rounded-t"></div>
+<div class="w-full bg-primary/20 h-1/3 rounded-t"></div>
+<div class="w-full bg-primary h-[80%] rounded-t"></div>
+<div class="w-full bg-primary/20 h-1/2 rounded-t"></div>
+<div class="w-full bg-primary h-[90%] rounded-t"></div>
+<div class="w-full bg-primary/20 h-1/4 rounded-t"></div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-3 rounded bg-surface-container-high/30">
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Sessions</span>
+<span class="font-headline-lg text-lg brass-accent">1,204</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded bg-surface-container-high/30">
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Total Time</span>
+<span class="font-headline-lg text-lg brass-accent">482 hrs</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded bg-surface-container-high/30">
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Longest Streak</span>
+<span class="font-headline-lg text-lg brass-accent">45 days</span>
+</div>
+</div>
+<!-- Bottom Nav -->
+<div class="mt-auto flex justify-between px-2 pt-4 border-t border-outline-variant/10">
+<div class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[8px] font-bold">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-[8px] font-bold">Explore</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">mood</span>
+<span class="text-[8px] font-bold">Mood</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="text-[8px] font-bold">Astrology</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- VALUE PILLAR STRIP (FIXED AT BOTTOM) -->
+<div class="absolute bottom-0 left-[420px] right-0 h-24 bg-surface-container border-t border-outline-variant/10 flex items-center justify-around px-12 z-20">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined brass-accent text-sm">verified_user</span>
+<span class="font-label-sm uppercase tracking-[0.2em] text-on-surface">Expertly curated</span>
+</div>
+<div class="w-px h-6 bg-outline-variant/30"></div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined brass-accent text-sm">filter_vintage</span>
+<span class="font-label-sm uppercase tracking-[0.2em] text-on-surface">Soothing</span>
+</div>
+<div class="w-px h-6 bg-outline-variant/30"></div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined brass-accent text-sm">leaderboard</span>
+<span class="font-label-sm uppercase tracking-[0.2em] text-on-surface">For every level</span>
+</div>
+<div class="w-px h-6 bg-outline-variant/30"></div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined brass-accent text-sm">update</span>
+<span class="font-label-sm uppercase tracking-[0.2em] text-on-surface">Builds consistency</span>
+</div>
+<div class="w-px h-6 bg-outline-variant/30"></div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined brass-accent text-sm">auto_awesome</span>
+<span class="font-label-sm uppercase tracking-[0.2em] text-on-surface">Transformative</span>
+</div>
+</div>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.add('scale-95');
+                setTimeout(() => this.classList.remove('scale-95'), 150);
+            });
+        });
+    </script>
+</body></html>

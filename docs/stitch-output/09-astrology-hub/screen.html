@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=390, height=844, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:wght@400;700&amp;family=Noto+Serif+Devanagari:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#3d2e00",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-primary-fixed": "#241a00",
+                        "primary": "#ecc246",
+                        "on-secondary-container": "#fff3d8",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#e1e2eb",
+                        "background": "#11131a",
+                        "tertiary-container": "#76b3a1",
+                        "surface-container-lowest": "#0c0e14",
+                        "primary-container": "#c9a227",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "surface-container-low": "#191b22",
+                        "surface-variant": "#33353c",
+                        "surface-bright": "#373940",
+                        "on-tertiary-fixed": "#002019",
+                        "on-primary-fixed-variant": "#584400",
+                        "on-background": "#e1e2eb",
+                        "tertiary-fixed": "#b0efdc",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#856d01",
+                        "outline-variant": "#4d4635",
+                        "on-secondary-fixed": "#231b00",
+                        "on-tertiary-container": "#004538",
+                        "inverse-on-surface": "#2e3037",
+                        "surface-container-high": "#282a31",
+                        "surface-container": "#1d1f26",
+                        "secondary-fixed": "#ffe179",
+                        "error-container": "#93000a",
+                        "outline": "#99907b",
+                        "surface-container-highest": "#33353c",
+                        "secondary": "#e2c45a",
+                        "on-primary-container": "#4b3a00",
+                        "tertiary": "#95d3c0",
+                        "surface-dim": "#11131a",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "on-secondary": "#3b2f00",
+                        "on-error": "#690005",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "on-tertiary": "#00382d",
+                        "on-surface": "#e1e2eb",
+                        "on-secondary-fixed-variant": "#554500",
+                        "primary-fixed": "#ffe08e",
+                        "surface": "#11131a",
+                        "on-surface-variant": "#d1c5af",
+                        "surface-tint": "#ecc246",
+                        "inverse-primary": "#755b00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "24px",
+                        "unit": "8px",
+                        "section-gap": "64px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Libre Caslon Text"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "label-sm": ["Sora"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "sanskrit-text": ["Noto Serif Devanagari"],
+                        "body-md": ["Sora"],
+                        "body-lg": ["Sora"],
+                        "title-md": ["Sora"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #07090f;
+            color: #e1e2eb;
+            overflow-x: hidden;
+            font-family: 'Sora', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .cinematic-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(to bottom, #07090f, #11131a);
+        }
+
+        .starfield {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(white 1px, transparent 0);
+            background-size: 50px 50px;
+            background-position: 0 0, 25px 25px;
+            opacity: 0.1;
+        }
+
+        .aura-glow {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: #3d7a6a;
+            filter: blur(120px);
+            opacity: 0.15;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .shikhara-silhouette {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background-size: cover;
+            background-position: bottom center;
+            opacity: 0.3;
+            mask-image: linear-gradient(to top, black 30%, transparent 100%);
+        }
+
+        .glass-panel {
+            background: rgba(14, 20, 32, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(236, 194, 70, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:active {
+            transform: scale(0.98);
+            border-color: rgba(236, 194, 70, 0.5);
+        }
+
+        .brass-border {
+            border: 1px solid #c9a227;
+        }
+
+        .brass-hairline {
+            border: 0.5px solid rgba(201, 162, 39, 0.3);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .active-tab-glow {
+            box-shadow: 0 0 15px rgba(236, 194, 70, 0.2);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="max-w-[390px] mx-auto min-h-screen relative shadow-2xl">
+<!-- Cinematic Background -->
+<div class="cinematic-bg">
+<div class="starfield"></div>
+<div class="aura-glow"></div>
+<div class="shikhara-silhouette" data-alt="A cinematic, low-exposure silhouette of a traditional Indian temple shikhara peak against a deep dark starfield sky. The lighting is atmospheric with a subtle teal atmospheric glow bleeding from behind the silhouette, creating a sense of ancient wisdom and cosmic mystery. The visual style is premium, minimalist, and serene, using a palette of #07090f and #3d7a6a." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAuWMBiutmjDi6WLnkNJiS6Ce4UYev4oll9CSiQhTKPTcp_jrgWAhr9dwXlpZKXd75CxPbir0dFZaagqAFZbsC8RC0vZvZXGZ7Jr925Pr1x6DjgCeB2fyUedeip4g8upDa2l5LolpGuMU8g6DYeizDvTrrKmE4iKq6Noy1UHwIPgBwW-D2HOGI7tnJ4wbH_Lm9Zny-_MNsQetFeLzuTFzicLxa5ptqIQb2SIwzSPkRDyHTR3uCRhaKyX3Fi8l8ZUnzbH9DqOTHbFmg')"></div>
+</div>
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full max-w-[390px] z-50 flex justify-between items-center px-container-margin h-16 bg-surface/40 backdrop-blur-xl border-b border-primary/10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">eco</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">MindKshetra</h1>
+</div>
+<div class="w-8 h-8 rounded-full border border-primary/30 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional, scholarly avatar of a spiritual guide, Madhav, with a serene expression. The lighting is soft and directional, evoking a sense of calm and wisdom. The style is cinematic minimalist with high contrast and a deep background that matches the app's dark mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoxdFDwMXTDWAbiTrJyQGlFAPx85YyVI41lr4IsaKd8Yh73wl1GWqo1kiKfCi1T7RQochD-CE74SzKsC3S_nCuB-L8dhb29AVnQ7Bj4yhMWP6My4Bk82oj3tOjUq4w_tvRqasy1oLospMblZ22FQYHT5b4Ilk3740sd7-e5Tq9mldSjH_n-DykxV73R82lDH2_s3TxlJ2NzA-Zs3DOd6IOXO_afzchKJibVAiaDiQ25FH3s5MpqR--1E7pdvIHQZdOEZ9YKkP_1zE"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-container-margin">
+<!-- Headline Section -->
+<section class="mb-8">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface flex items-baseline gap-3">
+                Astrology 
+                <span class="font-sanskrit-text text-sanskrit-text text-primary-container opacity-80">ज्योतिष</span>
+</h2>
+</section>
+<!-- Hero: Today's Tithi -->
+<section class="mb-10">
+<div class="glass-panel rounded-full py-4 px-6 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">brightness_4</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Today's Tithi</p>
+<p class="font-title-md text-title-md text-on-surface">Shukla Paksha - Ashtami</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary/40">chevron_right</span>
+</div>
+</section>
+<!-- Feature Shortcuts: Scrolling Row -->
+<section class="mb-10 -mx-container-margin px-container-margin">
+<div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+<!-- Panchang -->
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-14 h-14 rounded-xl brass-hairline flex items-center justify-center bg-surface-container-low group-active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-2xl">calendar_month</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Panchang</span>
+</button>
+<!-- Muhurats -->
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-14 h-14 rounded-xl brass-hairline flex items-center justify-center bg-surface-container-low group-active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-2xl">schedule</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Muhurats</span>
+</button>
+<!-- Horoscope -->
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-14 h-14 rounded-xl brass-hairline flex items-center justify-center bg-surface-container-low group-active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-2xl">explore</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Horoscope</span>
+</button>
+<!-- Transits -->
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-14 h-14 rounded-xl brass-hairline flex items-center justify-center bg-surface-container-low group-active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-2xl">rocket_launch</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Transits</span>
+</button>
+<!-- Charts -->
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-14 h-14 rounded-xl brass-hairline flex items-center justify-center bg-surface-container-low group-active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-2xl">diamond</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Charts</span>
+</button>
+<!-- Milan -->
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-14 h-14 rounded-xl brass-hairline flex items-center justify-center bg-surface-container-low group-active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-2xl">diversity_1</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Milan</span>
+</button>
+</div>
+</section>
+<!-- Primary Entry Panels (2x2 Grid) -->
+<section class="grid grid-cols-2 gap-4">
+<!-- Incognito Chart -->
+<div class="glass-panel aspect-square rounded-2xl p-6 flex flex-col justify-between group active:scale-95 transition-transform">
+<div class="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">visibility_off</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-on-surface leading-tight">Incognito Chart</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant mt-1 opacity-70">Single-use lookup</p>
+</div>
+</div>
+<!-- Saved Members -->
+<div class="glass-panel aspect-square rounded-2xl p-6 flex flex-col justify-between group active:scale-95 transition-transform">
+<div class="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">group</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-on-surface leading-tight">Saved Members</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant mt-1 opacity-70">Your inner circle</p>
+</div>
+</div>
+<!-- Kundli Milan -->
+<div class="glass-panel aspect-square rounded-2xl p-6 flex flex-col justify-between group active:scale-95 transition-transform">
+<div class="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">favorite</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-on-surface leading-tight">Kundli Milan</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant mt-1 opacity-70">Compatibility match</p>
+</div>
+</div>
+<!-- Today's Panchang -->
+<div class="glass-panel aspect-square rounded-2xl p-6 flex flex-col justify-between group active:scale-95 transition-transform">
+<div class="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">menu_book</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-on-surface leading-tight">Today's Panchang</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant mt-1 opacity-70">Vedic almanac</p>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB: Ask Madhav -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center z-50 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</button>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full max-w-[390px] z-50 bg-surface-container-low/80 backdrop-blur-2xl border-t border-primary/20 px-4 pb-6 pt-2 flex justify-around items-center">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 gap-1" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-[10px] tracking-tight">Home</span>
+</a>
+<!-- Explore -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 gap-1" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-[10px] tracking-tight">Explore</span>
+</a>
+<!-- Mood -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 gap-1" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-label-sm text-[10px] tracking-tight">Mood</span>
+</a>
+<!-- Astrology (Active) -->
+<a class="flex flex-col items-center justify-center text-primary font-bold bg-primary/10 rounded-2xl px-4 py-2 gap-1 active-tab-glow" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-label-sm text-[10px] tracking-tight">Astrology</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions and atmospheric effects
+        document.querySelectorAll('.glass-panel').forEach(panel => {
+            panel.addEventListener('touchstart', () => {
+                panel.style.boxShadow = '0 0 20px rgba(236, 194, 70, 0.15)';
+            });
+            panel.addEventListener('touchend', () => {
+                panel.style.boxShadow = 'none';
+            });
+        });
+
+        // Subtle parallax effect on the shikhara silhouette
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const silhouette = document.querySelector('.shikhara-silhouette');
+            if (silhouette) {
+                silhouette.style.transform = `translateY(${scrolled * 0.1}px)`;
+            }
+        });
+    </script>
+</body></html>

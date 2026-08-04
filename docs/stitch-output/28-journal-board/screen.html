@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra - Journal &amp; Reflections Showcase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#095042",
+                        "surface-container-highest": "#33353c",
+                        "on-tertiary": "#00382d",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#11131a",
+                        "on-primary-container": "#4b3a00",
+                        "tertiary-container": "#76b3a1",
+                        "secondary-fixed": "#ffe179",
+                        "outline-variant": "#4d4635",
+                        "background": "#07090f",
+                        "on-tertiary-fixed": "#002019",
+                        "on-surface-variant": "#d1c5af",
+                        "primary-fixed": "#ffe08e",
+                        "error": "#ffb4ab",
+                        "primary": "#ecc246",
+                        "on-secondary-fixed-variant": "#554500",
+                        "on-primary": "#3d2e00",
+                        "outline": "#99907b",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "surface-dim": "#11131a",
+                        "on-secondary-fixed": "#231b00",
+                        "on-background": "#e1e2eb",
+                        "inverse-on-surface": "#2e3037",
+                        "surface-container": "#1d1f26",
+                        "primary-fixed-dim": "#ecc246",
+                        "surface-variant": "#33353c",
+                        "inverse-primary": "#755b00",
+                        "tertiary-fixed": "#b0efdc",
+                        "surface-tint": "#ecc246",
+                        "surface-container-low": "#191b22",
+                        "surface-bright": "#373940",
+                        "secondary-container": "#856d01",
+                        "primary-container": "#c9a227",
+                        "surface-container-lowest": "#0c0e14",
+                        "inverse-surface": "#e1e2eb",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "on-tertiary-container": "#004538",
+                        "on-secondary-container": "#fff3d8",
+                        "on-secondary": "#3b2f00",
+                        "secondary": "#e2c45a",
+                        "surface-container-high": "#282a31",
+                        "tertiary": "#95d3c0",
+                        "on-surface": "#e1e2eb",
+                        "on-primary-fixed-variant": "#584400",
+                        "on-primary-fixed": "#241a00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "section-gap": "64px",
+                        "container-margin": "24px",
+                        "unit": "8px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Sora"],
+                        "body-md": ["Sora"],
+                        "body-lg": ["Sora"],
+                        "title-md": ["Sora"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "sanskrit-text": ["Noto Serif"],
+                        "display-lg": ["Libre Caslon Text"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(14, 20, 32, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(201, 162, 39, 0.15);
+        }
+        .brass-hairline {
+            border: 1px solid rgba(201, 162, 39, 0.2);
+        }
+        .glow-aura {
+            filter: blur(120px);
+            opacity: 0.08;
+            pointer-events: none;
+        }
+        .iphone-frame {
+            border: 8px solid #1a1c24;
+            border-radius: 44px;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5);
+            background: #07090f;
+            overflow: hidden;
+            position: relative;
+        }
+        .iphone-notch {
+            width: 120px;
+            height: 28px;
+            background: #1a1c24;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 50;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c9a227;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden min-h-screen">
+<!-- Atmospheric Background Glows -->
+<div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-tertiary glow-aura rounded-full"></div>
+<div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-tertiary glow-aura rounded-full"></div>
+<main class="relative z-10 flex flex-col min-h-screen">
+<!-- Showcase Layout Container -->
+<div class="flex flex-col lg:flex-row flex-grow w-full max-w-[1600px] mx-auto px-container-margin py-10 gap-12">
+<!-- Sidebar Content -->
+<aside class="lg:w-1/4 flex flex-col gap-10">
+<div class="flex flex-col gap-4">
+<span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1;">
+                        filter_vintage
+                    </span>
+<h1 class="font-display-lg text-headline-lg text-primary leading-tight">Journal &amp;<br/>Reflections</h1>
+</div>
+<div class="space-y-6">
+<h3 class="font-title-md text-primary tracking-widest uppercase text-sm">Why it matters</h3>
+<ul class="space-y-4 font-body-lg text-on-surface-variant">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-sm mt-1">circle</span>
+<span>Self-awareness: Navigate the depths of your inner world.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-sm mt-1">circle</span>
+<span>Clarity: Distill the chaos of daily living into wisdom.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-sm mt-1">circle</span>
+<span>Emotional well-being: Release the weight of the unspoken.</span>
+</li>
+</ul>
+</div>
+<!-- Artistic Zen Fragment -->
+<div class="relative h-64 rounded-xl overflow-hidden brass-hairline mt-auto">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A cinematic, atmospheric photography of a misty Japanese Zen garden at dawn. Stone lanterns emerge from a soft fog, surrounded by dark mossy rocks and a still pond. The lighting is ethereal and cool, with deep shadows and a minimalist, sacred aesthetic perfectly aligned with MindKshetra's dark cinematic brand identity." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAMMrzZvR-jEavIpxhqX3ah4LgwP4y_xpo_ciWqs8HXvgLmjB1d_ke0DRxzmonOBUdcWVAvYFT_xKuXgDQ75vv-rvxCdKX3NE6jJgugCnEWGghzITTcu8ynBMbWlAVB4NXlZPRgNtW6gV_MnKo9C-XKgp-48eYa2uyGQ5w3xsxKOm39pHXpdQvZohv-4yOGiRHJApHac92UpyKjYEKSuIUVD4fJBKY4yhx_ghFB7OpO-mzKNjixMsKKmtSs2e7ZBCMjd4ni9T1SavM')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<p class="font-sanskrit-text text-on-surface italic text-lg leading-relaxed">
+                            "Within the silence of the soul, the universe speaks."
+                        </p>
+</div>
+</div>
+</aside>
+<!-- Phones Section -->
+<section class="lg:w-3/4">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
+<!-- 01: Daily Reflection -->
+<div class="flex flex-col gap-4">
+<span class="text-primary font-title-md text-sm tracking-widest">01</span>
+<div class="iphone-frame h-[600px] flex flex-col">
+<div class="iphone-notch"></div>
+<div class="pt-10 px-4 flex-grow flex flex-col bg-surface-container-lowest">
+<header class="flex flex-col mb-4">
+<span class="text-on-surface-variant font-label-sm uppercase">Oct 24, 2024</span>
+<h2 class="font-headline-lg text-2xl text-on-surface">How was your day?</h2>
+</header>
+<div class="h-32 rounded-lg overflow-hidden relative mb-4">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A serene wide-angle shot of a mountain lake at twilight. The water is perfectly still, reflecting a deep indigo sky and the silhouettes of jagged peaks. Low-key lighting, moody atmosphere, high contrast between the dark mountains and the last glow of the horizon. Cinematic minimalist style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAMLeSsPPm4MZl73oP9JKS644D--DYRcAdjlmn5LbaJuBcjWCJLhhBUfixxorFBP5HRXDF8twENnDUHJXWSv4uqoG5qU4zYhogdo_7RbkhxWwsZSTc7RU5V09AjrozVgoe2upfqpr1tE3kzyVLxyZkq7LDytjOytOkD2tnsS3Rt2Tt6jmp237tmi7hpKID66AqhMxeVM6O81szpZoTic1-F6wt_njb7i8XeIHMb5r1njKFnIRE2pFfCRaTXMWNfllTQi8coDrsYbzo')"></div>
+<div class="absolute inset-0 bg-black/30"></div>
+</div>
+<div class="glass-panel p-4 flex-grow rounded-lg mb-4">
+<p class="text-on-surface-variant font-body-md text-sm italic">Type your reflections here...</p>
+</div>
+<div class="flex gap-2 mb-6">
+<button class="px-3 py-1 border border-primary text-[10px] text-primary uppercase font-bold tracking-tighter">PEACEFUL</button>
+<button class="px-3 py-1 border border-primary text-[10px] text-primary uppercase font-bold tracking-tighter">PRODUCTIVE</button>
+</div>
+</div>
+<!-- Phone Nav -->
+<nav class="h-16 bg-surface-container border-t border-outline-variant/20 flex justify-around items-center">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">spa</span>
+<span class="text-[8px] font-bold text-primary uppercase">Mood</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">auto_awesome</span>
+</nav>
+<!-- FAB -->
+<div class="absolute bottom-20 right-4 w-10 h-10 bg-primary-container rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-on-primary text-xl">auto_fix_high</span>
+</div>
+</div>
+</div>
+<!-- 02: Gratitude -->
+<div class="flex flex-col gap-4">
+<span class="text-primary font-title-md text-sm tracking-widest">02</span>
+<div class="iphone-frame h-[600px] flex flex-col">
+<div class="iphone-notch"></div>
+<div class="pt-10 px-4 flex-grow flex flex-col bg-surface-container-lowest">
+<div class="flex justify-between items-center mb-6">
+<div class="flex gap-2">
+<div class="flex flex-col items-center w-8 py-1 border border-outline-variant/20"><span class="text-[8px]">M</span><span class="text-xs">21</span></div>
+<div class="flex flex-col items-center w-8 py-1 border border-outline-variant/20"><span class="text-[8px]">T</span><span class="text-xs">22</span></div>
+<div class="flex flex-col items-center w-8 py-1 border border-outline-variant/20"><span class="text-[8px]">W</span><span class="text-xs">23</span></div>
+<div class="flex flex-col items-center w-8 py-1 border-2 border-primary bg-primary/10"><span class="text-[8px] font-bold">T</span><span class="text-xs font-bold">24</span></div>
+<div class="flex flex-col items-center w-8 py-1 border border-outline-variant/20"><span class="text-[8px]">F</span><span class="text-xs">25</span></div>
+</div>
+</div>
+<h2 class="font-headline-lg text-2xl text-on-surface mb-6">Today I’m grateful for</h2>
+<div class="space-y-6 flex-grow">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-xs mt-1">filter_vintage</span>
+<p class="font-body-md text-sm border-b border-outline-variant/30 pb-2 flex-grow">Morning tea in the silent garden</p>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-xs mt-1">filter_vintage</span>
+<p class="font-body-md text-sm border-b border-outline-variant/30 pb-2 flex-grow">A meaningful call with my brother</p>
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary py-3 font-bold text-xs uppercase tracking-widest mb-6">
+                                    + Add gratitude
+                                </button>
+</div>
+<!-- Phone Nav -->
+<nav class="h-16 bg-surface-container border-t border-outline-variant/20 flex justify-around items-center">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">spa</span>
+<span class="text-[8px] font-bold text-primary uppercase">Mood</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">auto_awesome</span>
+</nav>
+<!-- FAB -->
+<div class="absolute bottom-20 right-4 w-10 h-10 bg-primary-container rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-on-primary text-xl">auto_fix_high</span>
+</div>
+</div>
+</div>
+<!-- 03: Insights -->
+<div class="flex flex-col gap-4">
+<span class="text-primary font-title-md text-sm tracking-widest">03</span>
+<div class="iphone-frame h-[600px] flex flex-col">
+<div class="iphone-notch"></div>
+<div class="pt-10 px-4 flex-grow flex flex-col bg-surface-container-lowest overflow-hidden">
+<h2 class="font-headline-lg text-2xl text-on-surface mb-4">Past Reflections</h2>
+<div class="flex-grow overflow-y-auto custom-scrollbar pr-1 space-y-4">
+<div class="glass-panel p-4 rounded-lg">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] text-primary uppercase font-bold">Oct 22</span>
+<span class="text-[9px] border border-outline-variant px-2 rounded-full">Verse</span>
+</div>
+<p class="text-xs text-[#c3ccd9] italic leading-relaxed">The breath is the bridge between the body and the consciousness...</p>
+</div>
+<div class="glass-panel p-4 rounded-lg">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] text-primary uppercase font-bold">Oct 20</span>
+<span class="text-[9px] border border-outline-variant px-2 rounded-full">Insight</span>
+</div>
+<p class="text-xs text-[#c3ccd9] italic leading-relaxed">Letting go is not giving up, but accepting that some things...</p>
+</div>
+<div class="glass-panel p-4 rounded-lg">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] text-primary uppercase font-bold">Oct 18</span>
+<span class="text-[9px] border border-outline-variant px-2 rounded-full">Verse</span>
+</div>
+<p class="text-xs text-[#c3ccd9] italic leading-relaxed">Shadows only exist where there is a source of light...</p>
+</div>
+</div>
+</div>
+<!-- Phone Nav -->
+<nav class="h-16 bg-surface-container border-t border-outline-variant/20 flex justify-around items-center">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">spa</span>
+<span class="text-[8px] font-bold text-primary uppercase">Mood</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">auto_awesome</span>
+</nav>
+<!-- FAB -->
+<div class="absolute bottom-20 right-4 w-10 h-10 bg-primary-container rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-on-primary text-xl">auto_fix_high</span>
+</div>
+</div>
+</div>
+<!-- 04: Stats -->
+<div class="flex flex-col gap-4">
+<span class="text-primary font-title-md text-sm tracking-widest">04</span>
+<div class="iphone-frame h-[600px] flex flex-col">
+<div class="iphone-notch"></div>
+<div class="pt-10 px-4 flex-grow flex flex-col bg-surface-container-lowest">
+<h2 class="font-headline-lg text-2xl text-on-surface mb-8">Seeker Metrics</h2>
+<div class="space-y-10">
+<div class="flex flex-col items-center py-6 glass-panel rounded-xl">
+<span class="font-display-lg text-primary text-5xl mb-2">108</span>
+<span class="text-xs uppercase tracking-widest text-on-surface-variant">Total Entries</span>
+</div>
+<div class="flex flex-col items-center py-6 glass-panel rounded-xl">
+<span class="font-display-lg text-primary text-5xl mb-2">27</span>
+<span class="text-xs uppercase tracking-widest text-on-surface-variant">Days Journaled</span>
+</div>
+<div class="pt-4">
+<div class="flex justify-between text-[10px] uppercase font-bold mb-2">
+<span>Monthly Goal</span>
+<span>85%</span>
+</div>
+<div class="h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Phone Nav -->
+<nav class="h-16 bg-surface-container border-t border-outline-variant/20 flex justify-around items-center">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">spa</span>
+<span class="text-[8px] font-bold text-primary uppercase">Mood</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">auto_awesome</span>
+</nav>
+<!-- FAB -->
+<div class="absolute bottom-20 right-4 w-10 h-10 bg-primary-container rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-on-primary text-xl">auto_fix_high</span>
+</div>
+</div>
+</div>
+<!-- 05: Archive -->
+<div class="flex flex-col gap-4">
+<span class="text-primary font-title-md text-sm tracking-widest">05</span>
+<div class="iphone-frame h-[600px] flex flex-col">
+<div class="iphone-notch"></div>
+<div class="pt-10 px-4 flex-grow flex flex-col bg-surface-container-lowest">
+<h2 class="font-headline-lg text-2xl text-on-surface mb-4 text-center">October</h2>
+<div class="grid grid-cols-7 gap-1 text-[10px] text-center mb-2 font-bold text-on-surface-variant">
+<span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center mb-6">
+<div class="p-2 text-[10px] text-outline-variant">29</div>
+<div class="p-2 text-[10px] text-outline-variant">30</div>
+<div class="p-2 text-[10px] border border-primary rounded-full">1</div>
+<div class="p-2 text-[10px]">2</div>
+<div class="p-2 text-[10px] border border-primary rounded-full">3</div>
+<div class="p-2 text-[10px]">4</div>
+<div class="p-2 text-[10px]">5</div>
+<div class="p-2 text-[10px] border border-primary rounded-full">6</div>
+<div class="p-2 text-[10px]">7</div>
+<div class="p-2 text-[10px]">8</div>
+<div class="p-2 text-[10px] border border-primary rounded-full">9</div>
+<div class="p-2 text-[10px]">10</div>
+<div class="p-2 text-[10px] border border-primary rounded-full">11</div>
+<div class="p-2 text-[10px]">12</div>
+<!-- ... More days ... -->
+<div class="p-2 text-[10px] border-2 border-primary bg-primary/10 rounded-full font-bold">24</div>
+</div>
+<div class="border-t border-outline-variant/30 pt-4 flex-grow overflow-y-auto">
+<h4 class="text-[10px] uppercase font-bold mb-3 tracking-widest text-primary">Past 30 Days</h4>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Oct 23</span>
+<span class="italic">The Evening Bloom</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Oct 21</span>
+<span class="italic">Whispers of the Wind</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Oct 19</span>
+<span class="italic">Rooted Stillness</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Phone Nav -->
+<nav class="h-16 bg-surface-container border-t border-outline-variant/20 flex justify-around items-center">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">spa</span>
+<span class="text-[8px] font-bold text-primary uppercase">Mood</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">auto_awesome</span>
+</nav>
+<!-- FAB -->
+<div class="absolute bottom-20 right-4 w-10 h-10 bg-primary-container rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-on-primary text-xl">auto_fix_high</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Value Strip Footer -->
+<footer class="mt-auto border-t border-outline-variant/20 bg-surface-container-lowest py-10">
+<div class="max-w-[1200px] mx-auto px-container-margin">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-10">
+<div class="flex flex-col gap-3">
+<span class="text-primary font-bold text-xs tracking-widest uppercase">Growth</span>
+<p class="text-on-surface-variant text-sm font-body-md">Track your spiritual evolution through consistent self-inquiry. Observe the shifts in your consciousness over time.</p>
+</div>
+<div class="flex flex-col gap-3">
+<span class="text-primary font-bold text-xs tracking-widest uppercase">Spiritual Connection</span>
+<p class="text-on-surface-variant text-sm font-body-md">Bridge the gap between ancient wisdom and daily living by grounding your practice in personal reflection.</p>
+</div>
+<div class="flex flex-col gap-3">
+<span class="text-primary font-bold text-xs tracking-widest uppercase">Private &amp; Secure</span>
+<p class="text-on-surface-variant text-sm font-body-md">Your reflections are sacred, encrypted, and for your eyes only. A sanctuary for your most intimate thoughts.</p>
+</div>
+</div>
+<div class="pt-6 border-t border-outline-variant/10 text-center">
+<p class="font-sanskrit-text text-primary text-xl opacity-90">
+                        "The soul is dyed the color of its thoughts. Dye it with the golden hue of reflection."
+                    </p>
+</div>
+</div>
+</footer>
+</main>
+<script>
+        // Micro-interactions for phone frames
+        document.querySelectorAll('.iphone-frame').forEach(phone => {
+            phone.addEventListener('mouseenter', () => {
+                phone.style.transform = 'translateY(-8px)';
+                phone.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            });
+            phone.addEventListener('mouseleave', () => {
+                phone.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

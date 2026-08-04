@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra - Showcase Board</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#282a31",
+                        "inverse-primary": "#755b00",
+                        "tertiary-fixed": "#b0efdc",
+                        "surface-container-highest": "#33353c",
+                        "on-secondary-fixed-variant": "#554500",
+                        "surface-container-low": "#191b22",
+                        "outline-variant": "#4d4635",
+                        "on-tertiary-container": "#004538",
+                        "on-primary-fixed": "#241a00",
+                        "on-primary-fixed-variant": "#584400",
+                        "inverse-surface": "#e1e2eb",
+                        "surface-tint": "#ecc246",
+                        "secondary-container": "#856d01",
+                        "on-secondary-fixed": "#231b00",
+                        "surface-variant": "#33353c",
+                        "on-secondary": "#3b2f00",
+                        "inverse-on-surface": "#2e3037",
+                        "surface": "#11131a",
+                        "surface-bright": "#373940",
+                        "background": "#07090f",
+                        "field": "#0e1420",
+                        "tertiary": "#95d3c0",
+                        "surface-container": "#1d1f26",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0c0e14",
+                        "on-primary-container": "#4b3a00",
+                        "on-error": "#690005",
+                        "primary-container": "#c9a227",
+                        "secondary-fixed": "#ffe179",
+                        "on-primary": "#3d2e00",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-surface": "#e1e2eb",
+                        "outline": "#99907b",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#11131a",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "error-container": "#93000a",
+                        "on-background": "#e1e2eb",
+                        "secondary": "#e2c45a",
+                        "on-secondary-container": "#fff3d8",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "primary-fixed": "#ffe08e",
+                        "on-tertiary-fixed": "#002019",
+                        "on-tertiary": "#00382d",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "primary": "#c9a227",
+                        "on-surface-variant": "#d1c5af",
+                        "tertiary-container": "#76b3a1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "24px",
+                        "section-gap": "64px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Libre Caslon Text"],
+                        "body-lg": ["Sora"],
+                        "title-md": ["Sora"],
+                        "body-md": ["Sora"],
+                        "label-sm": ["Sora"],
+                        "headline-lg-mobile": ["Libre Caslon Text"],
+                        "sanskrit-text": ["Noto Serif"],
+                        "display-lg": ["Libre Caslon Text"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background: radial-gradient(circle at top right, #0e1420 0%, #07090f 100%);
+            color: #e1e2eb;
+            overflow-x: hidden;
+        }
+        .brass-border {
+            border: 1px solid rgba(201, 162, 39, 0.2);
+        }
+        .brass-gradient {
+            background: linear-gradient(135deg, #c9a227 0%, #856d01 100%);
+        }
+        .phone-frame {
+            width: 280px;
+            height: 580px;
+            background: #11131a;
+            border: 8px solid #282a31;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.5);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .phone-frame:hover {
+            transform: translateY(-10px) scale(1.02);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .soft-rise {
+            transition: transform 0.3s ease;
+        }
+        .soft-rise:hover {
+            transform: translateY(-2px);
+        }
+        .gold-glow {
+            filter: drop-shadow(0 0 8px rgba(201, 162, 39, 0.3));
+        }
+    </style>
+</head>
+<body class="font-body-md selection:bg-primary selection:text-on-primary">
+<div class="flex min-h-screen w-full">
+<!-- SIDEBAR -->
+<aside class="w-80 h-screen fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant/20 flex flex-col p-8 z-50">
+<div class="mb-12">
+<div class="w-16 h-16 mb-6 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1;">spa</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight mb-2 leading-tight">Profile &amp; Progress</h1>
+<p class="font-body-md text-on-surface-variant italic opacity-80">Walk the path within — privately.</p>
+</div>
+<nav class="flex-grow space-y-6">
+<div class="space-y-4">
+<div class="flex items-center gap-3 text-on-surface hover:text-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-xl opacity-60 group-hover:opacity-100">all_inclusive</span>
+<span class="font-label-sm uppercase tracking-widest">Continuity</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface hover:text-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-xl opacity-60 group-hover:opacity-100">verified</span>
+<span class="font-label-sm uppercase tracking-widest">Quiet recognition</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface hover:text-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-xl opacity-60 group-hover:opacity-100">insights</span>
+<span class="font-label-sm uppercase tracking-widest">Clarity</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface hover:text-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-xl opacity-60 group-hover:opacity-100">lock</span>
+<span class="font-label-sm uppercase tracking-widest">Privacy</span>
+</div>
+</div>
+</nav>
+<div class="mt-auto pt-8">
+<div class="relative h-48 w-full rounded-lg overflow-hidden brass-border group cursor-pointer">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="A cinematic, low-angle digital painting of a solitary figure meditating by a serene mountain lake at dusk. The sky is a deep indigo with a soft teal aura reflecting in the still water. The atmosphere is quiet, spiritual, and minimalist, with a single golden lotus flower glowing softly in the foreground. High contrast lighting with golden highlights on the water's surface." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUcob7fcV3AQ1hXbAS5H-hbE5meGmR3qkXM5Gk-SQMkQ1_61LGgvEEAOK5vGVLAovC_3U-imWVF2Rgp0zMfjimVyXUEnSgQx7yWP5E-j9-_GaTMQ-xe4rEM-ikCkhEthIyXR91HWmLjqNHm3bVqvEwRMteq7yXSUAcj83-zErJO9q4S5hpb6lEKfHa0t-vbhUIKXENeKVa-y_Zci6LVHLeyKxb8OG0Xjw7rtQ3rr85EnZi4hMtYx8OT0WwpUokOwEMydEP57nYppY')"></div>
+<div class="absolute bottom-4 left-4 z-20">
+<span class="text-primary font-label-sm uppercase tracking-widest block mb-1">Meditation</span>
+<span class="text-white font-title-md text-sm">Grace over Guilt</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- MAIN SHOWCASE CANVAS -->
+<main class="flex-grow ml-80 p-12 flex flex-col justify-center overflow-x-auto">
+<div class="flex items-start gap-10 min-w-max pb-20 pt-10">
+<!-- 01 MY PROFILE -->
+<div class="flex flex-col items-center gap-6">
+<span class="font-label-sm text-primary uppercase tracking-widest">01 MY PROFILE</span>
+<div class="phone-frame flex flex-col">
+<div class="p-6 text-center">
+<div class="w-20 h-20 mx-auto mb-4 rounded-full border-2 border-primary p-1">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="Close up portrait of a serene man with short hair and a peaceful expression, Arjun Sharma. The lighting is warm and dramatic, highlighting his features against a dark, minimalist background. The aesthetic is clean and professional, using a cinematic lighting setup with golden tones." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAB_n3Kb3tA5IhIG9n85420QVDbKiDIepLFTbRkQHitLPKOSyVvJKshWrwhpjt0lY0uR-W1DYOgfM4z1LC9onblVL_8GNoazvGjHok18Q8TbSa19lfwr2cIkP89GuyMKJQB_8U84xu-xzTrc4ONQmYV1aKr7zjzIAWVbNeYueaUQYMkHaGv0pqj9qlSv52t9uCxePgVvzbHHvCc8FFj4nUyp9jrG1x80Fd4c5d34iafGak6ti0MN8ZVXvbZFWwXE9MkltbXk6JF8xc')"></div>
+</div>
+<h2 class="font-title-md text-on-surface mb-1">Arjun Sharma</h2>
+<p class="font-label-sm text-primary uppercase">Seeker • Level 7</p>
+</div>
+<div class="grid grid-cols-2 gap-3 px-4 mb-6">
+<div class="glass-panel p-4 rounded-xl brass-border text-center">
+<span class="block text-primary text-xl font-bold">142</span>
+<span class="font-label-sm text-on-surface-variant uppercase text-[10px]">Sessions</span>
+</div>
+<div class="glass-panel p-4 rounded-xl brass-border text-center">
+<span class="block text-primary text-xl font-bold">28</span>
+<span class="font-label-sm text-on-surface-variant uppercase text-[10px]">Days Active</span>
+</div>
+<div class="glass-panel p-4 rounded-xl brass-border text-center">
+<span class="block text-primary text-xl font-bold">12</span>
+<span class="font-label-sm text-on-surface-variant uppercase text-[10px]">Goals</span>
+</div>
+<div class="glass-panel p-4 rounded-xl brass-border text-center">
+<span class="block text-primary text-xl font-bold">27</span>
+<span class="font-label-sm text-on-surface-variant uppercase text-[10px]">Streak</span>
+</div>
+</div>
+<div class="px-6 space-y-4">
+<h3 class="font-title-md text-sm border-b border-white/5 pb-2">About</h3>
+<p class="font-body-md text-xs leading-relaxed text-on-surface-variant">Finding silence in the noise of Bangalore. A practitioner of Vedic breathwork for three years, seeking the quiet space between thoughts.</p>
+</div>
+</div>
+</div>
+<!-- 02 ACHIEVEMENTS -->
+<div class="flex flex-col items-center gap-6">
+<span class="font-label-sm text-primary uppercase tracking-widest">02 ACHIEVEMENTS</span>
+<div class="phone-frame flex flex-col p-6">
+<div class="flex gap-4 border-b border-white/5 mb-6">
+<button class="pb-2 border-b-2 border-primary text-primary font-label-sm uppercase">Badges</button>
+<button class="pb-2 border-transparent text-on-surface-variant font-label-sm uppercase hover:text-on-surface">Milestones</button>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="text-center group">
+<div class="w-16 h-16 mx-auto mb-3 glass-panel rounded-full flex items-center justify-center brass-border gold-glow">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<p class="text-[10px] font-label-sm uppercase text-on-surface">Early Seeker</p>
+</div>
+<div class="text-center">
+<div class="w-16 h-16 mx-auto mb-3 glass-panel rounded-full flex items-center justify-center border border-white/10 opacity-60">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">psychology</span>
+</div>
+<p class="text-[10px] font-label-sm uppercase text-on-surface-variant">Dharma Keeper</p>
+</div>
+<div class="text-center group">
+<div class="w-16 h-16 mx-auto mb-3 glass-panel rounded-full flex items-center justify-center brass-border gold-glow">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+</div>
+<p class="text-[10px] font-label-sm uppercase text-on-surface">Verse Voyager</p>
+</div>
+<div class="text-center">
+<div class="w-16 h-16 mx-auto mb-3 glass-panel rounded-full flex items-center justify-center border border-white/10 opacity-60">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">computer_arrow_up</span>
+</div>
+<p class="text-[10px] font-label-sm uppercase text-on-surface-variant">Consistent Mind</p>
+</div>
+</div>
+<div class="mt-auto space-y-4">
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-label-sm uppercase">
+<span>Silence Master</span>
+<span>80%</span>
+</div>
+<div class="h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-4/5"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-label-sm uppercase">
+<span>Path Walker</span>
+<span>45%</span>
+</div>
+<div class="h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary/40 w-[45%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 03 MY STREAK -->
+<div class="flex flex-col items-center gap-6">
+<span class="font-label-sm text-primary uppercase tracking-widest">03 MY STREAK</span>
+<div class="phone-frame flex flex-col p-6 items-center">
+<div class="relative w-40 h-40 flex items-center justify-center mb-8">
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle cx="80" cy="80" fill="none" r="70" stroke="rgba(255,255,255,0.05)" stroke-width="8"></circle>
+<circle class="gold-glow" cx="80" cy="80" fill="none" r="70" stroke="#c9a227" stroke-dasharray="440" stroke-dashoffset="100" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="text-center">
+<span class="text-4xl font-headline-lg text-primary block">27</span>
+<span class="font-label-sm uppercase text-[10px] tracking-[0.2em] opacity-60">Days</span>
+</div>
+</div>
+<div class="w-full space-y-4 mb-8">
+<div class="flex justify-between border-b border-white/5 pb-2">
+<span class="font-label-sm text-xs opacity-60">CURRENT STREAK</span>
+<span class="font-label-sm text-xs">27 Days</span>
+</div>
+<div class="flex justify-between border-b border-white/5 pb-2">
+<span class="font-label-sm text-xs opacity-60">BEST STREAK</span>
+<span class="font-label-sm text-xs text-primary">42 Days</span>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-2 mb-8">
+<!-- Minimalist Calendar Row -->
+<div class="w-6 h-6 flex items-center justify-center text-[10px] opacity-40">M</div>
+<div class="w-6 h-6 flex items-center justify-center text-[10px] opacity-40">T</div>
+<div class="w-6 h-6 flex items-center justify-center text-[10px] opacity-40">W</div>
+<div class="w-6 h-6 flex items-center justify-center text-[10px] opacity-40">T</div>
+<div class="w-6 h-6 flex items-center justify-center text-[10px] opacity-40">F</div>
+<div class="w-6 h-6 flex items-center justify-center text-[10px] opacity-40">S</div>
+<div class="w-6 h-6 flex items-center justify-center text-[10px] opacity-40">S</div>
+<!-- Active days -->
+<div class="w-6 h-6 rounded-full brass-border flex items-center justify-center text-[10px] text-primary">12</div>
+<div class="w-6 h-6 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center text-[10px]">13</div>
+<div class="w-6 h-6 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center text-[10px]">14</div>
+<div class="w-6 h-6 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center text-[10px]">15</div>
+<div class="w-6 h-6 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center text-[10px]">16</div>
+<div class="w-6 h-6 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center text-[10px]">17</div>
+<div class="w-6 h-6 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center text-[10px]">18</div>
+</div>
+<p class="text-[10px] font-label-sm italic text-center opacity-60 px-4">"Return when ready — grace days exist."</p>
+</div>
+</div>
+<!-- 04 MY PROGRESS -->
+<div class="flex flex-col items-center gap-6">
+<span class="font-label-sm text-primary uppercase tracking-widest">04 MY PROGRESS</span>
+<div class="phone-frame flex flex-col p-6">
+<div class="flex justify-between text-[10px] font-label-sm uppercase opacity-60 border-b border-white/5 pb-4 mb-6">
+<span class="text-primary border-b border-primary pb-1">D</span>
+<span>W</span>
+<span>M</span>
+<span>Y</span>
+</div>
+<div class="space-y-8">
+<div class="space-y-4">
+<h4 class="font-label-sm text-[10px] uppercase tracking-widest opacity-40">Sessions per day</h4>
+<div class="h-32 flex items-end gap-2 px-2">
+<div class="flex-1 bg-primary/20 h-[30%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/40 h-[60%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary h-[90%] rounded-t-sm gold-glow"></div>
+<div class="flex-1 bg-primary/30 h-[40%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/50 h-[70%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/20 h-[20%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/80 h-[85%] rounded-t-sm"></div>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl brass-border">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] font-label-sm uppercase opacity-60">Total Practice</span>
+<span class="text-primary font-bold">18h 42m</span>
+</div>
+<div class="h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary/60 w-3/4"></div>
+</div>
+</div>
+<div class="flex justify-between items-center px-2">
+<div>
+<p class="text-[10px] font-label-sm uppercase opacity-40">Mantra Japa</p>
+<p class="text-xl font-headline-lg">10,802</p>
+</div>
+<span class="material-symbols-outlined text-primary opacity-40">waves</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 05 SETTINGS -->
+<div class="flex flex-col items-center gap-6">
+<span class="font-label-sm text-primary uppercase tracking-widest">05 SETTINGS</span>
+<div class="phone-frame flex flex-col">
+<div class="p-6 border-b border-white/5">
+<h2 class="font-headline-lg text-lg">Settings</h2>
+</div>
+<div class="flex-grow overflow-y-auto py-4">
+<div class="px-6 mb-8">
+<h3 class="font-label-sm text-[10px] uppercase opacity-40 mb-4 tracking-widest">Interface</h3>
+<div class="space-y-6">
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="text-sm font-body-md">Theme</span>
+<span class="text-xs text-primary">Deep Obsidian</span>
+</div>
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="text-sm font-body-md">Language</span>
+<span class="text-xs text-on-surface-variant">English / Sanskrit</span>
+</div>
+</div>
+</div>
+<div class="px-6 mb-8">
+<h3 class="font-label-sm text-[10px] uppercase opacity-40 mb-4 tracking-widest">Practitioner tools</h3>
+<div class="space-y-6">
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="text-sm font-body-md">Reminders</span>
+<div class="w-8 h-4 bg-primary/20 rounded-full relative">
+<div class="absolute right-0.5 top-0.5 w-3 h-3 bg-primary rounded-full"></div>
+</div>
+</div>
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="text-sm font-body-md">Private Journal</span>
+<span class="material-symbols-outlined text-sm opacity-40">chevron_right</span>
+</div>
+</div>
+</div>
+<div class="px-6 mb-8">
+<h3 class="font-label-sm text-[10px] uppercase opacity-40 mb-4 tracking-widest">Account &amp; Safety</h3>
+<div class="space-y-6">
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="text-sm font-body-md">Privacy Settings</span>
+<span class="material-symbols-outlined text-sm opacity-40">lock</span>
+</div>
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="text-sm font-body-md text-error/80">Delete Account</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Common Phone Bottom Nav (Sample) -->
+<div class="bg-surface-container-low/80 backdrop-blur-md px-6 py-4 flex justify-between items-center brass-border border-x-0 border-b-0">
+<span class="material-symbols-outlined text-on-surface-variant text-xl">home</span>
+<span class="material-symbols-outlined text-on-surface-variant text-xl">explore</span>
+<div class="relative -top-4">
+<div class="w-10 h-10 brass-gradient rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-on-primary text-xl" style="font-variation-settings: 'FILL' 1;">self_improvement</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-xl">mood</span>
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FOOTER STRIP -->
+<footer class="fixed bottom-0 right-0 w-[calc(100%-20rem)] py-6 glass-panel border-t border-outline-variant/10 z-50">
+<div class="flex justify-around items-center px-12">
+<span class="font-label-sm text-[11px] uppercase tracking-[0.25em] text-on-surface-variant">Consistency without competition</span>
+<span class="w-1 h-1 rounded-full bg-primary/30"></span>
+<span class="font-label-sm text-[11px] uppercase tracking-[0.25em] text-on-surface-variant">Private by design</span>
+<span class="w-1 h-1 rounded-full bg-primary/30"></span>
+<span class="font-label-sm text-[11px] uppercase tracking-[0.25em] text-on-surface-variant">Grace over guilt</span>
+<span class="w-1 h-1 rounded-full bg-primary/30"></span>
+<span class="font-label-sm text-[11px] uppercase tracking-[0.25em] text-on-surface-variant">Practice first</span>
+<span class="w-1 h-1 rounded-full bg-primary/30"></span>
+<span class="font-label-sm text-[11px] uppercase tracking-[0.25em] text-primary">MindKshetra • Free forever</span>
+</div>
+</footer>
+</div>
+<!-- Background Atmospheric Shaders -->
+<div class="fixed inset-0 -z-10 pointer-events-none opacity-20">
+
+</div>
+<script>
+        // Subtle interaction logic
+        document.querySelectorAll('.phone-frame').forEach(frame => {
+            frame.addEventListener('mouseenter', () => {
+                // Micro-interaction for all phones
+            });
+        });
+    </script>
+</body></html>
