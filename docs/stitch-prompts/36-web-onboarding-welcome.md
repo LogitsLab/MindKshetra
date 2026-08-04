@@ -1,17 +1,19 @@
-# 36 — Web Welcome (soft gate)
+# 36 — Web optional invite (NOT a forced onboarding wizard)
 
-**Device:** 1440×900 desktop
+**Device:** 1440×900 desktop  
+**v3 rule:** Web has NO multi-step onboarding. This screen is an optional marketing invite only.
 
 ## Paste prompt
 
 ```
-MindKshetra web first-visit Welcome, desktop 1440×900. Same dark navy + metallic gold lotus system.
+MindKshetra web optional personalization invite, desktop 1440×900.
+Dark navy + metallic gold lotus. NOT a forced gate wizard — a calm one-screen offer.
 
-Centered composition (not a dashboard): large gold lotus, “MindKshetra”, subtitle “Your Spiritual Companion”,
+Centered: large gold lotus, MindKshetra, “Your Spiritual Companion”,
 tagline “Clarity from the Gita, for the battlefield of the mind.”
-One short line: optional personalization in about a minute — guest browsing always allowed.
+One line: You can personalize anytime in Account settings — browsing is always open.
 
-Two CTAs: primary gold “Personalize in 1 minute” · secondary outline “Continue to Home”.
-Soft text link “Sign in”. Full-bleed cinematic temple/mist atmosphere behind with strong void veil.
-Top nav present but de-emphasized. No stats, no badges on this screen. Premium calm interstitial.
+Two CTAs: primary outline “Continue to Home” (default emphasis) · secondary soft “Open personalize settings”.
+Soft “Sign in” link. Full-bleed atmosphere with void veil.
+Top nav present. No goals grid, no multi-step progress dots, no stats/badges.
 ```

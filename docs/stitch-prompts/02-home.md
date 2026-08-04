@@ -1,28 +1,30 @@
-# 02 — Home
+# 02 — Home (app) — Design v3 COMPLETE
 
-**Device:** 390×844 · Spiritual companion home hub
+**Device:** 390×844 · Full lifestyle companion hub
 
 ## Paste prompt
 
 ```
-MindKshetra Home — premium dark spiritual companion, single phone 390×844.
-This is an APP HOME SCREEN with chrome — not a marketing landing page.
+MindKshetra App Home — premium dark spiritual companion, single phone 390×844.
+APP HOME WITH CHROME — not a marketing landing page. FULL lifestyle hub — never strip to 4 tiles only.
 
-TOP: gold lotus + “MindKshetra” hero serif (no back arrow). Soft invite:
-“Meet the mind where it is — with a verse, a chart, or a quiet sit.”
+HEADER: gold lotus + MindKshetra. Optional brass streak count chip when signed-in streak > 0 (small chrome only — NOT a stats hero dashboard).
 
-VERSE OF THE DAY glass panel (thin gold border):
-eyebrow “VERSE OF THE DAY” · BG 2.47 · elegant italic English excerpt · gold “Read more →”
+HERO: Devanagari watermark atmosphere, brand title, tagline, CTAs → Ask Madhav · Explore.
 
-Four full-width cinematic path tiles with dark scrim + chevron:
-Mood · Ask Madhav · Practice · Astrology
-
-Optional soft footer links ONLY: Community · Care · Support.
-FORBIDDEN footer words: Clans, copyright year spam on first viewport.
+MUST INCLUDE below hero (scroll):
+1) VERSE OF THE DAY glass panel — Sanskrit + translation · Read
+2) SADHANA daily practice card — done check · open /sadhana
+3) MEDITATION continue/start day card
+4) LIFESTYLE GRID — Japa · Panchang (tithi) · Paths · Community (Sangha)
+5) Reminders soft callout → Account notifications
+6) SIX path tiles — Explore · Mood · Meditation · Madhav · Astrology · Paths
+7) Mood chips horizontal preview
+8) Closing Madhav image band
 
 CHROME (locked):
 Exactly 4 bottom tabs — Home (gold active) · Explore · Mood · Astrology
-Brass/gold FAB bottom-right with Madhav glyph (portrait mark, not letter M) — Madhav is NOT a tab.
+Brass FAB bottom-right Madhav glyph (not letter M) — Madhav is NOT a tab.
 
-No stats strip. No streak fire. No hamburger. No purple. Luxury calm practice-first home.
+FORBIDDEN: stats strip hero, badge row, hamburger inventing tabs, purple, Clans tab.
 ```

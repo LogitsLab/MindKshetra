@@ -31,6 +31,11 @@ GAMIFICATION R&D (seeker-dignified — Headspace/MindTime lessons):
 - Post-session: gold lotus + text mood check (Great/Good/Neutral/Low) — no emoji faces, no confetti
 - NO public leaderboards, XP shops, or Home stats dashboards
 
+HOME COMPLETENESS (Design v3 — non-negotiable):
+- Web + App Home MUST include full companion lifestyle: Sadhana, Meditation continue, Japa, Panchang, Paths, Community, VOTD, mood preview, Madhav close — NEVER a 4-tile-only stub.
+- Web has NO multi-step onboarding wizard; personalize lives under Account settings.
+- App keeps detailed personalization onboarding (goals → inspirations → time → setup → auth).
+
 NAV APP: tabs Home · Explore · Mood · Astrology (active gold). Madhav brass FAB glyph bottom-right (not letter M).
 NAV WEB: Explore · Mood · Practice · Astrology · Ask Madhav CTA · Account.
 

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Web Account shell v3</title>
+  <style>
+    :root { --void:#07090f; --brass:#c9a227; --text:#eef2f7; --soft:#c3ccd9; --muted:#9aa8bc; --line:rgba(201,162,39,.22); --hair:rgba(255,255,255,.06); }
+    body { margin:0; display:grid; grid-template-columns:220px 1fr; min-height:100vh; background:var(--void); color:var(--text); font-family:Sora,sans-serif; }
+    aside { border-right:1px solid var(--hair); padding:2rem 1.25rem; }
+    aside a { display:block; color:var(--muted); text-decoration:none; padding:.55rem .4rem; font-size:14px; }
+    aside a.active { color:var(--brass); }
+    main { padding:2.5rem; }
+    h1 { font-family:Fraunces,serif; }
+    .panel { border:1px solid var(--line); padding:1.25rem; margin:1rem 0; background:rgba(14,20,32,.55); }
+    .row { display:flex; gap:1rem; flex-wrap:wrap; }
+    .link { color:var(--soft); border-bottom:1px solid var(--hair); padding:.75rem 0; width:100%; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <aside>
+    <div style="color:var(--brass);font-family:Fraunces,serif;margin-bottom:1.5rem">Account</div>
+    <a class="active" href="#">Profile</a>
+    <a href="#">Personalize</a>
+    <a href="#">Achievements</a>
+    <a href="#">Progress</a>
+  </aside>
+  <main>
+    <h1>Seeker · Level 3</h1>
+    <p style="color:var(--soft)">Private by design — no public leaderboards.</p>
+    <div class="panel">
+      <div class="row">
+        <a class="link" href="/account/personalize">Personalize journey</a>
+        <a class="link" href="/account/achievements">Achievements</a>
+        <a class="link" href="/account/progress">Progress &amp; streak</a>
+        <a class="link" href="/journal">Journal</a>
+      </div>
+    </div>
+    <div class="panel">Profile fields · VOTD email · Export · Sign out</div>
+  </main>
+</body>
+</html>

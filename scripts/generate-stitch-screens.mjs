@@ -27,7 +27,7 @@ const BOARDS = [
   "29-profile-progress-board",
 ];
 
-/** Desktop web frames (1440-class) */
+/** Desktop web frames (1440-class) — Design v3 adds practice + account shell */
 const WEB = [
   "34-web-home",
   "35-web-personalize-progress",
@@ -37,6 +37,8 @@ const WEB = [
   "39-web-astrology-suite",
   "40-web-practice-journal",
   "41-web-achievements",
+  "49-web-practice-sadhana",
+  "50-web-account-shell",
 ];
 
 /** Missing single phones that boards often truncate */
