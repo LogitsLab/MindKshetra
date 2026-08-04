@@ -502,7 +502,7 @@ export default function AccountPageClient() {
       { href: "/verse-of-the-day", label: t("homeVotdLink"), accent: !continueSlokaId },
       { href: "/favorites", label: t("favorites"), accent: false },
       { href: "/account/reflections", label: t("myReflections"), accent: false },
-      { href: "/account/personalize", label: "Personalize", accent: false },
+      { href: "/account/personalize", label: "Personalize", accent: true },
       { href: "/account/achievements", label: "Achievements", accent: false },
       { href: "/account/progress", label: "Progress", accent: false },
       { href: "/journal", label: "Journal", accent: false },
@@ -549,6 +549,26 @@ export default function AccountPageClient() {
             </div>
           </div>
         </header>
+
+        <Link
+          href="/account/personalize"
+          className="mt-6 flex items-center justify-between gap-4 border border-[var(--line)] bg-[rgba(201,162,39,.06)] px-5 py-4 transition hover:bg-[rgba(201,162,39,.1)]"
+        >
+          <div>
+            <p className="text-xs uppercase tracking-[0.16em] text-[var(--brass)]">
+              Settings
+            </p>
+            <p className="mt-1 font-display text-lg text-[var(--text)]">
+              Personalize your journey
+            </p>
+            <p className="mt-1 text-sm text-[var(--text-soft)]">
+              Goals, inspirations, time, and guidance — anytime, no wizard.
+            </p>
+          </div>
+          <span className="text-[var(--brass-soft)]" aria-hidden>
+            →
+          </span>
+        </Link>
 
         {/* Paths */}
         <section className="mt-10 space-y-4">

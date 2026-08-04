@@ -19,13 +19,13 @@ export default function AccountJourneyShell({
 
   return (
     <div className="grid min-h-[calc(100dvh-8rem)] overflow-hidden border border-[var(--line)] bg-[rgba(7,9,15,.52)] md:grid-cols-[15.5rem_minmax(0,1fr)]">
-      <aside className="border-b border-[var(--line)] bg-[rgba(14,20,32,.84)] p-4 md:border-b-0 md:border-r md:p-6">
+      <aside className="border-b border-[var(--hairline)] bg-[rgba(14,20,32,.84)] p-4 md:border-b-0 md:border-r md:border-[var(--hairline)] md:p-6">
         <div className="border-b border-[var(--hairline)] pb-6">
           <p className="font-display text-xl text-[var(--brass-soft)]">
             Your Journey
           </p>
           <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
-            Seeker of Light
+            Private seeker path
           </p>
         </div>
         <nav className="mt-5 grid grid-cols-2 gap-2 md:grid-cols-1">
@@ -37,10 +37,10 @@ export default function AccountJourneyShell({
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm transition ${
+                className={`flex min-h-11 items-center gap-3 px-3 py-2.5 text-sm transition ${
                   active
-                    ? "bg-[rgba(201,162,39,.1)] text-[var(--brass-soft)]"
-                    : "text-[var(--text-muted)] hover:bg-white/[.04] hover:text-[var(--text)]"
+                    ? "border border-[var(--line)] bg-[rgba(201,162,39,.1)] text-[var(--brass-soft)]"
+                    : "border border-transparent text-[var(--text-muted)] hover:bg-white/[.04] hover:text-[var(--text)]"
                 }`}
               >
                 <span aria-hidden>{link.icon}</span>

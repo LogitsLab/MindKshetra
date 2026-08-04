@@ -20,11 +20,18 @@ type AchievementsPayload = {
   }>;
 };
 
+type LifetimeStats = {
+  sessions: number;
+  durationMinutes: number;
+  mantras: number;
+};
+
 export default function AchievementsPage() {
   const { user } = useAuth();
   const { lang } = useLanguage();
   const L = lang === "hi" ? "hi" : "en";
   const [data, setData] = useState<AchievementsPayload | null>(null);
+  const [lifetime, setLifetime] = useState<LifetimeStats | null>(null);
 
   useEffect(() => {
     if (!user || user.is_anonymous) return;
@@ -32,6 +39,17 @@ export default function AchievementsPage() {
       .then((r) => (r.ok ? r.json() : null))
       .then(setData)
       .catch(() => setData(null));
+    void fetch("/api/account/progress-summary?range=yearly")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d) return;
+        setLifetime({
+          sessions: Number(d.sessions) || 0,
+          durationMinutes: Number(d.durationMinutes) || 0,
+          mantras: Number(d.mantras) || 0,
+        });
+      })
+      .catch(() => setLifetime(null));
   }, [user]);
 
   return (
@@ -87,16 +105,24 @@ export default function AchievementsPage() {
               );
             })}
           </ul>
-          <section className="glass mt-8 grid grid-cols-2 divide-x divide-y divide-[var(--hairline)] rounded-xl py-8 sm:grid-cols-4 sm:divide-y-0">
-            {[
-              ["1,204", "Sessions"],
-              ["28,920", "Mindful minutes"],
-              ["108", "Malas"],
-              ["450", "Verses read"],
-            ].map(([value, label]) => (
+          <section className="glass mt-8 grid grid-cols-3 divide-x divide-[var(--hairline)] py-8">
+            {(
+              [
+                [lifetime?.sessions ?? 0, L === "hi" ? "सत्र" : "Sessions"],
+                [
+                  lifetime?.durationMinutes ?? 0,
+                  L === "hi" ? "मिनट" : "Mindful minutes",
+                ],
+                [lifetime?.mantras ?? 0, L === "hi" ? "माला" : "Malas"],
+              ] as const
+            ).map(([value, label]) => (
               <div key={label} className="px-3 py-5 text-center">
-                <p className="font-display text-3xl text-[var(--brass-soft)]">{value}</p>
-                <p className="mt-2 text-[9px] uppercase tracking-widest text-[var(--text-muted)]">{label}</p>
+                <p className="font-display text-3xl text-[var(--brass-soft)]">
+                  {Number(value).toLocaleString()}
+                </p>
+                <p className="mt-2 text-[9px] uppercase tracking-widest text-[var(--text-muted)]">
+                  {label}
+                </p>
               </div>
             ))}
           </section>
