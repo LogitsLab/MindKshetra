@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import LocalizedPageHeader from "@/components/LocalizedPageHeader";
-import PageHeroImage from "@/components/PageHeroImage";
 import PathsListClient from "@/components/PathsListClient";
 import { listJourneysByKind } from "@/lib/journeys/content";
 
@@ -15,12 +13,6 @@ export default function PathsPage() {
 
   return (
     <div className="animate-fade">
-      <PageHeroImage src="/images/paths/paths.jpg" />
-      <LocalizedPageHeader
-        eyebrowKey="pathListEyebrow"
-        titleKey="pathListTitle"
-        introKey="pathListIntro"
-      />
       <PathsListClient paths={paths} />
     </div>
   );

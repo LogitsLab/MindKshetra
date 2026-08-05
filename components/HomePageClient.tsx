@@ -2,55 +2,161 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
-import { useProgress } from "@/components/ProgressProvider";
-import { moodLabel } from "@/lib/mood-utils";
-import { getMoodVisual } from "@/lib/moodVisuals";
-import type { Mood } from "@/lib/types";
+import SpeakButton from "@/components/SpeakButton";
+import { stopNarration } from "@/lib/audio/narration";
 
 export type FeaturedVerse = {
   id: number;
+  chapter: number;
+  verseNumber: number;
   ref: string;
   sanskritLines: string[];
   english: string;
   hindi: string;
+  nakshatra?: string | null;
 };
 
 type Props = {
   featured: FeaturedVerse;
-  previewMoods: Mood[];
+  featuredVerses?: FeaturedVerse[];
 };
 
-export default function HomePageClient({ featured, previewMoods }: Props) {
+type PracticeProgress = {
+  done: boolean | null;
+  streak: number;
+  meditationDay: number | null;
+  meditationDone: number;
+};
+
+type DayPanchang = {
+  tithi: string;
+  nakshatra: string;
+};
+
+export default function HomePageClient({
+  featured,
+  featuredVerses,
+}: Props) {
   const { lang, t } = useLanguage();
   const { user } = useAuth();
-  const { continueSlokaId } = useProgress();
-  const [streak, setStreak] = useState(0);
-  // null = not known yet; the card shows its invitation and never an error.
-  const [sadhanaDone, setSadhanaDone] = useState<boolean | null>(null);
-  const [practiceStreak, setPracticeStreak] = useState(0);
-  const [medContinueDay, setMedContinueDay] = useState<number | null>(null);
-  const [medDoneCount, setMedDoneCount] = useState(0);
+  const verses = featuredVerses?.length ? featuredVerses : [featured];
+  const trackRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [verseIndex, setVerseIndex] = useState(0);
+  const [hoverPaused, setHoverPaused] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [inView, setInView] = useState(true);
+  const resumeTimerRef = useRef<number | null>(null);
+  const autoplayPaused = hoverPaused || userPaused || speaking;
+  const [progress, setProgress] = useState<PracticeProgress>({
+    done: null,
+    streak: 0,
+    meditationDay: null,
+    meditationDone: 0,
+  });
+  const [dayPanchang, setDayPanchang] = useState<DayPanchang | null>(null);
+
+  const scrollToVerse = (index: number, behavior: ScrollBehavior = "smooth") => {
+    const track = trackRef.current;
+    if (!track) return;
+    const next =
+      ((index % verses.length) + verses.length) % verses.length;
+    track.scrollTo({ left: next * track.clientWidth, behavior });
+    setVerseIndex(next);
+  };
+
+  const pauseAutoplayBriefly = () => {
+    setUserPaused(true);
+    if (resumeTimerRef.current) window.clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = window.setTimeout(() => {
+      setUserPaused(false);
+      resumeTimerRef.current = null;
+    }, 8000);
+  };
+
+  const dayLabel = (index: number) => {
+    if (index === 0) return t("homeVotdToday");
+    if (index === 1) return t("homeVotdYesterday");
+    return t("homeVotdEarlier");
+  };
 
   useEffect(() => {
-    if (!user) {
-      setStreak(0);
+    return () => {
+      if (resumeTimerRef.current) window.clearTimeout(resumeTimerRef.current);
+      stopNarration();
+    };
+  }, []);
+
+  useEffect(() => {
+    stopNarration();
+    setSpeaking(false);
+  }, [verseIndex]);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || verses.length < 2) return;
+
+    const onScroll = () => {
+      const width = track.clientWidth;
+      if (!width) return;
+      const next = Math.round(track.scrollLeft / width);
+      setVerseIndex(Math.max(0, Math.min(verses.length - 1, next)));
+    };
+
+    track.addEventListener("scroll", onScroll, { passive: true });
+    return () => track.removeEventListener("scroll", onScroll);
+  }, [verses.length]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.35 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (verses.length < 2 || autoplayPaused || !inView) return;
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       return;
     }
-    fetch("/api/account/streak", { method: "POST" })
-      .then((r) => r.json())
-      .then((d) => setStreak(Number(d.current) || 0))
-      .catch(() => {});
-  }, [user]);
+
+    const id = window.setInterval(() => {
+      setVerseIndex((current) => {
+        const next = (current + 1) % verses.length;
+        const track = trackRef.current;
+        if (track) {
+          track.scrollTo({
+            left: next * track.clientWidth,
+            behavior: "smooth",
+          });
+        }
+        return next;
+      });
+    }, 5000);
+
+    return () => window.clearInterval(id);
+  }, [verses.length, autoplayPaused, inView]);
 
   useEffect(() => {
     let cancelled = false;
+
     fetch("/api/meditation/progress?program=sitting-course")
-      .then((r) => (r.ok ? r.json() : null))
+      .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
         if (cancelled || !data) return;
+
         if (data.guest) {
           try {
             const raw =
@@ -62,63 +168,118 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
             const days = Array.isArray(parsed.completedDays)
               ? parsed.completedDays
               : [];
-            setMedDoneCount(days.length);
-            setMedContinueDay(
-              days.length ? Math.max(...days) + 1 : 1
-            );
+            setProgress((current) => ({
+              ...current,
+              meditationDone: days.length,
+              meditationDay: days.length ? Math.max(...days) + 1 : 1,
+            }));
           } catch {
-            setMedContinueDay(1);
-            setMedDoneCount(0);
+            setProgress((current) => ({
+              ...current,
+              meditationDone: 0,
+              meditationDay: 1,
+            }));
           }
           return;
         }
-        setMedDoneCount((data.completedDays as number[] | undefined)?.length ?? 0);
-        setMedContinueDay(Number(data.currentDay) || 1);
+
+        setProgress((current) => ({
+          ...current,
+          meditationDone:
+            (data.completedDays as number[] | undefined)?.length ?? 0,
+          meditationDay: Number(data.currentDay) || 1,
+        }));
       })
       .catch(() => {});
+
     return () => {
       cancelled = true;
     };
   }, [user]);
 
   useEffect(() => {
-    // Signed-out visitors get a guaranteed empty summary from this route —
-    // skip the no-op serverless hit on the highest-traffic page, and refresh
-    // when the session changes so the done-state follows sign-in.
+    let cancelled = false;
+
+    fetch("/api/panchang")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.tithi || !data?.nakshatra) return;
+        setDayPanchang({
+          tithi: String(data.tithi),
+          nakshatra: String(data.nakshatra),
+        });
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!user) {
-      setSadhanaDone(null);
-      setPracticeStreak(0);
+      setProgress((current) => ({ ...current, done: null, streak: 0 }));
       return;
     }
+
     let cancelled = false;
-    let tz: string | undefined;
+    let timezone: string | undefined;
     try {
-      tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     } catch {
-      tz = undefined;
+      timezone = undefined;
     }
-    fetch(`/api/sadhana${tz ? `?tz=${encodeURIComponent(tz)}` : ""}`)
-      .then((res) => (res.ok ? res.json() : null))
+
+    fetch(
+      `/api/sadhana${timezone ? `?tz=${encodeURIComponent(timezone)}` : ""}`
+    )
+      .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
-        if (!cancelled && data) {
-          setSadhanaDone(Boolean(data.doneToday?.includes?.("flow")));
-          // The practice card must show the PRACTICE streak. It used to show
-          // the visit streak, which increments merely by loading this page —
-          // so someone who had opened the app for 14 days and practised once
-          // read "14 day streak" here and "1-day practice" on /sadhana.
-          const flow = (data.streaks ?? []).find(
-            (x: { practice?: string }) => x.practice === "flow"
-          );
-          setPracticeStreak(Number(flow?.current) || 0);
-        }
+        if (cancelled || !data) return;
+        const flow = (data.streaks ?? []).find(
+          (item: { practice?: string }) => item.practice === "flow"
+        );
+        setProgress((current) => ({
+          ...current,
+          done: Boolean(data.doneToday?.includes?.("flow")),
+          streak: Number(flow?.current) || 0,
+        }));
       })
-      .catch(() => {
-        /* home never shows a practice error — the invitation stands */
-      });
+      .catch(() => {});
+
     return () => {
       cancelled = true;
     };
   }, [user]);
+
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>(".home-premium");
+    root?.classList.add("home-motion-ready");
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-home-reveal]")
+    );
+    if (!sections.length || !("IntersectionObserver" in window)) {
+      sections.forEach((section) => section.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.12 }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => {
+      observer.disconnect();
+      root?.classList.remove("home-motion-ready");
+    };
+  }, []);
 
   const entries = [
     {
@@ -165,428 +326,502 @@ export default function HomePageClient({ featured, previewMoods }: Props) {
     },
   ];
 
-  const translation = lang === "hi" ? featured.hindi : featured.english;
+  const sitTotal = 45;
+  const sitDone = Math.min(sitTotal, Math.max(0, progress.meditationDone));
+  const sitDay = Math.min(
+    sitTotal,
+    Math.max(1, progress.meditationDay ?? 1)
+  );
+  const sitHref =
+    progress.meditationDay == null
+      ? "/meditation"
+      : `/meditation/${sitDay}`;
+  const sitLabel =
+    progress.meditationDone === 0
+      ? t("medHomeStart")
+      : t("medHomeContinue").replace("{n}", String(sitDay));
+  const sitProgressLabel = t("medProgress")
+    .replace("{done}", String(sitDone))
+    .replace("{total}", String(sitTotal));
+
+  const dayLine = dayPanchang
+    ? t("homeDayLine")
+        .replace("{tithi}", dayPanchang.tithi)
+        .replace("{nakshatra}", dayPanchang.nakshatra)
+    : null;
+
+  const practiceTiles = [
+    {
+      href: "/sadhana",
+      title: progress.done
+        ? t("sadhanaDoneToday")
+        : t("sadhanaHomeLink"),
+      body: progress.done
+        ? progress.streak > 0
+          ? t("sadhanaStreakLine").replace("{n}", String(progress.streak))
+          : t("sadhanaHomeBody")
+        : t("sadhanaHomeBody"),
+      image: "/images/paths/sadhana.jpg",
+    },
+    {
+      href: sitHref,
+      title: sitLabel,
+      body: sitProgressLabel,
+      image: "/images/paths/meditation.jpg",
+    },
+    {
+      href: "/sadhana#japa",
+      title: t("homeBlockJapaTitle"),
+      body: t("homeBlockJapaBody"),
+      image: "/images/paths/paths.jpg",
+    },
+    {
+      href: "/panchang",
+      title: t("homeBlockPanchangTitle"),
+      body: dayLine ?? t("homeBlockPanchangBody"),
+      image: "/images/paths/panchang-ring.jpg",
+    },
+    {
+      href: "/account",
+      title: t("homeBlockNotifTitle"),
+      body: t("homeBlockNotifBody"),
+      image: "/images/paths/astrology.jpg",
+    },
+  ];
+
+  const togetherLinks = [
+    {
+      href: "/community",
+      title: t("homeBlockSanghaTitle"),
+      body: t("homeBlockSanghaBody"),
+      image: "/images/paths/community.jpg",
+    },
+    {
+      href: "/care",
+      title: t("homeBlockCareTitle"),
+      body: t("homeBlockCareBody"),
+      image: "/images/paths/mood.jpg",
+    },
+    {
+      href: "/support",
+      title: t("homeBlockSupportTitle"),
+      body: t("homeBlockSupportBody"),
+      image: "/images/paths/paths.jpg",
+    },
+  ];
 
   return (
-    <div className="relative">
-      {/* Hero — cinematic text over the field (no white card) */}
-      <section className="relative flex min-h-[calc(100dvh-8rem)] flex-col justify-center py-8 sm:py-16">
-        <div className="hero-bleed pointer-events-none absolute inset-y-0 -z-10">
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent"
-            aria-hidden
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"
-            aria-hidden
-          />
+    <div className="home-premium relative overflow-hidden pb-10">
+      <section className="home-hero hero-bleed relative flex min-h-[calc(100dvh-8rem)] flex-col justify-center overflow-hidden py-10 sm:py-16 lg:min-h-[78dvh]">
+        {/* Shared site-atmosphere shows through — no second hero image plane. */}
+        <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+          <div className="home-hero__wash absolute inset-0" />
+          <div className="home-hero__orb absolute" />
+          <div className="home-hero__grain absolute inset-0" />
         </div>
 
-        <p
-          className="watermark-sanskrit pointer-events-none absolute left-1/2 top-1/2 -z-0 -translate-x-1/2 -translate-y-1/2 select-none font-display text-[18vw] leading-none text-white/[0.06] sm:text-[9rem]"
-          aria-hidden
-        >
-          मनः
-        </p>
+        <div className="relative z-10 mx-auto w-full max-w-[80rem] px-5 sm:px-8 lg:px-10 xl:px-12">
+          <div className="max-w-3xl">
+            <h1 className="animate-rise whitespace-nowrap font-display text-[clamp(2.75rem,5.2vw,5.25rem)] font-semibold leading-[0.95] tracking-tight text-white">
+              MindKshetra
+            </h1>
 
-        <div className="relative z-10 max-w-3xl">
-          <h1 className="animate-rise-delay-1 font-display text-[2.75rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-7xl md:text-8xl">
-            MindKshetra
-          </h1>
-          <p className="animate-rise-delay-2 mt-4 max-w-xl font-display text-lg leading-snug text-[var(--brass-hover)] sm:mt-5 sm:text-2xl md:text-3xl">
-            {t("homeTagline")}
-          </p>
-          <p className="animate-rise-delay-3 mt-4 max-w-lg text-[0.95rem] font-light leading-relaxed text-white/80 sm:mt-6 sm:text-lg">
-            {t("homeBody")}
-          </p>
+            <p className="animate-rise-delay-2 mt-5 max-w-xl font-display text-[clamp(1.25rem,1.9vw,1.75rem)] leading-snug text-[var(--brass-hover)] sm:mt-6">
+              {t("homeTagline")}
+            </p>
+            <p className="animate-rise-delay-3 mt-4 max-w-lg text-sm font-light leading-relaxed text-white/80 sm:text-base">
+              {t("homeBody")}
+            </p>
 
-          <div className="animate-rise-delay-3 mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
-            {/* Today's practice leads while it is still undone; once it is
-                recorded the hero points back at the reading. */}
-            {sadhanaDone === false || !continueSlokaId ? (
+            <div className="animate-rise-delay-4 mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/sadhana"
-                className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+                className="home-button home-button--primary group"
               >
-                {t("homeCtaPractice")}
+                <span>{t("homeCtaPractice")}</span>
+                <span className="home-arrow" aria-hidden>
+                  ↗
+                </span>
               </Link>
-            ) : (
+              <Link href="/madhav" className="home-button home-button--ghost">
+                {t("homeCtaMadhav")}
+              </Link>
               <Link
-                href={`/sloka/${continueSlokaId}`}
-                className="min-h-11 bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+                href="/explore"
+                className="min-h-12 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-soft)] hover:underline"
               >
-                {t("continueReading")}
+                {t("homeCtaExplore")}
               </Link>
-            )}
-            <Link
-              href="/madhav"
-              className="min-h-11 border border-white/35 bg-white/10 px-6 py-3 text-sm text-white backdrop-blur-sm transition hover:border-[var(--brass)]/60 hover:bg-white/15"
-            >
-              {t("homeCtaMadhav")}
-            </Link>
-            <Link
-              href="/explore"
-              className="min-h-11 px-2 py-3 text-sm text-white/75 underline-offset-4 transition hover:text-[var(--brass-hover)] hover:underline"
-            >
-              {t("homeCtaExplore")}
-            </Link>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* Paths with images */}
-      <section className="border-t border-[var(--hairline)] py-14">
-        <p className="mb-8 text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
-          {t("homePaths")}
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {entries.map((entry, i) => (
-            <Link
-              key={entry.href}
-              href={entry.href}
-              className="group relative flex min-h-[280px] flex-col justify-end overflow-hidden border border-[var(--line)] sm:min-h-[320px]"
-            >
-              <Image
-                src={entry.image}
-                alt=""
-                fill
-                sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover opacity-70 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-85"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-t from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-[var(--media-scrim-soft)]"
-                aria-hidden
-              />
-              <div className="relative z-10 p-6 sm:p-7">
-                <Image
-                  src={entry.icon}
-                  alt=""
-                  width={40}
-                  height={40}
-                  className={`path-mark mb-3 opacity-90 transition duration-300 group-hover:-translate-y-0.5 group-hover:opacity-100 ${
-                    entry.href === "/madhav" ? "rounded-full object-cover ring-1 ring-[var(--brass)]/50" : ""
-                  }`}
-                />
-                <span className="font-body text-xs text-[var(--brass)]">
-                  0{i + 1}
-                </span>
-                <h2 className="mt-2 font-display text-3xl text-[var(--on-media)] transition group-hover:text-[var(--brass-hover)]">
-                  <span className="link-underline">{entry.title}</span>
-                </h2>
-                <p className="mt-2 text-sm font-light leading-relaxed text-[var(--on-media-muted)]">
-                  {entry.blurb}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Today's practice — flagship + lifestyle grid */}
-      <section className="border-t border-[var(--hairline)] py-14">
-        <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[var(--brass)]">
-          {t("homeLifestyleEyebrow")}
-        </p>
-        <h2 className="font-display text-3xl text-[var(--text)] sm:text-4xl">
-          {t("homeLifestyleTitle")}
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-[var(--text-soft)] sm:text-base">
-          {t("homeLifestyleBlurb")}
-        </p>
-
-        <Link
-          href="/sadhana"
-          className="group mt-8 block border border-[var(--line)] transition hover:border-[var(--brass)]/40"
+        <a
+          href="#verse"
+          className="home-scroll-cue absolute bottom-7 right-6 z-20 hidden items-center gap-3 text-[10px] uppercase tracking-[.24em] text-white/44 transition hover:text-[var(--brass-soft)] sm:flex lg:right-12 xl:right-16"
         >
-          <div className="border-l-2 border-[var(--brass)]/70 px-6 py-8 sm:px-8 sm:py-9">
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass)]">
-              {t("sadhanaEyebrow")}
+          <span className="home-scroll-cue__line" aria-hidden />
+          {t("homeFeaturedEyebrow")}
+        </a>
+      </section>
+
+      <div className="mx-auto w-full max-w-[80rem] px-5 sm:px-8 lg:px-10 xl:px-12">
+        <section
+          ref={sectionRef}
+          id="verse"
+          data-home-reveal
+          className="home-votd home-reveal scroll-mt-20 overflow-hidden border-y border-[var(--hairline)] py-11 sm:py-14"
+          aria-roledescription="carousel"
+          aria-label={t("homeFeaturedEyebrow")}
+          onMouseEnter={() => setHoverPaused(true)}
+          onMouseLeave={() => setHoverPaused(false)}
+          onFocusCapture={() => setHoverPaused(true)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+              setHoverPaused(false);
+            }
+          }}
+        >
+          <div className="home-votd__wash" aria-hidden />
+
+          <div className="relative z-10 mb-8 flex flex-wrap items-center justify-between gap-4">
+            <p className="eyebrow text-[var(--brass)]">
+              {t("homeFeaturedEyebrow")}
             </p>
-            <h3 className="mt-3 font-display text-3xl text-[var(--text)] transition group-hover:text-[var(--brass-hover)] sm:text-4xl">
-              {t("sadhanaHomeLink")}
-            </h3>
-            <p
-              className={`mt-2 max-w-xl text-sm font-light leading-relaxed sm:text-base ${
-                sadhanaDone === true
-                  ? "text-[var(--brass-soft)]"
-                  : "text-[var(--text-soft)]"
-              }`}
-            >
-              {sadhanaDone === true ? t("sadhanaDoneToday") : t("sadhanaHomeBody")}
-            </p>
-            {practiceStreak > 0 ? (
-              <p
-                className="mt-4 text-xs tracking-[0.12em] text-[var(--brass-soft)]"
-                title={t("streakLabel")}
-              >
-                {t("sadhanaStreakLine").replace("{n}", String(practiceStreak))}
-              </p>
+
+            {verses.length > 1 ? (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5" role="tablist">
+                  {verses.map((verse, index) => (
+                    <button
+                      key={verse.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={index === verseIndex}
+                      aria-label={dayLabel(index)}
+                      onClick={() => {
+                        pauseAutoplayBriefly();
+                        scrollToVerse(index);
+                      }}
+                      className="home-votd__dot"
+                    >
+                      {index === verseIndex && !autoplayPaused && inView ? (
+                        <span
+                          key={`${verse.id}-${verseIndex}-go`}
+                          className="home-votd__dot-progress"
+                          aria-hidden
+                        />
+                      ) : null}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    aria-label={t("homeVotdPrev")}
+                    onClick={() => {
+                      pauseAutoplayBriefly();
+                      scrollToVerse(verseIndex - 1);
+                    }}
+                    className="home-votd__nav"
+                  >
+                    ←
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={t("homeVotdNext")}
+                    onClick={() => {
+                      pauseAutoplayBriefly();
+                      scrollToVerse(verseIndex + 1);
+                    }}
+                    className="home-votd__nav"
+                  >
+                    →
+                  </button>
+                </div>
+              </div>
             ) : null}
           </div>
-        </Link>
 
-        {medContinueDay != null ? (
-          <Link
-            href={`/meditation/${Math.min(45, Math.max(1, medContinueDay))}`}
-            className="mt-4 block border border-[var(--line)] px-6 py-5 transition hover:border-[var(--brass)]/40"
+          <div
+            ref={trackRef}
+            className="home-votd__track relative z-10"
+            onPointerDown={pauseAutoplayBriefly}
           >
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass)]">
-              {t("medEyebrow")}
-            </p>
-            <p className="mt-2 font-display text-xl text-[var(--text)]">
-              {medDoneCount === 0
-                ? t("medHomeStart")
-                : t("medHomeContinue").replace(
-                    "{n}",
-                    String(Math.min(45, Math.max(1, medContinueDay)))
-                  )}
-            </p>
-          </Link>
-        ) : null}
+            {verses.map((verse, index) => {
+              const translation =
+                lang === "hi" ? verse.hindi : verse.english;
+              const active = index === verseIndex;
+              return (
+                <article
+                  key={verse.id}
+                  className="home-votd__slide group"
+                  data-active={active ? "true" : "false"}
+                  aria-roledescription="slide"
+                  aria-label={`${dayLabel(index)} · ${verse.ref}`}
+                >
+                  <span className="home-votd__mark" aria-hidden>
+                    {verse.ref.replace(/^BG\s*/i, "")}
+                  </span>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {(
-            [
-              {
-                href: "/meditation",
-                title: t("homeBlockCourseTitle"),
-                body: t("homeBlockCourseBody"),
-                image: "/images/paths/meditation.jpg",
-              },
-              {
-                href: "/sadhana#japa",
-                title: t("homeBlockJapaTitle"),
-                body: t("homeBlockJapaBody"),
-                image: "/images/paths/sadhana.jpg",
-              },
-              {
-                href: "/panchang",
-                title: t("homeBlockPanchangTitle"),
-                body: t("homeBlockPanchangBody"),
-                image: "/images/paths/panchang-ring.jpg",
-              },
-            ] as const
-          ).map((block) => (
-            <Link
-              key={block.href + block.title}
-              href={block.href}
-              className="group relative flex min-h-[160px] flex-col justify-end overflow-hidden border border-[var(--line)] transition hover:border-[var(--brass)]/45"
-            >
-              <Image
-                src={block.image}
-                alt=""
-                fill
-                sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover opacity-45 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-60"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-t from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-transparent"
-                aria-hidden
-              />
-              <div className="relative z-10 px-5 py-5">
-                <h3 className="font-display text-xl text-[var(--on-media)] transition group-hover:text-[var(--brass-hover)]">
-                  {block.title}
-                </h3>
-                <p className="mt-2 text-sm font-light leading-relaxed text-[var(--on-media-muted)]">
-                  {block.body}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+                  <div className="home-votd__body">
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <span className="text-[11px] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+                        {dayLabel(index)}
+                      </span>
+                      <span className="text-[11px] tracking-[0.16em] text-[var(--text-muted)]">
+                        {verse.ref}
+                      </span>
+                    </div>
 
-      {/* Together — sangha, care, dāna, reminders */}
-      <section className="border-t border-[var(--hairline)] py-14">
-        <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[var(--brass)]">
-          {t("homeTogetherEyebrow")}
-        </p>
-        <h2 className="font-display text-3xl text-[var(--text)] sm:text-4xl">
-          {t("homeTogetherTitle")}
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-[var(--text-soft)] sm:text-base">
-          {t("homeTogetherBlurb")}
-        </p>
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {(
-            [
-              {
-                href: "/community",
-                title: t("homeBlockSanghaTitle"),
-                body: t("homeBlockSanghaBody"),
-              },
-              {
-                href: "/care",
-                title: t("homeBlockCareTitle"),
-                body: t("homeBlockCareBody"),
-              },
-              {
-                href: "/support",
-                title: t("homeBlockSupportTitle"),
-                body: t("homeBlockSupportBody"),
-              },
-              {
-                href: "/account",
-                title: t("homeBlockNotifTitle"),
-                body: t("homeBlockNotifBody"),
-              },
-            ] as const
-          ).map((block) => (
-            <Link
-              key={block.href}
-              href={block.href}
-              className="group border border-[var(--line)] px-5 py-6 transition hover:border-[var(--brass)]/45"
-            >
-              <h3 className="font-display text-xl text-[var(--text)] transition group-hover:text-[var(--brass-hover)]">
-                {block.title}
-              </h3>
-              <p className="mt-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
-                {block.body}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
+                    <div className="home-votd__sanskrit mt-5">
+                      {verse.sanskritLines.map((line) => (
+                        <p key={line}>{line}</p>
+                      ))}
+                    </div>
 
-      {/* Verse of the day */}
-      <section className="border-t border-[var(--hairline)] py-14">
-        <p className="mb-6 text-xs uppercase tracking-[0.22em] text-[var(--brass)] drop-shadow-sm">
-          {t("homeFeaturedEyebrow")}
-        </p>
-        <div className="glass relative overflow-hidden px-6 py-10 sm:px-10 sm:py-12">
-          <Image
-            src="/ornaments/chapter.svg"
-            alt=""
-            width={140}
-            height={140}
-            className="pointer-events-none absolute -right-4 -top-4 opacity-[0.12]"
-          />
-          <p className="text-xs tracking-[0.2em] text-[var(--brass)]">
-            {featured.ref}
-          </p>
-          <div className="mt-5 max-w-3xl space-y-2 font-display text-2xl leading-[1.7] text-[var(--text)] sm:text-3xl">
-            {featured.sanskritLines.map((line, i) => (
-              <p key={i}>
-                {line}
-                {i < featured.sanskritLines.length - 1 ? "।" : " ॥"}
-              </p>
+                    {verse.nakshatra ? (
+                      <p className="mt-4 max-w-lg text-[11px] font-light leading-4 tracking-[0.04em] text-[var(--text-muted)]">
+                        {t("homeVotdNakshatra").replace(
+                          "{nakshatra}",
+                          verse.nakshatra
+                        )}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="home-votd__aside">
+                    <p className="home-votd__translation">
+                      <span aria-hidden>“</span>
+                      {translation}
+                      <span aria-hidden>”</span>
+                    </p>
+                    <div className="home-votd__actions">
+                      <SpeakButton
+                        text={verse.sanskritLines.join(" ")}
+                        lang={lang === "hi" ? "hi" : "en"}
+                        chapter={verse.chapter}
+                        verseNumber={verse.verseNumber}
+                        recitationOnly
+                        listenLabel={t("verseListen")}
+                        stopLabel={t("verseStop")}
+                        unsupportedLabel={t("ttsUnsupported")}
+                        onSpeakingChange={setSpeaking}
+                        className="home-votd__listen"
+                      />
+                      <Link
+                        href={`/sloka/${verse.id}`}
+                        className="home-votd__cta"
+                      >
+                        {t("homeFeaturedDetail")}
+                        <span className="home-arrow" aria-hidden>
+                          ↗
+                        </span>
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section
+          id="begin"
+          data-home-reveal
+          className="home-reveal scroll-mt-20 border-t border-[var(--hairline)] py-14 sm:py-16"
+        >
+          <header className="mb-8 border-b border-[var(--hairline)] pb-7">
+            <p className="eyebrow text-[var(--brass)]">{t("homePaths")}</p>
+          </header>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {entries.map((entry, index) => (
+              <Link
+                key={entry.href}
+                href={entry.href}
+                className="home-path group relative flex min-h-[280px] flex-col justify-end overflow-hidden border border-[var(--line)] sm:min-h-[320px]"
+              >
+                <Image
+                  src={entry.image}
+                  alt=""
+                  fill
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="home-path__image object-cover"
+                />
+                <div className="home-path__scrim absolute inset-0" aria-hidden />
+
+                <div className="relative z-10 p-6 sm:p-7">
+                  <Image
+                    src={entry.icon}
+                    alt=""
+                    width={40}
+                    height={40}
+                    className={`path-mark mb-3 opacity-90 transition duration-300 group-hover:-translate-y-0.5 group-hover:opacity-100 ${
+                      entry.href === "/madhav"
+                        ? "rounded-full object-cover ring-1 ring-[var(--brass)]/50"
+                        : ""
+                    }`}
+                  />
+                  <div className="flex items-end justify-between gap-4">
+                    <div className="min-w-0">
+                      <span className="font-body text-xs text-[var(--brass)]">
+                        0{index + 1}
+                      </span>
+                      <h3 className="mt-2 font-display text-3xl text-[var(--on-media)] transition group-hover:text-[var(--brass-hover)]">
+                        <span className="link-underline">{entry.title}</span>
+                      </h3>
+                      <p className="mt-2 text-sm font-light leading-relaxed text-[var(--on-media-muted)]">
+                        {entry.blurb}
+                      </p>
+                    </div>
+                    <span className="home-path__arrow" aria-hidden>
+                      ↗
+                    </span>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
-          <Image
-            src="/ornaments/divider.svg"
-            alt=""
-            width={280}
-            height={20}
-            className="mt-6 opacity-60"
-          />
-          <p className="mt-6 max-w-2xl text-base font-light leading-relaxed text-[var(--text-muted)] sm:text-lg">
-            {translation}
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/verse-of-the-day"
-              className="inline-block bg-[var(--brass)] px-5 py-2.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-            >
-              {t("homeFeaturedCta")}
-            </Link>
-            <Link
-              href={`/sloka/${featured.id}`}
-              className="inline-block border border-[var(--line)] px-5 py-2.5 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/40 hover:text-[var(--brass-soft)]"
-            >
-              {t("homeFeaturedDetail")}
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Mood preview */}
-      <section className="border-t border-[var(--hairline)] py-14">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div className="glass max-w-xl px-5 py-4">
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-              {t("homeMoodsEyebrow")}
+        <section
+          data-home-reveal
+          className="home-reveal border-t border-[var(--hairline)] py-14 sm:py-16"
+        >
+          <header className="mb-6 sm:mb-7">
+            <p className="eyebrow text-[var(--brass)]">
+              {t("homeLifestyleEyebrow")}
             </p>
-            <h2 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-4xl">
-              {t("homeMoodsTitle")}
+            <h2 className="mt-3 font-display text-[clamp(1.75rem,2.6vw,2.4rem)] leading-[1.05] tracking-[-.02em] text-[var(--text)]">
+              {t("homeLifestyleTitle")}
             </h2>
-            <p className="mt-2 text-sm font-light text-[var(--text-muted)] sm:text-base">
-              {t("homeMoodsBlurb")}
+            <p className="mt-2 max-w-xl text-sm font-light leading-6 text-[var(--text-soft)]">
+              {t("homeLifestyleBlurb")}
             </p>
-          </div>
-          <Link
-            href="/mood"
-            className="text-sm text-[var(--brass)] transition hover:text-[var(--brass-soft)]"
-          >
-            {t("homeMoodsAll")} →
-          </Link>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-          {previewMoods.map((mood) => {
-            const visual = getMoodVisual(mood);
-            return (
-              <Link
-                key={mood.id}
-                href={`/mood/${mood.id}`}
-                className="surface group relative flex min-h-[96px] items-center justify-between gap-3 overflow-hidden px-5 py-5 backdrop-blur-md"
-              >
-                <span
-                  className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100"
-                  style={{
-                    background: `radial-gradient(ellipse 80% 70% at 90% 10%, color-mix(in srgb, ${visual.accent} 22%, transparent), transparent 60%)`,
-                  }}
-                  aria-hidden
-                />
-                <span className="relative font-display text-xl text-[var(--text)] transition group-hover:text-[var(--brass-soft)]">
-                  {moodLabel(mood, lang)}
-                </span>
-                <span
-                  className="mood-glyph relative inline-block h-8 w-8 shrink-0 opacity-75 transition duration-300 group-hover:scale-105 group-hover:opacity-100"
-                  style={{
-                    backgroundColor: visual.accent,
-                    WebkitMaskImage: `url(${visual.icon})`,
-                    maskImage: `url(${visual.icon})`,
-                    WebkitMaskSize: "contain",
-                    maskSize: "contain",
-                    WebkitMaskRepeat: "no-repeat",
-                    maskRepeat: "no-repeat",
-                    WebkitMaskPosition: "center",
-                    maskPosition: "center",
-                  }}
-                  aria-hidden
-                />
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+          </header>
 
-      {/* Closing band */}
-      <section className="relative mt-4 flex min-h-[240px] flex-col justify-center overflow-hidden border-t border-[var(--hairline)] py-16 sm:min-h-[280px]">
-        <div className="hero-bleed pointer-events-none absolute inset-y-0 -z-10">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            {practiceTiles.map((tile, index) => (
+              <Link
+                key={tile.href + tile.title}
+                href={tile.href}
+                className={`group relative flex min-h-[148px] flex-col justify-end overflow-hidden border border-[var(--line)] transition hover:border-[var(--brass)]/45 sm:min-h-[168px] ${
+                  index < 2
+                    ? "lg:col-span-3 lg:min-h-[220px]"
+                    : "lg:col-span-2"
+                }`}
+              >
+                <Image
+                  src={tile.image}
+                  alt=""
+                  fill
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="object-cover opacity-45 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-60"
+                />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-transparent"
+                  aria-hidden
+                />
+                <div className="relative z-10 p-4 sm:p-5">
+                  <h3 className="font-display text-lg text-[var(--on-media)] transition group-hover:text-[var(--brass-hover)] sm:text-xl">
+                    {tile.title}
+                  </h3>
+                  <p className="mt-1.5 text-[13px] font-light leading-5 text-[var(--on-media-muted)]">
+                    {tile.body}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section
+          data-home-reveal
+          className="home-reveal relative mt-2 min-h-[16rem] overflow-hidden border border-[var(--line)] sm:min-h-[18rem]"
+        >
           <Image
-            src="/images/hero.jpg"
+            src="/images/paths/madhav.jpg"
             alt=""
             fill
             sizes="100vw"
-            className="object-cover object-[center_60%] opacity-55"
+            className="object-cover object-center opacity-75 transition duration-[1800ms] hover:scale-[1.02]"
           />
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-[var(--media-scrim-soft)]"
-            aria-hidden
-          />
-        </div>
-        <div className="relative z-10 max-w-xl">
-          <p className="font-display text-3xl text-[var(--on-media)] sm:text-4xl">
-            {t("homeCloseLine")}
-          </p>
-          <Link
-            href="/madhav"
-            className="mt-6 inline-block bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-          >
-            {t("homeCloseCta")}
-          </Link>
-        </div>
-      </section>
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,9,15,.95)_0%,rgba(7,9,15,.72)_48%,rgba(7,9,15,.25)_100%)]" />
+          <div className="relative z-10 flex min-h-[16rem] max-w-3xl flex-col justify-center px-6 py-8 sm:min-h-[18rem] sm:px-10 sm:py-9 lg:px-12">
+            <p className="eyebrow text-[var(--brass-soft)]">
+              {t("homeMadhavTitle")}
+            </p>
+            <h2 className="mt-3 font-display text-[clamp(1.9rem,3vw,3rem)] leading-[1] tracking-[-.03em] text-white">
+              {t("homeCloseLine")}
+            </h2>
+            <Link
+              href="/madhav"
+              className="home-button home-button--primary mt-6 self-start"
+            >
+              <span>{t("homeCloseCta")}</span>
+              <span className="home-arrow" aria-hidden>
+                ↗
+              </span>
+            </Link>
+          </div>
+        </section>
+
+        <section
+          data-home-reveal
+          className="home-reveal border-t border-[var(--hairline)] py-10 sm:py-12"
+        >
+          <div className="mb-5 text-center">
+            <p className="eyebrow text-[var(--brass)]">
+              {t("homeTogetherEyebrow")}
+            </p>
+            <h2 className="mt-2 font-display text-[clamp(1.75rem,2.6vw,2.4rem)] leading-[1.05] tracking-[-.02em] text-[var(--text)]">
+              {t("homeTogetherTitle")}
+            </h2>
+            <p className="mx-auto mt-2 max-w-xl text-sm font-light leading-5 text-[var(--text-soft)]">
+              {t("homeTogetherBlurb")}
+            </p>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            {togetherLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group relative flex min-h-[160px] flex-col justify-end overflow-hidden border border-[var(--line)] transition hover:border-[var(--brass)]/45 sm:min-h-[180px]"
+              >
+                <Image
+                  src={item.image}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover opacity-45 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-60"
+                />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-transparent"
+                  aria-hidden
+                />
+                <div className="relative z-10 p-5">
+                  <div className="mb-2 flex items-start justify-between gap-3">
+                    <h3 className="font-display text-lg text-[var(--on-media)] transition group-hover:text-[var(--brass-hover)] sm:text-xl">
+                      {item.title}
+                    </h3>
+                    <span
+                      className="home-arrow shrink-0 text-[var(--brass-soft)] opacity-70 transition group-hover:opacity-100"
+                      aria-hidden
+                    >
+                      ↗
+                    </span>
+                  </div>
+                  <p className="text-[13px] font-light leading-5 text-[var(--on-media-muted)]">
+                    {item.body}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

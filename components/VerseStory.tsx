@@ -160,25 +160,37 @@ export default function VerseStory({
             </p>
           ) : null}
         </div>
-        <div className="flex shrink-0 gap-1 border border-[var(--line)] p-0.5">
-          {(["en", "hi"] as const).map((code) => (
-            <button
-              key={code}
-              type="button"
-              onClick={() => {
-                stopSpeaking();
-                setLang(code);
-              }}
-              disabled={loading}
-              className={`px-2.5 py-1 text-xs uppercase tracking-[0.14em] transition ${
-                lang === code
-                  ? "bg-[var(--brass)] text-[var(--on-brass)]"
-                  : "text-[var(--text-muted)] hover:text-[var(--text)]"
-              }`}
-            >
-              {code === "en" ? t("langEn") : t("langHi")}
-            </button>
-          ))}
+        <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
+          <div className="flex gap-1 border border-[var(--line)] p-0.5">
+            {(["en", "hi"] as const).map((code) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => {
+                  stopSpeaking();
+                  setLang(code);
+                }}
+                disabled={loading}
+                className={`px-2.5 py-1 text-xs uppercase tracking-[0.14em] transition ${
+                  lang === code
+                    ? "bg-[var(--brass)] text-[var(--on-brass)]"
+                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                }`}
+              >
+                {code === "en" ? t("langEn") : t("langHi")}
+              </button>
+            ))}
+          </div>
+          {story ? (
+            <SpeakButton
+              text={story}
+              lang={lang}
+              listenLabel={t("verseListenStory")}
+              stopLabel={t("verseStop")}
+              unsupportedLabel={t("ttsUnsupported")}
+              className="inline-flex !h-10 !min-h-0 items-center justify-center !border-[var(--brass)]/40 !px-4 !py-0 !text-sm !leading-none !text-[var(--brass-soft)] hover:!border-[var(--brass)]/55 hover:!text-[var(--text)]"
+            />
+          ) : null}
         </div>
       </div>
 
@@ -215,22 +227,15 @@ export default function VerseStory({
         {error && <p className="mt-4 text-sm text-[var(--danger)]">{error}</p>}
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-3 border-t border-[var(--hairline)] pt-5">
+      <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[var(--hairline)] pt-5">
         {story ? (
           <>
-            <SpeakButton
-              text={story}
-              lang={lang}
-              listenLabel={t("ttsListen")}
-              stopLabel={t("ttsStop")}
-              unsupportedLabel={t("ttsUnsupported")}
-            />
             {!curated || isScene ? (
               <button
                 type="button"
                 onClick={() => requestStory(true)}
                 disabled={loading}
-                className="border border-[var(--line)] px-4 py-2.5 text-sm text-[var(--text)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)] disabled:opacity-50"
+                className="inline-flex h-10 items-center border border-[var(--line)] px-4 text-sm text-[var(--text)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)] disabled:opacity-50"
               >
                 {loading
                   ? t("writing")
@@ -252,6 +257,9 @@ export default function VerseStory({
               imageUrl={`/api/og/story/${slokaId}?lang=${lang}`}
               slokaId={slokaId}
               surface="story"
+              shareLabel={t("verseShare")}
+              imageLabel={t("verseShareImage")}
+              quiet
             />
             <p className="w-full text-xs text-[var(--text-muted)]">
               {isScene ? t("sceneHint") : t("storyHint")}

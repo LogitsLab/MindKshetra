@@ -196,6 +196,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             /* keep the local copy */
           }
         }
+
+        // Personalization draft from /account/personalize (guest → account).
+        if (!nextUser.is_anonymous) {
+          try {
+            const raw = localStorage.getItem("mindkshetra-personalization-draft");
+            if (raw) {
+              const draft = JSON.parse(raw) as Record<string, unknown>;
+              const res = await fetch("/api/account/onboarding/complete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  goals: draft.goals,
+                  inspirations: draft.inspirations,
+                  dailyTimeMinutes: draft.dailyTimeMinutes,
+                  guidanceStyle: draft.guidanceStyle,
+                  displayName: draft.displayName,
+                  preferredLanguage: draft.preferredLanguage,
+                  skipped: Boolean(draft.skipped),
+                }),
+              });
+              if (res.ok) {
+                localStorage.removeItem("mindkshetra-personalization-draft");
+              }
+            }
+          } catch {
+            /* keep draft */
+          }
+        }
       }
     });
 

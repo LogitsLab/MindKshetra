@@ -18,6 +18,10 @@ let cached: AudioManifest | null | undefined;
 let inflight: Promise<AudioManifest | null> | null = null;
 
 function bucketBase(): string | null {
+  // Prefer an explicit audio bucket — production keeps recitation/TTS on a
+  // dedicated project while the app DB may live elsewhere (.env.local).
+  const explicit = process.env.NEXT_PUBLIC_AUDIO_BASE_URL?.replace(/\/$/, "");
+  if (explicit) return explicit;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
   if (!url) return null;
   return `${url}/storage/v1/object/public/audio`;
@@ -31,7 +35,9 @@ export async function getAudioManifest(): Promise<AudioManifest | null> {
     cached = null;
     return null;
   }
-  inflight = fetch(`${base}/manifest.json`, { cache: "force-cache" })
+  // no-cache: TTS/recitation updates land without a client release; force-cache
+  // left browsers stuck on a pre-generation manifest (robotic device TTS).
+  inflight = fetch(`${base}/manifest.json`, { cache: "no-cache" })
     .then(async (res) => (res.ok ? ((await res.json()) as AudioManifest) : null))
     .catch(() => null)
     .then((manifest) => {

@@ -9,6 +9,7 @@ import MainShell from "@/components/MainShell";
 import SkipLink from "@/components/SkipLink";
 import SiteFooter from "@/components/SiteFooter";
 import NavigationProgress from "@/components/NavigationProgress";
+import WelcomeGate from "@/components/WelcomeGate";
 import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -83,6 +84,9 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="dark"
+      /* Lets Next disable smooth scroll during App Router navigations so new
+         pages land at the top instead of animating from the previous Y. */
+      data-scroll-behavior="smooth"
       /* The script above rewrites data-theme before hydration, so the server's
          "dark" and the client's actual value legitimately differ on <html>. */
       suppressHydrationWarning
@@ -107,6 +111,7 @@ export default function RootLayout({
                 <div className="site-atmosphere" aria-hidden />
                 <NavigationProgress />
                 <Nav />
+                <WelcomeGate />
                 <MainShell>{children}</MainShell>
                 <SiteFooter />
               </ProgressProvider>

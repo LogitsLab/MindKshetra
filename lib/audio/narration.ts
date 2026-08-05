@@ -35,6 +35,34 @@ export type NarrationOptions = SpeakOptions & {
   url?: string | null;
 };
 
+type PlayUrlOptions = {
+  rate?: number;
+  onStart?: () => void;
+  onEnd?: () => void;
+  onError?: () => void;
+};
+
+/** Play a single audio file with no TTS fallback (Sanskrit recitation). */
+export async function playUrl(
+  url: string,
+  options: PlayUrlOptions = {}
+): Promise<boolean> {
+  stopNarration();
+  const el = audioEl();
+  el.src = url;
+  el.playbackRate = options.rate ?? 1;
+  el.onended = () => options.onEnd?.();
+  el.onerror = () => options.onError?.();
+  try {
+    await el.play();
+    options.onStart?.();
+    return true;
+  } catch {
+    options.onError?.();
+    return false;
+  }
+}
+
 /**
  * Same contract as lib/tts.ts speakText, upgraded: resolves a pre-generated
  * file for this exact text first. Returns false only when neither audio nor

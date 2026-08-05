@@ -5,12 +5,34 @@ import { useLanguage } from "@/components/LanguageProvider";
 
 type Props = {
   slokaId: number;
+  /** Quiet text control instead of bordered button. */
+  quiet?: boolean;
 };
 
-export default function CompleteVerseButton({ slokaId }: Props) {
+export default function CompleteVerseButton({
+  slokaId,
+  quiet = false,
+}: Props) {
   const { t } = useLanguage();
   const { isComplete, markComplete } = useProgress();
   const done = isComplete(slokaId);
+
+  if (quiet) {
+    return (
+      <button
+        type="button"
+        onClick={() => void markComplete(slokaId, !done)}
+        className={`inline-flex h-8 items-center text-sm leading-none transition ${
+          done
+            ? "text-[var(--brass-soft)]"
+            : "text-[var(--text-muted)] hover:text-[var(--brass-soft)]"
+        }`}
+        aria-pressed={done}
+      >
+        {done ? `✓ ${t("markedComplete")}` : t("markComplete")}
+      </button>
+    );
+  }
 
   return (
     <button

@@ -8,6 +8,8 @@ export const en = {
   sadhanaTitle: "Sādhana",
   sadhanaIntro:
     "A short daily practice: meet your mind, sit with one verse, and keep what stays.",
+  sadhanaBeginCta: "Begin today’s sit",
+  sadhanaJapaCta: "Count a mala",
   sadhanaMoodPrompt: "How is your mind today?",
   sadhanaVersePrompt: "Sit with this verse",
   sadhanaOpenVerse: "Read the full verse",
@@ -55,6 +57,8 @@ export const hi: Record<keyof typeof en, string> = {
   sadhanaTitle: "साधना",
   sadhanaIntro:
     "एक छोटी दैनिक साधना: मन से मिलें, एक श्लोक के साथ बैठें, और जो साथ रह जाए उसे सहेजें।",
+  sadhanaBeginCta: "आज की बैठक आरंभ करें",
+  sadhanaJapaCta: "माला गिनें",
   sadhanaMoodPrompt: "आज मन कैसा है?",
   sadhanaVersePrompt: "इस श्लोक के साथ बैठें",
   sadhanaOpenVerse: "पूरा श्लोक पढ़ें",

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra - Verse Reading</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#e2c45a",
+                        "primary": "#ecc246",
+                        "on-surface-variant": "#d1c5af",
+                        "inverse-primary": "#755b00",
+                        "error": "#ffb4ab",
+                        "background": "#07090f",
+                        "tertiary": "#95d3c0",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#282a31",
+                        "primary-fixed": "#ffe08e",
+                        "surface-dim": "#11131a",
+                        "outline": "#99907b",
+                        "on-secondary-container": "#fff3d8",
+                        "surface-variant": "#33353c",
+                        "on-secondary": "#3b2f00",
+                        "surface-container-low": "#191b22",
+                        "on-primary": "#3d2e00",
+                        "surface": "#07090f",
+                        "inverse-on-surface": "#2e3037",
+                        "surface-container": "#0e1420",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "surface-container-lowest": "#0c0e14",
+                        "secondary-fixed": "#ffe179",
+                        "surface-tint": "#ecc246",
+                        "on-primary-fixed-variant": "#584400",
+                        "on-background": "#e1e2eb",
+                        "error-container": "#93000a",
+                        "surface-bright": "#373940",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-primary-container": "#4b3a00",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#004538",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "primary-container": "#c9a227",
+                        "outline-variant": "#4d4635",
+                        "on-tertiary-fixed": "#002019",
+                        "on-secondary-fixed-variant": "#554500",
+                        "on-tertiary": "#00382d",
+                        "surface-container-highest": "#33353c",
+                        "on-surface": "#e1e2eb",
+                        "inverse-surface": "#e1e2eb",
+                        "on-secondary-fixed": "#231b00",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "on-primary-fixed": "#241a00",
+                        "tertiary-container": "#76b3a1",
+                        "secondary-container": "#856d01",
+                        "tertiary-fixed": "#b0efdc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "section-gap": "64px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Sora"],
+                        "headline-lg-mobile": ["Libre Caslon Text"],
+                        "body-lg": ["Sora"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "title-md": ["Sora"],
+                        "label-sm": ["Sora"],
+                        "sanskrit-text": ["Noto Serif"],
+                        "display-lg": ["Libre Caslon Text"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #07090f;
+            color: #e1e2eb;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+            color: #c9a227; /* Brass color */
+        }
+        .glass-panel {
+            background: rgba(14, 20, 32, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .hairline-brass {
+            border: 0.5px solid rgba(201, 162, 39, 0.3);
+        }
+        .brass-text {
+            color: #c9a227;
+        }
+        .muted-brass-text {
+            color: #99907b;
+        }
+        .void-gradient {
+            background: linear-gradient(to bottom, #07090f 0%, transparent 100%);
+        }
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(61, 122, 106, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md overflow-x-hidden selection:bg-primary/30">
+<!-- Background Atmospheric Glow -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+<div class="absolute -top-1/4 -left-1/4 w-[80vw] h-[80vw] bg-[#3d7a6a] opacity-[0.03] blur-[120px] rounded-full"></div>
+<div class="absolute -bottom-1/4 -right-1/4 w-[80vw] h-[80vw] bg-[#c9a227] opacity-[0.03] blur-[120px] rounded-full"></div>
+</div>
+<!-- Mobile Screen Wrapper (390x844 simulated via container on desktop) -->
+<div class="relative min-h-screen max-w-[390px] mx-auto flex flex-col z-10">
+<!-- Header Section -->
+<header class="flex justify-between items-center px-container-margin py-8">
+<button class="flex items-center justify-center p-2 hover:opacity-70 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" style="font-size: 28px;">arrow_back</span>
+</button>
+<span class="font-label-sm text-label-sm muted-brass-text tracking-widest uppercase">BG 2.47</span>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow px-container-margin pb-24">
+<!-- Eyebrow -->
+<div class="mb-6">
+<span class="font-label-sm text-label-sm brass-text uppercase tracking-[0.2em]">CHAPTER 02 · VERSE 47</span>
+</div>
+<!-- Sanskrit Text -->
+<div class="mb-8">
+<p class="font-sanskrit-text text-[24px] leading-relaxed text-on-surface tracking-wide">
+                    कर्मण्येवाधिकारस्ते मा फलेषु कदाचन ।<br/>
+                    मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ॥
+                </p>
+</div>
+<!-- Divider -->
+<div class="w-full h-[1px] bg-outline-variant/30 mb-8"></div>
+<!-- Transliteration -->
+<div class="mb-10">
+<p class="font-body-md text-on-surface-variant italic leading-relaxed opacity-80">
+                    karmaṇy-evādhikāras te mā phaleṣu kadācana ।<br/>
+                    mā karma-phala-hetur bhūr mā te saṅgo ’stv akarmaṇi ॥
+                </p>
+</div>
+<!-- Hindi Translation -->
+<div class="mb-10">
+<p class="font-sanskrit-text text-on-surface-variant/90 leading-relaxed text-[18px]">
+                    तेरा कर्म करने में ही अधिकार है, उसके फलों में कभी नहीं। तू कर्मों के फल का हेतु मत हो और तेरी अकर्म में भी आसक्ति न हो।
+                </p>
+</div>
+<!-- English Translation -->
+<div class="mb-12">
+<p class="font-headline-lg-mobile text-headline-lg-mobile text-primary-fixed leading-snug tracking-tight">
+                    ‘You have a right to perform your prescribed duties, but you are not entitled to the fruits of your actions.’
+                </p>
+</div>
+<!-- Reflection Section -->
+<section class="glass-panel hairline-brass rounded-xl p-6 mb-12 shadow-xl">
+<h3 class="font-label-sm text-label-sm brass-text uppercase tracking-widest mb-4">Reflection</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">
+                    This verse calls us to embrace the purity of action. When we release our attachment to outcomes, we find freedom from anxiety. True spiritual mastery lies not in avoiding responsibility, but in performing it as a sacred offering, unburdened by the ego's desire for reward.
+                </p>
+</section>
+<!-- Journaling Area -->
+<section class="border-y border-outline-variant/20 py-8 mb-8">
+<label class="sr-only">A private note</label>
+<textarea class="w-full bg-transparent border-none text-on-surface placeholder:text-on-surface-variant/40 font-body-md text-body-md resize-none p-0 focus:ring-0" placeholder="A private note..." rows="4"></textarea>
+</section>
+</main>
+<!-- Bottom Toolbar -->
+<footer class="fixed bottom-0 left-0 right-0 max-w-[390px] mx-auto z-50">
+<div class="glass-panel backdrop-blur-3xl border-t border-outline-variant/10 px-8 py-6 flex justify-between items-center">
+<button class="group flex flex-col items-center gap-1 transition-all duration-300 hover:-translate-y-1">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">favorite</span>
+</button>
+<button class="group flex flex-col items-center gap-1 transition-all duration-300 hover:-translate-y-1">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">check_circle</span>
+</button>
+<button class="group flex flex-col items-center gap-1 transition-all duration-300 hover:-translate-y-1">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">share</span>
+</button>
+<button class="group flex flex-col items-center gap-1 transition-all duration-300 hover:-translate-y-1">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">edit_note</span>
+</button>
+</div>
+</footer>
+<!-- Scroll-up Atmospheric Shadow Overlay -->
+<div class="fixed top-0 left-0 right-0 h-32 void-gradient pointer-events-none z-20"></div>
+</div>
+<script>
+        // Micro-interactions for the textarea and icons
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.querySelector('textarea');
+            textarea.addEventListener('focus', () => {
+                textarea.parentElement.classList.add('border-primary/40');
+            });
+            textarea.addEventListener('blur', () => {
+                textarea.parentElement.classList.remove('border-primary/40');
+            });
+
+            // Smooth pulse effect for gold elements
+            const goldElements = document.querySelectorAll('.brass-text, .material-symbols-outlined');
+            goldElements.forEach(el => {
+                el.classList.add('transition-opacity', 'duration-1000');
+            });
+        });
+    </script>
+</body></html>

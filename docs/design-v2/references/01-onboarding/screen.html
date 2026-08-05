@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra | Onboarding Showcase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    body {
+      background-color: #07090f;
+      color: #eef2f7;
+      overflow-x: hidden;
+    }
+
+    .glass-panel {
+      backdrop-filter: blur(20px);
+      background: rgba(14, 20, 32, 0.7);
+      border: 1px solid rgba(201, 162, 39, 0.15);
+    }
+
+    .brass-border {
+      border: 1px solid #c9a227;
+    }
+
+    .brass-text {
+      color: #c9a227;
+    }
+
+    .brass-bg {
+      background-color: #c9a227;
+    }
+
+    .aurora-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(61, 122, 106, 0.08) 0%, rgba(7, 9, 15, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .iphone-frame {
+      width: 260px;
+      height: 540px;
+      border-radius: 40px;
+      border: 8px solid #1a1c22;
+      background: #07090f;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .iphone-notch {
+      width: 100px;
+      height: 25px;
+      background: #1a1c22;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      z-index: 50;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #07090f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c9a227;
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-low": "#191b22",
+            "surface-container-lowest": "#0c0e14",
+            "primary": "#ecc246",
+            "secondary": "#e2c45a",
+            "background": "#07090f",
+            "outline": "#99907b",
+            "on-surface": "#e1e2eb",
+            "primary-container": "#c9a227",
+          },
+          fontFamily: {
+            "label-sm": ["Sora"],
+            "body-md": ["Sora"],
+            "headline-lg": ["Libre Caslon Text"],
+            "display-lg": ["Libre Caslon Text"],
+          },
+          fontSize: {
+            "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.1em", fontWeight: "500" }],
+            "body-md": ["14px", { lineHeight: "24px", fontWeight: "300" }],
+            "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "400" }],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-body-md selection:bg-primary/30">
+<div class="aurora-glow top-0 -left-64"></div>
+<div class="aurora-glow bottom-0 -right-64"></div>
+<main class="flex min-h-screen relative z-10">
+<!-- Left Sidebar -->
+<aside class="w-80 h-screen fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant/20 flex flex-col p-8 overflow-y-auto">
+<div class="flex items-center gap-3 mb-12">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">arrow_back_ios_new</span>
+<h1 class="font-headline-lg text-2xl font-bold text-primary tracking-tighter">MindKshetra</h1>
+</div>
+<div class="mb-12">
+<h2 class="text-primary font-headline-lg text-lg mb-6">Why this matters</h2>
+<ul class="space-y-6">
+<li class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary mt-1">auto_awesome</span>
+<span class="text-on-surface-variant text-sm font-medium">Personalized daily journey</span>
+</li>
+<li class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary mt-1">stars</span>
+<span class="text-on-surface-variant text-sm font-medium">Relevant verses &amp; guidance</span>
+</li>
+<li class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary mt-1">self_improvement</span>
+<span class="text-on-surface-variant text-sm font-medium">Better engagement</span>
+</li>
+<li class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary mt-1">energy_savings_leaf</span>
+<span class="text-on-surface-variant text-sm font-medium">Deeper spiritual growth</span>
+</li>
+</ul>
+</div>
+<div class="flex flex-wrap gap-2 mb-12">
+<span class="px-3 py-1 rounded-full border border-primary/40 text-[10px] uppercase tracking-widest text-primary font-bold">Intuitive</span>
+<span class="px-3 py-1 rounded-full border border-primary/40 text-[10px] uppercase tracking-widest text-primary font-bold">Fast (&lt;2 mins)</span>
+<span class="px-3 py-1 rounded-full border border-primary/40 text-[10px] uppercase tracking-widest text-primary font-bold">Skippable</span>
+<span class="px-3 py-1 rounded-full border border-primary/40 text-[10px] uppercase tracking-widest text-primary font-bold">AI-aware (Madhav)</span>
+</div>
+<div class="mt-auto pt-8">
+<div class="rounded-xl overflow-hidden border border-outline-variant/30 aspect-square relative group">
+<img class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AP1WRLsIbHBEjourL2cy4OYNAxYZnB4Do7ZY_8AgV8hQ8fLWgMRSRtWa8fWqmAODY5TDmvPZ1xIoGZ_NWJ4Z8mWcZTb8nqgadt1TPCO5I_ATLH7IxZfc6Jgvg4koFDnxktaE_3Uza2cbszNQ9y7mOzGQEaUroWIwgN3-FdrT_lymZ2Siep_ek4ZMuqvx2aQ3K_GQFb9sGsqpUQMPOnZonoqo6ngktvOeHSJRrpJSFaPLHcD2osilGHkCZxXUxas"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+</div>
+</div>
+</aside>
+<!-- Center Content: Showcase -->
+<section class="ml-80 flex-1 flex flex-col pb-32">
+<!-- Horizontal Scroll of iPhone Screens -->
+<div class="flex-1 flex items-center justify-start gap-12 px-12 py-20 overflow-x-auto no-scrollbar">
+<!-- 01 WELCOME -->
+<div class="flex flex-col items-center gap-6 flex-shrink-0">
+<span class="font-headline-lg text-primary text-2xl italic opacity-50">01</span>
+<div class="iphone-frame">
+<div class="iphone-notch"></div>
+<div class="h-full w-full relative flex flex-col justify-end p-6 bg-cover bg-center" data-alt="A serene, high-contrast photographic scene of golden sunlight filtering through ancient forest canopy, creating dramatic god rays. The mood is reverent and cinematic, with deep shadows and metallic gold highlights consistent with a luxury spiritual application. No pagodas, no temples, just the raw beauty of nature as a sacred space." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuApWIig2-ApAEmjwfflOJs02SR-T7dmwRgCYoE4KDMWSgFGJTlTifIxJeTt5rOBurZEMl9jXRHjjj7o9e90kT0G5cXyvluEacth1tgxHK2LnNXJ_JeUYiAIN0xRoFG04ilXRXaO_Of1wPRCojior9MTTqUWFtbkVVpOvOAtzKh2hM7_RscHBsXyAlEO1_4eqZP9xjrQ1sUIQRv7M9_cn1I1DLMmliNvx7qE4FgsSQQsG5nVSomlCUjnAWT_E23cGtU7z2PEe2LC1Lo')">
+<div class="absolute inset-0 bg-gradient-to-t from-[#07090f] via-[#07090f]/40 to-transparent"></div>
+<div class="relative z-10 text-center">
+<span class="material-symbols-outlined text-primary text-5xl mb-4" style="font-variation-settings: 'FILL' 1;">arrow_back_ios_new</span>
+<h3 class="font-headline-lg text-2xl mb-4 leading-tight">Clarity from the Gita, for the battlefield of the mind.</h3>
+<button class="w-full py-4 brass-bg text-on-primary font-bold rounded-sm uppercase tracking-widest text-xs hover:opacity-90 transition-all">Continue</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 02 GOALS -->
+<div class="flex flex-col items-center gap-6 flex-shrink-0">
+<span class="font-headline-lg text-primary text-2xl italic opacity-50">02</span>
+<div class="iphone-frame bg-surface p-6 flex flex-col pt-12">
+<div class="iphone-notch"></div>
+<h4 class="font-headline-lg text-xl mb-6">Choose your Focus</h4>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-4 border border-outline-variant/30 flex flex-col items-center text-center gap-2 group hover:border-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary">psychology</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider">Inner Peace</span>
+</div>
+<div class="p-4 border border-outline-variant/30 flex flex-col items-center text-center gap-2 group hover:border-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary">bolt</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider">Stress Relief</span>
+</div>
+<div class="p-4 border border-outline-variant/30 flex flex-col items-center text-center gap-2 group hover:border-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary">history_edu</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider">Dharma</span>
+</div>
+<div class="p-4 border border-outline-variant/30 flex flex-col items-center text-center gap-2 group hover:border-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary">visibility</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider">Focus</span>
+</div>
+<div class="p-4 border border-outline-variant/30 flex flex-col items-center text-center gap-2 group hover:border-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary">heart_broken</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider">Detachment</span>
+</div>
+<div class="p-4 border border-outline-variant/30 flex flex-col items-center text-center gap-2 group hover:border-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary">balance</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider">Balance</span>
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full py-4 border border-primary/50 text-primary font-bold rounded-sm uppercase tracking-widest text-xs">Next Step</button>
+</div>
+</div>
+</div>
+<!-- 03 INSPIRATION -->
+<div class="flex flex-col items-center gap-6 flex-shrink-0">
+<span class="font-headline-lg text-primary text-2xl italic opacity-50">03</span>
+<div class="iphone-frame bg-surface p-6 flex flex-col pt-12">
+<div class="iphone-notch"></div>
+<h4 class="font-headline-lg text-xl mb-6">Guiding Light</h4>
+<div class="flex flex-col gap-4 overflow-y-auto pr-1">
+<div class="h-28 relative rounded-sm overflow-hidden border border-primary/20 flex-shrink-0">
+<img class="absolute inset-0 w-full h-full object-cover grayscale opacity-60" data-alt="A majestic and atmospheric close-up of a stone sculpture representing Lord Krishna in a meditative pose. The lighting is low-key with golden directional highlights highlighting the profile. Deep moody shadows emphasize the cinematic, premium aesthetic of a high-end spiritual app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsHAzmux4-1x42lz0169jfVkRY0FGoVJb0Xyj5NheQ7p3I_hy9-8g-h1RcrROYat4Y3mNaRg8NYuCywP_7eLaPFKkYVU22Noyvur7xFYEbElN1MZvGCLTTElCrEwbStWy8ZOyU7wTYpWzCyMQi0F68C17B6RLyHy7s4vk52Yy8V0fcfghZi3C0MC5EAeCr4qjtlIzzPTdeObRx0uS1ML7XsZpVAFosaIklQ2Z2GMfV5GzgAvnH00m3fSeuYg41dnPxcLf5mYXT8dw"/>
+<div class="absolute inset-0 bg-gradient-to-r from-background to-transparent"></div>
+<div class="relative z-10 h-full flex flex-col justify-center p-4">
+<span class="font-headline-lg text-lg">Sri Krishna</span>
+<span class="text-[10px] uppercase text-primary tracking-widest">Divine Wisdom</span>
+</div>
+</div>
+<div class="h-28 relative rounded-sm overflow-hidden border border-primary/20 flex-shrink-0">
+<img class="absolute inset-0 w-full h-full object-cover grayscale opacity-40" data-alt="An artistic representation of Lord Shiva's silhouetted form against a backdrop of deep cosmic blues and golden nebula clouds. The style is atmospheric, minimal, and highly cinematic. Textures of ancient stone and stardust are visible in the high-contrast lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJ9zzl2fdUekvz_jPHGR7sAHasCsztnT-AyWU8-B2Lzyq0LAm5f3o8B81xnw6LhxCpY4fb_Q2VK86IqPYwle95_lYpwjpfYo7B-7ij1ZN2PIGJNo2azQJhdDEnq6n3TYR4oe77gWRjqYfNGDavW5S0cCPKI5IFpICtdEEz8hdyLh-U0fSRrNhwfOwgVVcBMCpHIol7hm3B_JMg-iEbnWR7swhtyNpGzTupKV8eYNstvSaUm0wx7zYXiy9WqJb1ZiC6_tj1Ao2m7eY"/>
+<div class="absolute inset-0 bg-gradient-to-r from-background to-transparent"></div>
+<div class="relative z-10 h-full flex flex-col justify-center p-4">
+<span class="font-headline-lg text-lg">Mahadev</span>
+<span class="text-[10px] uppercase text-primary tracking-widest">Transformation</span>
+</div>
+</div>
+<div class="h-28 relative rounded-sm overflow-hidden border border-primary/20 flex-shrink-0">
+<img class="absolute inset-0 w-full h-full object-cover grayscale opacity-40" data-alt="A soft, ethereal rendering of the goddess Saraswati seated by a river of light. The image uses a cinematic minimalist palette of deep obsidian and warm brass. The focus is soft, creating a dreamlike, meditative mood suitable for a premium Vedic companion app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAp4ZiEGF6Dxqr8410HNwtaqw81hOpACCFTkU4T_FgAKRj-rAF_Z8UT9-uZfQNY5NpJChA6-UsPRhgzoXYGuf04p7JAaFKuHeETzt7ut13_sMqXo55OdKaTqn7E1ui1MwUgKExMXMNkV1TA700sC1wtyROF8u_YNW_8tJs6JLx0gbzvGELh8zBcVpt12tyXtNnZo3kT2F8JSdmyy41EP60B528Gu3dZlfSq1H9tpuktSLWERi6q4z1-KQjaPM3LYDKYaHTM3XbSR2k"/>
+<div class="absolute inset-0 bg-gradient-to-r from-background to-transparent"></div>
+<div class="relative z-10 h-full flex flex-col justify-center p-4">
+<span class="font-headline-lg text-lg">Saraswati</span>
+<span class="text-[10px] uppercase text-primary tracking-widest">Pure Intellect</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 04 TIME -->
+<div class="flex flex-col items-center gap-6 flex-shrink-0">
+<span class="font-headline-lg text-primary text-2xl italic opacity-50">04</span>
+<div class="iphone-frame bg-surface p-6 flex flex-col pt-12">
+<div class="iphone-notch"></div>
+<h4 class="font-headline-lg text-xl mb-6">Daily Commitment</h4>
+<div class="space-y-3">
+<div class="w-full p-5 border border-outline-variant/30 flex justify-between items-center bg-surface-container-low group hover:border-primary transition-all">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">schedule</span>
+<span class="font-semibold text-sm">5 Minutes</span>
+</div>
+<span class="text-[9px] text-on-surface-variant italic">Blink of an eye</span>
+</div>
+<div class="w-full p-5 border border-primary/60 flex justify-between items-center bg-primary/5">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">timer</span>
+<span class="font-semibold text-sm">10 Minutes</span>
+</div>
+<span class="text-[9px] text-primary italic">Deep focus</span>
+</div>
+<div class="w-full p-5 border border-outline-variant/30 flex justify-between items-center bg-surface-container-low group hover:border-primary transition-all">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">hourglass_bottom</span>
+<span class="font-semibold text-sm">20 Minutes</span>
+</div>
+<span class="text-[9px] text-on-surface-variant italic">Profound dive</span>
+</div>
+<div class="w-full p-5 border border-outline-variant/30 flex justify-between items-center bg-surface-container-low group hover:border-primary transition-all">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">drive_file_rename_outline</span>
+<span class="font-semibold text-sm">Unrestricted</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 05 SETUP -->
+<div class="flex flex-col items-center gap-6 flex-shrink-0">
+<span class="font-headline-lg text-primary text-2xl italic opacity-50">05</span>
+<div class="iphone-frame bg-surface p-6 flex flex-col pt-12">
+<div class="iphone-notch"></div>
+<h4 class="font-headline-lg text-xl mb-6">Ready to Begin</h4>
+<div class="space-y-6">
+<div>
+<label class="text-[10px] uppercase tracking-widest text-primary font-bold mb-2 block">What shall we call you?</label>
+<input class="w-full bg-transparent border-b border-primary py-2 font-headline-lg focus:outline-none placeholder:opacity-30" placeholder="Arjun" type="text"/>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] font-medium">Language</span>
+<div class="flex border border-outline-variant rounded-full p-1">
+<span class="px-3 py-1 bg-primary text-on-primary text-[10px] rounded-full font-bold">ENG</span>
+<span class="px-3 py-1 text-[10px] text-on-surface-variant">HIN</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] font-medium">Guidance Style</span>
+<div class="flex border border-outline-variant rounded-full p-1">
+<span class="px-3 py-1 bg-primary text-on-primary text-[10px] rounded-full font-bold">Strict</span>
+<span class="px-3 py-1 text-[10px] text-on-surface-variant">Gentle</span>
+</div>
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full py-4 brass-bg text-on-primary font-bold rounded-sm uppercase tracking-widest text-xs">Start My Journey</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Strip -->
+<div class="px-12 mt-12 w-full max-w-6xl">
+<div class="glass-panel p-8 flex flex-col md:flex-row items-center gap-12">
+<div class="flex-shrink-0">
+<h5 class="font-headline-lg text-xl text-primary mb-1 italic">What happens next?</h5>
+<p class="text-[10px] uppercase tracking-[0.2em] opacity-60">The Evolution of Self</p>
+</div>
+<div class="flex-1 flex justify-between items-center gap-4 w-full relative">
+<!-- Connector Line -->
+<div class="absolute h-[1px] bg-primary/20 left-4 right-4 top-5 z-0"></div>
+<div class="flex flex-col items-center gap-3 relative z-10">
+<div class="w-10 h-10 rounded-full brass-border bg-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">person_search</span>
+</div>
+<span class="text-[10px] font-bold text-center">Personalization</span>
+</div>
+<span class="material-symbols-outlined text-primary/30 text-xs mt-[-20px]">chevron_right</span>
+<div class="flex flex-col items-center gap-3 relative z-10">
+<div class="w-10 h-10 rounded-full brass-border bg-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">recommend</span>
+</div>
+<span class="text-[10px] font-bold text-center">Recommendations</span>
+</div>
+<span class="material-symbols-outlined text-primary/30 text-xs mt-[-20px]">chevron_right</span>
+<div class="flex flex-col items-center gap-3 relative z-10">
+<div class="w-10 h-10 rounded-full brass-border bg-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">smart_toy</span>
+</div>
+<span class="text-[10px] font-bold text-center">AI Madhav</span>
+</div>
+<span class="material-symbols-outlined text-primary/30 text-xs mt-[-20px]">chevron_right</span>
+<div class="flex flex-col items-center gap-3 relative z-10">
+<div class="w-10 h-10 rounded-full brass-border bg-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">trending_up</span>
+</div>
+<span class="text-[10px] font-bold text-center">Journey evolves</span>
+</div>
+<span class="material-symbols-outlined text-primary/30 text-xs mt-[-20px]">chevron_right</span>
+<div class="flex flex-col items-center gap-3 relative z-10">
+<div class="w-10 h-10 rounded-full brass-border bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">spa</span>
+</div>
+<span class="text-[10px] font-bold text-primary text-center">Spiritual growth</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<script>
+    // Micro-interactions for horizontal scroll behavior
+    const container = document.querySelector('.no-scrollbar');
+    container.addEventListener('wheel', (evt) => {
+        evt.preventDefault();
+        container.scrollLeft += evt.deltaY;
+    });
+
+    // Subtle parallax effect on imagery
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        
+        document.querySelectorAll('.iphone-frame img').forEach(img => {
+            img.style.transform = `scale(1.1) translate(${(x - 0.5) * 10}px, ${(y - 0.5) * 10}px)`;
+        });
+    });
+  </script>
+</body></html>

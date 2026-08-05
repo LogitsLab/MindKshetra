@@ -111,10 +111,10 @@ before pointing the fetcher at one, and record the item URL in `--license`.
 
 ## 3. Suggested next layer (not yet built)
 
-A quiet tanpura/om drone under meditation narration transforms perceived
-quality. Source a CC0 loop (e.g. freesound.org, filter license "CC0"), then
-mix at generation time with ffmpeg (`amix` at ~-20 dB) — a small extension to
-`generate-tts.mjs` once an asset with clean provenance is chosen.
+A quiet ambient bed under meditation sits transforms perceived quality.
+The player plays a soft Web Audio tanpura-ish pad during the sit (toggleable).
+Optional upgrade: source a CC0 loop (e.g. freesound.org, filter "CC0"), host
+under `audio/ambient/`, and point the player at that URL instead of the pad.
 
 ## Client behavior
 

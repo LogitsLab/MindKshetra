@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra | Astrology &amp; Panchang Showcase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif+Devanagari:wght@400;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#2e3037",
+                        "on-secondary-container": "#fff3d8",
+                        "outline-variant": "rgba(201, 162, 39, 0.22)",
+                        "on-error-container": "#ffdad6",
+                        "surface-container": "#1d1f26",
+                        "surface": "#11131a",
+                        "on-secondary-fixed": "#231b00",
+                        "primary-fixed-dim": "#ecc246",
+                        "tertiary-fixed": "#b0efdc",
+                        "surface-container-high": "#282a31",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "on-primary-container": "#4b3a00",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "on-primary-fixed-variant": "#584400",
+                        "tertiary": "#95d3c0",
+                        "primary-container": "#c9a227",
+                        "inverse-primary": "#755b00",
+                        "tertiary-container": "#76b3a1",
+                        "surface-container-lowest": "#0c0e14",
+                        "surface-dim": "#11131a",
+                        "surface-bright": "#373940",
+                        "background": "#07090f",
+                        "on-secondary": "#3b2f00",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "secondary": "#e2c45a",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "surface-variant": "#33353c",
+                        "secondary-fixed": "#ffe179",
+                        "on-surface-variant": "#d1c5af",
+                        "error": "#ffb4ab",
+                        "on-tertiary-container": "#004538",
+                        "on-tertiary": "#00382d",
+                        "on-background": "#e1e2eb",
+                        "surface-container-low": "#191b22",
+                        "secondary-container": "#856d01",
+                        "on-surface": "#e1e2eb",
+                        "surface-container-highest": "#33353c",
+                        "primary": "#ecc246",
+                        "on-secondary-fixed-variant": "#554500",
+                        "primary-fixed": "#ffe08e",
+                        "on-primary-fixed": "#241a00",
+                        "inverse-surface": "#e1e2eb",
+                        "on-tertiary-fixed": "#002019",
+                        "on-primary": "#3d2e00",
+                        "surface-tint": "#ecc246",
+                        "outline": "#99907b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "24px",
+                        "unit": "8px",
+                        "section-gap": "64px"
+                    },
+                    "fontFamily": {
+                        "title-md": ["Sora"],
+                        "body-md": ["Sora"],
+                        "label-sm": ["Sora"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "sanskrit-text": ["Noto Serif Devanagari"],
+                        "headline-lg-mobile": ["Libre Caslon Text"],
+                        "body-lg": ["Sora"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&display=swap');
+        
+        .glass-panel {
+            background: rgba(14, 20, 32, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(201, 162, 39, 0.15);
+        }
+        
+        .iphone-frame {
+            width: 280px;
+            height: 580px;
+            border-radius: 40px;
+            border: 8px solid #1a1c22;
+            overflow: hidden;
+            position: relative;
+            background: #07090f;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .iphone-frame:hover {
+            transform: translateY(-10px) scale(1.02);
+        }
+
+        .iphone-screen {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .iphone-screen::-webkit-scrollbar {
+            display: none;
+        }
+
+        .brass-hairline {
+            border-bottom: 1px solid rgba(201, 162, 39, 0.22);
+        }
+
+        .gold-glow {
+            filter: drop-shadow(0 0 8px rgba(201, 162, 39, 0.3));
+        }
+
+        .aura-bg {
+            background: radial-gradient(circle at 50% 50%, rgba(61, 122, 106, 0.08) 0%, transparent 70%);
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .active-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary/30 aura-bg min-h-screen">
+<div class="flex flex-col lg:flex-row min-h-screen overflow-x-hidden">
+<!-- LEFT SIDEBAR -->
+<aside class="lg:w-1/4 xl:w-1/5 p-container-margin flex flex-col border-r border-outline-variant/30 relative z-10 bg-background">
+<div class="mb-12 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">filter_vintage</span>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">MindKshetra</h1>
+</div>
+<div class="flex-grow">
+<h2 class="font-headline-lg text-headline-lg mb-4 leading-tight">Astrology &amp; Panchang</h2>
+<p class="text-on-surface-variant font-body-md mb-10 leading-relaxed">
+                    Align with the rhythm of time — authentic Jyotish, not marketplace astrology.
+                </p>
+<nav class="space-y-6">
+<div class="flex items-center gap-4 group cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-primary/70 group-hover:text-primary">wb_sunny</span>
+<span class="font-label-sm uppercase tracking-widest">Daily Panchang</span>
+</div>
+<div class="flex items-center gap-4 group cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-primary/70 group-hover:text-primary">timer</span>
+<span class="font-label-sm uppercase tracking-widest">Auspicious Muhurats</span>
+</div>
+<div class="flex items-center gap-4 group cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-primary/70 group-hover:text-primary">auto_awesome</span>
+<span class="font-label-sm uppercase tracking-widest">Horoscope Insights</span>
+</div>
+<div class="flex items-center gap-4 group cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-primary/70 group-hover:text-primary">public</span>
+<span class="font-label-sm uppercase tracking-widest">Transit &amp; Planetary Info</span>
+</div>
+<div class="flex items-center gap-4 group cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-primary/70 group-hover:text-primary">notifications_active</span>
+<span class="font-label-sm uppercase tracking-widest">Reminders</span>
+</div>
+<div class="flex items-center gap-4 group cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-primary/70 group-hover:text-primary">menu_book</span>
+<span class="font-label-sm uppercase tracking-widest">Learn &amp; Grow</span>
+</div>
+</nav>
+</div>
+<div class="mt-auto pt-10">
+<div class="relative h-48 rounded-xl overflow-hidden border border-outline-variant">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-cover bg-center opacity-60" data-alt="A serene cinematic wide shot of a traditional ancient Indian stone temple situated beside a still reflective sacred lake under a vast starry night sky. The moon illuminates the intricate carvings of the temple shikhara, casting soft golden glows. The atmosphere is mystical, quiet, and profoundly spiritual with a deep teal and charcoal color palette highlighted by brass metallic glints." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBVKNrVZSwSNxq9OSJrfvHA7ukEej65HEStkqwHyGCQgkYYb_V74nxtyF6zpbYGzhIMn1otNLE5m9Wcq8mUX-Xg31ScimnflzfJXgb470w2bBOv1HZiM_m8MNDG6jB4mMi_Nd4_Yr3Yeq-9Gxb9QOmZdoWah6t347Sam4dE43Tg3YCMp-GWQcOW_LyVpGhg6_-EcLCdIRkrrB9flDb7KYE6z8ifSU03nMslPE_4zsSe6e0dUqWVGKbCHIEv6lsLxrQzRIlEg46BoFQ')"></div>
+</div>
+</div>
+</aside>
+<!-- CENTER SHOWCASE -->
+<main class="flex-grow p-container-margin overflow-x-auto lg:overflow-x-visible">
+<div class="flex flex-nowrap lg:flex-wrap items-start justify-center gap-12 pb-12 pt-8">
+<!-- 01 DAILY PANCHANG -->
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-primary/30 mb-4">01</span>
+<div class="iphone-frame">
+<div class="iphone-screen">
+<div class="p-6 pt-10 text-center">
+<p class="font-label-sm text-primary mb-1">New Delhi</p>
+<h3 class="font-headline-lg text-title-md">Shukla Paksha, Saptami</h3>
+</div>
+<!-- Sun Graphic -->
+<div class="px-6 py-4 relative flex justify-center h-24 overflow-hidden">
+<div class="absolute bottom-0 w-48 h-48 border border-primary/20 rounded-full"></div>
+<div class="absolute -bottom-1 w-full border-b border-primary/40"></div>
+<div class="absolute bottom-12 w-6 h-6 bg-primary rounded-full gold-glow"></div>
+</div>
+<div class="flex justify-between px-8 py-4 brass-hairline">
+<div class="text-center">
+<p class="text-[10px] uppercase text-on-surface-variant font-label-sm">Sunrise</p>
+<p class="font-title-md text-primary">06:42 AM</p>
+</div>
+<div class="text-center">
+<p class="text-[10px] uppercase text-on-surface-variant font-label-sm">Sunset</p>
+<p class="font-title-md text-primary">06:14 PM</p>
+</div>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-center py-2 brass-hairline">
+<span class="text-on-surface-variant font-body-md">Tithi</span>
+<span class="text-on-surface font-title-md">Saptami</span>
+</div>
+<div class="flex justify-between items-center py-2 brass-hairline">
+<span class="text-on-surface-variant font-body-md">Nakshatra</span>
+<span class="text-on-surface font-title-md">Anuradha</span>
+</div>
+<div class="flex justify-between items-center py-2 brass-hairline">
+<span class="text-on-surface-variant font-body-md">Yoga</span>
+<span class="text-on-surface font-title-md">Variyan</span>
+</div>
+<div class="flex justify-between items-center py-2 brass-hairline">
+<span class="text-on-surface-variant font-body-md">Karana</span>
+<span class="text-on-surface font-title-md">Vishti</span>
+</div>
+<div class="flex justify-between items-center py-2">
+<span class="text-on-surface-variant font-body-md">Moon Sign</span>
+<div class="text-right">
+<p class="text-on-surface font-title-md">Vrishabha</p>
+<p class="text-[10px] text-primary">ends 04:32 PM</p>
+</div>
+</div>
+</div>
+<!-- Mobile Nav -->
+<div class="mt-auto bg-surface-container-low flex justify-around p-4 border-t border-outline-variant/20">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<span class="material-symbols-outlined text-on-surface-variant">mood</span>
+<span class="material-symbols-outlined text-primary active-icon">auto_awesome</span>
+</div>
+<div class="absolute bottom-20 right-4 w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-lg">
+<span class="material-symbols-outlined">add</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 02 MUHURATS -->
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-primary/30 mb-4">02</span>
+<div class="iphone-frame">
+<div class="iphone-screen">
+<div class="p-6 pt-10">
+<div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+<div class="px-4 py-2 border border-primary/40 rounded-full flex-shrink-0 text-center">
+<p class="text-[10px] uppercase font-label-sm">Today</p>
+<p class="font-title-md">15 May</p>
+</div>
+<div class="px-4 py-2 opacity-40 flex-shrink-0 text-center">
+<p class="text-[10px] uppercase font-label-sm">Thu</p>
+<p class="font-title-md">16 May</p>
+</div>
+<div class="px-4 py-2 opacity-40 flex-shrink-0 text-center">
+<p class="text-[10px] uppercase font-label-sm">Fri</p>
+<p class="font-title-md">17 May</p>
+</div>
+</div>
+<section class="mt-6">
+<h4 class="font-label-sm uppercase text-primary/70 tracking-widest mb-4">Shubh Muhurats</h4>
+<div class="p-4 rounded-xl glass-panel relative">
+<div class="absolute top-2 right-2 px-2 py-1 bg-primary/20 border border-primary/40 rounded text-[10px] text-primary">BEST</div>
+<p class="font-title-md mb-1">Abhijit Muhurat</p>
+<p class="text-on-surface-variant font-body-md">11:54 AM - 12:45 PM</p>
+</div>
+</section>
+<section class="mt-8">
+<h4 class="font-label-sm uppercase text-primary/70 tracking-widest mb-4">Choghadiya</h4>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 border border-outline-variant bg-primary/5 rounded-lg">
+<p class="text-primary font-title-md">Shubh</p>
+<p class="text-[11px] text-on-surface-variant">07:30 - 09:00</p>
+</div>
+<div class="p-3 border border-outline-variant bg-primary/5 rounded-lg">
+<p class="text-primary font-title-md">Labha</p>
+<p class="text-[11px] text-on-surface-variant">09:00 - 10:30</p>
+</div>
+<div class="p-3 border border-outline-variant bg-primary/5 rounded-lg">
+<p class="text-primary font-title-md">Amrit</p>
+<p class="text-[11px] text-on-surface-variant">10:30 - 12:00</p>
+</div>
+<div class="p-3 border border-outline-variant opacity-30 rounded-lg">
+<p class="font-title-md">Kaal</p>
+<p class="text-[11px]">12:00 - 13:30</p>
+</div>
+</div>
+</section>
+</div>
+<div class="mt-auto bg-surface-container-low flex justify-around p-4">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<span class="material-symbols-outlined text-on-surface-variant">mood</span>
+<span class="material-symbols-outlined text-primary active-icon">auto_awesome</span>
+</div>
+<div class="absolute bottom-20 right-4 w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">add</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 03 HOROSCOPE INSIGHTS -->
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-primary/30 mb-4">03</span>
+<div class="iphone-frame">
+<div class="iphone-screen">
+<div class="pt-10 px-6">
+<div class="flex border-b border-outline-variant mb-6">
+<button class="flex-1 pb-2 border-b-2 border-primary text-primary font-label-sm">Daily</button>
+<button class="flex-1 pb-2 text-on-surface-variant font-label-sm">Weekly</button>
+<button class="flex-1 pb-2 text-on-surface-variant font-label-sm">Monthly</button>
+</div>
+<div class="flex flex-col items-center mb-8">
+<div class="w-32 h-32 rounded-full border-2 border-primary/20 flex items-center justify-center relative">
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle class="text-primary" cx="64" cy="64" fill="transparent" r="62" stroke="currentColor" stroke-dasharray="390" stroke-dashoffset="58" stroke-width="2"></circle>
+</svg>
+<div class="text-center">
+<p class="font-display-lg text-primary text-2xl leading-none">85%</p>
+<p class="text-[10px] text-on-surface-variant font-label-sm">Leo / Simha</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="p-3 border border-outline-variant rounded-lg">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-sm">favorite</span>
+<span class="font-label-sm text-[10px] uppercase">Love</span>
+</div>
+<div class="h-1 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[90%]"></div>
+</div>
+</div>
+<div class="p-3 border border-outline-variant rounded-lg">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-sm">work</span>
+<span class="font-label-sm text-[10px] uppercase">Career</span>
+</div>
+<div class="h-1 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%]"></div>
+</div>
+</div>
+</div>
+<div class="p-5 glass-panel rounded-xl">
+<p class="italic text-on-surface leading-relaxed text-body-md">
+                                        "Today's energy favors creative pursuits. Avoid impulsive financial decisions during Rahu Kaal."
+                                    </p>
+</div>
+</div>
+<div class="mt-auto bg-surface-container-low flex justify-around p-4">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<span class="material-symbols-outlined text-on-surface-variant">mood</span>
+<span class="material-symbols-outlined text-primary active-icon">auto_awesome</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 04 PLANETARY TRANSITS -->
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-primary/30 mb-4">04</span>
+<div class="iphone-frame">
+<div class="iphone-screen">
+<div class="p-6 pt-10">
+<h3 class="font-headline-lg text-title-md mb-6">Celestial Positions</h3>
+<div class="space-y-6">
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full border border-primary/40 flex items-center justify-center text-primary font-sanskrit-text text-xl">ꣾ</div>
+<div class="flex-grow pb-4 brass-hairline">
+<p class="font-title-md">Jupiter in Taurus</p>
+<p class="text-sm text-on-surface-variant">Vrishabha · Until May 2025</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full border border-primary/40 flex items-center justify-center text-primary font-sanskrit-text text-xl">ꣽ</div>
+<div class="flex-grow pb-4 brass-hairline">
+<div class="flex items-center gap-2">
+<p class="font-title-md">Saturn in Aquarius</p>
+<span class="px-1.5 py-0.5 bg-error/10 text-error text-[10px] rounded border border-error/20">Retrograde</span>
+</div>
+<p class="text-sm text-on-surface-variant">Kumbha · Transit Phase</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full border border-primary/40 flex items-center justify-center text-primary font-sanskrit-text text-xl">꣼</div>
+<div class="flex-grow pb-4">
+<p class="font-title-md">Mars in Pisces</p>
+<p class="text-sm text-on-surface-variant">Meena · Direct Motion</p>
+</div>
+</div>
+</div>
+<div class="mt-12 p-6 rounded-2xl bg-primary/5 border border-primary/10 text-center">
+<span class="material-symbols-outlined text-primary mb-2">auto_fix_high</span>
+<p class="text-xs text-on-surface-variant mb-3">PERSONALIZED TRANSIT</p>
+<p class="font-body-md text-on-surface">Shani Sadhe Sati check active for your profile.</p>
+</div>
+</div>
+<div class="mt-auto bg-surface-container-low flex justify-around p-4">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<span class="material-symbols-outlined text-on-surface-variant">mood</span>
+<span class="material-symbols-outlined text-primary active-icon">auto_awesome</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 05 CALENDAR & REMINDERS -->
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-primary/30 mb-4">05</span>
+<div class="iphone-frame">
+<div class="iphone-screen">
+<div class="p-6 pt-10">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-title-md">January 2024</h3>
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">chevron_left</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">chevron_right</span>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center mb-8">
+<span class="text-[10px] text-on-surface-variant opacity-50 uppercase">S</span>
+<span class="text-[10px] text-on-surface-variant opacity-50 uppercase">M</span>
+<span class="text-[10px] text-on-surface-variant opacity-50 uppercase">T</span>
+<span class="text-[10px] text-on-surface-variant opacity-50 uppercase">W</span>
+<span class="text-[10px] text-on-surface-variant opacity-50 uppercase">T</span>
+<span class="text-[10px] text-on-surface-variant opacity-50 uppercase">F</span>
+<span class="text-[10px] text-on-surface-variant opacity-50 uppercase">S</span>
+<span class="p-2 opacity-30">31</span>
+<span class="p-2 text-primary border border-primary/30 rounded-lg">1</span>
+<span class="p-2">2</span>
+<span class="p-2">3</span>
+<span class="p-2">4</span>
+<span class="p-2 relative">5<div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></div></span>
+<span class="p-2">6</span>
+<!-- ... other days ... -->
+<span class="p-2">7</span>
+<span class="p-2">8</span>
+<span class="p-2">9</span>
+<span class="p-2">10</span>
+<span class="p-2 relative">11<div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></div></span>
+<span class="p-2">12</span>
+<span class="p-2">13</span>
+</div>
+<section>
+<h4 class="font-label-sm uppercase text-primary/70 mb-4 tracking-widest">Upcoming</h4>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">notifications</span>
+</div>
+<div>
+<p class="font-title-md text-sm">Mohini Ekadashi</p>
+<p class="text-[10px] text-on-surface-variant">Thursday, 19 May</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary/50 text-sm">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">notifications</span>
+</div>
+<div>
+<p class="font-title-md text-sm">Purnima</p>
+<p class="text-[10px] text-on-surface-variant">Monday, 23 May</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary/30 text-sm">notifications_off</span>
+</div>
+</div>
+</section>
+</div>
+<div class="mt-auto bg-surface-container-low flex justify-around p-4">
+<span class="material-symbols-outlined text-on-surface-variant">home</span>
+<span class="material-symbols-outlined text-on-surface-variant">explore</span>
+<span class="material-symbols-outlined text-on-surface-variant">mood</span>
+<span class="material-symbols-outlined text-primary active-icon">auto_awesome</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BOTTOM STRIP -->
+<footer class="border-t border-outline-variant/30 py-8 bg-surface-container-lowest">
+<div class="max-w-[1200px] mx-auto px-container-margin">
+<div class="flex flex-wrap justify-center gap-x-12 gap-y-6 text-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm uppercase tracking-widest text-primary/80">Authentic &amp; Accurate</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">face_retouching_natural</span>
+<span class="font-label-sm uppercase tracking-widest text-primary/80">Personalized</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">schedule</span>
+<span class="font-label-sm uppercase tracking-widest text-primary/80">Timely</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">self_improvement</span>
+<span class="font-label-sm uppercase tracking-widest text-primary/80">Spiritual Growth</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label-sm uppercase tracking-widest text-primary/80">Simple &amp; Beautiful</span>
+</div>
+</div>
+<p class="mt-8 text-center text-[11px] text-on-surface-variant uppercase tracking-[0.3em] opacity-40">
+                © 2024 MindKshetra. Wisdom of the Void.
+            </p>
+</div>
+</footer>
+<script>
+        // Micro-interactions for phone frames
+        document.querySelectorAll('.iphone-frame').forEach(frame => {
+            frame.addEventListener('mousemove', (e) => {
+                const rect = frame.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const xRotation = ((y - rect.height / 2) / rect.height) * 10;
+                const yRotation = ((x - rect.width / 2) / rect.width) * -10;
+                
+                frame.style.transform = `perspective(1000px) scale(1.02) rotateX(${xRotation}deg) rotateY(${yRotation}deg)`;
+            });
+            
+            frame.addEventListener('mouseleave', () => {
+                frame.style.transform = `perspective(1000px) scale(1) rotateX(0deg) rotateY(0deg)`;
+            });
+        });
+    </script>
+</body></html>

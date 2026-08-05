@@ -1,0 +1,155 @@
+{
+  "projectId": "5437926231206475980",
+  "screens": {
+    "01-onboarding": {
+      "screenId": "0b0b5035bcae4c2f92493f11b30fdcb8",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:42:33.738Z"
+    },
+    "02-home": {
+      "screenId": "662924f45ce4493283fd8835a6376578",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:30:19.867Z"
+    },
+    "26-meditation-board": {
+      "screenId": "a8b406928aaa414cace3c748213086e0",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:44:03.364Z"
+    },
+    "27-astrology-panchang-board": {
+      "screenId": "49e632bca7b84d93a5eb59300f6c1686",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:45:42.254Z"
+    },
+    "28-journal-board": {
+      "screenId": "8476210916494e4f8a170d1d3b13cf5f",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:35:26.485Z"
+    },
+    "29-profile-progress-board": {
+      "screenId": "b41b9fd27ffe4cedb6ff9d696d15db85",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:47:19.532Z"
+    },
+    "05-sloka": {
+      "screenId": "9c40f8f2f32f46de8584480e7bf45e1b",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T12:52:58.704Z"
+    },
+    "06-mood-grid": {
+      "screenId": "c0f7dbc32bd145828607e18e91c583e9",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:31:21.565Z"
+    },
+    "08-madhav": {
+      "screenId": "0bf023e2fe1f46c7a50d8841f59eedd8",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:26:33.653Z"
+    },
+    "09-astrology-hub": {
+      "screenId": "889f8bd84e994f5b92b9beb7561e931b",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:32:30.256Z"
+    },
+    "11-chart-detail": {
+      "screenId": "f9bbb2d31470410098757eeac443c41e",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:37:51.415Z"
+    },
+    "25-account": {
+      "screenId": "e4282a0d65cc4d83b2cbfb44dbd5d6bc",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:34:09.075Z"
+    },
+    "33-streak-progress": {
+      "screenId": "37d6e52793ef450c9291f61785691c31",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:15:51.090Z"
+    },
+    "34-web-home": {
+      "screenId": "ddbfeb543da24ea2a7ccae54368b2f77",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:00:01.847Z"
+    },
+    "35-web-personalize-progress": {
+      "screenId": "3df318808d044fb68cf5eca21743f079",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:01:13.428Z"
+    },
+    "36-web-onboarding-welcome": {
+      "screenId": "ced65af969464913839e6ddde268bc19",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:02:07.457Z"
+    },
+    "37-web-explore-sloka": {
+      "screenId": "9417cb69cc704ab7ae0568a177bf90ff",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:02:58.563Z"
+    },
+    "38-web-madhav-desktop": {
+      "screenId": "1ce7c6f859bb4f95aca5a1a29e7231b1",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:03:59.064Z"
+    },
+    "39-web-astrology-suite": {
+      "screenId": "718107b95e9947b39bde8ca820de0c24",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:38:55.611Z"
+    },
+    "40-web-practice-journal": {
+      "screenId": "f89e887a4ad444edb2551ced98b3f069",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:40:03.537Z"
+    },
+    "41-web-achievements": {
+      "screenId": "96aeba9537824a219d331c98886b5099",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T13:07:11.466Z"
+    },
+    "46-onboarding-welcome": {
+      "screenId": "54e5753c858b48f9bb52db656b730cd2",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:06:58.074Z"
+    },
+    "47-onboarding-goals": {
+      "screenId": "5092ff7d07f74c17b6665b7780d65c2c",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:08:05.886Z"
+    },
+    "48-onboarding-inspirations": {
+      "screenId": "3085e503720b4c99acef69917f820673",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:09:11.656Z"
+    },
+    "42-onboarding-time": {
+      "screenId": "c607899aacb4401fb1800650c4aec13e",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:10:18.245Z"
+    },
+    "43-onboarding-setup": {
+      "screenId": "711520428c6942fc984accf2af97c241",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:11:37.641Z"
+    },
+    "18-meditation-hub": {
+      "screenId": "b31f643d5efc4d9ba9e68399099a413d",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:12:53.054Z"
+    },
+    "19-meditation-player": {
+      "screenId": "c561aa4a8e444a59b6da8f88395f3a4f",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:13:54.850Z"
+    },
+    "44-meditation-complete": {
+      "screenId": "d568bd4592b645c4bb61c1849b7f9363",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:14:43.857Z"
+    },
+    "45-progress-overview": {
+      "screenId": "be99f0aad4a247be86b74089cfea298c",
+      "projectId": "5437926231206475980",
+      "generatedAt": "2026-08-03T14:16:53.420Z"
+    }
+  }
+}

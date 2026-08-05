@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import LocalizedPageHeader from "@/components/LocalizedPageHeader";
-import PageHeroImage from "@/components/PageHeroImage";
 import SanghaClient from "@/components/SanghaClient";
 import { getSlokaByRef } from "@/lib/slokas";
 
@@ -16,12 +14,6 @@ export default async function CommunityPage() {
 
   return (
     <div className="animate-fade">
-      <PageHeroImage src="/images/paths/community.jpg" />
-      <LocalizedPageHeader
-        eyebrowKey="sanghaEyebrow"
-        titleKey="sanghaTitle"
-        introKey="sanghaIntro"
-      />
       <SanghaClient microSevaHref={microSevaHref} />
     </div>
   );

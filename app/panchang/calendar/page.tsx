@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import LocalizedPageHeader from "@/components/LocalizedPageHeader";
 import PanchangCalendarView from "@/components/PanchangCalendarView";
 
 export const metadata: Metadata = {
@@ -11,11 +10,6 @@ export const metadata: Metadata = {
 export default function PanchangCalendarPage() {
   return (
     <div className="animate-fade">
-      <LocalizedPageHeader
-        eyebrowKey="panchangCalendarEyebrow"
-        titleKey="panchangCalendarTitle"
-        introKey="panchangCalendarIntro"
-      />
       <PanchangCalendarView />
     </div>
   );

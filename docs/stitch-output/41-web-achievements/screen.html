@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra | Sacred Achievements</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital@0;1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#4d4635",
+                        "surface-container-highest": "#33353c",
+                        "surface-container-low": "#191b22",
+                        "on-secondary-fixed": "#231b00",
+                        "on-primary-fixed": "#241a00",
+                        "on-primary-fixed-variant": "#584400",
+                        "primary-container": "#c9a227",
+                        "error-container": "#93000a",
+                        "secondary-container": "#856d01",
+                        "primary": "#ecc246",
+                        "error": "#ffb4ab",
+                        "secondary-fixed": "#ffe179",
+                        "on-primary": "#3d2e00",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "tertiary-fixed": "#b0efdc",
+                        "surface-bright": "#373940",
+                        "inverse-surface": "#e1e2eb",
+                        "tertiary": "#95d3c0",
+                        "outline": "#99907b",
+                        "surface-container": "#1d1f26",
+                        "on-error": "#690005",
+                        "surface-tint": "#ecc246",
+                        "on-surface-variant": "#d1c5af",
+                        "on-surface": "#e1e2eb",
+                        "on-tertiary-container": "#004538",
+                        "inverse-primary": "#755b00",
+                        "surface-container-high": "#282a31",
+                        "surface": "#11131a",
+                        "primary-fixed": "#ffe08e",
+                        "on-tertiary": "#00382d",
+                        "on-background": "#e1e2eb",
+                        "background": "#11131a",
+                        "on-secondary-fixed-variant": "#554500",
+                        "on-secondary-container": "#fff3d8",
+                        "inverse-on-surface": "#2e3037",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#11131a",
+                        "on-secondary": "#3b2f00",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "surface-container-lowest": "#0c0e14",
+                        "on-tertiary-fixed": "#002019",
+                        "tertiary-container": "#76b3a1",
+                        "surface-variant": "#33353c",
+                        "on-primary-container": "#4b3a00",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "secondary": "#e2c45a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "section-gap": "64px",
+                        "gutter": "16px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Libre Caslon Text"],
+                        "title-md": ["Sora"],
+                        "headline-lg-mobile": ["Libre Caslon Text"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "body-md": ["Sora"],
+                        "label-sm": ["Sora"],
+                        "sanskrit-text": ["Noto Serif"],
+                        "body-lg": ["Sora"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #07090f;
+            color: #e1e2eb;
+            overflow-x: hidden;
+        }
+
+        .brass-border {
+            border: 1px solid rgba(201, 162, 39, 0.22);
+        }
+
+        .glass-panel {
+            background: rgba(14, 20, 32, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+        }
+
+        .gold-pulse {
+            animation: gold-breath 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes gold-breath {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+        }
+
+        .soft-rise {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .soft-rise:hover {
+            transform: translateY(-4px);
+        }
+
+        .active-tab-glow {
+            box-shadow: 0 0 15px rgba(201, 162, 39, 0.15);
+        }
+
+        /* Material Symbol Base */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-surface-container flex flex-col gap-unit p-gutter border-r border-outline-variant/20 z-50">
+<div class="mb-8 px-2">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">MindKshetra</h1>
+<div class="mt-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-primary/30 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A dignified, cinematic portrait of a spiritual seeker in their late 40s, with a warm and gentle expression, wearing simple traditional linen attire. The background is a soft-focus library with ancient books and warm, golden natural light filtering through a window. The style is premium, moody, and deeply respectful." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMDjzo3DChcEaWWpgvDUHuKOm-U5MiZMzGdlv5D5LySH50dPbH64DwskrrRC6dajRyRu3a-aGB596TCkqm7AGN6sZHHKzjXT_MQYAolqIRLYoYcMECIoCuO01mlZAVE7KCBaPMaXifx1iyLJYz09dDI87ENgqBddx7PyzcKSFHbdLVEdPoE_KqyLBqdaXxJUDIsbEO9cHAs8253yX2mW5XnErWrweDmmLMRcssJiIUyA6J13EvSFgZQOnasgRmFE89ZQpwxiIKgIE"/>
+</div>
+<div>
+<p class="font-title-md text-[14px] text-on-surface">Your Journey</p>
+<p class="font-label-sm text-on-surface-variant text-[10px]">Seeker of Light</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span>Profile</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+<span>Personalize</span>
+</a>
+<!-- Active State: Achievements -->
+<a class="flex items-center gap-4 px-4 py-3 font-body-md text-body-md text-primary font-bold bg-primary/10 rounded-lg active-tab-glow" href="#">
+<span class="material-symbols-outlined" data-icon="workspace_premium" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span>Achievements</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span>Progress</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto p-4 glass-panel brass-border rounded-xl">
+<p class="font-label-sm text-[10px] text-primary/60 mb-2">CURRENT MANTRA</p>
+<p class="font-sanskrit-text text-[14px] leading-relaxed italic text-on-surface-variant">
+                Om Shanti Shanti Shanti
+            </p>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 p-section-gap relative">
+<!-- Atmospheric Background Element -->
+<div class="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
+
+</div>
+<!-- Hero Section -->
+<header class="max-w-[1000px] mx-auto mb-16 relative z-10">
+<div class="flex items-end justify-between border-b border-primary/10 pb-8">
+<div>
+<h2 class="font-display-lg text-display-lg text-primary mb-2">Private Seeker · Level 7</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+                        Private recognition — no leaderboards. Only your soul witnesses this progress.
+                    </p>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-primary uppercase tracking-[0.2em]">Grace days active</span>
+<p class="font-body-md text-on-surface-variant text-[12px] italic mt-1">Your path is a journey of return, not a race.</p>
+</div>
+</div>
+</header>
+<!-- Badge Grid: Bento Layout Style -->
+<section class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-gutter relative z-10">
+<!-- Badge 1: Unlocked -->
+<div class="glass-panel brass-border p-8 flex flex-col items-center text-center soft-rise rounded-xl">
+<div class="w-24 h-24 mb-6 relative flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/5 rounded-full blur-xl gold-pulse"></div>
+<span class="material-symbols-outlined text-[64px] text-primary" data-icon="flare" style="font-variation-settings: 'FILL' 1;">flare</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2">Early Seeker</h3>
+<div class="w-full h-[1px] bg-outline-variant/30 mb-4"></div>
+<div class="w-full flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-on-surface-variant">MILESTONE REACHED</span>
+<span class="font-label-sm text-[10px] text-primary">COMPLETE</span>
+</div>
+<div class="w-full h-1 bg-primary-container/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-full shadow-[0_0_8px_rgba(236,194,70,0.5)]"></div>
+</div>
+</div>
+<!-- Badge 2: In Progress -->
+<div class="glass-panel brass-border p-8 flex flex-col items-center text-center soft-rise rounded-xl opacity-80">
+<div class="w-24 h-24 mb-6 relative flex items-center justify-center">
+<span class="material-symbols-outlined text-[64px] text-outline" data-icon="self_improvement">self_improvement</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2">Consistent Mind</h3>
+<div class="w-full h-[1px] bg-outline-variant/30 mb-4"></div>
+<div class="w-full flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-on-surface-variant">CURRENT PATH</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">12/15 SESSIONS</span>
+</div>
+<div class="w-full h-1 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary/60 w-[80%]"></div>
+</div>
+</div>
+<!-- Badge 3: Unlocked -->
+<div class="glass-panel brass-border p-8 flex flex-col items-center text-center soft-rise rounded-xl">
+<div class="w-24 h-24 mb-6 relative flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/5 rounded-full blur-xl gold-pulse"></div>
+<span class="material-symbols-outlined text-[64px] text-primary" data-icon="history_edu" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2">Dharma Keeper</h3>
+<div class="w-full h-[1px] bg-outline-variant/30 mb-4"></div>
+<div class="w-full flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-on-surface-variant">ANCIENT WISDOM</span>
+<span class="font-label-sm text-[10px] text-primary">COMPLETE</span>
+</div>
+<div class="w-full h-1 bg-primary-container/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-full shadow-[0_0_8px_rgba(236,194,70,0.5)]"></div>
+</div>
+</div>
+<!-- Badge 4: In Progress -->
+<div class="glass-panel brass-border p-8 flex flex-col items-center text-center soft-rise rounded-xl opacity-60">
+<div class="w-24 h-24 mb-6 relative flex items-center justify-center">
+<span class="material-symbols-outlined text-[64px] text-outline" data-icon="auto_stories">auto_stories</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2">Verse Voyager</h3>
+<div class="w-full h-[1px] bg-outline-variant/30 mb-4"></div>
+<div class="w-full flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-on-surface-variant">LITERATURE GATHERED</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">45/100 VERSES</span>
+</div>
+<div class="w-full h-1 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary/30 w-[45%]"></div>
+</div>
+</div>
+<!-- Badge 5: Locked / Shadowed -->
+<div class="glass-panel border border-white/5 p-8 flex flex-col items-center text-center soft-rise rounded-xl grayscale opacity-40">
+<div class="w-24 h-24 mb-6 relative flex items-center justify-center">
+<span class="material-symbols-outlined text-[64px] text-outline-variant" data-icon="lock">lock</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface-variant mb-2">Silent Master</h3>
+<div class="w-full h-[1px] bg-outline-variant/10 mb-4"></div>
+<p class="font-label-sm text-[10px] text-outline-variant">AWAITING 1,000 MIN MINDFULNESS</p>
+</div>
+<!-- Badge 6: In Progress -->
+<div class="glass-panel brass-border p-8 flex flex-col items-center text-center soft-rise rounded-xl opacity-80">
+<div class="w-24 h-24 mb-6 relative flex items-center justify-center">
+<span class="material-symbols-outlined text-[64px] text-outline" data-icon="landscape">landscape</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2">Mountain Peak</h3>
+<div class="w-full h-[1px] bg-outline-variant/30 mb-4"></div>
+<div class="w-full flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-on-surface-variant">ALTITUDE GAINED</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">8/10 PEAKS</span>
+</div>
+<div class="w-full h-1 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary/50 w-[80%]"></div>
+</div>
+</div>
+</section>
+<!-- Lifetime Totals Strip -->
+<section class="max-w-[1000px] mx-auto mt-16 z-10 relative">
+<div class="glass-panel brass-border py-12 px-container-margin rounded-xl grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-outline-variant/20">
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-[40px] text-primary">1,204</span>
+<span class="font-label-sm text-[12px] text-outline uppercase tracking-widest mt-2">Sessions</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-[40px] text-primary">28,920</span>
+<span class="font-label-sm text-[12px] text-outline uppercase tracking-widest mt-2">Mindful Minutes</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-[40px] text-primary">108</span>
+<span class="font-label-sm text-[12px] text-outline uppercase tracking-widest mt-2">Malas</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-display-lg text-[40px] text-primary">450</span>
+<span class="font-label-sm text-[12px] text-outline uppercase tracking-widest mt-2">Verses Read</span>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="max-w-[1000px] mx-auto mt-24 pb-12 border-t border-outline-variant/10 text-center flex flex-col items-center gap-4">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary mt-8">MindKshetra</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">© 2024 MindKshetra. Sacred Space for the Soul.</p>
+<div class="flex gap-6 mt-2">
+<a class="font-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Privacy</a>
+<a class="font-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Terms</a>
+<a class="font-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Contact</a>
+</div>
+</footer>
+</main>
+<!-- Interactive script for subtle aura follows -->
+<script>
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            document.body.style.setProperty('--mouse-x', x + '%');
+            document.body.style.setProperty('--mouse-y', y + '%');
+        });
+    </script>
+<style>
+        body::before {
+            content: '';
+            position: fixed;
+            top: var(--mouse-y, 50%);
+            left: var(--mouse-x, 50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(61, 122, 106, 0.03) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+</body></html>

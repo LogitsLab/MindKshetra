@@ -7,9 +7,11 @@ import { useLanguage } from "@/components/LanguageProvider";
 
 type Props = {
   slokaId: number;
+  /** Quiet text control instead of bordered button. */
+  quiet?: boolean;
 };
 
-export default function FavoriteButton({ slokaId }: Props) {
+export default function FavoriteButton({ slokaId, quiet = false }: Props) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const [saved, setSaved] = useState(false);
@@ -46,13 +48,19 @@ export default function FavoriteButton({ slokaId }: Props) {
     }
   }
 
+  const quietClass =
+    "inline-flex h-8 items-center text-sm leading-none text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] disabled:opacity-50";
+  const solidClass =
+    "min-h-10 border border-[var(--line)] px-3 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50";
+
   if (!user || user.is_anonymous) {
     return (
       <Link
         href="/account"
-        className="min-h-10 border border-[var(--line)] px-3 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
+        title={t("signInToBookmark")}
+        className={quiet ? quietClass : solidClass}
       >
-        {t("signInToBookmark")}
+        {t("bookmark")}
       </Link>
     );
   }
@@ -63,7 +71,7 @@ export default function FavoriteButton({ slokaId }: Props) {
       onClick={() => void toggle()}
       disabled={loading}
       aria-pressed={saved}
-      className="min-h-10 border border-[var(--line)] px-3 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
+      className={quiet ? quietClass : solidClass}
     >
       {saved ? t("bookmarked") : t("bookmark")}
     </button>

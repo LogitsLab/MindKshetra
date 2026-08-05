@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra | Practice Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Sora:wght@300;400;500;600;700&family=Noto+Serif+Devanagari:wght@400;700&family=Noto+Serif:ital,wght@0,400;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@100..900&family=Sora:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#856d01",
+                        "on-error-container": "#ffdad6",
+                        "on-primary": "#3d2e00",
+                        "surface-container-high": "#282a31",
+                        "outline": "#99907b",
+                        "on-tertiary-fixed": "#002019",
+                        "surface-container-lowest": "#0c0e14",
+                        "inverse-primary": "#755b00",
+                        "on-background": "#e1e2eb",
+                        "on-surface": "#e1e2eb",
+                        "secondary-fixed": "#ffe179",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "on-secondary-fixed-variant": "#554500",
+                        "on-secondary-fixed": "#231b00",
+                        "outline-variant": "#4d4635",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "surface-variant": "#33353c",
+                        "primary-fixed": "#ffe08e",
+                        "primary": "#ecc246",
+                        "surface-tint": "#ecc246",
+                        "on-primary-fixed": "#241a00",
+                        "inverse-on-surface": "#2e3037",
+                        "surface-container-highest": "#33353c",
+                        "error-container": "#93000a",
+                        "inverse-surface": "#e1e2eb",
+                        "surface-container-low": "#191b22",
+                        "primary-container": "#c9a227",
+                        "tertiary": "#95d3c0",
+                        "background": "#07090f",
+                        "field": "#0e1420",
+                        "on-secondary": "#3b2f00",
+                        "on-secondary-container": "#fff3d8",
+                        "on-tertiary-container": "#004538",
+                        "tertiary-container": "#76b3a1",
+                        "surface-bright": "#373940",
+                        "surface": "#11131a",
+                        "surface-container": "#1d1f26",
+                        "on-primary-fixed-variant": "#584400",
+                        "error": "#ffb4ab",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "on-tertiary": "#00382d",
+                        "tertiary-fixed": "#b0efdc",
+                        "on-surface-variant": "#d1c5af",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-primary-container": "#4b3a00",
+                        "surface-dim": "#11131a",
+                        "secondary": "#e2c45a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "section-gap": "64px",
+                        "gutter": "16px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Sora"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "body-md": ["Sora"],
+                        "title-md": ["Sora"],
+                        "sanskrit-text": ["Noto Serif Devanagari"],
+                        "body-lg": ["Sora"],
+                        "headline-lg-mobile": ["Libre Caslon Text"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "sanskrit-text": ["24px", {"lineHeight": "36px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #07090f;
+            color: #e1e2eb;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(14, 20, 32, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(201, 162, 39, 0.15);
+        }
+        .brass-border {
+            border: 1px solid #c9a227;
+        }
+        .brass-hairline {
+            border: 0.5px solid rgba(201, 162, 39, 0.3);
+        }
+        .aura-glow {
+            background: radial-gradient(circle at center, rgba(61, 122, 106, 0.08) 0%, transparent 70%);
+        }
+        .scrim-dark {
+            background: linear-gradient(to bottom, rgba(7, 9, 15, 0.2) 0%, rgba(7, 9, 15, 0.9) 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-margin h-20 max-w-none mx-auto bg-surface/80 backdrop-blur-xl dark:bg-surface/80 border-b border-outline-variant/30">
+<div class="flex items-center gap-12">
+<span class="font-display-lg text-display-lg text-primary dark:text-primary tracking-tight">MindKshetra</span>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant/70 hover:text-on-surface transition-colors font-title-md text-title-md" href="#">Explore</a>
+<a class="text-on-surface-variant/70 hover:text-on-surface transition-colors font-title-md text-title-md" href="#">Mood</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-title-md text-title-md" href="#">Practice</a>
+<a class="text-on-surface-variant/70 hover:text-on-surface transition-colors font-title-md text-title-md" href="#">Astrology</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full font-label-sm text-label-sm uppercase hover:scale-105 transition-transform duration-200">Ask Madhav</button>
+<button class="flex items-center gap-2 text-on-surface-variant/70 hover:text-on-surface transition-colors font-title-md text-title-md">
+<span class="material-symbols-outlined">account_circle</span>
+                Account
+            </button>
+</div>
+</nav>
+<main class="pt-24 min-h-screen max-w-7xl mx-auto px-container-margin grid grid-cols-12 gap-gutter">
+<!-- Left/Center Column: Practice Hub -->
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-10 pb-section-gap">
+<!-- Hero Section: Verse of the Day -->
+<section class="relative h-[480px] w-full rounded-xl overflow-hidden group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-[10s] scale-105 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida/AP1WRLsIbHBEjourL2cy4OYNAxYZnB4Do7ZY_8AgV8hQ8fLWgMRSRtWa8fWqmAODY5TDmvPZ1xIoGZ_NWJ4Z8mWcZTb8nqgadt1TPCO5I_ATLH7IxZfc6Jgvg4koFDnxktaE_3Uza2cbszNQ9y7mOzGQEaUroWIwgN3-FdrT_lymZ2Siep_ek4ZMuqvx2aQ3K_GQFb9sGsqpUQMPOnZonoqo6ngktvOeHSJRrpJSFaPLHcD2osilGHkCZxXUxas')"></div>
+<div class="absolute inset-0 scrim-dark"></div>
+<div class="relative h-full flex flex-col justify-end p-12 aura-glow">
+<span class="font-label-sm text-label-sm text-primary uppercase mb-4 tracking-[0.2em]">Verse of the Day • Sādhana</span>
+<h2 class="font-sanskrit-text text-sanskrit-text text-primary mb-2">योगस्थः कुरु कर्माणि सङ्गं त्यक्त्वा धनञ्जय।</h2>
+<p class="font-headline-lg text-headline-lg italic text-on-background/90 max-w-2xl">
+                        "Perform your duty equipoised, O Arjuna, abandoning all attachment to success or failure."
+                    </p>
+<div class="flex gap-4 mt-8">
+<button class="bg-primary text-on-primary px-10 py-4 rounded-sm font-label-sm text-label-sm font-bold uppercase hover:bg-primary/90 transition-all">Begin Silent Sit</button>
+<button class="border border-outline-variant/50 text-on-surface px-8 py-4 rounded-sm font-label-sm text-label-sm font-bold uppercase hover:bg-white/5 transition-all">One Honest Line</button>
+</div>
+</div>
+</section>
+<!-- Grid Modules -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Japa Counter -->
+<div class="field glass-panel p-8 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-4xl">settings_input_component</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-6">Current Japa Mala</span>
+<div class="font-display-lg text-[84px] leading-none text-primary mb-8 transition-all" id="japa-display">108</div>
+<button class="w-full brass-border bg-primary/10 text-primary py-4 hover:bg-primary/20 transition-all font-label-sm text-label-sm uppercase font-bold tracking-widest" onclick="incrementJapa()">
+                        Increment Focus
+                    </button>
+</div>
+<!-- Meditation Course -->
+<div class="field glass-panel p-8 flex flex-col justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-4 block">Active Path</span>
+<h3 class="font-headline-lg text-headline-lg mb-2">Day 12 of 45</h3>
+<p class="text-on-surface-variant font-title-md">Inner Resonance: The Sound of Breath</p>
+</div>
+<div class="mt-12">
+<div class="w-full bg-outline-variant/30 h-0.5 mb-4">
+<div class="bg-primary h-full w-[26%] shadow-[0_0_8px_rgba(236,194,70,0.5)]"></div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">26% Complete</span>
+<button class="text-primary font-bold font-label-sm text-label-sm uppercase flex items-center gap-2 hover:translate-x-1 transition-transform">
+                                Resume Session
+                                <span class="material-symbols-outlined text-sm">arrow_forward_ios</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Practice Paths: Horizontal Scroll -->
+<section>
+<div class="flex justify-between items-center mb-6 px-2">
+<h3 class="font-headline-lg text-headline-lg">Sacred Modules</h3>
+<div class="flex gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">chevron_left</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">chevron_right</button>
+</div>
+</div>
+<div class="flex gap-gutter overflow-x-auto scrollbar-hide pb-4">
+<!-- Tile 1 -->
+<div class="min-w-[280px] h-[360px] relative rounded-lg overflow-hidden brass-hairline flex-shrink-0 group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Cinematic shot of ancient Vedic manuscripts and golden prayer beads on a rustic wooden table, soft light from a nearby temple window illuminating the dust motes in the air. Deep atmospheric shadows create a sense of sacred study." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXaND6lxZly2hTZNcqe3kwEAxa29kZa3W3LcEPP7l-fh0gTLUYoSlyrYba52jyPZn948Rud89TzSHm9pVPq3SGARREQDzuqTIjOn6DulCM8HtqajTPux2OzyWRCJtVZA3DZdpy_XYnaySN6RiZhfEAkbpnZTFcRB8_c38YbcjGwyG26wpyfP6E7fp6REjGXVcH-RReBNhm7EZoILvZPe0iodjuacEfhEERsGVULbM9tZWxnj7d1ceWH-ebXhV_TmMmbvB9B-5cwDs')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-0 p-6 w-full">
+<span class="bg-primary/20 text-primary text-[10px] px-2 py-1 uppercase tracking-widest mb-3 inline-block">7 Days</span>
+<h4 class="font-title-md text-title-md text-white mb-2">Gita Foundations</h4>
+<p class="text-[12px] text-on-surface-variant leading-relaxed line-clamp-2">Exploring the core principles of Karma Yoga in daily life.</p>
+</div>
+</div>
+<!-- Tile 2 -->
+<div class="min-w-[280px] h-[360px] relative rounded-lg overflow-hidden brass-hairline flex-shrink-0 group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Ethereal landscape showing misty mountain peaks at dawn, a faint golden aura rising from the valley. Minimalist and cinematic, emphasizing deep focus and the breath of vitality." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBBil8h_4cOfhYfj16625OMz48B8NksNQe047NX7va1siGrEvhvCQZInP57UGDNEMykJwUmgcYvku8mfVmqSl0czLpK11wCfVnVies8FlBQ322gDL-2PNccqYHlgjbRrS7l6DQfZ0LwI3H9x1GN2vZW1VWCSGBzMi3dC2P1jmkifezbNZbMHIEueMGAODVpNJr2VTMHmzQ2ZY1Z4dRlRTlaMgwBjRLjwzETKIGJ369KimlKdhilaEosXxTjYydNNGalh-9EF7BNxRM')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-0 p-6 w-full">
+<span class="bg-primary/20 text-primary text-[10px] px-2 py-1 uppercase tracking-widest mb-3 inline-block">21 Days</span>
+<h4 class="font-title-md text-title-md text-white mb-2">Breath of Vitality</h4>
+<p class="text-[12px] text-on-surface-variant leading-relaxed line-clamp-2">Mastering Prana through traditional rhythmic techniques.</p>
+</div>
+</div>
+<!-- Tile 3 -->
+<div class="min-w-[280px] h-[360px] relative rounded-lg overflow-hidden brass-hairline flex-shrink-0 group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="A macro shot of a single drop of water falling into a still, dark pool, creating perfect concentric ripples. The reflection of a temple spire is visible in the water. Cinematic lighting, gold and teal accents." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCrJnBjAvvoMFWVtwzEqiCEgg0PP-8AEu_q2F31ywTDbkO6-_j6uQsnoPpZ0OqRuTTO4ul1Oeu5Wzx3RhnTyI3WwJFkBpTt_fSVJUCR_GAOx0QYlR-LCzmkgFKoLaMI4fBH0qhsWNqbygCK-89ZVXYBGsFidlNM0yaEGLltDlF2op8heYQv0MWqjJN12cMkHAla-YKQkB9_TwUGcXSaStWnOHS3MJrqY00gIbl7mTCh_bJphYHt0itfExvJdHil7PE-BRGfddCs2d8')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-0 p-6 w-full">
+<span class="bg-primary/20 text-primary text-[10px] px-2 py-1 uppercase tracking-widest mb-3 inline-block">14 Days</span>
+<h4 class="font-title-md text-title-md text-white mb-2">Stillness Rituals</h4>
+<p class="text-[12px] text-on-surface-variant leading-relaxed line-clamp-2">Daily practices to cultivate the quiet within the noise.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Sidebar: The Void Journal -->
+<aside class="col-span-12 lg:col-span-4 flex flex-col gap-8 pb-section-gap">
+<div class="field glass-panel p-8 sticky top-24 h-[calc(100vh-140px)] flex flex-col">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-headline-lg text-headline-lg">The Void Journal</h3>
+<span class="material-symbols-outlined text-primary/60 cursor-help">info</span>
+</div>
+<!-- Filters -->
+<div class="flex flex-wrap gap-2 mb-8">
+<button class="brass-border px-4 py-1.5 rounded-full font-label-sm text-[10px] uppercase text-primary">All</button>
+<button class="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full font-label-sm text-[10px] uppercase text-on-surface-variant hover:border-primary/50 transition-colors">Reflection</button>
+<button class="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full font-label-sm text-[10px] uppercase text-on-surface-variant hover:border-primary/50 transition-colors">Gratitude</button>
+<button class="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full font-label-sm text-[10px] uppercase text-on-surface-variant hover:border-primary/50 transition-colors">Verse</button>
+</div>
+<!-- Composer -->
+<div class="mb-8 group">
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-3 uppercase tracking-widest">How was your day?</label>
+<textarea class="w-full bg-transparent border-b border-primary/30 focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 min-h-[100px] resize-none font-body-md transition-all" placeholder="Enter the void..."></textarea>
+<div class="flex items-center justify-between mt-4">
+<div class="flex gap-2">
+<button class="text-[10px] px-3 py-1 rounded border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-primary transition-all">Peaceful</button>
+<button class="text-[10px] px-3 py-1 rounded border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-primary transition-all">Challenging</button>
+<button class="text-[10px] px-3 py-1 rounded border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-primary transition-all">Productive</button>
+</div>
+<button class="bg-primary text-on-primary font-bold font-label-sm text-[11px] px-6 py-2 rounded-sm uppercase">Save</button>
+</div>
+</div>
+<!-- Entry List -->
+<div class="flex-1 overflow-y-auto scrollbar-hide space-y-4">
+<div class="p-4 border-b border-outline-variant/10 hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest">Oct 24</span>
+<span class="text-[10px] font-bold text-primary uppercase">Gratitude</span>
+</div>
+<p class="text-sm text-on-surface/80 leading-relaxed italic group-hover:text-on-surface">The early morning mist over the valley today felt like a physical manifestation of peace...</p>
+</div>
+<div class="p-4 border-b border-outline-variant/10 hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest">Oct 22</span>
+<span class="text-[10px] font-bold text-primary uppercase">Reflection</span>
+</div>
+<p class="text-sm text-on-surface/80 leading-relaxed italic group-hover:text-on-surface">Found resistance in the fourth mala today. Noted the distraction and returned...</p>
+</div>
+<div class="p-4 border-b border-outline-variant/10 hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest">Oct 21</span>
+<span class="text-[10px] font-bold text-primary uppercase">Insights</span>
+</div>
+<p class="text-sm text-on-surface/80 leading-relaxed italic group-hover:text-on-surface">Equanimity is not indifference. It is the ability to witness without being pulled under...</p>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="w-full py-section-gap px-container-margin flex flex-col md:flex-row justify-between items-center bg-surface-container-lowest border-t border-outline-variant/10">
+<div class="mb-8 md:mb-0">
+<span class="font-headline-lg text-headline-lg text-primary tracking-tight">MindKshetra</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-2 opacity-80">© 2024 MindKshetra. Seek within the void.</p>
+</div>
+<div class="flex gap-12">
+<a class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-[0.2em] hover:text-primary transition-colors" href="#">Sacred Terms</a>
+<a class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-[0.2em] hover:text-primary transition-colors" href="#">Privacy Path</a>
+<a class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-[0.2em] hover:text-primary transition-colors" href="#">Community Circle</a>
+</div>
+</footer>
+<script>
+        let japaCount = 108;
+        function incrementJapa() {
+            japaCount++;
+            const display = document.getElementById('japa-display');
+            display.innerText = japaCount;
+            
+            // Visual feedback
+            display.classList.add('scale-110', 'text-primary-fixed');
+            setTimeout(() => {
+                display.classList.remove('scale-110', 'text-primary-fixed');
+            }, 150);
+            
+            // Micro-interaction for subtle glow
+            display.style.textShadow = '0 0 20px rgba(236,194,70,0.4)';
+            setTimeout(() => {
+                display.style.textShadow = 'none';
+            }, 500);
+        }
+
+        // Atmosphere: Slow pulsing for the primary CTA
+        document.querySelector('.bg-primary')?.classList.add('animate-pulse-slow');
+        
+        // Custom animation logic
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-8');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.field, section').forEach(el => {
+            el.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-8');
+            observer.observe(el);
+        });
+    </script>
+</body></html>

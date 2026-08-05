@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import ImmersiveHero from "@/components/ImmersiveHero";
 import { useLanguage } from "@/components/LanguageProvider";
 import { MilestoneLine, takeNewMilestone } from "@/components/MilestoneMarks";
 import type { Milestone } from "@/lib/milestones";
@@ -587,24 +588,52 @@ export default function SadhanaClient() {
     lang === "hi" ? sloka?.hindi_translation : sloka?.english_translation;
 
   return (
-    <div className="max-w-2xl">
+    <div className="life-hub pb-10">
       <div aria-live="polite" className="sr-only">
         {announcement}
       </div>
 
-      {doneToday && stage === "mood" ? (
-        <p className="mb-8 border-l-2 border-[var(--brass)]/60 pl-4 text-[15px] text-[var(--text-muted)]">
-          {t("sadhanaDoneToday")} · {t("sadhanaAgain")} ↓
-        </p>
+      {stage === "mood" ? (
+        <ImmersiveHero
+          image="/images/paths/sadhana.jpg"
+          eyebrow={t("sadhanaEyebrow")}
+          title={t("sadhanaTitle")}
+          intro={t("sadhanaIntro")}
+          meta={
+            doneToday ? (
+              <p className="text-sm text-white/70">
+                {t("sadhanaDoneToday")} · {t("sadhanaAgain")}
+              </p>
+            ) : null
+          }
+          actions={
+            <>
+              <a
+                href="#sadhana-mood"
+                className="inline-flex min-h-12 items-center bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+              >
+                {doneToday ? t("sadhanaAgain") : t("sadhanaBeginCta")}
+              </a>
+              <a
+                href="#japa"
+                className="inline-flex min-h-12 items-center border border-white/25 px-5 py-3 text-sm text-white/80 transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
+              >
+                {t("sadhanaJapaCta")}
+              </a>
+            </>
+          }
+        />
       ) : null}
 
+      <div className="max-w-3xl">
       {stage === "mood" ? (
-        <section>
-          <h2 className="font-display text-2xl text-[var(--text)]">
+        <section id="sadhana-mood" className="scroll-mt-24">
+          <p className="eyebrow text-[var(--brass)]">{t("sadhanaEyebrow")}</p>
+          <h2 className="mt-2 font-display text-2xl text-[var(--text)]">
             {t("sadhanaMoodPrompt")}
           </h2>
           {chartOffer ? (
-            <div className="mt-6 border border-[var(--line)] px-4 py-4">
+            <div className="life-hub__panel mt-6">
               <p className="text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
                 {chartOffer.ref}
               </p>
@@ -623,13 +652,13 @@ export default function SadhanaClient() {
               </button>
             </div>
           ) : null}
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="med-mood mt-8">
             {moods.map((mood) => (
               <button
                 key={mood.id}
                 type="button"
                 onClick={() => pickMood(mood.id)}
-                className="min-h-10 border border-[var(--line)] px-4 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
+                className="med-mood__mark !h-auto !w-auto min-h-11 rounded-none px-4 py-2.5 text-sm"
               >
                 {lang === "hi" ? mood.labelHi : mood.label}
               </button>
@@ -908,6 +937,7 @@ export default function SadhanaClient() {
       ) : null}
 
       <JapaPanel visible={stage === "mood" || stage === "done"} />
+      </div>
     </div>
   );
 }
@@ -1036,12 +1066,13 @@ function JapaPanel({ visible }: { visible: boolean }) {
     <section
       id="japa"
       hidden={!visible}
-      className="scroll-mt-24 mt-16 border-t border-[var(--hairline)] pt-10"
+      className="life-hub__panel scroll-mt-24 mt-14"
     >
-      <h2 className="font-display text-2xl text-[var(--text)]">
+      <p className="eyebrow text-[var(--brass)]">{t("japaTitle")}</p>
+      <h2 className="mt-2 font-display text-2xl text-[var(--text)]">
         {t("japaTitle")}
       </h2>
-      <p className="mt-2 text-[15px] font-light text-[var(--text-muted)]">
+      <p className="mt-2 max-w-xl text-[15px] font-light text-[var(--text-muted)]">
         {t("japaIntro")}
       </p>
 

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra - My Streak</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Include the provided Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#33353c",
+                    "tertiary-fixed": "#b0efdc",
+                    "on-surface-variant": "#d1c5af",
+                    "outline-variant": "#4d4635",
+                    "on-error": "#690005",
+                    "secondary": "#e2c45a",
+                    "surface-container": "#1d1f26",
+                    "on-primary": "#3d2e00",
+                    "background": "#07090f", /* Overridden to match Brand "Void" */
+                    "surface-variant": "#33353c",
+                    "on-secondary-container": "#fff3d8",
+                    "primary": "#ecc246",
+                    "on-primary-fixed": "#241a00",
+                    "on-background": "#e1e2eb",
+                    "surface-bright": "#373940",
+                    "on-tertiary-fixed-variant": "#095042",
+                    "inverse-on-surface": "#2e3037",
+                    "inverse-surface": "#e1e2eb",
+                    "tertiary": "#95d3c0",
+                    "secondary-fixed-dim": "#e2c45a",
+                    "surface-tint": "#ecc246",
+                    "inverse-primary": "#755b00",
+                    "on-secondary-fixed": "#231b00",
+                    "primary-container": "#c9a227",
+                    "on-tertiary-fixed": "#002019",
+                    "surface-container-low": "#191b22",
+                    "on-surface": "#e1e2eb",
+                    "on-secondary": "#3b2f00",
+                    "surface-container-lowest": "#0c0e14",
+                    "primary-fixed-dim": "#ecc246",
+                    "on-secondary-fixed-variant": "#554500",
+                    "on-primary-container": "#4b3a00",
+                    "surface": "#11131a",
+                    "tertiary-fixed-dim": "#95d3c0",
+                    "outline": "#99907b",
+                    "on-tertiary-container": "#004538",
+                    "on-primary-fixed-variant": "#584400",
+                    "surface-container-high": "#282a31",
+                    "surface-dim": "#11131a",
+                    "error-container": "#93000a",
+                    "secondary-fixed": "#ffe179",
+                    "on-error-container": "#ffdad6",
+                    "primary-fixed": "#ffe08e",
+                    "error": "#ffb4ab",
+                    "secondary-container": "#856d01",
+                    "tertiary-container": "#76b3a1",
+                    "on-tertiary": "#00382d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "section-gap": "64px",
+                    "gutter": "16px",
+                    "container-margin": "24px"
+            },
+            "fontFamily": {
+                    "title-md": ["Sora"],
+                    "headline-lg": ["Libre Caslon Text"],
+                    "display-lg": ["Libre Caslon Text"],
+                    "label-sm": ["Sora"],
+                    "sanskrit-text": ["Noto Serif"],
+                    "headline-lg-mobile": ["Libre Caslon Text"],
+                    "body-md": ["Sora"],
+                    "body-lg": ["Sora"]
+            },
+            "fontSize": {
+                    "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                    "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                    "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #07090f; /* The Void */
+            color: #e1e2eb;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .gold-glow {
+            box-shadow: 0 0 40px rgba(201, 162, 39, 0.15);
+        }
+
+        .brass-border {
+            border: 1px solid rgba(201, 162, 39, 0.22);
+        }
+
+        .streak-ring {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, rgba(201, 162, 39, 0.05) 0%, transparent 70%);
+        }
+
+        .streak-ring::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            padding: 2px;
+            background: linear-gradient(135deg, #c9a227 0%, transparent 50%, #ecc246 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: rgba(14, 20, 32, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .calendar-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .practiced-day {
+            border: 1px solid #c9a227;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            box-shadow: inset 0 0 8px rgba(201, 162, 39, 0.2);
+        }
+
+        .grace-day {
+            border: 1px dashed rgba(201, 162, 39, 0.4);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+        }
+
+        .madhav-fab {
+            background: #c9a227;
+            box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .madhav-fab:active {
+            transform: scale(0.92);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-primary/20 h-16 flex justify-between items-center px-container-margin">
+<button class="text-primary active:scale-95 transition-transform">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">My Streak</h1>
+<div class="w-10 h-10 rounded-full border border-primary/40 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a serene spiritual seeker with a peaceful expression, styled in high-end cinematic photography. The lighting is soft and warm with golden highlights on the skin, set against a deep dark minimalist background. The aesthetic is premium and reverent, matching a luxury meditation app interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkf0LlgRpUuUuc0ikh5jILzqP2P8m8FNfzhWa8rTQMb6fY8waio4MGqIgBR_WlSctGqVGOixf49CmJcwGk7WkjJSNecGgiquSumHxf_DfnSf0gPeYwRQd-QPwCXMuq8qfgWV6HaeyCBtX7McCWk7KcagE9BPKKwDD0iRDQWnqEmFbykQ1IXVyQB-kI4inba_JwP1tt3Ih3n0OafsObv3li6UbPtm1TieHMhiMnzCLS18kglVojeFIVEaD3qmjB5Ny0F8c-tk6kn3I"/>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow pt-24 pb-32 px-container-margin flex flex-col items-center">
+<!-- Hero Streak Ring -->
+<div class="mt-8 mb-12 flex flex-col items-center">
+<div class="streak-ring gold-glow animate-[pulse_6s_infinite]">
+<div class="text-center">
+<span class="font-headline-lg text-[44px] text-primary block leading-none">27</span>
+<span class="font-label-sm text-on-surface-variant uppercase tracking-[0.2em] mt-2 block">Days</span>
+</div>
+</div>
+</div>
+<!-- Stats Pair -->
+<div class="w-full grid grid-cols-2 gap-4 mb-12">
+<div class="text-center border-r border-primary/20">
+<p class="font-label-sm text-on-surface-variant uppercase tracking-widest text-[10px]">Current</p>
+<p class="font-title-md text-primary mt-1">27 Days</p>
+</div>
+<div class="text-center">
+<p class="font-label-sm text-on-surface-variant uppercase tracking-widest text-[10px]">Best</p>
+<p class="font-title-md text-on-surface mt-1">45 Days</p>
+</div>
+</div>
+<!-- Calendar Container -->
+<div class="w-full glass-panel brass-border rounded-xl p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-title-md text-on-surface">January 2024</h3>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">chevron_left</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">chevron_right</span>
+</div>
+</div>
+<!-- Calendar Grid -->
+<div class="grid grid-cols-7 gap-y-2 text-center">
+<!-- Day Headers -->
+<div class="font-label-sm text-on-surface-variant/40 text-[10px]">S</div>
+<div class="font-label-sm text-on-surface-variant/40 text-[10px]">M</div>
+<div class="font-label-sm text-on-surface-variant/40 text-[10px]">T</div>
+<div class="font-label-sm text-on-surface-variant/40 text-[10px]">W</div>
+<div class="font-label-sm text-on-surface-variant/40 text-[10px]">T</div>
+<div class="font-label-sm text-on-surface-variant/40 text-[10px]">F</div>
+<div class="font-label-sm text-on-surface-variant/40 text-[10px]">S</div>
+<!-- Calendar Row 1 (Starting Monday Jan 1) -->
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">1</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">2</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">3</div></div>
+<div class="calendar-cell"><div class="grace-day flex items-center justify-center font-label-sm text-[11px] text-on-surface-variant/50">4</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">5</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">6</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">7</div></div>
+<!-- Row 2 -->
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">8</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">9</div></div>
+<div class="calendar-cell"><div class="font-label-sm text-[11px]">10</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">11</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">12</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">13</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">14</div></div>
+<!-- Row 3 -->
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">15</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">16</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">17</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">18</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">19</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">20</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">21</div></div>
+<!-- Row 4 (Highlighting current 27) -->
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">22</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">23</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">24</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">25</div></div>
+<div class="calendar-cell"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px]">26</div></div>
+<div class="calendar-cell bg-primary/10 rounded-full"><div class="practiced-day flex items-center justify-center font-label-sm text-[11px] font-bold">27</div></div>
+<div class="calendar-cell"><div class="font-label-sm text-[11px] text-on-surface-variant/30">28</div></div>
+</div>
+</div>
+<!-- Prose Footer -->
+<div class="mt-12 text-center max-w-[280px]">
+<p class="font-sanskrit-text italic text-on-surface-variant text-body-md leading-relaxed">
+                Return when ready — grace days exist.
+            </p>
+<a class="inline-block mt-6 font-label-sm text-primary tracking-widest uppercase text-[11px] hover:opacity-80 transition-opacity" href="#">
+                See full progress →
+            </a>
+</div>
+</main>
+<!-- FAB -->
+<button class="fixed right-6 bottom-32 w-14 h-14 rounded-full madhav-fab flex items-center justify-center z-50">
+<span class="material-symbols-outlined text-on-primary text-2xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</button>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-surface-container-low/90 backdrop-blur-2xl border-t border-primary/30 rounded-t-full shadow-[0_-4px_20px_rgba(236,194,70,0.1)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-[10px] mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-[10px] mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-label-sm text-[10px] mt-1">Mood</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold bg-primary-container/10 rounded-full px-4 py-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-label-sm text-[10px] mt-1">Astrology</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction: Subtle parallax on the streak ring based on orientation/mouse
+        document.addEventListener('mousemove', (e) => {
+            const ring = document.querySelector('.streak-ring');
+            const x = (window.innerWidth / 2 - e.pageX) / 50;
+            const y = (window.innerHeight / 2 - e.pageY) / 50;
+            ring.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+        });
+
+        // Soft ripple effect on calendar days
+        document.querySelectorAll('.calendar-cell').forEach(cell => {
+            cell.addEventListener('click', function(e) {
+                let ripple = document.createElement('div');
+                ripple.className = 'absolute inset-0 bg-primary/10 rounded-full animate-ping';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 1000);
+            });
+        });
+    </script>
+</body></html>

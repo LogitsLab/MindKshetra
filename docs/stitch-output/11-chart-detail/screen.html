@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra | Jyotish Chart</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#11131a",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "on-secondary-fixed-variant": "#554500",
+                        "background": "#07090f",
+                        "on-primary-container": "#4b3a00",
+                        "tertiary": "#3d7a6a",
+                        "surface-dim": "#11131a",
+                        "on-surface": "#e1e2eb",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#004538",
+                        "surface-tint": "#ecc246",
+                        "surface-container-lowest": "#0c0e14",
+                        "on-tertiary": "#00382d",
+                        "on-tertiary-fixed": "#002019",
+                        "on-secondary": "#3b2f00",
+                        "on-background": "#e1e2eb",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "surface-container-high": "#282a31",
+                        "on-primary-fixed": "#241a00",
+                        "error-container": "#93000a",
+                        "surface-container": "#1d1f26",
+                        "secondary": "#e2c45a",
+                        "primary-fixed": "#ffe08e",
+                        "surface-bright": "#373940",
+                        "inverse-primary": "#755b00",
+                        "on-secondary-fixed": "#231b00",
+                        "on-error-container": "#ffdad6",
+                        "surface-variant": "#33353c",
+                        "primary-fixed-dim": "#ecc246",
+                        "inverse-on-surface": "#2e3037",
+                        "secondary-fixed": "#ffe179",
+                        "tertiary-fixed": "#b0efdc",
+                        "error": "#ffb4ab",
+                        "tertiary-container": "#76b3a1",
+                        "primary-container": "#c9a227",
+                        "outline-variant": "#4d4635",
+                        "on-secondary-container": "#fff3d8",
+                        "surface-container-highest": "#33353c",
+                        "secondary-container": "#856d01",
+                        "outline": "#99907b",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "inverse-surface": "#e1e2eb",
+                        "on-primary-fixed-variant": "#584400",
+                        "on-surface-variant": "#d1c5af",
+                        "primary": "#ecc246",
+                        "on-primary": "#3d2e00",
+                        "surface-container-low": "#191b22"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "section-gap": "64px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "title-md": ["Sora"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "body-lg": ["Sora"],
+                        "label-sm": ["Sora"],
+                        "sanskrit-text": ["Noto Serif"],
+                        "body-md": ["Sora"],
+                        "headline-lg-mobile": ["Libre Caslon Text"],
+                        "headline-lg": ["Libre Caslon Text"]
+                    },
+                    "fontSize": {
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #07090f;
+            color: #e1e2eb;
+            font-family: 'Sora', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .serif { font-family: 'Libre Caslon Text', serif; }
+        .sanskrit { font-family: 'Noto Serif', serif; }
+        
+        .chart-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+        }
+        .diamond-line {
+            position: absolute;
+            background-color: #c9a227;
+            height: 1.5px;
+        }
+        .hairline-divider {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .glass-panel {
+            background: rgba(17, 19, 26, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(201, 162, 39, 0.2);
+        }
+        .aura-glow {
+            background: radial-gradient(circle at center, rgba(61, 122, 106, 0.08) 0%, transparent 70%);
+        }
+        .active-pulse {
+            animation: gold-pulse 4s ease-in-out infinite;
+        }
+        @keyframes gold-pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen pb-32">
+<!-- Top App Bar (Header) -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-primary/20 px-container-margin h-20 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-2xl">chevron_left</span>
+</button>
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface serif tracking-tight">Arjun Sharma</h1>
+<p class="font-label-sm text-[10px] text-on-surface-variant/60 uppercase tracking-widest">Delhi, India • 12 Aug 1992, 14:30</p>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full border border-primary/30 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional and serene portrait of a young man with a calm expression, softly lit with golden hour light against a deep dark studio background. The style is cinematic and minimalist, emphasizing clarity and focus, mirroring the spiritual and premium aesthetic of the MindKshetra application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0ryEQZJRZpWbOQp1fhXADU9ugC7kOvYfeDrps8x0I4CCakxZSi46_dcqIHRMXCXyQ9zvxIFpnQ6_-GKqiz1OJX8jwJ2pVuGFxA8kaSSxPTxPErp_zMNYUgxgvSJGREAuwvb6zHMs8WgqDiVE5lojrt0ZNglEcHFEccooENAFiMYrqfDb5jp7v_AU4b6ChKhdvV6aCcBu30v8nRHnFaGkE_NNWLgcm53pZz6E2HHs7c1fPrqaGX5uQHri2F9F1pJPWOJqhOUysGpg"/>
+</button>
+</header>
+<main class="mt-24 px-container-margin flex-grow space-y-8 overflow-x-hidden">
+<!-- Jyotish Chart Section -->
+<section class="flex flex-col items-center py-4 aura-glow">
+<div class="chart-container border border-primary/40 relative">
+<!-- North Indian Chart Framework -->
+<!-- Main X -->
+<div class="absolute inset-0 border border-white/10"></div>
+<div class="absolute top-0 left-0 w-full h-full" style="background: linear-gradient(to bottom right, transparent 49.5%, #c9a227 49.5%, #c9a227 50.5%, transparent 50.5%);"></div>
+<div class="absolute top-0 left-0 w-full h-full" style="background: linear-gradient(to top right, transparent 49.5%, #c9a227 49.5%, #c9a227 50.5%, transparent 50.5%);"></div>
+<!-- Inner Diamond -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[226px] h-[226px] rotate-45 border border-primary/60"></div>
+<!-- Lagna and Planet Markers (Conceptual Placement) -->
+<!-- 1st House (Top Center Diamond) -->
+<div class="absolute top-[20%] left-1/2 -translate-x-1/2 text-center">
+<span class="block font-title-md text-primary text-sm">8</span>
+<span class="font-body-md text-on-surface text-xs font-bold uppercase tracking-tighter">ju</span>
+</div>
+<!-- 10th House (Top Right Triangle) -->
+<div class="absolute top-[12%] right-[12%] text-center">
+<span class="block font-label-sm text-on-surface-variant/40 text-[10px]">5</span>
+<span class="font-body-md text-on-surface text-xs font-bold uppercase tracking-tighter">sa</span>
+</div>
+<!-- 9th House (Right Side Diamond Mid) -->
+<div class="absolute top-1/2 right-[20%] -translate-y-1/2 text-center">
+<span class="block font-label-sm text-on-surface-variant/40 text-[10px]">4</span>
+<span class="font-body-md text-on-surface text-xs font-bold uppercase tracking-tighter">ra</span>
+</div>
+<!-- House Numbers for others -->
+<div class="absolute bottom-[20%] left-1/2 -translate-x-1/2 text-on-surface-variant/40 text-[10px]">2</div>
+<div class="absolute top-1/2 left-[20%] -translate-y-1/2 text-on-surface-variant/40 text-[10px]">11</div>
+</div>
+<p class="mt-4 font-label-sm text-primary/80 uppercase tracking-widest text-[10px]">Lagna Kundli • Scorpio Ascendant</p>
+</section>
+<!-- Celestial Placements -->
+<section class="space-y-4 pt-4 hairline-divider">
+<h2 class="font-title-md text-on-surface serif text-base flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">auto_awesome</span>
+                Celestial Placements
+            </h2>
+<div class="grid grid-cols-2 gap-y-3 gap-x-8 pb-4">
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Ascendant</span>
+<span class="font-medium text-on-surface">Scorpio 12°</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Jupiter</span>
+<span class="font-medium text-on-surface">Scorpio 04°</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Saturn (R)</span>
+<span class="font-medium text-on-surface">Leo 18°</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Rahu</span>
+<span class="font-medium text-on-surface">Cancer 22°</span>
+</div>
+</div>
+</section>
+<!-- Time Cycles (Dasha) -->
+<section class="space-y-4 pt-4 hairline-divider">
+<div class="flex justify-between items-end">
+<h2 class="font-title-md text-on-surface serif text-base">Time Cycles (Dasha)</h2>
+<span class="font-label-sm text-[10px] text-primary">Vimshottari</span>
+</div>
+<div class="relative py-6 overflow-x-auto no-scrollbar">
+<div class="flex items-center gap-0 min-w-max">
+<!-- Past -->
+<div class="h-1 w-20 bg-primary/20 relative">
+<div class="absolute -top-6 left-0 text-[10px] text-on-surface-variant/40">Mars</div>
+</div>
+<!-- Current -->
+<div class="h-1 w-40 bg-primary relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 flex flex-col items-center">
+<span class="text-[10px] font-bold text-primary uppercase tracking-wider">Rahu Mahadasha</span>
+<div class="w-2 h-2 rounded-full bg-primary mt-1 shadow-[0_0_10px_#c9a227]"></div>
+</div>
+<div class="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] text-on-surface whitespace-nowrap">Current Period (Ends 2028)</div>
+</div>
+<!-- Future -->
+<div class="h-1 w-32 bg-primary/20 relative">
+<div class="absolute -top-6 left-full -translate-x-full text-[10px] text-on-surface-variant/40">Jupiter</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Siddhanta Interpretation -->
+<section class="space-y-3 pt-4 hairline-divider">
+<p class="font-body-md text-on-surface/90 italic leading-relaxed sanskrit text-base">
+                "The current Rahu-Saturn period suggests a transformative phase where worldly ambitions meet structural limitations. Practice patience as the karmic knots of the 10th house begin to untie through disciplined Sadhana."
+            </p>
+</section>
+<!-- Pressure to Practice Bridge -->
+<section class="glass-panel p-6 rounded-xl space-y-6 relative overflow-hidden">
+<div class="absolute -right-8 -top-8 opacity-10">
+<span class="material-symbols-outlined text-9xl text-primary">filter_vintage</span>
+</div>
+<div class="flex flex-col items-center text-center space-y-3">
+<span class="material-symbols-outlined text-primary text-3xl">psychology_alt</span>
+<p class="font-body-md text-on-surface px-4">From Stars to Action: When celestial pressure meets Gita wisdom, clarity emerges.</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<button class="border border-primary/40 py-3 rounded-lg font-label-sm text-primary uppercase tracking-widest text-[10px] active:scale-95 transition-all">Open a Verse</button>
+<button class="border border-primary/40 py-3 rounded-lg font-label-sm text-primary uppercase tracking-widest text-[10px] active:scale-95 transition-all">Ask Madhav</button>
+</div>
+</section>
+<footer class="text-center py-8 opacity-40">
+<p class="font-label-sm text-[9px] uppercase tracking-[0.2em] px-8">MindKshetra provides spiritual perspectives based on Vedic Siddhanta. It is not a substitute for professional counsel.</p>
+</footer>
+</main>
+<!-- Fixed Bottom CTA -->
+<div class="fixed bottom-24 left-0 w-full px-container-margin z-40">
+<button class="w-full bg-primary hover:bg-primary/90 text-on-primary font-bold py-4 rounded-full shadow-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined fill text-xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label-sm uppercase tracking-widest text-sm">Ask Madhav about this chart</span>
+</button>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-low/90 backdrop-blur-2xl px-4 pb-8 pt-2 border-t border-primary/30 flex justify-around items-center rounded-t-[2rem]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span class="text-[10px] font-medium mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">explore</span>
+<span class="text-[10px] font-medium mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">auto_stories</span>
+<span class="text-[10px] font-medium mt-1">Mood</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold bg-primary-container/10 rounded-full px-4 py-1" href="#">
+<span class="material-symbols-outlined text-2xl">stars</span>
+<span class="text-[10px] font-bold mt-1">Astrology</span>
+</a>
+</nav>
+<!-- Madhav FAB -->
+<button class="fixed bottom-28 right-6 z-50 w-14 h-14 bg-primary text-on-primary rounded-full shadow-[0_8px_30px_rgba(201,162,39,0.4)] flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<div class="absolute inset-0 rounded-full active-pulse border-2 border-primary"></div>
+</button>
+<script>
+        // Subtle atmosphere: slow moving background glow
+        document.addEventListener('mousemove', (e) => {
+            const aura = document.querySelector('.aura-glow');
+            if (aura) {
+                const x = (e.clientX / window.innerWidth) * 20;
+                const y = (e.clientY / window.innerHeight) * 20;
+                aura.style.transform = `translate(${x}px, ${y}px)`;
+            }
+        });
+    </script>
+</body></html>

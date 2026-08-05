@@ -16,7 +16,15 @@ export default function SiteFooter() {
     <footer className="border-t border-[var(--hairline)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p className="text-xs text-[var(--text-muted)]">
-          © {year} {BRAND_NAME}
+          © {year} {BRAND_NAME} by{" "}
+          <a
+            href="https://logitslab.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition hover:text-[var(--brass-soft)]"
+          >
+            LogitsLab
+          </a>
         </p>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
           <Link

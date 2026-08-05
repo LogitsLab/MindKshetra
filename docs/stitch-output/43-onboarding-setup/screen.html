@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MindKshetra — Journey Setup</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital@0;1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-container": "#004538",
+                        "surface-container-high": "#282a31",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "on-primary-fixed": "#241a00",
+                        "on-primary-container": "#4b3a00",
+                        "on-error": "#690005",
+                        "secondary-container": "#856d01",
+                        "surface-variant": "#33353c",
+                        "surface": "#07090f",
+                        "primary-fixed": "#ffe08e",
+                        "surface-container": "#1d1f26",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "primary-container": "#c9a227",
+                        "primary": "#ecc246",
+                        "on-background": "#e1e2eb",
+                        "background": "#07090f",
+                        "surface-container-lowest": "#0c0e14",
+                        "surface-tint": "#ecc246",
+                        "secondary-fixed": "#ffe179",
+                        "on-tertiary": "#00382d",
+                        "on-primary-fixed-variant": "#584400",
+                        "surface-bright": "#373940",
+                        "inverse-on-surface": "#2e3037",
+                        "on-secondary-fixed-variant": "#554500",
+                        "tertiary-fixed-dim": "#95d3c0",
+                        "tertiary-container": "#76b3a1",
+                        "surface-container-low": "#191b22",
+                        "on-secondary": "#3b2f00",
+                        "secondary": "#e2c45a",
+                        "on-secondary-fixed": "#231b00",
+                        "tertiary-fixed": "#b0efdc",
+                        "surface-container-highest": "#33353c",
+                        "outline-variant": "#4d4635",
+                        "on-tertiary-fixed": "#002019",
+                        "on-surface-variant": "#d1c5af",
+                        "on-secondary-container": "#fff3d8",
+                        "surface-dim": "#07090f",
+                        "outline": "#99907b",
+                        "on-primary": "#3d2e00",
+                        "tertiary": "#95d3c0",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#e1e2eb",
+                        "on-surface": "#e1e2eb",
+                        "inverse-primary": "#755b00",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-error-container": "#ffdad6"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "gutter": "16px",
+                        "container-margin": "24px",
+                        "unit": "8px",
+                        "section-gap": "64px"
+                    },
+                    fontFamily: {
+                        "label-sm": ["Sora"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "title-md": ["Sora"],
+                        "headline-lg-mobile": ["Libre Caslon Text"],
+                        "body-lg": ["Sora"],
+                        "body-md": ["Sora"],
+                        "sanskrit-text": ["Noto Serif"]
+                    },
+                    fontSize: {
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #07090f;
+            color: #e1e2eb;
+            font-family: 'Sora', sans-serif;
+            overflow-x: hidden;
+        }
+        .brass-border {
+            border: 1px solid rgba(201, 162, 39, 0.22);
+        }
+        .active-brass-border {
+            border: 1px solid #ecc246;
+            box-shadow: 0 0 15px rgba(236, 194, 70, 0.15);
+        }
+        .gold-glow {
+            filter: drop-shadow(0 0 8px rgba(236, 194, 70, 0.4));
+        }
+        .scrim-bg {
+            background: linear-gradient(180deg, rgba(7, 9, 15, 0) 0%, rgba(7, 9, 15, 0.95) 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .dot-pulse {
+            animation: pulse 3s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        .aura-teal {
+            background: radial-gradient(circle, rgba(61, 122, 106, 0.08) 0%, rgba(7, 9, 15, 0) 70%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex items-center justify-center min-h-screen">
+<!-- Mobile Container (390x844) -->
+<main class="relative w-[390px] h-[844px] bg-background shadow-2xl overflow-hidden flex flex-col">
+<!-- Subtle Atmospheric Aura -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] aura-teal pointer-events-none"></div>
+<!-- Header -->
+<header class="relative pt-12 px-container-margin z-10">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined text-2xl">chevron_left</span>
+</button>
+<!-- Progress Dots -->
+<div class="flex gap-2 mt-6">
+<div class="h-1 w-8 rounded-full bg-surface-variant/40"></div>
+<div class="h-1 w-8 rounded-full bg-surface-variant/40"></div>
+<div class="h-1 w-8 rounded-full bg-surface-variant/40"></div>
+<div class="h-1 w-8 rounded-full bg-surface-variant/40"></div>
+<div class="h-1 w-8 rounded-full bg-primary shadow-[0_0_8px_rgba(236,194,70,0.4)]"></div>
+</div>
+<h1 class="mt-8 font-headline-lg-mobile text-headline-lg-mobile text-on-surface">
+                Your journey setup
+            </h1>
+<p class="mt-2 font-body-md text-body-md text-on-surface-variant/80 italic leading-relaxed">
+                Almost ready — personalize how Madhav and verses meet you.
+            </p>
+</header>
+<!-- Form Content -->
+<div class="flex-1 px-container-margin mt-10 space-y-6 overflow-y-auto pb-32">
+<!-- 1. Preferred Language -->
+<section class="space-y-3">
+<h2 class="font-label-sm text-label-sm text-primary uppercase tracking-widest">Preferred Language</h2>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center py-4 rounded-xl active-brass-border bg-primary-container/5 transition-all">
+<span class="font-title-md text-title-md text-primary">English</span>
+</button>
+<button class="flex items-center justify-center py-4 rounded-xl brass-border bg-surface-container-low transition-all hover:bg-surface-container-high">
+<span class="font-title-md text-title-md text-on-surface-variant/70">Hindi</span>
+</button>
+</div>
+</section>
+<!-- 2. Preferred Guidance Style -->
+<section class="space-y-3">
+<h2 class="font-label-sm text-label-sm text-primary uppercase tracking-widest">Guidance Style</h2>
+<div class="space-y-3">
+<button class="w-full flex items-center justify-between px-5 py-4 rounded-xl active-brass-border bg-primary-container/5 text-left group transition-all">
+<span class="font-title-md text-title-md text-primary">Balanced</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<button class="w-full flex items-center justify-between px-5 py-4 rounded-xl brass-border bg-surface-container-low text-left transition-all hover:bg-surface-container-high">
+<span class="font-title-md text-title-md text-on-surface-variant/70">Gita-first</span>
+<span class="material-symbols-outlined text-on-surface-variant/30">circle</span>
+</button>
+<button class="w-full flex items-center justify-between px-5 py-4 rounded-xl brass-border bg-surface-container-low text-left transition-all hover:bg-surface-container-high">
+<span class="font-title-md text-title-md text-on-surface-variant/70">Practice-first</span>
+<span class="material-symbols-outlined text-on-surface-variant/30">circle</span>
+</button>
+</div>
+</section>
+<!-- 3. Name Entry -->
+<section class="space-y-3">
+<label class="font-label-sm text-label-sm text-primary uppercase tracking-widest" for="name-input">Seeker Name</label>
+<div class="relative">
+<input class="w-full bg-transparent border-0 border-b-2 border-primary/30 focus:border-primary focus:ring-0 px-0 py-3 font-title-md text-title-md text-on-surface placeholder:text-on-surface-variant/30 transition-all outline-none" id="name-input" placeholder="Your name" type="text"/>
+</div>
+</section>
+<!-- Status Indicator -->
+<div class="flex flex-col items-center justify-center pt-8 space-y-3">
+<div class="relative w-12 h-12 flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-primary gold-glow dot-pulse" style="font-variation-settings: 'FILL' 0, 'wght' 200;">
+                        spa
+                    </span>
+<div class="absolute inset-0 border border-primary/20 rounded-full animate-ping opacity-20"></div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant/60 italic text-center">
+                    Your personal journey is being created.
+                </p>
+</div>
+</div>
+<!-- Sticky Bottom Actions -->
+<footer class="absolute bottom-0 left-0 w-full px-container-margin pb-12 pt-8 scrim-bg z-20">
+<button class="w-full bg-primary hover:bg-secondary-fixed-dim transition-all py-5 rounded-full flex items-center justify-center group active:scale-[0.98]">
+<span class="font-label-sm text-label-sm text-on-primary font-bold uppercase tracking-[0.2em] transition-transform group-hover:translate-x-1">
+                    Start My Journey
+                </span>
+</button>
+<button class="w-full mt-6 flex justify-center py-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer border-b border-on-surface-variant/20 pb-0.5">
+                    Skip for now
+                </span>
+</button>
+</footer>
+<!-- Decorative Subtle Texture -->
+<div class="absolute bottom-0 right-0 opacity-[0.03] pointer-events-none select-none">
+<span class="material-symbols-outlined text-[180px]" style="font-variation-settings: 'wght' 100;">
+                all_inclusive
+            </span>
+</div>
+</main>
+<script>
+        // Simple Micro-interaction for inputs
+        const nameInput = document.getElementById('name-input');
+        nameInput.addEventListener('focus', () => {
+            nameInput.parentElement.classList.add('scale-[1.01]');
+        });
+        nameInput.addEventListener('blur', () => {
+            nameInput.parentElement.classList.remove('scale-[1.01]');
+        });
+
+        // Toggle logic simulation for Guidance Style buttons
+        const guidanceButtons = document.querySelectorAll('section:nth-of-type(2) button');
+        guidanceButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                guidanceButtons.forEach(b => {
+                    b.classList.remove('active-brass-border', 'bg-primary-container/5');
+                    b.classList.add('brass-border', 'bg-surface-container-low');
+                    b.querySelector('.font-title-md').classList.replace('text-primary', 'text-on-surface-variant/70');
+                    const icon = b.querySelector('.material-symbols-outlined');
+                    icon.textContent = 'circle';
+                    icon.style.fontVariationSettings = "'FILL' 0";
+                    icon.classList.replace('text-primary', 'text-on-surface-variant/30');
+                });
+                btn.classList.add('active-brass-border', 'bg-primary-container/5');
+                btn.classList.remove('brass-border', 'bg-surface-container-low');
+                btn.querySelector('.font-title-md').classList.replace('text-on-surface-variant/70', 'text-primary');
+                const icon = btn.querySelector('.material-symbols-outlined');
+                icon.textContent = 'check_circle';
+                icon.style.fontVariationSettings = "'FILL' 1";
+                icon.classList.replace('text-on-surface-variant/30', 'text-primary');
+            });
+        });
+    </script>
+</body></html>

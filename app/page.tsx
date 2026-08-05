@@ -1,63 +1,49 @@
-import HomePageClient from "@/components/HomePageClient";
-import { daySeed, getVerseOfTheDaySelection } from "@/lib/day-seed";
-import { getAllMoods, getMoodById } from "@/lib/moods";
+import HomePageClient, {
+  type FeaturedVerse,
+} from "@/components/HomePageClient";
+import { getVerseOfTheDaySelection } from "@/lib/day-seed";
 import { formatVerseRef, getSlokaByRef } from "@/lib/slokas";
 import { splitVerseLines } from "@/lib/verseDisplay";
-import type { Mood } from "@/lib/types";
-
-const PREVIEW_MOOD_POOL = [
-  "anxious",
-  "confused",
-  "grieving",
-  "hopeful",
-  "purpose",
-  "happy",
-  "lonely",
-  "overwhelmed",
-  "fearful",
-  "grateful",
-  "angry",
-  "failure",
-] as const;
 
 export const revalidate = 3600;
 
-export default async function HomePage() {
-  const seed = daySeed();
-  // Content layer falls back to JSON on DB timeout (Postgres 57014) so SSG
-  // does not fail the Vercel build.
-  const selection = await getVerseOfTheDaySelection();
-  const featuredSloka = selection?.sloka ?? (await getSlokaByRef(2, 47));
+async function toFeatured(offsetDays: number): Promise<FeaturedVerse | null> {
+  const when = new Date(Date.now() + offsetDays * 86_400_000);
+  const selection = await getVerseOfTheDaySelection(when);
+  const sloka =
+    selection?.sloka ?? (offsetDays === 0 ? await getSlokaByRef(2, 47) : null);
+  if (!sloka) return null;
 
-  if (!featuredSloka) {
+  return {
+    id: sloka.id,
+    chapter: sloka.chapter,
+    verseNumber: sloka.verse_number,
+    ref: formatVerseRef(sloka),
+    sanskritLines: splitVerseLines(sloka.sanskrit_devanagari).slice(0, 2),
+    english: sloka.english_translation,
+    hindi: sloka.hindi_translation,
+    nakshatra: selection?.nakshatra?.name ?? null,
+  };
+}
+
+export default async function HomePage() {
+  const featuredVerses: FeaturedVerse[] = [];
+  const seen = new Set<number>();
+  for (const offset of [0, -1, -2]) {
+    const verse = await toFeatured(offset);
+    if (!verse || seen.has(verse.id)) continue;
+    seen.add(verse.id);
+    featuredVerses.push(verse);
+  }
+
+  if (!featuredVerses[0]) {
     throw new Error("Featured verse missing from dataset");
   }
 
-  const featured = {
-    id: featuredSloka.id,
-    ref: formatVerseRef(featuredSloka),
-    sanskritLines: splitVerseLines(featuredSloka.sanskrit_devanagari).slice(
-      0,
-      2
-    ),
-    english: featuredSloka.english_translation,
-    hindi: featuredSloka.hindi_translation,
-    // Why-this-verse provenance; absent on the engine-fallback rotation.
-    nakshatra: selection?.nakshatra?.name ?? null,
-  };
-
-  const moods = await getAllMoods();
-  const previewMoods: Mood[] = [];
-  for (let i = 0; i < 6; i++) {
-    const id = PREVIEW_MOOD_POOL[(seed + i * 3) % PREVIEW_MOOD_POOL.length];
-    const mood = (await getMoodById(id)) ?? moods[i];
-    if (mood && !previewMoods.some((m) => m.id === mood.id)) {
-      previewMoods.push(mood);
-    }
-  }
-  while (previewMoods.length < 6 && moods[previewMoods.length]) {
-    previewMoods.push(moods[previewMoods.length]);
-  }
-
-  return <HomePageClient featured={featured} previewMoods={previewMoods} />;
+  return (
+    <HomePageClient
+      featured={featuredVerses[0]}
+      featuredVerses={featuredVerses}
+    />
+  );
 }

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ask Madhav | MindKshetra</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&amp;family=Sora:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif+Devanagari:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#c9a227",
+                        "outline": "#99907b",
+                        "on-error-container": "#ffdad6",
+                        "secondary-container": "#856d01",
+                        "on-tertiary": "#00382d",
+                        "tertiary-fixed": "#b0efdc",
+                        "surface-container-highest": "#33353c",
+                        "outline-variant": "#4d4635",
+                        "on-secondary-container": "#fff3d8",
+                        "on-error": "#690005",
+                        "surface-bright": "#373940",
+                        "inverse-primary": "#755b00",
+                        "background": "#07090f",
+                        "secondary": "#e2c45a",
+                        "on-surface": "#eef2f7",
+                        "on-background": "#eef2f7",
+                        "primary": "#ecc246",
+                        "on-primary-container": "#4b3a00",
+                        "surface-variant": "#33353c",
+                        "surface-dim": "#11131a",
+                        "secondary-fixed-dim": "#e2c45a",
+                        "primary-fixed-dim": "#ecc246",
+                        "on-secondary": "#3b2f00",
+                        "secondary-fixed": "#ffe179",
+                        "on-surface-variant": "#9aa8bc",
+                        "on-primary-fixed": "#241a00",
+                        "inverse-surface": "#e1e2eb",
+                        "error-container": "#93000a",
+                        "on-primary-fixed-variant": "#584400",
+                        "surface-container-lowest": "#0c0e14",
+                        "inverse-on-surface": "#2e3037",
+                        "on-tertiary-container": "#004538",
+                        "surface-tint": "#ecc246",
+                        "on-secondary-fixed-variant": "#554500",
+                        "surface-container-low": "#191b22",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed-variant": "#095042",
+                        "on-secondary-fixed": "#231b00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "container-margin": "24px",
+                        "section-gap": "64px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Libre Caslon Text", "serif"],
+                        "body-md": ["Sora", "sans-serif"],
+                        "title-md": ["Sora", "sans-serif"],
+                        "label-sm": ["Sora", "sans-serif"],
+                        "display-lg": ["Libre Caslon Text", "serif"],
+                        "body-lg": ["Sora", "sans-serif"],
+                        "sanskrit-text": ["Noto Serif Devanagari", "serif"],
+                        "serif-text": ["Libre Caslon Text", "serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "300"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "28px", "fontWeight": "300"}],
+                        "sanskrit-text": ["20px", {"lineHeight": "32px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #07090f;
+            color: #eef2f7;
+            overflow-x: hidden;
+        }
+
+        .scrim-background {
+            background: linear-gradient(rgba(7, 9, 15, 0.85), rgba(7, 9, 15, 0.95));
+        }
+
+        .glass-panel {
+            background: rgba(14, 20, 32, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(201, 162, 39, 0.22);
+        }
+
+        .gold-pulse {
+            animation: gold-pulse 4s infinite ease-in-out;
+        }
+
+        @keyframes gold-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.98); }
+        }
+
+        .aura-glow {
+            background: radial-gradient(circle at center, rgba(61, 122, 106, 0.08) 0%, transparent 70%);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(201, 162, 39, 0.2);
+            border-radius: 10px;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-body-md min-h-screen flex flex-col selection:bg-primary/30 selection:text-primary">
+<!-- Global Background Layer -->
+<div class="fixed inset-0 -z-20 overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida/AP1WRLsIbHBEjourL2cy4OYNAxYZnB4Do7ZY_8AgV8hQ8fLWgMRSRtWa8fWqmAODY5TDmvPZ1xIoGZ_NWJ4Z8mWcZTb8nqgadt1TPCO5I_ATLH7IxZfc6Jgvg4koFDnxktaE_3Uza2cbszNQ9y7mOzGQEaUroWIwgN3-FdrT_lymZ2Siep_ek4ZMuqvx2aQ3K_GQFb9sGsqpUQMPOnZonoqo6ngktvOeHSJRrpJSFaPLHcD2osilGHkCZxXUxas')"></div>
+<div class="absolute inset-0 scrim-background"></div>
+<div class="absolute inset-0 aura-glow"></div>
+</div>
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant">
+<div class="flex justify-between items-center px-container-margin py-4 max-w-[1200px] mx-auto">
+<div class="flex items-center gap-4">
+<span class="font-headline-lg text-headline-lg text-primary tracking-tighter">MindKshetra</span>
+<span class="hidden md:block h-6 w-px bg-outline-variant/30"></span>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="font-title-md text-title-md tracking-wider text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Explore</a>
+<a class="font-title-md text-title-md tracking-wider text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Mood</a>
+<a class="font-title-md text-title-md tracking-wider text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Practice</a>
+<a class="font-title-md text-title-md tracking-wider text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Astrology</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button class="font-title-md text-title-md tracking-wider text-primary border-b-2 border-primary pb-1">Ask Madhav</button>
+<div class="flex items-center gap-2 hover:-translate-y-0.5 transition-transform duration-200 cursor-pointer">
+<span class="font-body-md text-body-md text-on-surface-variant">Account</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A small circular profile avatar for a spiritual user, showcasing a serene silhouette against a soft gold background, matching the Vedic and cinematic aesthetic of the application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxyzRBXBHnWaEuEQf2kHptz01ZkE2BTJocMcSpAPIw5d0IcxMHkE3UWI_s5o7b6Ol4CXaJIFVrorH5CS-AmdvF-KlMLfMIAFaOJKAUONzKwD6KmMBNVEG9CLUZw4Tti9-1ZUSopywtZugcdmRjqLqwo7DcExBAq7d1Pc2rcfGVNIsCmCFzBsCqlnFU3SiqqT8zDCV6y63woI4c0VbZlOP5mZdpOea1TCNI18NbEACoohW-rulNbc7X8aBTNbR8kEWN1QW7zL1Eujo"/>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Chat Workspace -->
+<main class="flex-grow pt-[88px] pb-32 flex flex-col items-center">
+<!-- Chat Header Integrated -->
+<div class="w-full max-w-[720px] px-container-margin py-8 border-b border-outline-variant/20 mb-8 text-center md:text-left flex flex-col md:flex-row items-center md:items-end gap-6">
+<div class="w-24 h-24 rounded-full overflow-hidden border border-primary/40 shadow-2xl shrink-0">
+<img class="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida/AP1WRLuNyAqkeTw8vd57kMrpLdIastN4KvQ-sG8rNxoKSIC2Rx2ME9b64Oe5iWK_pTYQVlgFNaRKdPrSIMFh2fGzy5GEM7TbkY4X1kcWVNpvRcm2BgDOdw7lProw8CiXvuRLMBYJP-becAKz72rK1KR42H68LBmM1L2pHBZ3ILkFppxszpqLwXUmMaBmdsgwyLdMHU5SJsTz02CjKhk9aZYgCVPrjogFxTeQlQGdglJEMy42HFqFQz5An8mNNTA"/>
+</div>
+<div class="flex-grow space-y-1">
+<h1 class="font-serif-text text-[32px] text-on-surface leading-tight tracking-tight">Madhav</h1>
+<p class="font-label-sm text-label-sm uppercase tracking-[0.2em] text-primary/80">Gita Guide &amp; Vedic Scholar</p>
+<p class="font-body-md text-on-surface-variant text-[12px] italic mt-2">A scholarly companion, not a therapist.</p>
+</div>
+</div>
+<!-- Chat History Area -->
+<div class="w-full max-w-[720px] px-container-margin space-y-12 custom-scrollbar overflow-y-auto pb-8">
+<!-- Message Pair: User Question (Implied/Contextual) -->
+<div class="opacity-40 text-right pr-4 italic font-body-md text-on-surface-variant">
+                "What does my current Saturn placement mean for my career path?"
+            </div>
+<!-- Message Pair: Madhav's Response -->
+<div class="space-y-6">
+<!-- 1. Chart Epigraph -->
+<div class="pl-4 border-l-2 border-primary/40">
+<p class="font-serif-text text-[20px] text-on-surface leading-relaxed">
+                        Saturn holds your tenth house until March 2028.
+                    </p>
+<div class="w-16 h-px bg-primary-container mt-4"></div>
+</div>
+<!-- 2. Madhav's Teaching Panel -->
+<div class="glass-panel p-8 rounded-lg shadow-inner">
+<div class="space-y-6 font-body-lg text-on-surface leading-relaxed text-[#c3ccd9]">
+<p>In the Vedic tradition, Saturn's transit through the tenth house of Karma is not a period of restriction, but of refinement. You are being asked to build structures that will outlast your current ambitions.</p>
+<div class="py-4">
+<span class="font-sanskrit-text text-primary text-xl block mb-2" lang="sa">कर्मण्येवाधिकारस्ते मा फलेषु कदाचन |</span>
+<span class="text-label-sm uppercase tracking-widest text-primary/60">— BHAGAVAD GITA 2.47</span>
+</div>
+<p>Focus on the duty itself, rather than the immediate rewards. The 'Void' you feel is simply the space between who you were and the leader you are becoming. Ground your daily practice in silent meditation before the sun peaks.</p>
+</div>
+<!-- 3. Citation List -->
+<div class="mt-8 pt-6 border-t border-white/10 space-y-3">
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="font-label-sm text-on-surface-variant group-hover:text-primary transition-colors">Read alongside your chart</span>
+<span class="material-symbols-outlined text-primary/40 group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<div class="w-full h-[1px] bg-white/5"></div>
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="font-label-sm text-on-surface-variant group-hover:text-primary transition-colors">Career &amp; Dharma Transits</span>
+<span class="material-symbols-outlined text-primary/40 group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<div class="w-full h-[1px] bg-white/5"></div>
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="font-label-sm text-on-surface-variant group-hover:text-primary transition-colors">BG 2.47 reference and commentary</span>
+<span class="material-symbols-outlined text-primary/40 group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Pulse Element -->
+<div class="flex justify-center py-8">
+<div class="w-2 h-2 rounded-full bg-primary gold-pulse"></div>
+</div>
+</div>
+</main>
+<!-- Composer: Fixed Bottom Navigation & Input -->
+<footer class="fixed bottom-0 w-full z-50">
+<div class="max-w-[720px] mx-auto px-container-margin pb-10">
+<div class="glass-panel rounded-full p-2 flex items-end gap-3 shadow-2xl shadow-background">
+<textarea class="flex-grow bg-transparent border-none focus:ring-0 text-on-surface font-body-md px-6 py-4 resize-none placeholder:text-on-surface-variant/40" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'" placeholder="Seek wisdom from the Gita..." rows="1"></textarea>
+<button class="w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-secondary transition-all active:scale-95 shrink-0 shadow-lg gold-pulse">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+<div class="mt-4 flex justify-center gap-4">
+<span class="font-label-sm text-primary/40 py-1 px-3 border border-primary/20 rounded-full cursor-pointer hover:bg-primary/10 transition-colors">Career</span>
+<span class="font-label-sm text-primary/40 py-1 px-3 border border-primary/20 rounded-full cursor-pointer hover:bg-primary/10 transition-colors">Dharma</span>
+<span class="font-label-sm text-primary/40 py-1 px-3 border border-primary/20 rounded-full cursor-pointer hover:bg-primary/10 transition-colors">Self-Doubt</span>
+</div>
+</div>
+</footer>
+<!-- Script for Micro-interactions -->
+<script>
+        // Auto-focus on input load
+        window.addEventListener('DOMContentLoaded', () => {
+            const composer = document.querySelector('textarea');
+            composer.focus();
+        });
+
+        // Simple text input height adjustment
+        const tx = document.getElementsByTagName("textarea");
+        for (let i = 0; i < tx.length; i++) {
+            tx[i].setAttribute("style", "height:" + (tx[i].scrollHeight) + "px;overflow-y:hidden;");
+            tx[i].addEventListener("input", OnInput, false);
+        }
+
+        function OnInput() {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
+        }
+    </script>
+</body></html>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
@@ -12,6 +13,7 @@ import {
   sessionTranscript,
 } from "@/lib/meditation-core";
 import { markGuestJourneyDay } from "@/lib/journeys/local";
+import { startAmbient, stopAmbient } from "@/lib/audio/ambient";
 import { playOrSpeak, stopNarration } from "@/lib/audio/narration";
 import { isSpeechSynthesisSupported } from "@/lib/tts";
 
@@ -95,6 +97,7 @@ export default function MeditationPlayerClient({
   const [speaking, setSpeaking] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [rate, setRate] = useState(1);
+  const [ambientOn, setAmbientOn] = useState(true);
   const [saving, setSaving] = useState(false);
   const [guestSaved, setGuestSaved] = useState(false);
   const [ttsOk, setTtsOk] = useState(false);
@@ -240,6 +243,18 @@ export default function MeditationPlayerClient({
     };
   }, [stage, phaseIdx, phase, lang, rate, advancePhase]);
 
+  // Music rides with the silence countdown — auto-starts, user can stop/play.
+  useEffect(() => {
+    if (stage !== "play" || phase?.type !== "silence" || !ambientOn) {
+      stopAmbient();
+      return;
+    }
+    void startAmbient(0.08);
+    return () => {
+      stopAmbient();
+    };
+  }, [stage, phase?.type, phaseIdx, ambientOn]);
+
   function startPlay() {
     satSecRef.current = 0;
     satCreditedRef.current = 0;
@@ -320,17 +335,14 @@ export default function MeditationPlayerClient({
     <section>
       <h2 className="font-display text-2xl text-[var(--text)]">{label}</h2>
       <p className="mt-2 text-sm text-[var(--text-muted)]">{t("medMoodHint")}</p>
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="med-mood mt-6">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             type="button"
             onClick={() => onPick(n)}
-            className={`min-h-11 min-w-11 border px-3 py-2 text-sm transition ${
-              value === n
-                ? "border-[var(--brass)] bg-[var(--brass)]/15 text-[var(--brass-soft)]"
-                : "border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/50"
-            }`}
+            className={`med-mood__mark ${value === n ? "is-active" : ""}`}
+            aria-pressed={value === n}
           >
             {n}
           </button>
@@ -339,9 +351,20 @@ export default function MeditationPlayerClient({
     </section>
   );
 
+  const silenceTotal =
+    phase?.type === "silence" ? phase.seconds : 0;
+  const silenceRemaining =
+    phase?.type === "silence" ? (silenceLeft ?? silenceTotal) : 0;
+  const silenceProgress =
+    silenceTotal > 0 ? 1 - silenceRemaining / silenceTotal : 0;
+  const ringSize = 220;
+  const ringRadius = 96;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const ringOffset = ringCircumference * (1 - silenceProgress);
+
   return (
-    <div className="max-w-2xl">
-      <p className="mb-6">
+    <div className="mx-auto max-w-3xl">
+      <p className="mb-5">
         <Link
           href="/meditation"
           className="text-sm text-[var(--brass-soft)] underline-offset-2 hover:underline"
@@ -349,19 +372,6 @@ export default function MeditationPlayerClient({
           ← {t("medBack")}
         </Link>
       </p>
-
-      <header className="mb-8">
-        <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-          {session.tier === "daily"
-            ? t("medDailiesTitle")
-            : `Day ${session.day_number}`}{" "}
-          · {session.duration_minutes} min
-        </p>
-        <h1 className="mt-2 font-display text-3xl text-[var(--text)]">{title}</h1>
-        <p className="mt-3 text-[15px] font-light leading-relaxed text-[var(--text-muted)]">
-          {theme}
-        </p>
-      </header>
 
       {locked ? (
         <p className="border border-[var(--line)] px-4 py-6 text-[var(--text-muted)]">
@@ -373,6 +383,23 @@ export default function MeditationPlayerClient({
             {t("medBack")}
           </Link>
         </p>
+      ) : null}
+
+      {!locked && stage !== "play" ? (
+        <header className="mb-8">
+          <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
+            {session.tier === "daily"
+              ? t("medDailiesTitle")
+              : `Day ${session.day_number}`}{" "}
+            · {session.duration_minutes} min
+          </p>
+          <h1 className="mt-2 font-display text-3xl text-[var(--text)]">
+            {title}
+          </h1>
+          <p className="mt-3 text-[15px] font-light leading-relaxed text-[var(--text-muted)]">
+            {theme}
+          </p>
+        </header>
       ) : null}
 
       {!locked && stage === "moodBefore" ? (
@@ -387,90 +414,156 @@ export default function MeditationPlayerClient({
       ) : null}
 
       {!locked && stage === "play" && phase ? (
-        <section>
-          <div className="mb-4 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
-            <span>
-              {phase.type === "speak" ? t("medPhaseSpeak") : t("medPhaseSilence")}{" "}
-              · {phaseIdx + 1}/{session.phases.length}
-            </span>
-            <label className="flex items-center gap-2 normal-case tracking-normal text-[var(--text-muted)]">
-              {t("medRateLabel")}
-              <select
-                value={rate}
-                onChange={(e) => setRate(Number(e.target.value))}
-                className="border border-[var(--line)] bg-transparent px-2 py-1 text-sm text-[var(--text)]"
-              >
-                <option value={0.85}>{t("medRateSlow")}</option>
-                <option value={1}>{t("medRateNormal")}</option>
-                <option value={1.15}>{t("medRateFast")}</option>
-              </select>
-            </label>
-          </div>
+        <section className="med-player min-h-[32rem] sm:min-h-[36rem]">
+          <Image
+            src="/images/paths/meditation.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[center_30%]"
+          />
+          <div className="med-player__wash" aria-hidden />
 
-          {phase.type === "speak" ? (
-            <div className="border-l-2 border-[var(--brass)]/50 pl-5">
-              <p className="text-[15px] font-light leading-relaxed text-[var(--text-soft)]">
-                {lang === "hi" ? phase.text_hi : phase.text_en}
-              </p>
-              {!ttsOk ? (
-                <p className="mt-3 text-sm text-[var(--text-muted)]">
-                  {t("medVoiceUnsupported")}
+          <div className="relative z-10 flex min-h-[32rem] flex-col px-6 py-8 sm:min-h-[36rem] sm:px-10 sm:py-10">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+                  {session.tier === "daily"
+                    ? t("medDailiesTitle")
+                    : `Day ${session.day_number}`}{" "}
+                  · {phase.type === "speak"
+                    ? t("medPhaseSpeak")
+                    : t("medPhaseSilence")}{" "}
+                  · {phaseIdx + 1}/{session.phases.length}
                 </p>
+                <h1 className="mt-2 font-display text-2xl text-white sm:text-3xl">
+                  {title}
+                </h1>
+              </div>
+              {phase.type === "speak" ? (
+                <label className="flex items-center gap-2 text-xs text-white/55">
+                  {t("medRateLabel")}
+                  <select
+                    value={rate}
+                    onChange={(e) => setRate(Number(e.target.value))}
+                    className="border border-white/20 bg-black/30 px-2 py-1 text-sm text-white"
+                  >
+                    <option value={0.85}>{t("medRateSlow")}</option>
+                    <option value={1}>{t("medRateNormal")}</option>
+                    <option value={1.15}>{t("medRateFast")}</option>
+                  </select>
+                </label>
               ) : null}
-              <div className="mt-4 flex flex-wrap gap-2">
-                {speaking ? (
+            </div>
+
+            <div className="flex flex-1 flex-col items-center justify-center py-8">
+              {phase.type === "silence" ? (
+                <>
+                  <div className="relative flex h-[220px] w-[220px] items-center justify-center">
+                    <svg
+                      width={ringSize}
+                      height={ringSize}
+                      viewBox={`0 0 ${ringSize} ${ringSize}`}
+                      className="med-player__ring absolute inset-0"
+                      aria-hidden
+                    >
+                      <circle
+                        className="med-player__ring-track"
+                        cx={ringSize / 2}
+                        cy={ringSize / 2}
+                        r={ringRadius}
+                      />
+                      <circle
+                        className="med-player__ring-progress"
+                        cx={ringSize / 2}
+                        cy={ringSize / 2}
+                        r={ringRadius}
+                        strokeDasharray={ringCircumference}
+                        strokeDashoffset={ringOffset}
+                      />
+                    </svg>
+                    <p className="font-display text-4xl text-white tabular-nums sm:text-5xl">
+                      {formatClock(silenceRemaining)}
+                    </p>
+                  </div>
+                  <p className="mt-6 text-sm tracking-[0.14em] text-white/55">
+                    {t("medSilenceHint")}
+                  </p>
                   <button
                     type="button"
-                    onClick={() => {
-                      autoAdvanceRef.current = false;
-                      stopNarration();
-                      setSpeaking(false);
-                    }}
-                    className="min-h-10 border border-[var(--line)] px-4 py-2 text-sm text-[var(--text-muted)]"
+                    onClick={() => setAmbientOn((v) => !v)}
+                    className="mt-6 inline-flex h-10 items-center border border-white/25 px-4 text-sm text-white/80"
+                    aria-pressed={ambientOn}
                   >
-                    {t("medStopVoice")}
+                    {ambientOn ? t("medAmbientOn") : t("medAmbientOff")}
                   </button>
-                ) : null}
-                <button
-                  type="button"
-                  onClick={() => {
-                    autoAdvanceRef.current = false;
-                    stopNarration();
-                    advancePhase();
-                  }}
-                  className="min-h-10 border border-[var(--line)] px-4 py-2 text-sm text-[var(--brass-soft)]"
-                >
-                  {t("medSkipSpeak")}
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={advancePhase}
+                    className="mt-4 min-h-10 px-4 text-sm text-[var(--brass-soft)] underline-offset-2 hover:underline"
+                  >
+                    {t("medNextPhase")}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="mb-4 text-[11px] uppercase tracking-[0.2em] text-[var(--brass-soft)]">
+                    {t("medListeningHint")}
+                  </p>
+                  <p className="max-w-xl text-center font-display text-xl font-light leading-relaxed text-white/90 sm:text-2xl">
+                    {lang === "hi" ? phase.text_hi : phase.text_en}
+                  </p>
+                  {!ttsOk ? (
+                    <p className="mt-4 text-sm text-white/50">
+                      {t("medVoiceUnsupported")}
+                    </p>
+                  ) : null}
+                  <div className="mt-8 flex flex-wrap justify-center gap-3">
+                    {speaking ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          autoAdvanceRef.current = false;
+                          stopNarration();
+                          setSpeaking(false);
+                        }}
+                        className="inline-flex h-10 items-center border border-white/25 px-4 text-sm text-white/70"
+                      >
+                        {t("medStopVoice")}
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        autoAdvanceRef.current = false;
+                        stopNarration();
+                        advancePhase();
+                      }}
+                      className="inline-flex h-10 items-center border border-[var(--brass)]/45 px-4 text-sm text-[var(--brass-soft)]"
+                    >
+                      {t("medSkipSpeak")}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
-          ) : (
-            <div className="py-8 text-center">
-              <p className="font-display text-5xl text-[var(--text)] tabular-nums">
-                {formatClock(silenceLeft ?? phase.seconds)}
-              </p>
+
+            <div className="mt-auto border-t border-white/10 pt-4">
               <button
                 type="button"
-                onClick={advancePhase}
-                className="mt-6 min-h-10 px-4 text-sm text-[var(--brass-soft)] underline-offset-2 hover:underline"
+                onClick={() => setShowTranscript((v) => !v)}
+                className="text-sm text-[var(--brass-soft)] underline-offset-2 hover:underline"
               >
-                {t("medNextPhase")}
+                {showTranscript ? t("medHideTranscript") : t("medTranscript")}
               </button>
+              {showTranscript ? (
+                <pre className="mt-3 max-h-40 overflow-y-auto whitespace-pre-wrap text-sm font-light leading-relaxed text-white/55">
+                  {transcript}
+                </pre>
+              ) : null}
             </div>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setShowTranscript((v) => !v)}
-            className="mt-8 text-sm text-[var(--brass-soft)] underline-offset-2 hover:underline"
-          >
-            {showTranscript ? t("medHideTranscript") : t("medTranscript")}
-          </button>
-          {showTranscript ? (
-            <pre className="mt-4 whitespace-pre-wrap border border-[var(--hairline)] p-4 text-sm font-light leading-relaxed text-[var(--text-muted)]">
-              {transcript}
-            </pre>
-          ) : null}
+          </div>
         </section>
       ) : null}
 

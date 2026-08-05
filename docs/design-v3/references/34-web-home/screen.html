@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>MindKshetra — Web Home v3 (complete companion)</title>
+  <style>
+    :root { --void:#07090f; --field:#0e1420; --brass:#c9a227; --text:#eef2f7; --soft:#c3ccd9; --muted:#9aa8bc; --line:rgba(201,162,39,.22); --hair:rgba(255,255,255,.06); }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Sora, system-ui, sans-serif; background:var(--void); color:var(--text); }
+    .serif { font-family: Fraunces, Georgia, serif; }
+    nav { display:flex; gap:1.25rem; align-items:center; padding:1rem 2rem; border-bottom:1px solid var(--hair); background:rgba(7,9,15,.85); position:sticky; top:0; }
+    nav a { color:var(--muted); text-decoration:none; font-size:14px; }
+    nav .cta { color:var(--void); background:var(--brass); padding:.4rem .9rem; border-radius:2px; }
+    main { max-width:1100px; margin:0 auto; padding:2rem; }
+    .hero { min-height:70vh; display:flex; flex-direction:column; justify-content:center; gap:1rem; }
+    .brand { font-size:clamp(2.5rem,6vw,4rem); letter-spacing:-.02em; }
+    .lotus { color:var(--brass); font-size:1.5rem; }
+    .tag { color:var(--soft); max-width:36rem; line-height:1.5; }
+    .ctas { display:flex; flex-wrap:wrap; gap:.75rem; margin-top:1rem; }
+    .btn { border:1px solid var(--line); padding:.7rem 1.1rem; color:var(--text); text-decoration:none; font-size:14px; }
+    .btn.primary { background:var(--brass); color:var(--void); border-color:var(--brass); }
+    section { border-top:1px solid var(--hair); padding:2.5rem 0; }
+    .eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--brass); }
+    .grid6 { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .tile { min-height:140px; background:linear-gradient(180deg,rgba(7,9,15,.2),rgba(7,9,15,.85)), #182234; border:1px solid var(--line); padding:1rem; display:flex; flex-direction:column; justify-content:flex-end; }
+    .tile h3 { margin:0; font-family:Fraunces,serif; }
+    .tile p { margin:.35rem 0 0; color:var(--soft); font-size:13px; }
+    .sadhana { border:1px solid var(--line); padding:1.25rem; background:rgba(14,20,32,.55); }
+    .row3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .chips { display:flex; flex-wrap:wrap; gap:.5rem; }
+    .chip { border:1px solid var(--hair); padding:.35rem .75rem; color:var(--soft); font-size:13px; }
+    .close { min-height:220px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line); background:linear-gradient(180deg,rgba(7,9,15,.4),rgba(7,9,15,.9)), #1a2438; }
+    .note { color:var(--muted); font-size:12px; margin-top:2rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="serif lotus">✦ MindKshetra</span>
+    <a href="#">Explore</a><a href="#">Mood</a><a href="#">Practice</a><a href="#">Astrology</a>
+    <a class="cta" href="#">Ask Madhav</a>
+    <a href="#">Account</a>
+  </nav>
+  <main>
+    <div class="hero">
+      <div class="lotus">lotus</div>
+      <h1 class="serif brand">MindKshetra</h1>
+      <p class="tag">Clarity from the Gita, for the battlefield of the mind. Meet the mind where it is — with a verse, a chart, or a quiet sit.</p>
+      <div class="ctas">
+        <a class="btn primary" href="/sadhana">Practice</a>
+        <a class="btn" href="/madhav">Ask Madhav</a>
+        <a class="btn" href="/explore">Explore</a>
+      </div>
+    </div>
+
+    <section>
+      <p class="eyebrow">Paths</p>
+      <div class="grid6">
+        <div class="tile"><h3>Explore</h3><p>Chapters &amp; verses</p></div>
+        <div class="tile"><h3>Mood</h3><p>Meet the mind</p></div>
+        <div class="tile"><h3>Meditation</h3><p>45-day course</p></div>
+        <div class="tile"><h3>Ask Madhav</h3><p>Two-voice guide</p></div>
+        <div class="tile"><h3>Astrology</h3><p>Chart &amp; panchang</p></div>
+        <div class="tile"><h3>Paths</h3><p>Seven-day journeys</p></div>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Practice</p>
+      <div class="sadhana">
+        <h2 class="serif">Today’s Sādhana</h2>
+        <p class="tag">Flagship daily practice · streak when &gt; 0</p>
+      </div>
+      <div class="sadhana" style="margin-top:1rem">
+        <h2 class="serif">Meditation</h2>
+        <p class="tag">Continue / start day</p>
+      </div>
+      <div class="row3" style="margin-top:1rem">
+        <div class="tile"><h3>Course</h3><p>Guided path</p></div>
+        <div class="tile"><h3>Japa</h3><p>Mala practice</p></div>
+        <div class="tile"><h3>Panchang</h3><p>Tithi · muhurat</p></div>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Together</p>
+      <div class="row3">
+        <div class="tile"><h3>Community</h3><p>Sangha</p></div>
+        <div class="tile"><h3>Care</h3><p>Gentle support</p></div>
+        <div class="tile"><h3>Support</h3><p>Dāna &amp; help</p></div>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Verse of the Day</p>
+      <div class="sadhana">
+        <p class="serif" style="font-size:1.25rem">Sanskrit line · English excerpt</p>
+        <div class="ctas"><a class="btn" href="#">Read</a><a class="btn" href="#">Full VOTD</a></div>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Mood</p>
+      <div class="chips">
+        <span class="chip">Anxious</span><span class="chip">Sad</span><span class="chip">Angry</span><span class="chip">Lost</span><span class="chip">Grateful</span>
+      </div>
+    </section>
+
+    <section class="close">
+      <a class="btn primary" href="/madhav">Ask Madhav</a>
+    </section>
+
+    <p class="note">Design v3 HTML reference — MUST INCLUDE list. No stats/badge hero. Gamification under Account.</p>
+  </main>
+</body>
+</html>

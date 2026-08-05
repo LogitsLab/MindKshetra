@@ -75,8 +75,14 @@ export default function Nav() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-40 bg-transparent">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-3.5">
+    <header
+      className={
+        pathname === "/"
+          ? "sticky top-0 z-40 border-b border-transparent bg-gradient-to-b from-[rgba(7,9,15,.72)] via-[rgba(7,9,15,.35)] to-transparent backdrop-blur-md"
+          : "sticky top-0 z-40 border-b border-[var(--hairline)] bg-[var(--nav-bg)]/90 backdrop-blur-xl"
+      }
+    >
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3">
         <Link
           href="/"
           className="group flex min-w-0 items-center gap-2 font-display text-lg font-semibold tracking-tight text-[var(--text)] transition hover:text-[var(--brass-soft)] sm:gap-2.5 sm:text-2xl"
@@ -94,8 +100,8 @@ export default function Nav() {
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden items-center gap-3 md:flex">
-          <nav className="flex items-center gap-1">
+        <div className="hidden items-center gap-2.5 md:flex">
+          <nav className="flex items-center gap-0.5">
             {primaryLinks.map((link) => {
               const active =
                 pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -103,13 +109,13 @@ export default function Nav() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-2.5 text-[15px] transition ${
+                  className={`px-3 py-2 text-[13px] font-medium tracking-wide transition ${
                     active
                       ? "text-[var(--brass-soft)]"
                       : "text-[var(--text-muted)] hover:text-[var(--text)]"
                   }`}
                 >
-                  <span className="link-underline">{link.label}</span>
+                  {link.label}
                 </Link>
               );
             })}
@@ -120,7 +126,7 @@ export default function Nav() {
                 onClick={() => setMoreOpen((v) => !v)}
                 aria-expanded={moreOpen}
                 aria-haspopup="true"
-                className={`px-3 py-2.5 text-[15px] transition ${
+                className={`px-3 py-2 text-[13px] font-medium tracking-wide transition ${
                   moreActive || moreOpen
                     ? "text-[var(--brass-soft)]"
                     : "text-[var(--text-muted)] hover:text-[var(--text)]"
@@ -150,10 +156,10 @@ export default function Nav() {
 
           <Link
             href={madhavLink.href}
-            className={`min-h-9 border px-3.5 py-2 text-sm transition ${
+            className={`min-h-9 px-3.5 py-2 text-[13px] font-medium transition ${
               pathname.startsWith(madhavLink.href)
-                ? "border-[var(--brass)]/60 text-[var(--brass-soft)]"
-                : "border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
+                ? "bg-[var(--brass-soft)] text-[var(--on-brass)]"
+                : "bg-[var(--brass)] text-[var(--on-brass)] hover:bg-[var(--brass-soft)]"
             }`}
           >
             {madhavLink.label}
@@ -167,7 +173,6 @@ export default function Nav() {
         <div className="flex items-center gap-2 md:hidden">
           <AuthButton />
           <ThemeToggle />
-          <LangToggle lang={lang} setLang={setLang} t={t} />
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
@@ -207,6 +212,12 @@ export default function Nav() {
           className="border-t border-[var(--hairline)] bg-[var(--nav-bg)] backdrop-blur-xl md:hidden"
         >
           <nav className="mx-auto flex max-w-6xl flex-col px-4 py-2">
+            <div className="flex items-center justify-between border-b border-[var(--hairline)] py-3">
+              <span className="eyebrow text-[var(--text-muted)]">
+                {lang === "hi" ? "भाषा" : "Language"}
+              </span>
+              <LangToggle lang={lang} setLang={setLang} t={t} />
+            </div>
             {links.map((link) => {
               const active =
                 pathname === link.href || pathname.startsWith(`${link.href}/`);
