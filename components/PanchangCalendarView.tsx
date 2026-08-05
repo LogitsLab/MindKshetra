@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import ImmersiveHero from "@/components/ImmersiveHero";
 import { useLanguage } from "@/components/LanguageProvider";
 import EmptyState from "@/components/EmptyState";
 import { SkeletonPanel } from "@/components/Skeleton";
@@ -97,32 +98,54 @@ export default function PanchangCalendarView() {
 
   if (state === "error") {
     return (
-      <EmptyState
-        title={t("panchangUnavailable")}
-        body={t("panchangUnavailableBody")}
-      />
+      <div className="life-hub pb-10">
+        <ImmersiveHero
+          compact
+          image="/images/paths/panchang-ring.jpg"
+          eyebrow={t("panchangCalendarEyebrow")}
+          title={t("panchangCalendarTitle")}
+          intro={t("panchangCalendarIntro")}
+        />
+        <EmptyState
+          title={t("panchangUnavailable")}
+          body={t("panchangUnavailableBody")}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="max-w-3xl">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={() => setMonth((m) => shiftMonth(m, -1))}
-          className="min-h-10 border border-[var(--line)] px-4 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
-        >
-          ← {t("panchangCalendarPrev")}
-        </button>
-        <p className="font-display text-xl text-[var(--text)]">{month}</p>
-        <button
-          type="button"
-          onClick={() => setMonth((m) => shiftMonth(m, 1))}
-          className="min-h-10 border border-[var(--line)] px-4 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
-        >
-          {t("panchangCalendarNext")} →
-        </button>
-      </div>
+    <div className="life-hub pb-10">
+      <ImmersiveHero
+        compact
+        image="/images/paths/panchang-ring.jpg"
+        eyebrow={t("panchangCalendarEyebrow")}
+        title={t("panchangCalendarTitle")}
+        intro={t("panchangCalendarIntro")}
+        meta={
+          <p className="font-display text-2xl text-white">{month}</p>
+        }
+        actions={
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => setMonth((m) => shiftMonth(m, -1))}
+              className="inline-flex min-h-11 items-center border border-white/25 px-4 py-2 text-sm text-white/80 transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
+            >
+              ← {t("panchangCalendarPrev")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMonth((m) => shiftMonth(m, 1))}
+              className="inline-flex min-h-11 items-center border border-white/25 px-4 py-2 text-sm text-white/80 transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
+            >
+              {t("panchangCalendarNext")} →
+            </button>
+          </div>
+        }
+      />
+
+      <div className="max-w-3xl">
 
       {state === "loading" && !data ? (
         <SkeletonPanel widths={["w-40", "w-56"]} label={t("loading")} />
@@ -196,6 +219,7 @@ export default function PanchangCalendarView() {
           ← {t("panchangBackToday")}
         </Link>
       </p>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { playOrSpeak, stopNarration } from "@/lib/audio/narration";
+import { resolveRecitationUrl } from "@/lib/audio/manifest";
+import { playOrSpeak, playUrl, stopNarration } from "@/lib/audio/narration";
 import { isSpeechSynthesisSupported, type SpeakLang } from "@/lib/tts";
 
 type Props = {
@@ -13,6 +14,15 @@ type Props = {
   className?: string;
   /** Compact icon-style control for chat bubbles. */
   compact?: boolean;
+  /**
+   * Prefer the Sanskrit recitation file for this verse from the audio bucket
+   * (`recitation/{chapter}-{verse}.m4a`) when present; falls back to `text`.
+   */
+  chapter?: number;
+  verseNumber?: number;
+  /** When true, only play if a recitation file exists — no TTS fallback. */
+  recitationOnly?: boolean;
+  onSpeakingChange?: (speaking: boolean) => void;
 };
 
 export default function SpeakButton({
@@ -23,9 +33,22 @@ export default function SpeakButton({
   unsupportedLabel,
   className = "",
   compact = false,
+  chapter,
+  verseNumber,
+  recitationOnly = false,
+  onSpeakingChange,
 }: Props) {
   const [supported, setSupported] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [recitationReady, setRecitationReady] = useState(!recitationOnly);
+
+  const setSpeakingState = useCallback(
+    (next: boolean) => {
+      setSpeaking(next);
+      onSpeakingChange?.(next);
+    },
+    [onSpeakingChange]
+  );
 
   useEffect(() => {
     // Pre-generated audio plays through a plain <audio> element, so the
@@ -44,28 +67,72 @@ export default function SpeakButton({
     };
   }, []);
 
-  // Stop if the text/lang changes mid-playback
+  // Stop if the text/lang/verse changes mid-playback
   useEffect(() => {
     stopNarration();
-    setSpeaking(false);
-  }, [text, lang]);
+    setSpeakingState(false);
+  }, [text, lang, chapter, verseNumber, setSpeakingState]);
 
-  const toggle = useCallback(() => {
+  useEffect(() => {
+    if (!recitationOnly || chapter == null || verseNumber == null) {
+      setRecitationReady(true);
+      return;
+    }
+    let cancelled = false;
+    void resolveRecitationUrl(chapter, verseNumber).then((url) => {
+      if (!cancelled) setRecitationReady(Boolean(url));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [recitationOnly, chapter, verseNumber]);
+
+  const toggle = useCallback(async () => {
     if (!supported) return;
     if (speaking) {
       stopNarration();
-      setSpeaking(false);
+      setSpeakingState(false);
       return;
     }
-    void playOrSpeak(text, {
+
+    const url =
+      chapter != null && verseNumber != null
+        ? await resolveRecitationUrl(chapter, verseNumber)
+        : null;
+
+    if (recitationOnly) {
+      if (!url) {
+        setSpeakingState(false);
+        return;
+      }
+      // Play the file only — do not fall back to speaking the translation.
+      const ok = await playUrl(url, {
+        onStart: () => setSpeakingState(true),
+        onEnd: () => setSpeakingState(false),
+        onError: () => setSpeakingState(false),
+      });
+      if (!ok) setSpeakingState(false);
+      return;
+    }
+
+    const ok = await playOrSpeak(text, {
       lang,
-      onStart: () => setSpeaking(true),
-      onEnd: () => setSpeaking(false),
-      onError: () => setSpeaking(false),
-    }).then((ok) => {
-      if (!ok) setSpeaking(false);
+      url,
+      onStart: () => setSpeakingState(true),
+      onEnd: () => setSpeakingState(false),
+      onError: () => setSpeakingState(false),
     });
-  }, [supported, speaking, text, lang]);
+    if (!ok) setSpeakingState(false);
+  }, [
+    supported,
+    speaking,
+    text,
+    lang,
+    chapter,
+    verseNumber,
+    recitationOnly,
+    setSpeakingState,
+  ]);
 
   if (!supported) {
     return (
@@ -84,11 +151,21 @@ export default function SpeakButton({
   return (
     <button
       type="button"
-      onClick={toggle}
-      disabled={!text.trim()}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        void toggle();
+      }}
+      disabled={recitationOnly ? !recitationReady : !text.trim()}
       aria-pressed={speaking}
       aria-label={speaking ? stopLabel : listenLabel}
-      title={speaking ? stopLabel : listenLabel}
+      title={
+        recitationOnly && !recitationReady
+          ? unsupportedLabel
+          : speaking
+            ? stopLabel
+            : listenLabel
+      }
       className={`transition disabled:opacity-40 ${
         compact
           ? "min-h-9 min-w-9 px-2 text-sm"

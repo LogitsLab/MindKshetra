@@ -11,6 +11,10 @@ type Props = {
   slokaId?: number;
   /** Which card was shared: the verse block or the reflection story block. */
   surface?: "verse" | "story";
+  shareLabel?: string;
+  imageLabel?: string;
+  /** Quiet text links instead of bordered buttons. */
+  quiet?: boolean;
 };
 
 export default function ShareButton({
@@ -20,6 +24,9 @@ export default function ShareButton({
   imageUrl,
   slokaId,
   surface,
+  shareLabel = "Share",
+  imageLabel = "Card",
+  quiet = false,
 }: Props) {
   // `path` distinguishes the page the share happened on (/sloka/[id] vs
   // /verse-of-the-day — both render this button through SlokaDetail).
@@ -60,22 +67,50 @@ export default function ShareButton({
     window.open(imageUrl, "_blank", "noopener,noreferrer");
   }
 
+  const buttonClass = quiet
+    ? "inline-flex h-8 items-center text-sm leading-none text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+    : "min-h-10 border border-[var(--line)] px-3 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]";
+
+  if (quiet) {
+    return (
+      <>
+        <button type="button" onClick={() => void share()} className={buttonClass}>
+          {shareLabel}
+        </button>
+        {imageUrl ? (
+          <>
+            <span className="select-none text-[var(--text-muted)]/35" aria-hidden>
+              ·
+            </span>
+            <button
+              type="button"
+              onClick={downloadImage}
+              className={buttonClass}
+            >
+              {imageLabel}
+            </button>
+          </>
+        ) : null}
+      </>
+    );
+  }
+
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <button
         type="button"
         onClick={() => void share()}
-        className="min-h-10 border border-[var(--line)] px-3 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
+        className={buttonClass}
       >
-        Share
+        {shareLabel}
       </button>
       {imageUrl ? (
         <button
           type="button"
           onClick={downloadImage}
-          className="min-h-10 border border-[var(--line)] px-3 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]"
+          className={buttonClass}
         >
-          Image card
+          {imageLabel}
         </button>
       ) : null}
     </div>

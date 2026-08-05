@@ -56,6 +56,14 @@ export const en = {
   medHomeContinue: "Continue sitting · day {n}",
   medHomeStart: "Begin the sitting course",
   medHomeNextReady: "Your next seat is ready",
+  medNearYou: "Your seat",
+  medPathTitle: "Days near you",
+  medShowAllDays: "Show full course",
+  medHideAllDays: "Show nearby days",
+  medSilenceHint: "Rest in the quiet",
+  medListeningHint: "Receive the guidance",
+  medAmbientOn: "Stop music",
+  medAmbientOff: "Play music",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
@@ -114,4 +122,12 @@ export const hi: Record<keyof typeof en, string> = {
   medHomeContinue: "बैठक जारी · दिन {n}",
   medHomeStart: "बैठने का पाठ्यक्रम आरंभ करें",
   medHomeNextReady: "अगला आसन तैयार है",
+  medNearYou: "आपका आसन",
+  medPathTitle: "आसपास के दिन",
+  medShowAllDays: "पूरा पाठ्यक्रम देखें",
+  medHideAllDays: "आसपास के दिन देखें",
+  medSilenceHint: "मौन में विश्राम करें",
+  medListeningHint: "मार्गदर्शन ग्रहण करें",
+  medAmbientOn: "संगीत रोकें",
+  medAmbientOff: "संगीत चलाएँ",
 };

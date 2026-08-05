@@ -11,6 +11,9 @@
  *
  * Requires: SARVAM_API_KEY in .env, ffmpeg on PATH (concat + m4a encode),
  * Supabase service env. Resumable: existing manifest entries are skipped.
+ *
+ * Pin the audio project (not the dev DB) when .env.local would win:
+ *   AUDIO_ENV_FILE=.env node scripts/audio/generate-tts.mjs --only=meditation
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, rmSync, readFileSync } from "node:fs";
@@ -54,19 +57,26 @@ function collectTexts() {
   }
 
   if (!args.only || args.only === "meditation") {
-    // Any text_en/text_hi field anywhere in the journey data is speakable.
+    // Any text_en/text_hi field in journey OR meditation data is speakable.
+    // Sitting foundation + daily sits live under data/meditation/ (not journeys).
     const walk = (node, label) => {
       if (Array.isArray(node)) {
         node.forEach((item, i) => walk(item, `${label}[${i}]`));
       } else if (node && typeof node === "object") {
         if (typeof node.text_en === "string") add("en", node.text_en, label);
         if (typeof node.text_hi === "string") add("hi", node.text_hi, label);
-        for (const [k, v] of Object.entries(node)) walk(v, `${label}.${k}`);
+        for (const [k, v] of Object.entries(node)) {
+          // Avoid double-counting the same text_* leaf via Object.entries.
+          if (k === "text_en" || k === "text_hi") continue;
+          walk(v, `${label}.${k}`);
+        }
       }
     };
-    for (const file of readdirSync("data/journeys")) {
-      if (!file.endsWith(".json")) continue;
-      walk(JSON.parse(readFileSync(join("data/journeys", file), "utf8")), file);
+    for (const dir of ["data/journeys", "data/meditation"]) {
+      for (const file of readdirSync(dir)) {
+        if (!file.endsWith(".json")) continue;
+        walk(JSON.parse(readFileSync(join(dir, file), "utf8")), `${dir}/${file}`);
+      }
     }
   }
   return texts;

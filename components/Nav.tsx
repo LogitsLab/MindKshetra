@@ -85,14 +85,14 @@ export default function Nav() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3">
         <Link
           href="/"
-          className="group flex min-w-0 items-center gap-2 font-display text-base font-semibold tracking-tight text-[var(--brass-soft)] transition hover:text-[var(--brass-hover)] sm:gap-2.5 sm:text-xl"
+          className="group flex min-w-0 items-center gap-2 font-display text-lg font-semibold tracking-tight text-[var(--text)] transition hover:text-[var(--brass-soft)] sm:gap-2.5 sm:text-2xl"
           onClick={() => setMenuOpen(false)}
         >
           <Image
             src="/brand/mark.svg"
             alt=""
-            width={24}
-            height={24}
+            width={28}
+            height={28}
             className="shrink-0 opacity-90 transition group-hover:opacity-100"
             priority
           />

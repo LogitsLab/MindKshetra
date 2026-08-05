@@ -216,7 +216,7 @@ export default function PersonalizePage() {
 
           <div className="mt-8">
             <h2 className="eyebrow text-[var(--brass-soft)]">
-              Divine archetype focus
+              {copy.inspirations.title[L]}
             </h2>
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {INSPIRATIONS.map((item) => (
@@ -246,20 +246,28 @@ export default function PersonalizePage() {
 
           <div className="mt-8 grid gap-8 border-t border-[var(--hairline)] pt-8 sm:grid-cols-2">
             <div>
-              <h2 className="eyebrow text-[var(--brass-soft)]">Guidance style</h2>
+              <h2 className="eyebrow text-[var(--brass-soft)]">
+                {copy.setup.guidance[L]}
+              </h2>
+              <p className="mt-2 text-sm text-[var(--text-muted)]">
+                {copy.setup.guidanceBody[L]}
+              </p>
               <div className="mt-4 space-y-2">
                 {GUIDANCE_STYLES.map((style) => (
                   <button
                     key={style.id}
                     type="button"
                     onClick={() => setGuidanceStyle(style.id)}
-                    className={`block w-full rounded border px-4 py-2.5 text-left text-sm ${
+                    className={`block w-full rounded border px-4 py-2.5 text-left ${
                       guidanceStyle === style.id
                         ? "border-[var(--brass)] text-[var(--brass-soft)]"
                         : "border-[var(--hairline)] text-[var(--text-muted)]"
                     }`}
                   >
-                    {style[L]}
+                    <span className="block text-sm font-medium">{style[L]}</span>
+                    <span className="mt-1 block text-xs leading-snug opacity-80">
+                      {L === "hi" ? style.blurbHi : style.blurbEn}
+                    </span>
                   </button>
                 ))}
               </div>

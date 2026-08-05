@@ -3,7 +3,7 @@
  * Shared by web, app, and Stitch prompts — do not invent alternate labels.
  */
 
-export const ONBOARDING_VERSION = 6;
+export const ONBOARDING_VERSION = 7;
 
 export const GOALS = [
   { id: "inner_peace", en: "Inner Peace", hi: "आंतरिक शांति" },
@@ -21,11 +21,6 @@ export type GoalId = (typeof GOALS)[number]["id"];
 
 export const INSPIRATIONS = [
   { id: "krishna", en: "Krishna", hi: "कृष्ण" },
-  { id: "shiva", en: "Shiva", hi: "शिव" },
-  { id: "rama", en: "Rama", hi: "राम" },
-  { id: "devi", en: "Devi", hi: "देवी" },
-  { id: "hanuman", en: "Hanuman", hi: "हनुमान" },
-  { id: "buddha", en: "Buddha", hi: "बुद्ध" },
 ] as const;
 
 export type InspirationId = (typeof INSPIRATIONS)[number]["id"];
@@ -39,9 +34,33 @@ export const DAILY_TIME_OPTIONS = [
 ] as const;
 
 export const GUIDANCE_STYLES = [
-  { id: "balanced", en: "Balanced (all paths)", hi: "संतुलित (सभी मार्ग)" },
-  { id: "gita_first", en: "Gita-first", hi: "गीता पहले" },
-  { id: "practice_first", en: "Practice-first", hi: "अभ्यास पहले" },
+  {
+    id: "balanced",
+    en: "Balanced",
+    hi: "संतुलित",
+    blurbEn:
+      "Verse and practice together — a Gita teaching, then a short sit, japa, or breath.",
+    blurbHi:
+      "श्लोक और अभ्यास साथ — गीता की शिक्षा, फिर छोटी बैठक, जप या श्वास।",
+  },
+  {
+    id: "gita_first",
+    en: "Gita-first",
+    hi: "गीता पहले",
+    blurbEn:
+      "Start with a verse and Madhav’s clarity. Practice (japa, sit, breath) follows when you’re ready.",
+    blurbHi:
+      "पहले श्लोक और माधव की स्पष्टता। अभ्यास (जप, बैठक, श्वास) जब आप तैयार हों।",
+  },
+  {
+    id: "practice_first",
+    en: "Practice-first",
+    hi: "अभ्यास पहले",
+    blurbEn:
+      "Lead with the body and breath — japa (mantra on the beads), sits, and pranayama — then meet the verse.",
+    blurbHi:
+      "पहले शरीर और श्वास — जप (मनके पर मंत्र), बैठक और प्राणायाम — फिर श्लोक।",
+  },
 ] as const;
 
 export type GuidanceStyleId = (typeof GUIDANCE_STYLES)[number]["id"];
@@ -69,13 +88,37 @@ export const ONBOARDING_COPY = {
     next: { en: "Next", hi: "आगे" },
   },
   inspirations: {
-    title: { en: "Who inspires you?", hi: "आपको कौन प्रेरित करता है?" },
+    title: { en: "Guided by Madhav", hi: "माधव का मार्गदर्शन" },
+    eyebrow: { en: "Kurukshetra", hi: "कुरुक्षेत्र" },
+    sceneTitle: {
+      en: "When all feels against you",
+      hi: "जब सब खिलाफ लगे",
+    },
     body: {
-      en: "Optional — shapes soft accents, never locks content.",
-      hi: "वैकल्पिक — केवल नरम स्वर; सामग्री कभी बंद नहीं होती।",
+      en: "The Gita begins here — doubt meets clarity.",
+      hi: "गीता यहीं से शुरू होती है — संशय और स्पष्टता।",
+    },
+    dialogue: {
+      arjun: {
+        label: { en: "Arjun", hi: "अर्जुन" },
+        hi: "सब खिलाफ है माधव",
+        en: "Everyone is against me, Madhav",
+      },
+      krishna: {
+        label: { en: "Madhav", hi: "माधव" },
+        hi: "सब हारेंगे पार्थ",
+        en: "Everyone will lose, Parth",
+      },
+    },
+    sloka: {
+      ref: { en: "Bhagavad Gita 2.3", hi: "भगवद्गीता २.३" },
+      sanskrit:
+        "क्लैब्यं मा स्म गमः पार्थ नैतत्त्वय्युपपद्यते।\nक्षुद्रं हृदयदौर्बल्यं त्यक्त्वोत्तिष्ठ परन्तप॥",
+      en: "Do not yield to this weakness, O Partha. It does not become you. Cast it off and stand up, conqueror of foes.",
+      hi: "हे पार्थ! इस दुर्बलता को मत अपनाओ — यह तुम्हें शोभा नहीं देती। इसे त्याग कर खड़े हो जाओ, हे परंतप!",
     },
     none: { en: "No Preference", hi: "कोई प्राथमिकता नहीं" },
-    next: { en: "Next", hi: "आगे" },
+    next: { en: "Continue with Madhav", hi: "माधव के साथ आगे" },
   },
   time: {
     title: {
@@ -91,7 +134,11 @@ export const ONBOARDING_COPY = {
   setup: {
     title: { en: "Your journey setup", hi: "आपकी यात्रा सेटअप" },
     language: { en: "Preferred language", hi: "पसंदीदा भाषा" },
-    guidance: { en: "Preferred guidance style", hi: "मार्गदर्शन शैली" },
+    guidance: { en: "How should we guide you?", hi: "हम कैसे मार्गदर्शन करें?" },
+    guidanceBody: {
+      en: "Gita brings teaching through verse. Practice is what you do with the body and breath — including japa, the quiet repetition of a mantra on a mala.",
+      hi: "गीता श्लोक से शिक्षा देती है। अभ्यास वह है जो आप शरीर और श्वास से करते हैं — इसमें जप भी है: माला पर मंत्र का शांत दोहराव।",
+    },
     name: { en: "Your name", hi: "आपका नाम" },
     namePlaceholder: { en: "Optional", hi: "वैकल्पिक" },
     creating: {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import ImmersiveHero from "@/components/ImmersiveHero";
 import { useLanguage } from "@/components/LanguageProvider";
 import { PracticeMarks } from "@/components/MilestoneMarks";
 import { useProgress } from "@/components/ProgressProvider";
@@ -510,65 +511,38 @@ export default function AccountPageClient() {
     ];
 
     return (
-      <div className="relative mx-auto max-w-2xl animate-fade pb-12 pt-2">
-        <Image
-          src="/ornaments/chapter.svg"
-          alt=""
-          width={160}
-          height={160}
-          className="pointer-events-none absolute -right-2 -top-4 opacity-[0.08] sm:right-0"
-        />
-
-        {/* Identity */}
-        <header className="glass relative overflow-hidden px-6 py-8 sm:px-8 sm:py-9">
-          <div className="flex flex-wrap items-start gap-5">
-            <div
-              className="flex h-16 w-16 shrink-0 items-center justify-center border border-[var(--brass)]/40 bg-[var(--brass)]/10 font-display text-2xl text-[var(--brass-soft)]"
-              aria-hidden
+      <div className="life-hub relative animate-fade pb-12">
+        <ImmersiveHero
+          compact
+          image="/images/paths/astrology.jpg"
+          eyebrow={t("account")}
+          title={name || t("welcomeBack")}
+          intro={user.email ?? undefined}
+          meta={
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/65">
+              <span
+                className="inline-flex h-10 w-10 items-center justify-center border border-white/25 font-display text-lg text-[var(--brass-soft)]"
+                aria-hidden
+              >
+                {initial}
+              </span>
+              {place.trim() ? <span>{place.trim()}</span> : null}
+              {streak > 0 ? (
+                <span className="text-[var(--brass-soft)]">
+                  {streak} {t("homeStreakLabel")}
+                </span>
+              ) : null}
+            </div>
+          }
+          actions={
+            <Link
+              href="/account/personalize"
+              className="inline-flex min-h-12 items-center bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
             >
-              {initial}
-            </div>
-            <div className="min-w-0 flex-1 space-y-2">
-              <p className="text-xs uppercase tracking-[0.18em] text-[var(--brass)]">
-                {t("account")}
-              </p>
-              <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--text)] sm:text-4xl">
-                {name || t("welcomeBack")}
-              </h1>
-              <p className="truncate text-sm text-[var(--text-muted)]">
-                {user.email}
-              </p>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-sm text-[var(--text-muted)]">
-                {place.trim() ? <span>{place.trim()}</span> : null}
-                {streak > 0 ? (
-                  <span className="text-[var(--brass-soft)]">
-                    {streak} {t("homeStreakLabel")}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <Link
-          href="/account/personalize"
-          className="mt-6 flex items-center justify-between gap-4 border border-[var(--line)] bg-[rgba(201,162,39,.06)] px-5 py-4 transition hover:bg-[rgba(201,162,39,.1)]"
-        >
-          <div>
-            <p className="text-xs uppercase tracking-[0.16em] text-[var(--brass)]">
-              Settings
-            </p>
-            <p className="mt-1 font-display text-lg text-[var(--text)]">
-              Personalize your journey
-            </p>
-            <p className="mt-1 text-sm text-[var(--text-soft)]">
-              Goals, inspirations, time, and guidance — anytime, no wizard.
-            </p>
-          </div>
-          <span className="text-[var(--brass-soft)]" aria-hidden>
-            →
-          </span>
-        </Link>
+              Personalize
+            </Link>
+          }
+        />
 
         {/* Paths */}
         <section className="mt-10 space-y-4">

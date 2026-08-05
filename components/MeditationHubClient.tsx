@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
@@ -63,12 +64,27 @@ function fill(template: string, vars: Record<string, string | number>) {
 
 function sectionLabel(
   id: "foundation" | "habit" | "deepening",
-  lang: string,
   t: (k: "medSectionFoundation" | "medSectionHabit" | "medSectionDeepening") => string
 ) {
   if (id === "foundation") return t("medSectionFoundation");
   if (id === "habit") return t("medSectionHabit");
   return t("medSectionDeepening");
+}
+
+function nearbyDays(
+  days: MeditationSession[],
+  continueDay: number,
+  windowSize = 7
+): MeditationSession[] {
+  if (!days.length) return [];
+  const half = Math.floor(windowSize / 2);
+  let start = Math.max(1, continueDay - half);
+  let end = start + windowSize - 1;
+  if (end > days.length) {
+    end = days.length;
+    start = Math.max(1, end - windowSize + 1);
+  }
+  return days.filter((d) => d.day_number >= start && d.day_number <= end);
 }
 
 export default function MeditationHubClient({
@@ -79,6 +95,7 @@ export default function MeditationHubClient({
   const { lang, t } = useLanguage();
   const { user } = useAuth();
   const [progress, setProgress] = useState<Progress | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const program = initialCatalog.program;
   const dailies = initialCatalog.dailies;
 
@@ -129,7 +146,6 @@ export default function MeditationHubClient({
     void loadProgress();
   }, [loadProgress, user]);
 
-  // Merge guest completions + journey days on sign-in
   useEffect(() => {
     if (!user || user.is_anonymous) return;
     try {
@@ -195,19 +211,35 @@ export default function MeditationHubClient({
           Math.max(1, progress?.currentDay ?? 1)
         );
 
+  const continueSession =
+    program.days.find((d) => d.day_number === continueDay) ?? program.days[0];
+  const continueTitle = continueSession
+    ? lang === "hi"
+      ? continueSession.title_hi
+      : continueSession.title_en
+    : "";
+  const continueTheme = continueSession
+    ? lang === "hi"
+      ? continueSession.theme_hi
+      : continueSession.theme_en
+    : "";
+
   const title = lang === "hi" ? program.title_hi : program.title_en;
   const intro = lang === "hi" ? program.intro_hi : program.intro_en;
+  const doneCount = completed.size;
+  const pathPct = Math.round((doneCount / program.days_count) * 100);
 
   const sections = useMemo(() => {
     const groups: Array<{
       id: "foundation" | "habit" | "deepening";
+      end: number;
       days: MeditationSession[];
     }> = [];
     for (const day of program.days) {
       const sec = sittingSectionForDay(day.day_number);
       const last = groups[groups.length - 1];
       if (!last || last.id !== sec.id) {
-        groups.push({ id: sec.id, days: [day] });
+        groups.push({ id: sec.id, end: sec.end, days: [day] });
       } else {
         last.days.push(day);
       }
@@ -215,127 +247,221 @@ export default function MeditationHubClient({
     return groups;
   }, [program.days]);
 
+  const activeSection = sittingSectionForDay(continueDay).id;
+  const windowDays = nearbyDays(program.days, continueDay, 7);
+
   return (
-    <div className="max-w-2xl">
-      <header className="mb-10">
-        <p className="text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-          {t("medEyebrow")}
-        </p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-4xl">
-          {title}
-        </h1>
-        <p className="mt-3 text-[var(--text-muted)]">{intro}</p>
-        {progress ? (
-          <p className="mt-4 text-sm text-[var(--brass-soft)]">
-            {fill(t("medProgress"), {
-              done: completed.size,
-              total: program.days_count,
-            })}
-            {progress.streak && progress.streak.current > 0
-              ? ` · ${fill(t("medStreak"), { n: progress.streak.current })}`
-              : ` · ${t("medStreakNone")}`}
+    <div className="med-hub pb-10">
+      <section className="med-hub__hero relative mb-12 overflow-hidden border border-[var(--line)]">
+        <Image
+          src="/images/paths/meditation.jpg"
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, 80rem"
+          className="object-cover object-center"
+        />
+        <div className="med-hub__hero-scrim absolute inset-0" aria-hidden />
+        <div className="relative z-10 flex min-h-[22rem] flex-col justify-end px-6 py-8 sm:min-h-[26rem] sm:px-10 sm:py-10 lg:px-12">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--brass-soft)]">
+            {t("medEyebrow")}
           </p>
-        ) : null}
-        {progress?.guest ? (
-          <p className="mt-2 text-sm text-[var(--text-muted)]">
-            {t("medSignInHint")}{" "}
-            <Link
-              href="/account"
-              className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
-            >
-              {t("signIn")}
-            </Link>
+          <h1 className="mt-3 max-w-xl font-display text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] tracking-[-0.02em] text-white">
+            {title}
+          </h1>
+          <p className="mt-3 max-w-lg text-sm font-light leading-relaxed text-white/75 sm:text-base">
+            {intro}
           </p>
-        ) : null}
-        <Link
-          href={`/meditation/${continueDay}`}
-          className="mt-6 inline-flex min-h-11 items-center bg-[var(--brass)] px-5 py-2.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-        >
-          {completed.size === 0
-            ? t("medStart")
-            : fill(t("medContinue"), { n: continueDay })}
-        </Link>
-      </header>
 
-      {sections.map((section) => (
-        <section key={section.id} className="mb-10">
-          <h2 className="mb-4 text-xs uppercase tracking-[0.22em] text-[var(--brass-soft)]">
-            {sectionLabel(section.id, lang, t)}
-          </h2>
-          <ol className="space-y-3">
-            {section.days.map((day) => {
-              const done = completed.has(day.day_number);
-              const unlocked = isDayUnlocked(
-                day.day_number,
-                progress?.completedDays ?? [],
-                program.days_count
-              );
-              const dayTitle = lang === "hi" ? day.title_hi : day.title_en;
-              return (
-                <li key={day.id}>
-                  {unlocked ? (
-                    <Link
-                      href={`/meditation/${day.day_number}`}
-                      className="flex items-start justify-between gap-4 border border-[var(--line)] px-4 py-4 transition hover:border-[var(--brass)]/40"
+          {progress ? (
+            <div className="mt-6 max-w-md">
+              <div className="mb-2 flex items-baseline justify-between gap-3 text-xs tracking-[0.12em] text-white/55">
+                <span>
+                  {fill(t("medProgress"), {
+                    done: doneCount,
+                    total: program.days_count,
+                  })}
+                </span>
+                <span>
+                  {progress.streak && progress.streak.current > 0
+                    ? fill(t("medStreak"), { n: progress.streak.current })
+                    : t("medStreakNone")}
+                </span>
+              </div>
+              <div className="med-hub__path" aria-hidden>
+                {sections.map((section) => {
+                  const sectionDone = section.days.filter((d) =>
+                    completed.has(d.day_number)
+                  ).length;
+                  const fillPct =
+                    (sectionDone / Math.max(1, section.days.length)) * 100;
+                  const active = section.id === activeSection;
+                  return (
+                    <div
+                      key={section.id}
+                      className={`med-hub__path-seg ${active ? "is-active" : ""}`}
+                      title={sectionLabel(section.id, t)}
                     >
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
-                          Day {day.day_number} · {day.duration_minutes} min
-                        </p>
-                        <p className="mt-1 font-display text-xl text-[var(--text)]">
-                          {dayTitle}
-                        </p>
-                      </div>
-                      <span className="shrink-0 text-sm text-[var(--text-muted)]">
-                        {done ? t("medDayComplete") : t("medDayAvailable")}
-                      </span>
-                    </Link>
-                  ) : (
-                    <div className="flex items-start justify-between gap-4 border border-[var(--hairline)] px-4 py-4 opacity-60">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
-                          Day {day.day_number}
-                        </p>
-                        <p className="mt-1 font-display text-xl text-[var(--text-muted)]">
-                          {dayTitle}
-                        </p>
-                      </div>
-                      <span className="shrink-0 text-sm text-[var(--text-muted)]">
-                        {t("medDayLocked")}
-                      </span>
+                      <div
+                        className="med-hub__path-fill"
+                        style={{ width: `${fillPct}%` }}
+                      />
                     </div>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-        </section>
-      ))}
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[11px] tracking-[0.14em] text-white/45">
+                {pathPct}% · {sectionLabel(activeSection, t)}
+              </p>
+            </div>
+          ) : null}
 
-      <section className="mt-4 border-t border-[var(--hairline)] pt-10">
-        <h2 className="font-display text-2xl text-[var(--text)]">
-          {lang === "hi" ? dailies.title_hi : dailies.title_en}
-        </h2>
-        <p className="mt-2 text-sm text-[var(--text-muted)]">
-          {lang === "hi" ? dailies.intro_hi : dailies.intro_en}
-        </p>
-        <ul className="mt-6 space-y-3">
-          {dailies.sessions.map((s) => (
-            <li key={s.id}>
-              <Link
-                href={`/meditation/daily/${s.id}`}
-                className="block border border-[var(--line)] px-4 py-4 transition hover:border-[var(--brass)]/40"
-              >
-                <p className="text-xs uppercase tracking-[0.18em] text-[var(--brass-soft)]">
-                  {s.duration_minutes} min
+          <div className="mt-8 flex flex-wrap items-end gap-4">
+            <Link
+              href={`/meditation/${continueDay}`}
+              className="inline-flex min-h-12 items-center bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+            >
+              {doneCount === 0
+                ? t("medStart")
+                : fill(t("medContinue"), { n: continueDay })}
+            </Link>
+            {continueSession ? (
+              <div className="min-w-0 max-w-sm">
+                <p className="text-[11px] tracking-[0.16em] text-[var(--brass-soft)]">
+                  Day {continueDay} · {continueSession.duration_minutes} min
                 </p>
-                <p className="mt-1 font-display text-lg text-[var(--text)]">
-                  {lang === "hi" ? s.title_hi : s.title_en}
+                <p className="mt-1 font-display text-lg text-white">
+                  {continueTitle}
+                </p>
+                {continueTheme ? (
+                  <p className="mt-1 line-clamp-2 text-sm font-light text-white/60">
+                    {continueTheme}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+
+          {progress?.guest ? (
+            <p className="mt-4 text-sm text-white/55">
+              {t("medSignInHint")}{" "}
+              <Link
+                href="/account"
+                className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+              >
+                {t("signIn")}
+              </Link>
+            </p>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="mb-12">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="eyebrow text-[var(--brass)]">{t("medNearYou")}</p>
+            <h2 className="mt-2 font-display text-2xl text-[var(--text)]">
+              {t("medPathTitle")}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAll((v) => !v)}
+            className="text-sm text-[var(--brass-soft)] underline-offset-2 hover:underline"
+          >
+            {showAll ? t("medHideAllDays") : t("medShowAllDays")}
+          </button>
+        </div>
+
+        <div className="med-hub__days">
+          {(showAll ? program.days : windowDays).map((day) => {
+            const done = completed.has(day.day_number);
+            const unlocked = isDayUnlocked(
+              day.day_number,
+              progress?.completedDays ?? [],
+              program.days_count
+            );
+            const current = day.day_number === continueDay;
+            const dayTitle = lang === "hi" ? day.title_hi : day.title_en;
+            const className = `med-hub__day ${done ? "is-done" : ""} ${
+              current ? "is-current" : ""
+            } ${!unlocked ? "is-locked" : ""}`;
+
+            if (!unlocked) {
+              return (
+                <div key={day.id} className={className} aria-disabled>
+                  <p className="text-[11px] tracking-[0.16em] text-[var(--text-muted)]">
+                    Day {day.day_number}
+                  </p>
+                  <p className="mt-2 font-display text-lg text-[var(--text-muted)]">
+                    {dayTitle}
+                  </p>
+                  <p className="mt-3 text-xs text-[var(--text-muted)]">
+                    {t("medDayLocked")}
+                  </p>
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={day.id}
+                href={`/meditation/${day.day_number}`}
+                className={className}
+              >
+                <p className="text-[11px] tracking-[0.16em] text-[var(--brass-soft)]">
+                  Day {day.day_number} · {day.duration_minutes} min
+                </p>
+                <p className="mt-2 font-display text-lg text-[var(--text)]">
+                  {dayTitle}
+                </p>
+                <p className="mt-3 text-xs text-[var(--text-muted)]">
+                  {done
+                    ? t("medDayComplete")
+                    : current
+                      ? t("medDayAvailable")
+                      : t("medDayAvailable")}
                 </p>
               </Link>
-            </li>
+            );
+          })}
+        </div>
+
+      </section>
+
+      <section className="border-t border-[var(--hairline)] pt-10">
+        <p className="eyebrow text-[var(--brass)]">
+          {lang === "hi" ? dailies.title_hi : dailies.title_en}
+        </p>
+        <p className="mt-2 max-w-xl text-sm font-light text-[var(--text-soft)]">
+          {lang === "hi" ? dailies.intro_hi : dailies.intro_en}
+        </p>
+        <div className="med-hub__dailies mt-6">
+          {dailies.sessions.map((s) => (
+            <Link
+              key={s.id}
+              href={`/meditation/daily/${s.id}`}
+              className="med-hub__daily group"
+            >
+              <Image
+                src="/images/paths/meditation.jpg"
+                alt=""
+                fill
+                sizes="220px"
+                className="object-cover opacity-50 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-65"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+              <div className="relative z-10 mt-auto p-4">
+                <p className="text-[11px] tracking-[0.16em] text-[var(--brass-soft)]">
+                  {s.duration_minutes} min
+                </p>
+                <p className="mt-1 font-display text-lg text-white">
+                  {lang === "hi" ? s.title_hi : s.title_en}
+                </p>
+              </div>
+            </Link>
           ))}
-        </ul>
+        </div>
       </section>
 
       <p className="mt-10 text-sm text-[var(--text-muted)]">

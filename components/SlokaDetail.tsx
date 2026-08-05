@@ -8,6 +8,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 import JournalBox from "@/components/JournalBox";
 import VerseReflections from "@/components/VerseReflections";
 import ShareButton from "@/components/ShareButton";
+import SpeakButton from "@/components/SpeakButton";
 import VerseStory from "@/components/VerseStory";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useProgress } from "@/components/ProgressProvider";
@@ -70,6 +71,12 @@ export default function SlokaDetail({
   const unitAllDone =
     unitIds.length > 0 && unitIds.every((id) => isComplete(id));
 
+  const progressLabel = verseCount
+    ? t("verseOfChapter")
+        .replace("{n}", String(sloka.verse_number))
+        .replace("{total}", String(verseCount))
+    : null;
+
   return (
     <article className="animate-fade">
       <header className="border-b border-[var(--hairline)] pb-8 text-center">
@@ -83,19 +90,48 @@ export default function SlokaDetail({
           </span>{" "}
           · {formatVerseRef(sloka)}
           {chapterTitle ? ` · ${chapterTitle}` : ""}
+          {progressLabel ? (
+            <>
+              <span className="mx-1.5 opacity-40">·</span>
+              {progressLabel}
+            </>
+          ) : null}
         </p>
 
-        {/* No `tracking-*` here: the html[lang="hi"] reset in globals.css only
-            matches bracketed Tailwind values, so a bare `tracking-wide` slipped
-            past it and tracked the verse in both languages. */}
-        <h1 className="mx-auto mt-6 max-w-3xl space-y-3 font-devanagari text-[1.65rem] font-semibold leading-[1.75] text-[var(--text)] sm:text-[2rem] md:text-[2.15rem]">
-          {sanskritLines.map((line, i) => (
-            <span key={i} className="block">
-              {line}
-              {i < sanskritLines.length - 1 ? "।" : " ॥"}
-            </span>
-          ))}
-        </h1>
+        <div className="relative mx-auto mt-6 max-w-3xl">
+          {prev ? (
+            <Link
+              href={`/sloka/${prev.id}`}
+              className="absolute -left-2 top-1/2 hidden -translate-x-full -translate-y-1/2 items-center gap-1.5 pr-6 text-sm text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] xl:inline-flex"
+              aria-label={formatVerseRef(prev)}
+            >
+              <span aria-hidden>←</span>
+              {formatVerseRef(prev)}
+            </Link>
+          ) : null}
+          {next ? (
+            <Link
+              href={`/sloka/${next.id}`}
+              className="absolute -right-2 top-1/2 hidden translate-x-full -translate-y-1/2 items-center gap-1.5 pl-6 text-sm text-[var(--text-muted)] transition hover:text-[var(--brass-soft)] xl:inline-flex"
+              aria-label={formatVerseRef(next)}
+            >
+              {formatVerseRef(next)}
+              <span aria-hidden>→</span>
+            </Link>
+          ) : null}
+
+          {/* No `tracking-*` here: the html[lang="hi"] reset in globals.css only
+              matches bracketed Tailwind values, so a bare `tracking-wide` slipped
+              past it and tracked the verse in both languages. */}
+          <h1 className="space-y-3 font-devanagari text-[1.65rem] font-semibold leading-[1.75] text-[var(--text)] sm:text-[2rem] md:text-[2.15rem]">
+            {sanskritLines.map((line, i) => (
+              <span key={i} className="block">
+                {line}
+                {i < sanskritLines.length - 1 ? "।" : " ॥"}
+              </span>
+            ))}
+          </h1>
+        </div>
 
         <div className="mx-auto mt-5 max-w-2xl space-y-1 text-base italic font-light leading-relaxed text-[var(--text-muted)] sm:text-lg">
           {iastLines.map((line, i) => (
@@ -103,47 +139,35 @@ export default function SlokaDetail({
           ))}
         </div>
 
-        <Image
-          src="/ornaments/divider.svg"
-          alt=""
-          width={320}
-          height={24}
-          className="mx-auto mt-6 opacity-70"
-        />
-      </header>
-
-      <nav className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--hairline)] py-2 text-sm sm:gap-3 sm:py-3">
-        {prev ? (
-          <Link
-            href={`/sloka/${prev.id}`}
-            className="inline-flex min-h-11 items-center px-1 text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
-          >
-            ← {formatVerseRef(prev)}
-          </Link>
-        ) : (
-          <span className="text-[var(--text-muted)]/40">{t("start")}</span>
-        )}
-
-        {verseCount ? (
-          <p className="order-last w-full text-center text-xs tracking-[0.14em] text-[var(--text-muted)] sm:order-none sm:w-auto">
-            {t("verseProgress")} {sloka.verse_number} {t("ofChapter")}{" "}
-            {verseCount}
+        <div className="mt-7 flex flex-col items-center gap-2">
+          <SpeakButton
+            text={sloka.sanskrit_devanagari}
+            lang={lang === "hi" ? "hi" : "en"}
+            chapter={sloka.chapter}
+            verseNumber={sloka.verse_number}
+            recitationOnly
+            listenLabel={t("verseListen")}
+            stopLabel={t("verseStop")}
+            unsupportedLabel={t("ttsUnsupported")}
+            className="inline-flex !h-10 !min-h-0 items-center justify-center gap-2 !border-[var(--brass)]/50 !bg-transparent !px-5 !py-0 !text-sm !leading-none !text-[var(--brass-soft)] hover:!border-[var(--brass)] hover:!bg-[var(--brass)]/10 hover:!text-[var(--text)] aria-pressed:!border-[var(--brass)] aria-pressed:!bg-[var(--brass)]/15 aria-pressed:!text-[var(--brass-soft)]"
+          />
+          <p className="text-[11px] tracking-[0.14em] text-[var(--text-muted)]">
+            {t("verseRecitationCredit")}
           </p>
-        ) : null}
+        </div>
 
-        {next ? (
-          <Link
-            href={`/sloka/${next.id}`}
-            className="inline-flex min-h-11 items-center px-1 text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
-          >
-            {formatVerseRef(next)} →
-          </Link>
-        ) : (
-          <span className="text-[var(--text-muted)]/40">{t("end")}</span>
-        )}
-        <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
-          <CompleteVerseButton slokaId={sloka.id} />
-          <FavoriteButton slokaId={sloka.id} />
+        <nav
+          className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm"
+          aria-label={t("verseTools")}
+        >
+          <CompleteVerseButton slokaId={sloka.id} quiet />
+          <span className="select-none text-[var(--text-muted)]/35" aria-hidden>
+            ·
+          </span>
+          <FavoriteButton slokaId={sloka.id} quiet />
+          <span className="select-none text-[var(--text-muted)]/35" aria-hidden>
+            ·
+          </span>
           <ShareButton
             title={`MindKshetra ${formatVerseRef(sloka)}`}
             text={translation}
@@ -151,11 +175,47 @@ export default function SlokaDetail({
             imageUrl={`/api/og/verse/${sloka.id}`}
             slokaId={sloka.id}
             surface="verse"
+            shareLabel={t("verseShare")}
+            imageLabel={t("verseShareImage")}
+            quiet
           />
-        </div>
-      </nav>
+        </nav>
 
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:gap-3">
+        <div className="mt-6 flex items-center justify-between text-sm lg:hidden">
+          {prev ? (
+            <Link
+              href={`/sloka/${prev.id}`}
+              className="inline-flex min-h-10 items-center gap-1.5 text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+            >
+              <span aria-hidden>←</span>
+              {formatVerseRef(prev)}
+            </Link>
+          ) : (
+            <span className="text-[var(--text-muted)]/35">{t("start")}</span>
+          )}
+          {next ? (
+            <Link
+              href={`/sloka/${next.id}`}
+              className="inline-flex min-h-10 items-center gap-1.5 text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+            >
+              {formatVerseRef(next)}
+              <span aria-hidden>→</span>
+            </Link>
+          ) : (
+            <span className="text-[var(--text-muted)]/35">{t("end")}</span>
+          )}
+        </div>
+
+        <Image
+          src="/ornaments/divider.svg"
+          alt=""
+          width={320}
+          height={24}
+          className="mx-auto mt-7 opacity-70"
+        />
+      </header>
+
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:gap-3">
         <a
           href="#reflection"
           className="flex min-h-11 flex-1 items-center justify-center border border-[var(--line)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--brass-soft)] transition hover:border-[var(--brass)]/40 lg:hidden"
@@ -168,7 +228,7 @@ export default function SlokaDetail({
               ? `श्लोक ${formatVerseRef(sloka)} के बारे में मुझे समझाइए — आज मेरे जीवन में इसका क्या अर्थ हो सकता है?`
               : `Help me understand verse ${formatVerseRef(sloka)} — what might it mean for my life right now?`
           )}`}
-          className="flex min-h-11 flex-1 items-center justify-center bg-[var(--brass)] px-4 py-2.5 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
+          className="flex min-h-11 flex-1 items-center justify-center border border-[var(--brass)]/40 px-4 py-2.5 text-sm text-[var(--brass-soft)] transition hover:border-[var(--brass)] hover:bg-[var(--brass)]/10 hover:text-[var(--text)]"
         >
           {t("askMadhavVerse")}
         </Link>
