@@ -5,7 +5,7 @@
 Production Supabase **MindKshetra-prod** (`bpxszivjvexmqznnshlx`,
 mind.logitslab.com) is through **022** on the new MindKshetra org (clean
 cutover — see `docs/runbooks/supabase-org-migration.md`). Web `main` is at
-**v2.0.0** (Design v3 + personalization).
+**v2.1.0** (auth callback + native OAuth return).
 
 | Migration | Status on prod |
 |---|---|
