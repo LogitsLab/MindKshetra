@@ -696,9 +696,6 @@ export default function HomePageClient({
             <h2 className="mt-3 font-display text-[clamp(1.75rem,2.6vw,2.4rem)] leading-[1.05] tracking-[-.02em] text-[var(--text)]">
               {t("homeLifestyleTitle")}
             </h2>
-            <p className="mt-2 max-w-xl text-sm font-light leading-6 text-[var(--text-soft)]">
-              {t("homeLifestyleBlurb")}
-            </p>
           </header>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">

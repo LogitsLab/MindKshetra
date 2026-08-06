@@ -14,8 +14,7 @@ export const en = {
   homePaths: "Paths into",
   homeLifestyleEyebrow: "Today’s practice",
   homeLifestyleTitle: "Meet the day gently",
-  homeLifestyleBlurb:
-    "A short sit with scripture — then back to your day.",
+  homeLifestyleBlurb: "",
   homeDayLine: "{tithi} · {nakshatra}",
   homeDayLineFallback: "Today’s panchang",
   homeBlockPathsTitle: "Themed paths",
@@ -188,8 +187,7 @@ export const hi: Record<keyof typeof en, string> = {
   homePaths: "मार्ग",
   homeLifestyleEyebrow: "आज का अभ्यास",
   homeLifestyleTitle: "दिन को कोमलता से मिलें",
-  homeLifestyleBlurb:
-    "शास्त्र के साथ एक छोटी बैठक — फिर अपने दिन में लौटें।",
+  homeLifestyleBlurb: "",
   homeDayLine: "{tithi} · {nakshatra}",
   homeDayLineFallback: "आज का पंचांग",
   homeBlockPathsTitle: "विषयगत मार्ग",

@@ -7,20 +7,31 @@ import { formatVerseRef } from "@/lib/sloka-utils";
  * from the device clock, which could disagree with the web and the VOTD email.
  * `nakshatra` is present when today's pick was moon-driven (provenance line:
  * "Chosen for today's Moon in Rohini") and absent on corpus fallback.
+ *
+ * Optional `offset` (integer days, e.g. -1 / -2) returns that day's selection —
+ * used by the home carousel (today / yesterday / earlier), matching web.
+ * Optional `full=1` includes the sloka body so clients skip a second fetch.
  */
 export async function GET(request: NextRequest) {
-  const selection = await getVerseOfTheDaySelection();
+  const offsetRaw = request.nextUrl.searchParams.get("offset");
+  const offsetDays = offsetRaw ? Number(offsetRaw) : 0;
+  const when = Number.isFinite(offsetDays)
+    ? new Date(Date.now() + offsetDays * 86_400_000)
+    : new Date();
+
+  const selection = await getVerseOfTheDaySelection(when);
   if (!selection) {
     return NextResponse.json({ error: "Verse unavailable" }, { status: 503 });
   }
 
   const { sloka, nakshatra } = selection;
   const full = request.nextUrl.searchParams.get("full") === "1";
-  const date = new Date().toISOString().slice(0, 10);
+  const date = when.toISOString().slice(0, 10);
   const base = {
     id: sloka.id,
     ref: formatVerseRef(sloka),
     date,
+    offset: Number.isFinite(offsetDays) ? offsetDays : 0,
     ...(nakshatra ? { nakshatra: nakshatra.name } : {}),
   };
 
