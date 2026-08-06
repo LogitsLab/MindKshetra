@@ -1,5 +1,5 @@
 /**
- * Daily Sādhana — the practice layer (plan Phase 1). One composed flow
+ * Daily Sādhana, the practice layer (plan Phase 1). One composed flow
  * (mood → verse → sit → reflect) plus japa. Practice copy is invitational,
  * never guilt: "today's sādhana", never "you missed".
  */
@@ -13,7 +13,7 @@ export const en = {
   sadhanaMoodPrompt: "How is your mind today?",
   sadhanaVersePrompt: "Sit with this verse",
   sadhanaOpenVerse: "Read the full verse",
-  sadhanaVerseFailed: "The verse didn't load — the sit can continue without it.",
+  sadhanaVerseFailed: "The verse didn't load, the sit can continue without it.",
   sadhanaTimerPrompt: "Now sit quietly",
   sadhanaMin: "{n} min",
   sadhanaBegin: "Begin",
@@ -27,12 +27,12 @@ export const en = {
   sadhanaSaveReflection: "Keep this reflection",
   sadhanaSkipReflection: "Not today",
   sadhanaReflectFailed:
-    "We couldn't save that — your line is still here. Try again.",
+    "We couldn't save that, your line is still here. Try again.",
   sadhanaComplete: "Today's sādhana is complete.",
   sadhanaStreakLine: "{n}-day practice",
   sadhanaGrace: "Your practice rested yesterday. Continue today.",
-  sadhanaDeviceOnly: "Counted on this device for now — sign in to keep it.",
-  sadhanaLogFailed: "We couldn't record today's practice — it won't count yet.",
+  sadhanaDeviceOnly: "Counted on this device for now, sign in to keep it.",
+  sadhanaLogFailed: "We couldn't record today's practice, it won't count yet.",
   sadhanaRetry: "Try again",
   sadhanaDoneToday: "Done for today",
   sadhanaAgain: "Sit again",
@@ -42,10 +42,10 @@ export const en = {
   sadhanaHomeBody: "A verse, a short sit, one quiet line.",
   sadhanaChartVerse: "Use today’s Pressure→Practice verse",
   sadhanaChartVerseBlurb:
-    "Your chart’s leading tension meets one Gita verse — optional, never required.",
-  sadhanaPathDayHint: "Path day practice — this verse, then sit and complete.",
+    "Your chart’s leading tension meets one Gita verse, optional, never required.",
+  sadhanaPathDayHint: "Path day practice, this verse, then sit and complete.",
   japaTitle: "Japa",
-  japaIntro: "Count a mala of 108 — tap the circle, or press space.",
+  japaIntro: "Count a mala of 108, tap the circle, or press space.",
   japaMalas: "malas",
   japaMantra: "Mantra",
   japaFinish: "Finish japa",
@@ -62,7 +62,7 @@ export const hi: Record<keyof typeof en, string> = {
   sadhanaMoodPrompt: "आज मन कैसा है?",
   sadhanaVersePrompt: "इस श्लोक के साथ बैठें",
   sadhanaOpenVerse: "पूरा श्लोक पढ़ें",
-  sadhanaVerseFailed: "श्लोक नहीं मिल पाया — बैठक इसके बिना भी चल सकती है।",
+  sadhanaVerseFailed: "श्लोक नहीं मिल पाया, बैठक इसके बिना भी चल सकती है।",
   sadhanaTimerPrompt: "अब शांत बैठें",
   sadhanaMin: "{n} मिनट",
   sadhanaBegin: "आरंभ करें",
@@ -76,13 +76,13 @@ export const hi: Record<keyof typeof en, string> = {
   sadhanaSaveReflection: "चिंतन सहेजें",
   sadhanaSkipReflection: "आज नहीं",
   sadhanaReflectFailed:
-    "सहेज नहीं पाए — आपकी पंक्ति यहीं है। फिर कोशिश करें।",
+    "सहेज नहीं पाए, आपकी पंक्ति यहीं है। फिर कोशिश करें।",
   sadhanaComplete: "आज की साधना पूर्ण हुई।",
   sadhanaStreakLine: "{n} दिन की साधना",
   sadhanaGrace: "कल आपकी साधना ने विश्राम किया। आज आगे बढ़ें।",
   sadhanaDeviceOnly:
-    "अभी इसी डिवाइस पर गिना गया — सहेजे रखने के लिए साइन इन करें।",
-  sadhanaLogFailed: "आज की साधना दर्ज नहीं हो पाई — अभी यह गिनी नहीं जाएगी।",
+    "अभी इसी डिवाइस पर गिना गया, सहेजे रखने के लिए साइन इन करें।",
+  sadhanaLogFailed: "आज की साधना दर्ज नहीं हो पाई, अभी यह गिनी नहीं जाएगी।",
   sadhanaRetry: "फिर कोशिश करें",
   sadhanaDoneToday: "आज पूर्ण",
   sadhanaAgain: "फिर बैठें",
@@ -92,10 +92,10 @@ export const hi: Record<keyof typeof en, string> = {
   sadhanaHomeBody: "एक श्लोक, एक छोटी बैठक, एक शांत पंक्ति।",
   sadhanaChartVerse: "आज का Pressure→Practice श्लोक लें",
   sadhanaChartVerseBlurb:
-    "कुंडली का मुख्य दबाव एक गीता श्लोक से मिलता है — वैकल्पिक, अनिवार्य नहीं।",
-  sadhanaPathDayHint: "मार्ग का दिन — यह श्लोक, फिर बैठें और पूर्ण करें।",
+    "कुंडली का मुख्य दबाव एक गीता श्लोक से मिलता है, वैकल्पिक, अनिवार्य नहीं।",
+  sadhanaPathDayHint: "मार्ग का दिन, यह श्लोक, फिर बैठें और पूर्ण करें।",
   japaTitle: "जप",
-  japaIntro: "108 की एक माला — वृत्त पर टैप करें, या स्पेस दबाएँ।",
+  japaIntro: "108 की एक माला, वृत्त पर टैप करें, या स्पेस दबाएँ।",
   japaMalas: "मालाएँ",
   japaMantra: "मंत्र",
   japaFinish: "जप समाप्त करें",

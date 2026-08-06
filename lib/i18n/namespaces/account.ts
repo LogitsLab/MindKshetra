@@ -26,7 +26,7 @@ export const en = {
   notifDailyVerse: "Daily verse push",
   notifDailyVerseBlurb: "A gentle nudge with today’s verse at your chosen hour.",
   notifDailyVerseHour: "Delivery hour",
-  notifDailyVerseHourBlurb: "Local hour of day (4–22).",
+  notifDailyVerseHourBlurb: "Local hour of day (4, 22).",
   notifStreakReminder: "Streak reminder",
   notifStreakReminderBlurb: "A soft nudge when your day streak needs a visit.",
   notifCommunity: "Community updates",
@@ -53,7 +53,7 @@ export const en = {
   publicPreview: "View public page",
   publicHandleTaken: "That handle is taken.",
   publicHandleInvalid:
-    "Handle must be 3–24 lowercase letters, digits, or _.",
+    "Handle must be 3, 24 lowercase letters, digits, or _.",
   profileName: "Name",
   profileNamePlaceholder: "How should we address you?",
   profileDob: "Date of birth",
@@ -73,7 +73,7 @@ export const en = {
   signOut: "Sign out",
   deleteAccount: "Delete account",
   deleteAccountBlurb:
-    "Permanently removes your account and all data — favorites, reflections, progress, charts and chats. This cannot be undone.",
+    "Permanently removes your account and all data, favorites, reflections, progress, charts and chats. This cannot be undone.",
   deleteAccountConfirm: "Yes, delete everything",
   deleteAccountCancel: "Keep my account",
   deleteAccountBusy: "Deleting…",
@@ -88,7 +88,7 @@ export const en = {
   hideEmailSignIn: "Hide email sign-in",
   emailLabel: "Email",
   emailPlaceholder: "you@example.com",
-  magicLinkSent: "Magic link sent. Open it on this device to finish signing in — links expire after about an hour.",
+  magicLinkSent: "Magic link sent. Open it on this device to finish signing in, links expire after about an hour.",
   useDifferentEmail: "Use a different email",
   sendingLink: "Sending…",
   orDivider: "or",
@@ -97,13 +97,13 @@ export const en = {
   upgradeAccountBlurb:
     "You’re browsing as a guest. Continue with Google to keep favorites, reflections, and chats across devices.",
   accountSignInBlurb:
-    "Continue with Google to save favorites, reflections, and Madhav chats — then pick up on any device.",
+    "Continue with Google to save favorites, reflections, and Madhav chats, then pick up on any device.",
   authNotConfigured: "Sign-in isn’t configured for this environment yet.",
   authLinkExpired:
     "That sign-in link is invalid or has expired. Try Google, or request a new email link below.",
   authLinkFailed: "Sign-in didn’t complete. Try Google, or request a new email link.",
   authPrivacyNote:
-    "Google shares your name and email to sign you in. Magic-link email is only used for sign-in — no spam, no public profile.",
+    "Google shares your name and email to sign you in. Magic-link email is only used for sign-in, no spam, no public profile.",
   privacyPolicy: "Privacy policy",
   favorites: "Favorites",
   favoritesBlurb: "Verses you have bookmarked.",
@@ -122,13 +122,13 @@ export const en = {
   reflectionsTitle: "Reflections from seekers",
   reflectionsSeeker: "A seeker",
   reflectionsFirst:
-    "No shared reflections here yet — yours could be the first lamp lit.",
+    "No shared reflections here yet, yours could be the first lamp lit.",
   reflectReport: "Report",
   reflectReported: "Thank you. A maintainer will look.",
   journalPlaceholder: "What does this verse stir in you?",
   journalSave: "Save reflection",
   journalSaved: "Saved",
-  journalSaveFailed: "Couldn't save — your words are still here. Try again.",
+  journalSaveFailed: "Couldn't save, your words are still here. Try again.",
   signInToJournal: "Sign in to save reflections.",
   myReflections: "My reflections",
   noReflections: "Nothing written yet",
@@ -138,14 +138,14 @@ export const en = {
   streakDays: "days",
   marksTitle: "Practice marks",
   marksBlurb:
-    "Quiet marks for staying with it. Everything here is private to you — no leaderboards, by design.",
+    "Quiet marks for staying with it. Everything here is private to you, no leaderboards, by design.",
   marksStreakLine: "Longest: {longest} days · currently {current}",
   marksVersesLine: "{n} of {total} verses read",
   marksNext: "Next: {name}",
   marksEmpty:
-    "Marks appear as the practice deepens — begin with today’s sādhana.",
+    "Marks appear as the practice deepens, begin with today’s sādhana.",
   marksGuestHint:
-    "These marks live on this device for now — sign in to keep them.",
+    "These marks live on this device for now, sign in to keep them.",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
@@ -167,9 +167,9 @@ export const hi: Record<keyof typeof en, string> = {
   notifTitle: "सूचनाएँ",
   notifBlurb: "इस खाते तक कौन-सी याद दिलाने वाली सूचनाएँ पहुँचें, चुनें।",
   notifDailyVerse: "दैनिक श्लोक पुश",
-  notifDailyVerseBlurb: "आपके चुने घंटे पर आज का श्लोक — एक सौम्य स्मरण।",
+  notifDailyVerseBlurb: "आपके चुने घंटे पर आज का श्लोक, एक सौम्य स्मरण।",
   notifDailyVerseHour: "भेजने का घंटा",
-  notifDailyVerseHourBlurb: "स्थानीय दिन का घंटा (4–22)।",
+  notifDailyVerseHourBlurb: "स्थानीय दिन का घंटा (4, 22)।",
   notifStreakReminder: "लकीर स्मरण",
   notifStreakReminderBlurb: "जब दिन की लकीर के लिए भेंट चाहिए, एक हल्का स्मरण।",
   notifCommunity: "समुदाय अपडेट",
@@ -180,7 +180,7 @@ export const hi: Record<keyof typeof en, string> = {
   publicProfileTitle: "सार्वजनिक प्रोफ़ाइल",
   publicProfileBlurb: "यदि चाहें तो अन्य साधकों को आप कैसे दिखें।",
   publicProfileExplainer:
-    "क्या दिखेगा: हैंडल, प्रदर्शन नाम, परिचय — /u/[handle] पर। ऊपर के निजी प्रोफ़ाइल फ़ील्ड निजी रहते हैं।",
+    "क्या दिखेगा: हैंडल, प्रदर्शन नाम, परिचय, /u/[handle] पर। ऊपर के निजी प्रोफ़ाइल फ़ील्ड निजी रहते हैं।",
   publicHandle: "हैंडल",
   publicHandlePlaceholder: "your_handle",
   publicDisplayName: "प्रदर्शन नाम",
@@ -196,7 +196,7 @@ export const hi: Record<keyof typeof en, string> = {
   publicPreview: "सार्वजनिक पृष्ठ देखें",
   publicHandleTaken: "यह हैंडल पहले से लिया हुआ है।",
   publicHandleInvalid:
-    "हैंडल 3–24 छोटे अक्षर, अंक या _ होना चाहिए।",
+    "हैंडल 3, 24 छोटे अक्षर, अंक या _ होना चाहिए।",
   profileName: "नाम",
   profileNamePlaceholder: "हम आपको कैसे बुलाएँ?",
   profileDob: "जन्म तिथि",
@@ -216,7 +216,7 @@ export const hi: Record<keyof typeof en, string> = {
   signOut: "साइन आउट",
   deleteAccount: "खाता हटाएँ",
   deleteAccountBlurb:
-    "आपका खाता और सारा डेटा स्थायी रूप से हट जाएगा — पसंद, चिन्तन, प्रगति, कुंडलियाँ और चैट। इसे पूर्ववत नहीं किया जा सकता।",
+    "आपका खाता और सारा डेटा स्थायी रूप से हट जाएगा, पसंद, चिन्तन, प्रगति, कुंडलियाँ और चैट। इसे पूर्ववत नहीं किया जा सकता।",
   deleteAccountConfirm: "हाँ, सब हटाएँ",
   deleteAccountCancel: "खाता रखें",
   deleteAccountBusy: "हटाया जा रहा है…",
@@ -231,7 +231,7 @@ export const hi: Record<keyof typeof en, string> = {
   hideEmailSignIn: "ईमेल साइन-इन छिपाएँ",
   emailLabel: "ईमेल",
   emailPlaceholder: "you@example.com",
-  magicLinkSent: "मैजिक लिंक भेज दिया। साइन इन पूरा करने के लिए इसी उपकरण पर खोलें — लिंक लगभग एक घंटे में समाप्त हो जाता है।",
+  magicLinkSent: "मैजिक लिंक भेज दिया। साइन इन पूरा करने के लिए इसी उपकरण पर खोलें, लिंक लगभग एक घंटे में समाप्त हो जाता है।",
   useDifferentEmail: "दूसरा ईमेल उपयोग करें",
   sendingLink: "भेजा जा रहा है…",
   orDivider: "या",
@@ -240,19 +240,19 @@ export const hi: Record<keyof typeof en, string> = {
   upgradeAccountBlurb:
     "आप अतिथि के रूप में ब्राउज़ कर रहे हैं। पसंदीदा, चिंतन और वार्ता सभी उपकरणों पर रखने के लिए Google से जारी रखें।",
   accountSignInBlurb:
-    "पसंदीदा, चिंतन और माधव वार्ता सहेजने के लिए Google से जारी रखें — फिर किसी भी उपकरण पर आगे बढ़ें।",
+    "पसंदीदा, चिंतन और माधव वार्ता सहेजने के लिए Google से जारी रखें, फिर किसी भी उपकरण पर आगे बढ़ें।",
   authNotConfigured: "इस वातावरण में साइन-इन अभी कॉन्फ़िगर नहीं है।",
   authLinkExpired:
     "वह साइन-इन लिंक अमान्य है या समाप्त हो गया है। Google आज़माएँ, या नीचे नया ईमेल लिंक माँगें।",
   authLinkFailed: "साइन-इन पूरा नहीं हुआ। Google आज़माएँ, या नया ईमेल लिंक माँगें।",
   authPrivacyNote:
-    "Google साइन इन के लिए आपका नाम और ईमेल साझा करता है। मैजिक-लिंक ईमेल केवल साइन इन के लिए है — कोई स्पैम नहीं, कोई सार्वजनिक प्रोफ़ाइल नहीं।",
+    "Google साइन इन के लिए आपका नाम और ईमेल साझा करता है। मैजिक-लिंक ईमेल केवल साइन इन के लिए है, कोई स्पैम नहीं, कोई सार्वजनिक प्रोफ़ाइल नहीं।",
   privacyPolicy: "गोपनीयता नीति",
   favorites: "पसंदीदा",
   favoritesBlurb: "आपके द्वारा सहेजे गए श्लोक।",
   noFavorites: "अभी कुछ सहेजा नहीं है",
   noFavoritesBody:
-    "किसी भी श्लोक पर बुकमार्क उसे यहाँ रख देता है — जो पंक्ति मन को छू जाए, वह उस दिन फिर मिल सके जब उसकी आवश्यकता हो।",
+    "किसी भी श्लोक पर बुकमार्क उसे यहाँ रख देता है, जो पंक्ति मन को छू जाए, वह उस दिन फिर मिल सके जब उसकी आवश्यकता हो।",
   bookmark: "बुकमार्क",
   bookmarked: "सहेजा गया",
   signInToBookmark: "बुकमार्क के लिए साइन इन करें।",
@@ -265,27 +265,27 @@ export const hi: Record<keyof typeof en, string> = {
   reflectionsTitle: "साधकों के चिंतन",
   reflectionsSeeker: "एक साधक",
   reflectionsFirst:
-    "यहाँ अभी कोई साझा चिंतन नहीं — पहला दीप आपका हो सकता है।",
+    "यहाँ अभी कोई साझा चिंतन नहीं, पहला दीप आपका हो सकता है।",
   reflectReport: "रिपोर्ट करें",
   reflectReported: "धन्यवाद। एक अनुरक्षक देखेंगे।",
   journalPlaceholder: "यह श्लोक आपमें क्या जगाता है?",
   journalSave: "चिंतन सहेजें",
   journalSaved: "सहेजा गया",
-  journalSaveFailed: "सहेज नहीं पाए — आपके शब्द यहीं हैं। फिर कोशिश करें।",
+  journalSaveFailed: "सहेज नहीं पाए, आपके शब्द यहीं हैं। फिर कोशिश करें।",
   signInToJournal: "चिंतन सहेजने के लिए साइन इन करें।",
   myReflections: "मेरे चिंतन",
   noReflections: "अभी कुछ लिखा नहीं है",
   noReflectionsBody:
-    "हर श्लोक के साथ लिखने की जगह है। वहाँ जो आप लिखते हैं वह निजी है, और यहीं रहता है — जब चाहें, फिर पढ़ने के लिए।",
+    "हर श्लोक के साथ लिखने की जगह है। वहाँ जो आप लिखते हैं वह निजी है, और यहीं रहता है, जब चाहें, फिर पढ़ने के लिए।",
   streakLabel: "दिन की लकीर",
   streakDays: "दिन",
   marksTitle: "साधना चिह्न",
   marksBlurb:
-    "साथ बने रहने के शांत चिह्न। यहाँ सब कुछ केवल आपके लिए निजी है — कोई लीडरबोर्ड नहीं, यही रचना है।",
+    "साथ बने रहने के शांत चिह्न। यहाँ सब कुछ केवल आपके लिए निजी है, कोई लीडरबोर्ड नहीं, यही रचना है।",
   marksStreakLine: "सबसे लंबी: {longest} दिन · अभी {current}",
   marksVersesLine: "{total} में से {n} श्लोक पढ़े",
   marksNext: "आगे: {name}",
-  marksEmpty: "अभ्यास गहराने पर चिह्न यहाँ दिखेंगे — आज की साधना से आरंभ करें।",
+  marksEmpty: "अभ्यास गहराने पर चिह्न यहाँ दिखेंगे, आज की साधना से आरंभ करें।",
   marksGuestHint:
-    "ये चिह्न अभी इसी डिवाइस पर हैं — सहेजे रखने के लिए साइन इन करें।",
+    "ये चिह्न अभी इसी डिवाइस पर हैं, सहेजे रखने के लिए साइन इन करें।",
 };

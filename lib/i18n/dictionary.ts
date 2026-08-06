@@ -21,7 +21,7 @@ import * as meditation from "@/lib/i18n/namespaces/meditation";
  *                        436+ keys
  *
  * This used to be one flat 957-line object (ceo/T4). It was the highest-churn
- * file in the repo — 18 commits in 30 days — because every feature in every
+ * file in the repo, 18 commits in 30 days, because every feature in every
  * domain appended to the same list, so unrelated work collided constantly.
  * Astrology alone is 45% of the strings.
  *
@@ -29,7 +29,7 @@ import * as meditation from "@/lib/i18n/namespaces/meditation";
  * every consumer are untouched. Only the source layout changed.
  *
  * Adding a string: put it in the namespace that owns the surface. If it has no
- * owner it belongs in `shared` — and if `shared` starts growing fast, that is a
+ * owner it belongs in `shared`, and if `shared` starts growing fast, that is a
  * signal the surface needs its own namespace, not that shared should absorb it.
  */
 export type AppLang = "en" | "hi";

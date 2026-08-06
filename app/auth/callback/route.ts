@@ -1,5 +1,4 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 function safeNextPath(raw: string | null): string {
@@ -13,9 +12,24 @@ function authErrorRedirect(origin: string, code: string): NextResponse {
   return NextResponse.redirect(url);
 }
 
+function successRedirect(request: NextRequest, next: string): NextResponse {
+  const { origin } = new URL(request.url);
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const isLocal = process.env.NODE_ENV === "development";
+  if (!isLocal && forwardedHost) {
+    return NextResponse.redirect(`https://${forwardedHost}${next}`);
+  }
+  return NextResponse.redirect(`${origin}${next}`);
+}
+
 /**
  * PKCE auth callback for magic links and OAuth.
  * Supabase redirects here with ?code=…; we exchange it for a session cookie.
+ *
+ * Cookies must be written onto the redirect `NextResponse` itself. Writing only
+ * via `cookies().set()` from `next/headers` often drops Set-Cookie on the
+ * redirect (supabase-js ≥2.91 also defers SIGNED_IN), so the browser lands on
+ * /account still signed out — or exchange fails and shows authLinkFailed.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -39,37 +53,34 @@ export async function GET(request: NextRequest) {
     return authErrorRedirect(origin, "auth_failed");
   }
 
-  if (code) {
-    const cookieStore = cookies();
-    const supabase = createServerClient(url, key, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        },
-      },
-    });
-
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      const forwardedHost = request.headers.get("x-forwarded-host");
-      const isLocal = process.env.NODE_ENV === "development";
-      if (!isLocal && forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      }
-      return NextResponse.redirect(`${origin}${next}`);
-    }
-
-    const message = error.message.toLowerCase();
-    if (message.includes("expired") || message.includes("invalid")) {
-      return authErrorRedirect(origin, "otp_expired");
-    }
+  if (!code) {
     return authErrorRedirect(origin, "auth_failed");
   }
 
+  const response = successRedirect(request, next);
+
+  const supabase = createServerClient(url, key, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
+      },
+    },
+  });
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  if (!error) {
+    return response;
+  }
+
+  console.error("[auth/callback] exchangeCodeForSession", error.message);
+  const message = error.message.toLowerCase();
+  if (message.includes("expired") || message.includes("invalid")) {
+    return authErrorRedirect(origin, "otp_expired");
+  }
   return authErrorRedirect(origin, "auth_failed");
 }

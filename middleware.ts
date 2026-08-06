@@ -74,10 +74,14 @@ export async function middleware(request: NextRequest) {
 
   // Supabase Site URL misconfig lands PKCE ?code= on localhost even when
   // OAuth started on production (verifier cookie is on the prod host).
+  // `/auth/native` is the mobile AuthSession return — do not steal its code
+  // into the web cookie exchange (the PKCE verifier lives in the app).
   const authCode = request.nextUrl.searchParams.get("code");
+  const isNativeAuthReturn = request.nextUrl.pathname.startsWith("/auth/native");
   if (
     authCode &&
     !isApi &&
+    !isNativeAuthReturn &&
     !request.nextUrl.pathname.startsWith("/auth/callback")
   ) {
     const isLocalHost = ["localhost", "127.0.0.1"].includes(
