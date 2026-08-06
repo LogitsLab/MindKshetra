@@ -13,6 +13,8 @@ import {
 } from "@/lib/stories";
 
 export const runtime = "nodejs";
+/** Lazy first-load generation can take several seconds via Groq. */
+export const maxDuration = 60;
 
 type Params = { params: { id: string } };
 
@@ -74,9 +76,25 @@ export async function GET(request: NextRequest, { params }: Params) {
     });
   }
 
-  // Teaching units: one story cache for the whole passage (anchor verse)
-  const cached = await getCachedStory(passage.anchorId, lang);
-  if (!cached) {
+  // Teaching units: one story cache for the whole passage (anchor verse).
+  // Template seeds are filtered out as low-quality, so a cold cache used to
+  // return null forever (app stuck on “Loading story…”). Lazily generate once.
+  const storyKey = passage.anchorId;
+  const cached = await getCachedStory(storyKey, lang);
+  if (cached) {
+    return NextResponse.json({
+      story: cached.story,
+      cached: true,
+      seeded: cached.seeded,
+      curated: false,
+      variant: cached.variant,
+      total: cached.total,
+      language: lang,
+      ...meta,
+    });
+  }
+
+  if (!process.env.GROQ_API_KEY) {
     return NextResponse.json({
       story: null,
       cached: false,
@@ -84,16 +102,35 @@ export async function GET(request: NextRequest, { params }: Params) {
     });
   }
 
-  return NextResponse.json({
-    story: cached.story,
-    cached: true,
-    seeded: cached.seeded,
-    curated: false,
-    variant: cached.variant,
-    total: cached.total,
-    language: lang,
-    ...meta,
-  });
+  try {
+    const pair = await generateBilingualStory(passage.verses, passage.focus, {
+      title: passage.titleEn,
+      theme: passage.themeEn,
+      mode: passage.mode,
+    });
+    const saved = await saveStoryVariant(storyKey, pair);
+    return NextResponse.json({
+      story: pair[lang],
+      cached: false,
+      generated: true,
+      seeded: false,
+      curated: false,
+      variant: saved.variant,
+      total: saved.total,
+      language: lang,
+      ...meta,
+    });
+  } catch (err) {
+    console.error(
+      "[story GET] lazy generate failed",
+      err instanceof Error ? err.message : err
+    );
+    return NextResponse.json({
+      story: null,
+      cached: false,
+      ...meta,
+    });
+  }
 }
 
 export async function POST(request: NextRequest, { params }: Params) {

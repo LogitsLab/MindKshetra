@@ -131,11 +131,17 @@ async function setLastIndex(slokaId: number, index: number): Promise<void> {
   }
 }
 
+function filterQualityVariants(variants: StoryVariant[]): StoryVariant[] {
+  return variants.filter(
+    (s) => !isLowQualityStorySeed(s.en) && !isLowQualityStorySeed(s.hi)
+  );
+}
+
 async function loadEntryFromDb(slokaId: number): Promise<StoryEntry | null> {
   const { dbLoadStoryVariants } = await import("@/lib/content/db");
-  const variants = await dbLoadStoryVariants(slokaId);
+  const variants = filterQualityVariants(await dbLoadStoryVariants(slokaId));
   if (!variants.length) {
-    // Fallback to bundled seed if DB row missing
+    // Fallback to bundled seed if DB row missing / only template fluff
     return getSeedEntry(slokaId);
   }
   const lastIndex = await getLastIndex(slokaId, variants.length - 1);
@@ -201,15 +207,28 @@ async function saveEntryLocal(slokaId: number, entry: StoryEntry): Promise<void>
 }
 
 async function loadEntry(slokaId: number): Promise<StoryEntry | null> {
+  // Verses may stay on CONTENT_SOURCE=json for SSG, but stories still live in
+  // Supabase / Redis. Always prefer a good local/Redis entry, then DB.
   if (isDbContentEnabled()) {
     try {
-      return await loadEntryFromDb(slokaId);
+      const fromDb = await loadEntryFromDb(slokaId);
+      if (fromDb) return fromDb;
     } catch (err) {
       console.warn("[stories] DB load failed, falling back to local", err);
-      return loadEntryLocal(slokaId);
     }
+    return loadEntryLocal(slokaId);
   }
-  return loadEntryLocal(slokaId);
+
+  const local = await loadEntryLocal(slokaId);
+  if (local) return local;
+
+  // json mode: still read quality rows from Supabase when present (e.g. pregen).
+  try {
+    return await loadEntryFromDb(slokaId);
+  } catch (err) {
+    console.warn("[stories] DB fallback failed", err);
+    return null;
+  }
 }
 
 async function saveEntry(slokaId: number, entry: StoryEntry): Promise<void> {
