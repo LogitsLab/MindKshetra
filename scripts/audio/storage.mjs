@@ -9,6 +9,11 @@ import { createClient } from "@supabase/supabase-js";
 
 export const BUCKET = "audio";
 
+/** Immutable audio clips — edge caches for a year; path changes = new object. */
+export const CACHE_AUDIO = "31536000";
+/** Manifest can refresh daily without a client release. */
+export const CACHE_MANIFEST = "86400";
+
 export function loadEnv() {
   // AUDIO_ENV_FILE pins generation to one project. Without it, .env.local
   // (the dev database) would silently win over .env and audio would upload
@@ -55,10 +60,18 @@ export async function ensureBucket(supabase) {
   }
 }
 
-export async function uploadFile(supabase, path, buffer, contentType) {
-  const { error } = await supabase.storage
-    .from(BUCKET)
-    .upload(path, buffer, { contentType, upsert: true });
+export async function uploadFile(
+  supabase,
+  path,
+  buffer,
+  contentType,
+  cacheControl = path === "manifest.json" ? CACHE_MANIFEST : CACHE_AUDIO
+) {
+  const { error } = await supabase.storage.from(BUCKET).upload(path, buffer, {
+    contentType,
+    upsert: true,
+    cacheControl,
+  });
   if (error) throw new Error(`upload ${path} failed: ${error.message}`);
 }
 
@@ -88,6 +101,36 @@ export async function saveManifest(supabase, manifest) {
     supabase,
     "manifest.json",
     Buffer.from(JSON.stringify(manifest, null, 2)),
-    "application/json"
+    "application/json",
+    CACHE_MANIFEST
   );
+}
+
+/** List every object under a prefix (paginated). */
+export async function listAll(supabase, prefix) {
+  const out = [];
+  let offset = 0;
+  const limit = 100;
+  for (;;) {
+    const { data, error } = await supabase.storage.from(BUCKET).list(prefix, {
+      limit,
+      offset,
+      sortBy: { column: "name", order: "asc" },
+    });
+    if (error) throw new Error(`list ${prefix}: ${error.message}`);
+    if (!data?.length) break;
+    for (const row of data) {
+      // Skip folder placeholders (no size / no file extension).
+      if (!row.name || row.name.endsWith("/")) continue;
+      const isFolder =
+        row.id == null &&
+        (row.metadata == null || row.metadata.size == null) &&
+        !row.name.includes(".");
+      if (isFolder) continue;
+      out.push(`${prefix ? `${prefix}/` : ""}${row.name}`);
+    }
+    if (data.length < limit) break;
+    offset += limit;
+  }
+  return out;
 }

@@ -24,7 +24,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "audio:tts": "node scripts/audio/generate-tts.mjs",
-    "audio:recitation": "node scripts/audio/fetch-recitation.mjs"
+    "audio:recitation": "node scripts/audio/fetch-recitation.mjs",
+    "audio:purge-tts": "node scripts/audio/purge-tts.mjs",
+    "audio:cache": "node scripts/audio/set-cache-headers.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

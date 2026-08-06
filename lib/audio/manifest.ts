@@ -35,9 +35,9 @@ export async function getAudioManifest(): Promise<AudioManifest | null> {
     cached = null;
     return null;
   }
-  // no-cache: TTS/recitation updates land without a client release; force-cache
-  // left browsers stuck on a pre-generation manifest (robotic device TTS).
-  inflight = fetch(`${base}/manifest.json`, { cache: "no-cache" })
+  // Default HTTP cache — bucket Cache-Control (1 day) is the source of truth.
+  // Avoid no-cache: it forced revalidation on every page and burned egress.
+  inflight = fetch(`${base}/manifest.json`)
     .then(async (res) => (res.ok ? ((await res.json()) as AudioManifest) : null))
     .catch(() => null)
     .then((manifest) => {
