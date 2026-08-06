@@ -1,9 +1,11 @@
 # Runbook — promoting dev to production
 
-## Current prod watermark (2026-08-05)
+## Current prod watermark (2026-08-06)
 
-Production Supabase (`rqknmgzdzjpxepjmbzvb`, mind.logitslab.com) is through
-**022**. Web `main` is at **v2.0.0** (Design v3 + personalization).
+Production Supabase **MindKshetra-prod** (`bpxszivjvexmqznnshlx`,
+mind.logitslab.com) is through **022** on the new MindKshetra org (clean
+cutover — see `docs/runbooks/supabase-org-migration.md`). Web `main` is at
+**v2.0.0** (Design v3 + personalization).
 
 | Migration | Status on prod |
 |---|---|
@@ -64,7 +66,7 @@ order by column_name;
 ## 1 — Additive migrations
 
 ```bash
-node scripts/apply-migrations.cjs rqknmgzdzjpxepjmbzvb --skip 016
+node scripts/apply-migrations.cjs bpxszivjvexmqznnshlx --skip 016
 ```
 
 `--skip 016` is the whole point of this step: the runner re-applies every file
@@ -112,8 +114,8 @@ without 022).
 Only after step 3 is clean, and only if 016 was skipped in step 1:
 
 ```bash
-node scripts/apply-migrations.cjs rqknmgzdzjpxepjmbzvb --only 016
-node scripts/apply-migrations.cjs rqknmgzdzjpxepjmbzvb --only 022
+node scripts/apply-migrations.cjs bpxszivjvexmqznnshlx --only 016
+node scripts/apply-migrations.cjs bpxszivjvexmqznnshlx --only 022
 ```
 
 Then confirm the boundary actually moved: as a signed-in user, a direct

@@ -61,3 +61,6 @@ next-env.d.ts
 
 # generated verse stories
 /data/stories-cache.json
+.secrets/
+.env.dev.new
+.env.prod.new

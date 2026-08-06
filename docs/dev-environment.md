@@ -52,10 +52,16 @@ bearer.
 
 ## Two Supabase projects
 
-- **Prod project** — serves `main` / mind.logitslab.com. Schema moves only at
-  promotion time.
-- **MindKshetra-dev** — serves the `dev` branch / mind-dev.logitslab.com and
-  local development. Fresh migrations land here first and soak.
+Org **MindKshetra** (see `docs/runbooks/supabase-org-migration.md`):
+
+- **MindKshetra-prod** (`bpxszivjvexmqznnshlx`) — serves `main` /
+  mind.logitslab.com. Schema moves only at promotion time.
+- **MindKshetra-dev** (`awqvyohcdxamkacwlsnq`) — serves the `dev` branch /
+  mind-dev.logitslab.com and local development. Fresh migrations land here
+  first and soak.
+
+Lean public audio lives on the **prod** bucket; both stacks set
+`*_AUDIO_BASE_URL` to that origin.
 
 Content does not live in either database by default (`CONTENT_SOURCE=json`
 serves all 701 verses from the repo), so the dev project needs **no seeding**
@@ -66,7 +72,7 @@ serves all 701 verses from the repo), so the dev project needs **no seeding**
 There is **one** migration path:
 
 ```bash
-npm run db:migrate -- <project-ref>          # e.g. xtadssxgwskyobxmhnxa (MindKshetra-dev)
+npm run db:migrate -- <project-ref>          # e.g. awqvyohcdxamkacwlsnq (MindKshetra-dev)
 ```
 
 It runs `scripts/apply-migrations.cjs`, which applies every

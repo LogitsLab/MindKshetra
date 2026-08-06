@@ -27,7 +27,7 @@ Synthesized from Headspace, Calm, MindTime, Insight Timer patterns + your mockup
 
 **Visual DNA (locked):** void `#07090f` · field `#0e1420` · brass `#c9a227` / `#e2c45a` · teal `#3d7a6a` atmosphere only · Fraunces (Latin display) · Sora (UI) · Noto Serif Devanagari (Sanskrit/Hindi) · gold lotus mark · hairline brass borders · glass panels · cinematic photo atmosphere.
 
-**Migration:** `021_personalization_achievements.sql` applied on project `xtadssxgwskyobxmhnxa` (achievements catalog live).
+**Migration:** `021_personalization_achievements.sql` applied on MindKshetra-dev / MindKshetra-prod (`awqvyohcdxamkacwlsnq` / `bpxszivjvexmqznnshlx`).
 
 
 ---

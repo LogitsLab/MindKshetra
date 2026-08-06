@@ -2,8 +2,10 @@
 
 Lean corpus: **human Sanskrit recitation only** in Supabase Storage. EN/HI
 narration uses on-device TTS as a free fallback (no bucket files). Everything
-is served from the public bucket `audio` with long-lived `Cache-Control` so
-Cloudflare can edge-cache and egress stays low.
+is served from the public bucket `audio` on **MindKshetra-prod**
+(`bpxszivjvexmqznnshlx`) with long-lived `Cache-Control` so Cloudflare can
+edge-cache and egress stays low. Clients may still point
+`*_AUDIO_BASE_URL` at this prod bucket while auth runs on MindKshetra-dev.
 
 ## Bucket layout
 
@@ -52,8 +54,22 @@ npm run audio:recitation -- \
   --chapters=1-2 --limit=5 --dry-run
 ```
 
-Current coverage: all **701** verses from Shri Ved Vyas Foundation /
-bhagavadgita.io (Unlicense), encoded AAC 80kbps.
+### Default voice (2026-08-06 comparison)
+
+| | **Ved Vyas (default)** | IIT Kanpur / Swami Brahmananda |
+|--|------------------------|--------------------------------|
+| Source | bhagavadgita.io (`gita/gita`) | Gita Supersite (permission obtained) |
+| Coverage | **701 / 701** | Live URLs broken; Wayback ~partial (~90 captures) |
+| Upstream encode | 32 kbps, 22.05 kHz mono | Archived copies 16 kbps, 16 kHz mono |
+| Served as | AAC ~80 kbps m4a | — |
+| License | Unlicense (public domain) | Written permission (IIT) |
+
+**Decision: keep Ved Vyas as default.** Clearer fidelity and full corpus today.
+If IIT later provides a complete high-bitrate archive, re-run `audio:recitation`
+with `--attribution` / `--license` to replace in place (same `recitation/{c}-{v}.m4a`
+keys).
+
+Current production coverage: all **701** verses, Ved Vyas, AAC ~80 kbps.
 
 ## Client behavior
 
