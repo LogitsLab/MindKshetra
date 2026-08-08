@@ -25,6 +25,14 @@
    - Everything else (Groq, Redis, Resend) is inherited from the shared
      Preview environment. Consider leaving `RESEND_API_KEY` unset for the dev
      branch so nothing on dev can send real email.
+
+   **Do not mark `NEXT_PUBLIC_*` or `CONTENT_SOURCE` as Sensitive.** The
+   prebuilt CI path (`vercel pull` → `vercel build` in GitHub Actions) cannot
+   decrypt Sensitive values — pull writes the literal `[SENSITIVE]`, and
+   `new URL("[SENSITIVE]")` fails the Next build. Re-add with
+   `vercel env add <NAME> preview dev --value '…' --no-sensitive --force -y`
+   (and the same for production / shared preview). `SUPABASE_SERVICE_ROLE_KEY`
+   may stay Sensitive; it is runtime-only.
 4. **Vercel cron note**: `vercel.json` crons only run on the production
    deployment — the dev site sends no scheduled emails. That is intentional.
 
