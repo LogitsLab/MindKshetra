@@ -32,9 +32,9 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
 
 - [x] Account panel: notification settings (web + mobile prefs UI)
 - [x] Account panel: public-profile editor (`/api/profile` + Account panel)
-- [ ] Mobile parity (after usage gates, per E7 web-first): chart-aware mood
-      ordering toggle, Pressure→Practice card, koota notes via shared i18n,
-      panchang Delhi wall-clock (not device time)
+- [x] Mobile parity (after usage gates, per E7 web-first): chart-aware mood
+      ordering toggle, Pressure→Practice card on member chart, panchang
+      Delhi (IST) wall-clock — koota notes via shared i18n still thin
 - [x] Panchang calendar page (`app/panchang/calendar` week-grouped)
 - [x] Themed path UI + `path_runs` (migration 017; `/paths`, `/paths/anxiety-7`)
 - [x] Web japa: visual tick + focus-visible ring (+ vibrate when available)
@@ -48,11 +48,11 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
       frozen until G2+G3+second steward; do not open migration early
 - [x] Pressure→Practice as the sādhana verse for chart users (optional
       offer on `/sadhana` mood stage; path-day deep link still wins)
-- [ ] Festival email + push reminders (cron clone of votd-email; push kinds
-      ride the shipped dispatcher)
-- [ ] Named-festival rule table (`data/festivals.json` — lunar month + paksha
-      + tithi, computed never hardcoded; needs a cultural reviewer before it
-      ships — wrong festival dates are worse than absent ones)
+- [ ] Festival email + push reminders (cron stub at
+      `app/api/cron/festival-reminders` — wire push kinds when dispatcher ready)
+- [x] Named-festival rule table (`data/festivals.json` — lunar month + paksha
+      + tithi, computed never hardcoded; short curated set — expand only with
+      cultural review)
 
 ## Known debt
 

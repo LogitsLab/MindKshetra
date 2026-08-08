@@ -1,0 +1,198 @@
+{
+  "id": "anxiety-7",
+  "days_count": 7,
+  "title_en": "Seven sits with anxiety",
+  "title_hi": "चिंता के साथ सात बैठकें",
+  "intro_en": "A short open goal track: one brief guided sit a day for the mind that worries. Free forever — not a marketplace, not a cure. Prefer the progressive sitting course when you want a longer arc.",
+  "intro_hi": "छोटा खुला लक्ष्य ट्रैक: चिंतित मन के लिए प्रतिदिन एक संक्षिप्त निर्देशित बैठक। सदा मुफ़्त — बाज़ार नहीं, उपचार नहीं। लंबी यात्रा के लिए क्रमिक बैठने का पाठ्यक्रम चुनें।",
+  "days": [
+    {
+      "id": "anxiety-7-d1",
+      "day_number": 1,
+      "tier": "goal",
+      "track": "anxiety",
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 5,
+      "title_en": "Arrive with the worry",
+      "title_hi": "चिंता के साथ पहुँचें",
+      "theme_en": "You do not need a calm mind to begin. Arrival is enough.",
+      "theme_hi": "आरंभ के लिए शांत मन ज़रूरी नहीं। पहुँचना पर्याप्त है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit. Soften the jaw. Notice that worry may already be here. You are not wrong for that. Simply know you have arrived.",
+          "text_hi": "बैठें। जबड़ा ढीला करें। देखें कि चिंता पहले से यहाँ हो सकती है। इसमें कुछ गलत नहीं। केवल जानें कि आप पहुँच गए।"
+        },
+        { "type": "silence", "seconds": 90 },
+        {
+          "type": "speak",
+          "text_en": "Feel the seat under you. One clearer breath. Open the eyes when ready.",
+          "text_hi": "नीचे आसन महसूस करें। एक स्पष्ट श्वास। तैयार होने पर आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "anxiety-7-d2",
+      "day_number": 2,
+      "tier": "goal",
+      "track": "anxiety",
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 5,
+      "title_en": "Weather, not climate",
+      "title_hi": "मौसम, जलवायु नहीं",
+      "theme_en": "A wave of worry can pass without becoming the whole sky.",
+      "theme_hi": "चिंता की लहर पूरे आकाश बने बिना गुज़र सकती है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Rest on the breath. When worry appears, silently note: weather. Then return to one breath.",
+          "text_hi": "श्वास पर विश्राम करें। जब चिंता आए, मौन में कहें: मौसम। फिर एक श्वास पर लौटें।"
+        },
+        { "type": "silence", "seconds": 120 },
+        {
+          "type": "speak",
+          "text_en": "Release the label. Feel the body as one field. Soften the eyes open.",
+          "text_hi": "नाम छोड़ दें। शरीर को एक क्षेत्र की तरह महसूस करें। आँखें कोमलता से खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "anxiety-7-d3",
+      "day_number": 3,
+      "tier": "goal",
+      "track": "anxiety",
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 6,
+      "title_en": "The work, not the fruit",
+      "title_hi": "कर्म, फल नहीं",
+      "theme_en": "Anxiety often grips outcomes. Practice returns you to the next small action.",
+      "theme_hi": "चिंता अक्सर परिणाम पकड़ती है। अभ्यास आपको अगले छोटे कदम पर लौटाता है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Settle. Name silently one outcome you are gripping. Soften around it. Return to breath.",
+          "text_hi": "स्थिर हों। मौन में एक परिणाम नाम दें जिसे पकड़े हैं। उसके चारों ओर ढीला पड़ें। श्वास पर लौटें।"
+        },
+        { "type": "silence", "seconds": 150 },
+        {
+          "type": "speak",
+          "text_en": "Ask gently: what is one next action that is actually yours? Carry only that. Open the eyes.",
+          "text_hi": "कोमलता से पूछें: वह एक अगला कदम क्या है जो सचमुच आपके हाथ में है? केवल वही साथ रखें। आँखें खोलें।"
+        }
+      ]
+    },
+    {
+      "id": "anxiety-7-d4",
+      "day_number": 4,
+      "tier": "goal",
+      "track": "anxiety",
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 6,
+      "title_en": "Be your own friend",
+      "title_hi": "अपने मित्र बनें",
+      "theme_en": "Speak inwardly the way you would to someone you love who is scared.",
+      "theme_hi": "भीतर से वैसा बोलें जैसे किसी प्रिय भयभीत व्यक्ति से बोलते।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Place a hand on the chest if that feels safe. Breathe. Offer one kind sentence to yourself.",
+          "text_hi": "यदि सुरक्षित लगे तो छाती पर हाथ रखें। श्वास लें। स्वयं को एक दयालु वाक्य दें।"
+        },
+        { "type": "silence", "seconds": 150 },
+        {
+          "type": "speak",
+          "text_en": "Thank the body for carrying you. Rise slowly.",
+          "text_hi": "शरीर को धन्यवाद दें। धीरे उठें।"
+        }
+      ]
+    },
+    {
+      "id": "anxiety-7-d5",
+      "day_number": 5,
+      "tier": "goal",
+      "track": "anxiety",
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 6,
+      "title_en": "Bring it back, gently",
+      "title_hi": "धीरे से लौटा लाएँ",
+      "theme_en": "Wandering is not failure. Return is the practice.",
+      "theme_hi": "भटकना विफलता नहीं। लौटना ही अभ्यास है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Choose a simple anchor: breath or a short mantra. When the mind runs, smile once and return.",
+          "text_hi": "सरल आधार चुनें: श्वास या छोटा मंत्र। जब मन भागे, एक बार मुस्कुराएँ और लौटें।"
+        },
+        { "type": "silence", "seconds": 180 },
+        {
+          "type": "speak",
+          "text_en": "Three breaths. The practice was returning, not staying perfect.",
+          "text_hi": "तीन श्वास। अभ्यास था लौटना, पूर्ण बने रहना नहीं।"
+        }
+      ]
+    },
+    {
+      "id": "anxiety-7-d6",
+      "day_number": 6,
+      "tier": "goal",
+      "track": "anxiety",
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 7,
+      "title_en": "Unshaken for a moment",
+      "title_hi": "एक क्षण के लिए अविचल",
+      "theme_en": "Evenness can be brief and still real.",
+      "theme_hi": "समत्व क्षणिक भी हो तो सत्य हो सकता है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit tall and soft. Feel contact points. Let worry be present without giving it the vote.",
+          "text_hi": "सीधे और कोमल बैठें। संपर्क बिंदु महसूस करें। चिंता उपस्थित रहे, पर उसे मत न दें।"
+        },
+        { "type": "silence", "seconds": 200 },
+        {
+          "type": "speak",
+          "text_en": "Notice any moment of evenness, however small. Carry that into the next hour.",
+          "text_hi": "समत्व का कोई क्षण देखें, चाहे छोटा हो। उसे अगले घंटे में साथ रखें।"
+        }
+      ]
+    },
+    {
+      "id": "anxiety-7-d7",
+      "day_number": 7,
+      "tier": "goal",
+      "track": "anxiety",
+      "unlock_rule": "previous_completed",
+      "audio_url": null,
+      "duration_minutes": 8,
+      "title_en": "Set one burden down",
+      "title_hi": "एक बोझ रख दें",
+      "theme_en": "Closing the week: release is a practice, not a performance.",
+      "theme_hi": "सप्ताह का समापन: छोड़ना अभ्यास है, प्रदर्शन नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Arrive. Breath. Body. Silently name one worry you are willing to set down for today.",
+          "text_hi": "पहुँचें। श्वास। शरीर। मौन में एक चिंता नाम दें जिसे आज के लिए रख देने को तैयार हैं।"
+        },
+        { "type": "silence", "seconds": 60 },
+        {
+          "type": "speak",
+          "text_en": "Rest with the breath. If the worry returns, note it and return again. No scorecard.",
+          "text_hi": "श्वास के साथ रहें। यदि चिंता लौटे, नोट करें और फिर लौटें। कोई अंकतालिका नहीं।"
+        },
+        { "type": "silence", "seconds": 210 },
+        {
+          "type": "speak",
+          "text_en": "Thank yourself for showing up. The progressive sitting course and daily sits remain open whenever you want a longer path.",
+          "text_hi": "आने के लिए स्वयं को धन्यवाद दें। जब चाहें लंबी यात्रा के लिए क्रमिक बैठक और दैनिक बैठकें खुली हैं।"
+        }
+      ]
+    }
+  ]
+}

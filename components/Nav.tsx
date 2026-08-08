@@ -31,6 +31,7 @@ export default function Nav() {
     { href: "/panchang", label: t("navPanchang") },
     { href: "/community", label: t("navSangha") },
     { href: "/meditation", label: t("homeMeditationTitle") },
+    { href: "/wallpapers", label: t("navWallpapers") },
     { href: "/support", label: t("navSupport") },
   ];
   const madhavLink = { href: "/madhav", label: t("navMadhav") };

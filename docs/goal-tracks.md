@@ -17,4 +17,13 @@ already reserves `journey_runs.track` and `MeditationSession.track`:
 
 Drop JSON under `data/meditation/tracks/<track>-7.json` with the same
 session shape as foundation days (`tier: "goal"`, `track` set). Wire into
-catalog only after review — composition is intentionally not automatic yet.
+catalog only after review — composition is intentionally not automatic yet
+(the journeys loader only scans `data/meditation/*.json`, not `tracks/`).
+
+## Present on disk
+
+| File | Status |
+|------|--------|
+| `data/meditation/tracks/anxiety-7.json` | Content stub (7 short sits). Loadable via `loadGoalTrack("anxiety-7")` in `lib/meditation.ts`. **Not** in `/api/meditation/catalog` and **not** composed into `sitting-course`. |
+
+App mirror note: `MindKshetra-app/src/data/meditation/goal-tracks.md`.

@@ -1,8 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { resolveRecitationUrl } from "@/lib/audio/manifest";
-import { playOrSpeak, playUrl, stopNarration } from "@/lib/audio/narration";
+import {
+  getNarrationSession,
+  playOrSpeak,
+  playUrl,
+  stopNarration,
+  stopNarrationIfOwner,
+} from "@/lib/audio/narration";
 import { isSpeechSynthesisSupported, type SpeakLang } from "@/lib/tts";
 
 type Props = {
@@ -41,6 +47,8 @@ export default function SpeakButton({
   const [supported, setSupported] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [recitationReady, setRecitationReady] = useState(!recitationOnly);
+  const ownerSessionRef = useRef<number | null>(null);
+  const genRef = useRef(0);
 
   const setSpeakingState = useCallback(
     (next: boolean) => {
@@ -63,15 +71,28 @@ export default function SpeakButton({
     window.speechSynthesis.addEventListener("voiceschanged", warm);
     return () => {
       window.speechSynthesis.removeEventListener("voiceschanged", warm);
-      stopNarration();
     };
   }, []);
 
-  // Stop if the text/lang/verse changes mid-playback
+  // When verse/lang/text changes: stop only if we own the player.
   useEffect(() => {
-    stopNarration();
+    if (ownerSessionRef.current != null) {
+      stopNarrationIfOwner(ownerSessionRef.current);
+      ownerSessionRef.current = null;
+    }
     setSpeakingState(false);
   }, [text, lang, chapter, verseNumber, setSpeakingState]);
+
+  // Unmount: stop only our session (another SpeakButton may still be playing).
+  useEffect(
+    () => () => {
+      if (ownerSessionRef.current != null) {
+        stopNarrationIfOwner(ownerSessionRef.current);
+        ownerSessionRef.current = null;
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     if (!recitationOnly || chapter == null || verseNumber == null) {
@@ -90,15 +111,33 @@ export default function SpeakButton({
   const toggle = useCallback(async () => {
     if (!supported) return;
     if (speaking) {
-      stopNarration();
+      if (ownerSessionRef.current != null) {
+        stopNarrationIfOwner(ownerSessionRef.current);
+      } else {
+        stopNarration();
+      }
+      ownerSessionRef.current = null;
       setSpeakingState(false);
       return;
     }
+
+    const myGen = ++genRef.current;
 
     const url =
       chapter != null && verseNumber != null
         ? await resolveRecitationUrl(chapter, verseNumber)
         : null;
+
+    if (myGen !== genRef.current) return;
+
+    const bindOwner = () => {
+      ownerSessionRef.current = getNarrationSession();
+    };
+
+    const clearOwner = () => {
+      ownerSessionRef.current = null;
+      setSpeakingState(false);
+    };
 
     if (recitationOnly) {
       if (!url) {
@@ -107,22 +146,50 @@ export default function SpeakButton({
       }
       // Play the file only — do not fall back to speaking the translation.
       const ok = await playUrl(url, {
-        onStart: () => setSpeakingState(true),
-        onEnd: () => setSpeakingState(false),
-        onError: () => setSpeakingState(false),
+        onStart: () => {
+          if (myGen !== genRef.current) return;
+          bindOwner();
+          setSpeakingState(true);
+        },
+        onEnd: () => {
+          if (myGen !== genRef.current) return;
+          clearOwner();
+        },
+        onStopped: () => {
+          if (myGen !== genRef.current) return;
+          clearOwner();
+        },
+        onError: () => {
+          if (myGen !== genRef.current) return;
+          clearOwner();
+        },
       });
-      if (!ok) setSpeakingState(false);
+      if (!ok && myGen === genRef.current) clearOwner();
       return;
     }
 
     const ok = await playOrSpeak(text, {
       lang,
       url,
-      onStart: () => setSpeakingState(true),
-      onEnd: () => setSpeakingState(false),
-      onError: () => setSpeakingState(false),
+      onStart: () => {
+        if (myGen !== genRef.current) return;
+        bindOwner();
+        setSpeakingState(true);
+      },
+      onEnd: () => {
+        if (myGen !== genRef.current) return;
+        clearOwner();
+      },
+      onStopped: () => {
+        if (myGen !== genRef.current) return;
+        clearOwner();
+      },
+      onError: () => {
+        if (myGen !== genRef.current) return;
+        clearOwner();
+      },
     });
-    if (!ok) setSpeakingState(false);
+    if (!ok && myGen === genRef.current) clearOwner();
   }, [
     supported,
     speaking,

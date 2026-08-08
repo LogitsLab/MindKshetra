@@ -5,11 +5,14 @@
  */
 
 const DRONE_PATH = "ambient/meditation-drone.m4a";
+/** Optional one-shot at sit end — fail soft if the bucket object is missing. */
+const BELL_PATH = "ambient/soft-bell.m4a";
 
 let padCtx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let oscillators: OscillatorNode[] = [];
 let loopEl: HTMLAudioElement | null = null;
+let bellEl: HTMLAudioElement | null = null;
 let running = false;
 
 function audioBase(): string | null {
@@ -22,6 +25,43 @@ function audioBase(): string | null {
 export function ambientLoopUrl(): string | null {
   const base = audioBase();
   return base ? `${base}/${DRONE_PATH}` : null;
+}
+
+export function softBellUrl(): string | null {
+  const base = audioBase();
+  return base ? `${base}/${BELL_PATH}` : null;
+}
+
+/** One-shot soft bell when the last phase ends. Never throws; missing = no-op. */
+export async function playSoftBell(volume = 0.35): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  const url = softBellUrl();
+  if (!url) return false;
+  try {
+    if (bellEl) {
+      bellEl.onerror = null;
+      bellEl.pause();
+      bellEl.removeAttribute("src");
+      bellEl = null;
+    }
+    const el = new Audio();
+    el.loop = false;
+    el.preload = "auto";
+    el.volume = Math.min(1, Math.max(0, volume));
+    el.src = url;
+    await el.play();
+    bellEl = el;
+    el.onended = () => {
+      if (bellEl === el) bellEl = null;
+    };
+    el.onerror = () => {
+      if (bellEl === el) bellEl = null;
+    };
+    return true;
+  } catch {
+    bellEl = null;
+    return false;
+  }
 }
 
 function stopPad() {

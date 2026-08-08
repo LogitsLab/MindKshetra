@@ -12,7 +12,8 @@ edge-cache and egress stays low. Clients may still point
 ```
 {bucket}/manifest.json
 {bucket}/recitation/{chapter}-{verse}.m4a   # human, AAC ~80kbps
-{bucket}/ambient/meditation-drone.m4a      # optional
+{bucket}/ambient/meditation-drone.m4a      # optional loop under silence
+{bucket}/ambient/soft-bell.m4a             # optional one-shot at sit end
 ```
 
 `tts/` was purged (Sarvam AI clips). Do **not** re-run `audio:tts` unless you

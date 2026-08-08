@@ -1,0 +1,80 @@
+{
+  "id": "sleep-7",
+  "days_count": 7,
+  "title_en": "Seven days with restlessness",
+  "title_hi": "बेचैनी के साथ सात दिन",
+  "intro_en": "A week for the mind that will not settle at night — one verse, one short sit, one honest line a day. Not a medical sleep cure; a practice of measure and return. If sleeplessness is severe or lasting, please also talk to a professional.",
+  "intro_hi": "रात में न बैठने वाले मन के लिए एक सप्ताह — प्रतिदिन एक श्लोक, एक छोटी बैठक, एक सच्ची पंक्ति। यह चिकित्सकीय निद्रा-उपचार नहीं; माप और लौटने का अभ्यास है। यदि अनिद्रा गंभीर या लंबे समय से है, तो कृपया किसी विशेषज्ञ से भी बात करें।",
+  "days": [
+    {
+      "day": 1,
+      "ref": { "chapter": 6, "verse": 16 },
+      "practice": "sit",
+      "minutes": 3,
+      "title_en": "Not too much, not too little",
+      "title_hi": "न अधिक, न अत्यल्प",
+      "prompt_en": "Where did sleep or wakefulness tip into excess today?",
+      "prompt_hi": "आज नींद या जागरण कहाँ अति पर चला गया?"
+    },
+    {
+      "day": 2,
+      "ref": { "chapter": 6, "verse": 17 },
+      "practice": "pranayama",
+      "minutes": 5,
+      "title_en": "Measure softens pain",
+      "title_hi": "माप से पीड़ा हल्की",
+      "prompt_en": "What one moderate habit of rest, food, or work would you keep tonight?",
+      "prompt_hi": "रात के लिए विश्राम, भोजन या काम की कौन-सी एक मध्यम आदत रखेंगे?"
+    },
+    {
+      "day": 3,
+      "ref": { "chapter": 2, "verse": 14 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Sensations pass",
+      "title_hi": "संवेदनाएँ गुज़रती हैं",
+      "prompt_en": "Name one restless sensation you can watch without arguing with it.",
+      "prompt_hi": "एक बेचैन संवेदना लिखें जिसे बिना बहस के देख सकें।"
+    },
+    {
+      "day": 4,
+      "ref": { "chapter": 2, "verse": 70 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Ocean, not wave",
+      "title_hi": "सागर, लहर नहीं",
+      "prompt_en": "What desire or worry kept arriving — and can you receive it without rising?",
+      "prompt_hi": "कौन-सी इच्छा या चिंता बार-बार आई — क्या बिना उठे उसे ग्रहण कर सकते हैं?"
+    },
+    {
+      "day": 5,
+      "ref": { "chapter": 6, "verse": 19 },
+      "practice": "japa",
+      "minutes": 5,
+      "title_en": "Lamp in still air",
+      "title_hi": "निश्चल वायु में दीप",
+      "prompt_en": "Where did your attention steady for even a few breaths tonight?",
+      "prompt_hi": "आज रात ध्यान कहाँ कुछ श्वासों के लिए भी स्थिर रहा?"
+    },
+    {
+      "day": 6,
+      "ref": { "chapter": 6, "verse": 26 },
+      "practice": "sit",
+      "minutes": 5,
+      "title_en": "Bring it back gently",
+      "title_hi": "धीरे से लौटा लाएँ",
+      "prompt_en": "Each time the mind ran toward tomorrow, what brought it back to the pillow?",
+      "prompt_hi": "जब-जब मन कल की ओर भागा, उसे तकिये पर क्या लौटाया?"
+    },
+    {
+      "day": 7,
+      "ref": { "chapter": 6, "verse": 20 },
+      "practice": "sit",
+      "minutes": 10,
+      "title_en": "Quietude is enough",
+      "title_hi": "शांति पर्याप्त है",
+      "prompt_en": "After seven days: what one evening ritual will you keep so the mind can rest?",
+      "prompt_hi": "सात दिनों के बाद: कौन-सा एक सांझ का नियम रखेंगे जिससे मन विश्राम पा सके?"
+    }
+  ]
+}
