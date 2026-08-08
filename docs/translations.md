@@ -35,15 +35,43 @@ suggestions without a PR.
   both). Don't design copy that depends on caps for emphasis.
 - No emoji anywhere in product copy (DESIGN.md).
 
-## Proposing a new language (Tamil, Telugu, Bengali…)
+## Language steward slots (named ownership)
 
 A locale ships only with a **named steward** — one person who owns
 register and review for that language, reachable for follow-ups. The
-technical path (widening the `AppLang` union, `Partial<Record>` fallback
-to EN, per-script Noto fonts) is tracked in TODOS.md and is the easy half;
-the steward is the hard half. Open an issue titled
-`Language steward: <language>` describing your background with the
-language and the Gita.
+technical path is the easy half; the steward is the hard half.
+
+| Code | Language | Script notes | Steward slot |
+|------|----------|--------------|--------------|
+| `hi` | Hindi | Devanagari — already shipping EN+HI | In-repo maintainers |
+| `ta` | Tamil | Tamil script — needs Noto Tamil (or equivalent) | **Open** — claim via issue |
+| `te` | Telugu | Telugu script — needs Noto Telugu | **Open** — claim via issue |
+| `bn` | Bengali | Bengali script — needs Noto Sans Bengali | **Open** — claim via issue |
+
+To claim a slot: open an issue titled `Language steward: <language>`
+describing your background with the language and the Gita. Until a steward
+is named and accepting review, do not merge product UI for that locale
+(partial drafts in a branch are fine).
 
 Verse translations themselves (the scripture text) are a separate content
 project with public-domain sourcing rules — ask before starting one.
+
+## How to add a new i18n namespace
+
+Namespaces keep domains small and reviewable. To add one (e.g. `circles`):
+
+1. **Web** — create `lib/i18n/namespaces/<name>.ts` exporting `en` and
+   `hi` with identical keys (`as const` + `Record<keyof typeof en, string>`).
+2. **Wire web dictionary** — import and spread into the central dictionary
+   (same pattern as `gita` / `account` in `lib/i18n`).
+3. **Mobile** — mirror the file under
+   `MindKshetra-app/src/i18n/namespaces/<name>.ts` and spread it in
+   `src/i18n/dictionary.ts`.
+4. **Keys only** — no nested objects; flat `camelCase` keys. Placeholders
+   stay `{name}`-style in both languages.
+5. **PR** — one namespace per PR when possible; include a short note on
+   register (devotional vs functional) so stewards can review tone.
+
+Widening `AppLang` beyond `en` | `hi` (Partial\<Record\> fallback to EN,
+per-script fonts) is tracked separately; do not land a new locale code
+without a named steward from the table above.

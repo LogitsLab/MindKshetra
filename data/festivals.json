@@ -1,0 +1,47 @@
+{
+  "_comment": "Curated named-festival rules keyed by lunar month + paksha + tithi (amanta naming; see lib/astrology/festivals.ts). Computed at runtime from the ephemeris — never hardcode Gregorian dates here. Cultural review can expand this short list; a wrong festival date is worse than an absent one.",
+  "convention": "amanta",
+  "festivals": [
+    {
+      "id": "gita-jayanti",
+      "labelEn": "Gita Jayanti",
+      "labelHi": "गीता जयंती",
+      "lunarMonth": "margashirsha",
+      "paksha": "shukla",
+      "tithi": 11,
+      "practiceHint": "japa",
+      "verseRef": "4.7"
+    },
+    {
+      "id": "rama-navami",
+      "labelEn": "Rama Navami",
+      "labelHi": "राम नवमी",
+      "lunarMonth": "chaitra",
+      "paksha": "shukla",
+      "tithi": 9,
+      "practiceHint": "japa",
+      "verseRef": "4.7"
+    },
+    {
+      "id": "krishna-janmashtami",
+      "labelEn": "Krishna Janmashtami",
+      "labelHi": "कृष्ण जन्माष्टमी",
+      "lunarMonth": "shravana",
+      "paksha": "krishna",
+      "tithi": 8,
+      "practiceHint": "japa",
+      "verseRef": "4.7",
+      "notes": "North India (purnimanta) names this Shravana Krishna 8; many amanta regions name the same civil day Bhadrapada Krishna 8. This table uses the commonly cited Shravana Krishna 8 label and amanta month tracking that yields it for the Delhi reference sky."
+    },
+    {
+      "id": "guru-purnima",
+      "labelEn": "Guru Purnima",
+      "labelHi": "गुरु पूर्णिमा",
+      "lunarMonth": "ashadha",
+      "paksha": "shukla",
+      "tithi": 15,
+      "practiceHint": "verse",
+      "verseRef": "4.34"
+    }
+  ]
+}

@@ -47,7 +47,7 @@ Mobile mirrors under `MindKshetra-app/src/data/meditation/`.
 
 - Volunteer recorded audio + CDN + offline download
 - Tier 3 goal tracks (`track`: anxiety / sleep / focus / stress) — see `data/meditation/goal-tracks.md`
-- Soft bell at sit end (owner call)
+- Soft bell at sit end — players call `playSoftBell()` (`ambient/soft-bell.m4a`); fails soft if missing
 
 ## Impact
 

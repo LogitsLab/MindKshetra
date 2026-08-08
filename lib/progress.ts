@@ -6,6 +6,8 @@ import { getAllSlokas, getSlokaById } from "@/lib/slokas";
 export type ReadingCursor = {
   slokaId: number;
   chapter: number;
+  /** Verse number within the chapter (for app continue UI). */
+  verse?: number;
   updatedAt: string;
 };
 
@@ -53,9 +55,12 @@ export async function getProgressForUser(
   const completedIds = (completionRows ?? []).map((r) => Number(r.sloka_id));
   let cursor: ReadingCursor | null = null;
   if (cursorRow?.last_sloka_id) {
+    const slokaId = Number(cursorRow.last_sloka_id);
+    const sloka = await getSlokaById(slokaId);
     cursor = {
-      slokaId: Number(cursorRow.last_sloka_id),
-      chapter: Number(cursorRow.last_chapter ?? 0),
+      slokaId,
+      chapter: Number(cursorRow.last_chapter ?? sloka?.chapter ?? 0),
+      verse: sloka?.verse_number,
       updatedAt: cursorRow.updated_at ?? new Date().toISOString(),
     };
   }

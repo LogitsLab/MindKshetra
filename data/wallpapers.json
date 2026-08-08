@@ -1,0 +1,151 @@
+{
+  "wallpapers": [
+    {
+      "id": "krishna-flute",
+      "src": "/images/wallpapers/krishna-flute.png",
+      "filename": "mindkshetra-krishna-flute.png",
+      "titleEn": "Krishna — flute by the river",
+      "titleHi": "कृष्ण — नदी किनारे बाँसुरी"
+    },
+    {
+      "id": "krishna-flute-ember",
+      "src": "/images/wallpapers/krishna-flute-ember.png",
+      "filename": "mindkshetra-krishna-flute-ember.png",
+      "titleEn": "Krishna — ember dusk",
+      "titleHi": "कृष्ण — अंगारे की संध्या"
+    },
+    {
+      "id": "krishna-flute-night",
+      "src": "/images/wallpapers/krishna-flute-night.png",
+      "filename": "mindkshetra-krishna-flute-night.png",
+      "titleEn": "Krishna — night glade",
+      "titleHi": "कृष्ण — रात्रि उपवन"
+    },
+    {
+      "id": "krishna-flute-mist",
+      "src": "/images/wallpapers/krishna-flute-mist.png",
+      "filename": "mindkshetra-krishna-flute-mist.png",
+      "titleEn": "Krishna — mist and moonlight",
+      "titleHi": "कृष्ण — कुहासा और चाँदनी"
+    },
+    {
+      "id": "krishna-flute-glow",
+      "src": "/images/wallpapers/krishna-flute-glow.png",
+      "filename": "mindkshetra-krishna-flute-glow.png",
+      "titleEn": "Krishna — golden glow",
+      "titleHi": "कृष्ण — स्वर्णिम आभा"
+    },
+    {
+      "id": "shiva-eye",
+      "src": "/images/wallpapers/shiva-eye.png",
+      "filename": "mindkshetra-shiva-eye.png",
+      "titleEn": "Shiva — the watching eye",
+      "titleHi": "शिव — द्रष्टा नेत्र"
+    },
+    {
+      "id": "shiva-nandi",
+      "src": "/images/wallpapers/shiva-nandi.png",
+      "filename": "mindkshetra-shiva-nandi.png",
+      "titleEn": "Shiva and Nandi — Himalaya",
+      "titleHi": "शिव और नंदी — हिमालय"
+    },
+    {
+      "id": "rama-blue",
+      "src": "/images/wallpapers/rama-blue.png",
+      "filename": "mindkshetra-rama-blue.png",
+      "titleEn": "Rama — bow in stillness",
+      "titleHi": "राम — मौन में धनुष"
+    },
+    {
+      "id": "rama-sita-forest",
+      "src": "/images/wallpapers/rama-sita-forest.png",
+      "filename": "mindkshetra-rama-sita-forest.png",
+      "titleEn": "Rama and Sita — forest exile",
+      "titleHi": "राम और सीता — वनवास"
+    },
+    {
+      "id": "rama-sky",
+      "src": "/images/wallpapers/rama-sky.png",
+      "filename": "mindkshetra-rama-sky.png",
+      "titleEn": "Rama — under the dawn sky",
+      "titleHi": "राम — उषा आकाश के नीचे"
+    },
+    {
+      "id": "temple-moon",
+      "src": "/images/wallpapers/temple-moon.png",
+      "filename": "mindkshetra-temple-moon.png",
+      "titleEn": "Temple path under the moon",
+      "titleHi": "चाँद के नीचे मंदिर पथ"
+    },
+    {
+      "id": "shiva-kailash",
+      "src": "/images/wallpapers/shiva-kailash.png",
+      "filename": "mindkshetra-shiva-kailash.png",
+      "titleEn": "Shiva — facing Kailash",
+      "titleHi": "शिव — कैलाश की ओर"
+    },
+    {
+      "id": "shiva-cave",
+      "src": "/images/wallpapers/shiva-cave.png",
+      "filename": "mindkshetra-shiva-cave.png",
+      "titleEn": "Shiva — cave meditation",
+      "titleHi": "शिव — गुफा में ध्यान"
+    },
+    {
+      "id": "hanuman-cave",
+      "src": "/images/wallpapers/hanuman-cave.png",
+      "filename": "mindkshetra-hanuman-cave.png",
+      "titleEn": "Hanuman — mountain vigil",
+      "titleHi": "हनुमान — पर्वत जागरण"
+    },
+    {
+      "id": "temple-reflection",
+      "src": "/images/wallpapers/temple-reflection.png",
+      "filename": "mindkshetra-temple-reflection.png",
+      "titleEn": "Temple night — reflected light",
+      "titleHi": "मंदिर रात्रि — प्रतिबिंबित ज्योति"
+    },
+    {
+      "id": "warrior-horse-gold",
+      "src": "/images/wallpapers/warrior-horse-gold.png",
+      "filename": "mindkshetra-warrior-horse-gold.png",
+      "titleEn": "Night ride — golden sparks",
+      "titleHi": "रात्रि यात्रा — स्वर्ण चिंगारियाँ"
+    },
+    {
+      "id": "kurukshetra-sky",
+      "src": "/images/wallpapers/kurukshetra-sky.png",
+      "filename": "mindkshetra-kurukshetra-sky.png",
+      "titleEn": "Kurukshetra — sky over the field",
+      "titleHi": "कुरुक्षेत्र — मैदान पर आकाश"
+    },
+    {
+      "id": "shiva-cosmic",
+      "src": "/images/wallpapers/shiva-cosmic.png",
+      "filename": "mindkshetra-shiva-cosmic.png",
+      "titleEn": "Shiva — cosmic stillness",
+      "titleHi": "शिव — ब्रह्मांडीय मौन"
+    },
+    {
+      "id": "hanuman-fire",
+      "src": "/images/wallpapers/hanuman-fire.png",
+      "filename": "mindkshetra-hanuman-fire.png",
+      "titleEn": "Hanuman — before the fire",
+      "titleHi": "हनुमान — अग्नि के सामने"
+    },
+    {
+      "id": "meditate-cosmos",
+      "src": "/images/wallpapers/meditate-cosmos.png",
+      "filename": "mindkshetra-meditate-cosmos.png",
+      "titleEn": "Sit beneath the cosmos",
+      "titleHi": "ब्रह्मांड के नीचे बैठें"
+    },
+    {
+      "id": "guru-river",
+      "src": "/images/wallpapers/guru-river.png",
+      "filename": "mindkshetra-guru-river.png",
+      "titleEn": "By the river — offering",
+      "titleHi": "नदी किनारे — अर्पण"
+    }
+  ]
+}

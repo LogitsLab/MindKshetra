@@ -1,7 +1,43 @@
 import { describe, it, expect } from "vitest";
-import { computeMonthPanchang } from "@/lib/astrology/festivals";
+import {
+  computeMonthPanchang,
+  loadFestivalRules,
+  matchFestivalRules,
+  resolveAmantaMonth,
+} from "@/lib/astrology/festivals";
+import { computeDailyPanchang } from "@/lib/astrology/daily-panchang";
 
 const DELHI = { lat: 28.6139, lng: 77.209, tz: "Asia/Kolkata" };
+
+describe("named festival rules", () => {
+  it("loads a short curated rule table without Gregorian dates", () => {
+    const rules = loadFestivalRules();
+    expect(rules.length).toBeGreaterThanOrEqual(3);
+    expect(rules.length).toBeLessThanOrEqual(5);
+    expect(rules.every((r) => r.lunarMonth && r.paksha && r.tithi)).toBe(true);
+    expect(JSON.stringify(rules)).not.toMatch(/\d{4}-\d{2}-\d{2}/);
+  });
+
+  it("matches Gita Jayanti on Margashirsha Shukla Ekadashi via ephemeris", () => {
+    // Civil date is only in the test — the rule table stays lunar-keyed.
+    const date = "2025-12-01";
+    const p = computeDailyPanchang(date, DELHI.lat, DELHI.lng, DELHI.tz);
+    expect(p.tithiIndex).toBe(10);
+    const month = resolveAmantaMonth(date, DELHI.lat, DELHI.lng, DELHI.tz);
+    expect(month).toBe("margashirsha");
+    const hits = matchFestivalRules(month, "shukla", 11);
+    expect(hits.map((h) => h.id)).toContain("gita-jayanti");
+  }, 30_000);
+
+  it("surfaces named festivals in the month observance list", () => {
+    const cal = computeMonthPanchang("2025-12", DELHI.lat, DELHI.lng, DELHI.tz);
+    const gita = cal.observances.find(
+      (o) => o.kind === "festival" && o.festivalId === "gita-jayanti"
+    );
+    expect(gita).toBeTruthy();
+    expect(gita!.label).toBe("Gita Jayanti");
+  }, 60_000);
+});
 
 describe("computeMonthPanchang", () => {
   it("finds Makara Sankranti in January 2026 on the traditional date", () => {

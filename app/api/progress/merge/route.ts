@@ -19,9 +19,15 @@ export async function POST(request: NextRequest) {
           chapter: Number(body.cursor.chapter) || undefined,
         }
       : null;
-  const completedIds = Array.isArray(body.completedIds)
-    ? body.completedIds.map(Number).filter((n: number) => Number.isInteger(n))
-    : [];
+  // Accept legacy `{ completed }` from older app builds as well as `completedIds`.
+  const rawIds = Array.isArray(body.completedIds)
+    ? body.completedIds
+    : Array.isArray(body.completed)
+      ? body.completed
+      : [];
+  const completedIds = rawIds
+    .map(Number)
+    .filter((n: number) => Number.isInteger(n));
 
   try {
     const progress = await mergeGuestProgress(userId, {

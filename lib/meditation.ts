@@ -80,6 +80,26 @@ export function loadDailySits(): DailySitsCatalog | null {
   }
 }
 
+/**
+ * Optional Tier-3 goal track from data/meditation/tracks/<id>.json.
+ * Not composed into sitting-course and not listed in /api/meditation/catalog
+ * until stewarded — load on demand so sitting progress stays untouched.
+ */
+export function loadGoalTrack(id: string): MeditationProgram | null {
+  if (!/^[a-z0-9-]+$/i.test(id)) return null;
+  try {
+    const raw = readFileSync(
+      path.join(ROOT, "tracks", `${id}.json`),
+      "utf8"
+    );
+    const data = JSON.parse(raw) as MeditationProgram;
+    if (!data?.id || !Array.isArray(data.days) || !data.days.length) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 export function getSittingDay(day: number): MeditationSession | null {
   const journey = loadJourney(SITTING_COURSE_ID);
   if (!journey) return null;
