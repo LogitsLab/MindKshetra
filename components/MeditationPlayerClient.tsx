@@ -13,7 +13,7 @@ import {
   sessionTranscript,
 } from "@/lib/meditation-core";
 import { markGuestJourneyDay } from "@/lib/journeys/local";
-import { startAmbient, stopAmbient } from "@/lib/audio/ambient";
+import { playSoftBell, startAmbient, stopAmbient } from "@/lib/audio/ambient";
 import { playOrSpeak, stopNarration } from "@/lib/audio/narration";
 import { isSpeechSynthesisSupported } from "@/lib/tts";
 
@@ -182,10 +182,12 @@ export default function MeditationPlayerClient({
 
   const advancePhase = useCallback(() => {
     stopNarration();
+    stopAmbient();
     setSpeaking(false);
     setSilenceLeft(null);
     silenceStartRef.current = null;
     if (phaseIdx >= session.phases.length - 1) {
+      void playSoftBell();
       setStage("moodAfter");
       return;
     }

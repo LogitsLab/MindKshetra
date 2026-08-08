@@ -42,6 +42,7 @@ const ORDER = [
   "grief-7",
   "purpose-7",
   "relationships-7",
+  "sleep-7",
   "student-7",
 ];
 

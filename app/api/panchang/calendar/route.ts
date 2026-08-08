@@ -49,7 +49,8 @@ export async function GET(request: NextRequest) {
           .format(new Date())
           .slice(0, 7);
 
-  const cacheKey = `panchang:cal:${month}:${lat.toFixed(1)}:${lng.toFixed(1)}`;
+  // v2: observances may include kind "festival" from data/festivals.json.
+  const cacheKey = `panchang:cal:v2:${month}:${lat.toFixed(1)}:${lng.toFixed(1)}`;
 
   try {
     const cached = await redisGet(cacheKey);

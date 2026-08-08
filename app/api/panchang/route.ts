@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { computeDailyPanchang } from "@/lib/astrology/daily-panchang";
+import { festivalsForDailyPanchang } from "@/lib/astrology/festivals";
 import { resolveIanaTz } from "@/lib/astrology/geo";
 import { localDayString } from "@/lib/practice-streaks";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
@@ -47,7 +48,8 @@ export async function GET(request: NextRequest) {
       : localDayString(ianaTz, new Date());
 
   // ~11 km rounding: sunrise shifts well under a minute inside a bucket.
-  const cacheKey = `panchang:${date}:${lat.toFixed(1)}:${lng.toFixed(1)}`;
+  // v2: includes named-festival matches from data/festivals.json.
+  const cacheKey = `panchang:v2:${date}:${lat.toFixed(1)}:${lng.toFixed(1)}`;
 
   try {
     const cached = await redisGet(cacheKey);
@@ -58,9 +60,11 @@ export async function GET(request: NextRequest) {
     }
 
     const panchang = computeDailyPanchang(date, lat, lng, ianaTz);
-    await redisSet(cacheKey, JSON.stringify(panchang), CACHE_TTL_SEC);
+    const festivals = festivalsForDailyPanchang(panchang, lat, lng);
+    const payload = { ...panchang, festivals };
+    await redisSet(cacheKey, JSON.stringify(payload), CACHE_TTL_SEC);
 
-    return NextResponse.json(panchang, {
+    return NextResponse.json(payload, {
       headers: { "Cache-Control": "public, max-age=3600" },
     });
   } catch (err) {

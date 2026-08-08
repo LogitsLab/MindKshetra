@@ -7,6 +7,7 @@ import * as sadhana from "@/lib/i18n/namespaces/sadhana";
 import * as support from "@/lib/i18n/namespaces/support";
 import * as sangha from "@/lib/i18n/namespaces/sangha";
 import * as meditation from "@/lib/i18n/namespaces/meditation";
+import * as wallpapers from "@/lib/i18n/namespaces/wallpapers";
 
 /**
  * i18n entry point.
@@ -45,6 +46,7 @@ export const dictionary = {
     ...support.en,
     ...sangha.en,
     ...meditation.en,
+    ...wallpapers.en,
   },
   hi: {
     ...shared.hi,
@@ -56,6 +58,7 @@ export const dictionary = {
     ...support.hi,
     ...sangha.hi,
     ...meditation.hi,
+    ...wallpapers.hi,
   },
 } as const;
 

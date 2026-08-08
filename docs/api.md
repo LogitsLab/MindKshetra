@@ -319,7 +319,7 @@ All progress routes require **signed-in** (non-anonymous) except
 ### `GET /api/progress`
 
 ```json
-{ "cursor": { "slokaId": 47, "chapter": 2, "updatedAt": "…" }, "completedIds": [1, 2], "continueSlokaId": 48 }
+{ "cursor": { "slokaId": 47, "chapter": 2, "verse": 11, "updatedAt": "…" }, "completedIds": [1, 2], "continueSlokaId": 48 }
 ```
 
 ### `POST /api/progress/complete`

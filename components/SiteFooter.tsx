@@ -34,6 +34,12 @@ export default function SiteFooter() {
             {t("navSangha")}
           </Link>
           <Link
+            href="/wallpapers"
+            className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+          >
+            {t("navWallpapers")}
+          </Link>
+          <Link
             href="/support"
             className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
           >

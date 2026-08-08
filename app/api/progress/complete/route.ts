@@ -13,11 +13,16 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const completed = Boolean(body.completed);
   const slokaIds = Array.isArray(body.slokaIds)
     ? body.slokaIds.map(Number).filter((n: number) => Number.isInteger(n))
     : null;
   const slokaId = Number(body.slokaId);
+  // Legacy clients omit `completed` when marking done — default true when a
+  // target id is present so a missing field never silently un-completes.
+  const completed =
+    typeof body.completed === "boolean"
+      ? body.completed
+      : Boolean(slokaIds?.length || Number.isInteger(slokaId));
 
   if (slokaIds?.length) {
     const result = await setCompletionsBulk(userId, slokaIds, completed);
