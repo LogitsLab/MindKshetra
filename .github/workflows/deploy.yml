@@ -33,6 +33,20 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+      # Sensitive-flagged vars pull as the literal "[SENSITIVE]", which then
+      # crashes next build (metadataBase / Supabase URL → Invalid URL).
+      # NEXT_PUBLIC_* and CONTENT_SOURCE must stay non-sensitive so prebuilt
+      # CI can read them. SERVICE_ROLE may stay sensitive (runtime-only).
+      - name: Guard against redacted build-time env
+        run: |
+          file=.vercel/.env.production.local
+          bad=$(grep -E '^(NEXT_PUBLIC_|CONTENT_SOURCE)=.*\[SENSITIVE\]' "$file" || true)
+          if [ -n "$bad" ]; then
+            echo "::error::vercel pull redacted build-time env as [SENSITIVE]. Re-add those vars with --no-sensitive (see docs/dev-environment.md)."
+            echo "$bad" | sed 's/=.*/=…/'
+            exit 1
+          fi
+
       - name: Build
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:

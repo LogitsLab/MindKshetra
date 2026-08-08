@@ -42,10 +42,21 @@ const devanagari = Noto_Serif_Devanagari({
   variable: "--font-devanagari",
 });
 
+function metadataBaseUrl(): URL {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  // Vercel "Sensitive" env pulls as the literal "[SENSITIVE]" into prebuilt CI.
+  if (raw && raw !== "[SENSITIVE]") {
+    try {
+      return new URL(raw);
+    } catch {
+      /* fall through */
+    }
+  }
+  return new URL("http://localhost:3000");
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
-  ),
+  metadataBase: metadataBaseUrl(),
   title: "MindKshetra",
   description:
     "Clarity from the Gita, for the battlefield of the mind. Explore verses, match your mood, and talk with Madhav.",
