@@ -64,3 +64,9 @@ next-env.d.ts
 .secrets/
 .env.dev.new
 .env.prod.new
+
+# generated Stitch dumps (keep prompts + markdown audits)
+/docs/stitch-output/
+/docs/design-v2/references/
+/docs/design-v3/references/
+/docs/design-v3/previews/
