@@ -13,7 +13,7 @@
  * If you do bump it, warm the cache for active members rather than letting
  * organic traffic recompute them all simultaneously.
  */
-export const ENGINE_VERSION = "2.1.0";
+export const ENGINE_VERSION = "2.2.0";
 
 export type Relationship =
   | "self"
@@ -72,6 +72,8 @@ export type PlanetPosition = {
   nakshatra: string;
   nakshatraIndex: number;
   pada: number;
+  /** Vimshottari lord of the occupied nakshatra. */
+  nakshatraLord?: PlanetId;
   house?: number;
   retrograde?: boolean;
 };
@@ -292,8 +294,11 @@ export type ChartPayload = {
   panchang: BirthPanchang | null;
   dignities: PlanetDignity[];
   vargas: {
+    d3: VargaChart | null;
+    d7: VargaChart | null;
     d9: VargaChart | null;
     d10: VargaChart | null;
+    d12: VargaChart | null;
   };
   aspects: GrahaAspect[];
   transits: TransitSnapshot | null;

@@ -38,6 +38,10 @@ async function smokePredictions(birth: BirthInput) {
   expect(chart.overview.ascendantSign).toBeTruthy();
   expect(chart.overview.currentMaha?.lord).toBeTruthy();
   expect(chart.dasha?.tree?.length).toBeGreaterThan(0);
+  expect(chart.vargas?.d3?.planets?.length).toBeGreaterThan(0);
+  expect(chart.vargas?.d7?.planets?.length).toBeGreaterThan(0);
+  expect(chart.vargas?.d12?.planets?.length).toBeGreaterThan(0);
+  expect(chart.kp?.cusps?.length).toBe(12);
 
   const prev = process.env.GROQ_API_KEY;
   delete process.env.GROQ_API_KEY;

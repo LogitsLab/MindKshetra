@@ -10,7 +10,9 @@
       "paksha": "shukla",
       "tithi": 11,
       "practiceHint": "japa",
-      "verseRef": "4.7"
+      "verseRef": "4.7",
+      "storyEn": "Gita Jayanti marks the day Krishna spoke the Gita to Arjuna on the field of Kurukshetra. Traditionally one reads a chapter, or sits with a single verse, rather than finishing the book in a rush.",
+      "storyHi": "गीता जयंती वह दिन है जब कृष्ण ने कुरुक्षेत्र में अर्जुन से गीता कही। परंपरा में एक अध्याय पढ़ना, या एक श्लोक के साथ बैठना, पूरी पुस्तक जल्दी खत्म करने से श्रेष्ठ माना जाता है।"
     },
     {
       "id": "rama-navami",
@@ -20,7 +22,9 @@
       "paksha": "shukla",
       "tithi": 9,
       "practiceHint": "japa",
-      "verseRef": "4.7"
+      "verseRef": "4.7",
+      "storyEn": "Rama Navami celebrates Rama's birth in the bright half of Chaitra. The taraka name — śrī rāma jaya rāma — is the day's usual japa, a steadiness of heart through the name.",
+      "storyHi": "राम नवमी चैत्र शुक्ल नवमी को राम के जन्म का पर्व है। तारक नाम — श्री राम जय राम — इस दिन का सामान्य जप है, नाम के सहारे हृदय की स्थिरता।"
     },
     {
       "id": "krishna-janmashtami",
@@ -31,7 +35,9 @@
       "tithi": 8,
       "practiceHint": "japa",
       "verseRef": "4.7",
-      "notes": "North India (purnimanta) names this Shravana Krishna 8; many amanta regions name the same civil day Bhadrapada Krishna 8. This table uses the commonly cited Shravana Krishna 8 label and amanta month tracking that yields it for the Delhi reference sky."
+      "notes": "North India (purnimanta) names this Shravana Krishna 8; many amanta regions name the same civil day Bhadrapada Krishna 8. This table uses the commonly cited Shravana Krishna 8 label and amanta month tracking that yields it for the Delhi reference sky.",
+      "storyEn": "Janmashtami remembers Krishna's midnight birth in prison, then the crossing of the Yamuna. A night sit, a name, or a verse on divine birth (Gita 4.7) is enough; the feast can wait until the moon is past.",
+      "storyHi": "जन्माष्टमी कृष्ण के कारागार में अर्धरात्रि जन्म और यमुना पार की स्मृति है। रात्रि बैठक, एक नाम, या दिव्य जन्म का श्लोक (गीता ४.७) पर्याप्त है; भोग चन्द्र बीतने तक ठहर सकता है।"
     },
     {
       "id": "guru-purnima",
@@ -41,7 +47,9 @@
       "paksha": "shukla",
       "tithi": 15,
       "practiceHint": "verse",
-      "verseRef": "4.34"
+      "verseRef": "4.34",
+      "storyEn": "Guru Purnima falls on Ashadha's full moon, dedicated to Vyasa and to living teachers. The Gita's verse on approaching the wise (4.34) is the natural companion: inquire, serve, then listen.",
+      "storyHi": "गुरु पूर्णिमा आषाढ़ की पूर्णिमा पर व्यास और जीवित गुरुओं के लिए रखी जाती है। गीता का श्लोक ४.३४ स्वाभाविक साथी है: पूछें, सेवा करें, फिर सुनें।"
     }
   ]
 }

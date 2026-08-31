@@ -1,0 +1,223 @@
+{
+  "_comment": "Curated EN/HI blurbs for daily panchang. Source of truth; copy into the app. Not LLM-generated per day — static cultural notes keyed by tithi name, nakshatra, vaar, and lunar specials.",
+  "tithi": {
+    "Pratipada": {
+      "en": "The first lunar day. A beginning: one small, complete act is enough.",
+      "hi": "तिथि का आरंभ। एक छोटा, पूरा काम ही पर्याप्त है।"
+    },
+    "Dwitiya": {
+      "en": "The second tithi. Pair what you start with a second, quieter step.",
+      "hi": "द्वितीया। जो शुरू किया, उसके साथ एक शांत दूसरा कदम जोड़ें।"
+    },
+    "Tritiya": {
+      "en": "Tritiya favours making, mending, and meeting people without hurry.",
+      "hi": "तृतीया बनाने, सुधारने, और बिना जल्दबाज़ी के मिलने के लिए अनुकूल मानी जाती है।"
+    },
+    "Chaturthi": {
+      "en": "Chaturthi is Ganesha's day in many homes: clear one obstacle, then stop.",
+      "hi": "चतुर्थी कई घरों में गणेश की तिथि: एक बाधा हटाएँ, फिर रुक जाएँ।"
+    },
+    "Panchami": {
+      "en": "Panchami sits with learning and speech. Read a little; speak less.",
+      "hi": "पंचमी विद्या और वाणी से जुड़ी है। थोड़ा पढ़ें; कम बोलें।"
+    },
+    "Shashthi": {
+      "en": "Shashthi is often kept for children and protection. Tend what is young.",
+      "hi": "षष्ठी बच्चों और रक्षा से जुड़ी है। जो अभी नया है, उसकी देखभाल करें।"
+    },
+    "Saptami": {
+      "en": "Saptami carries the sun's heat. Do the day's work in daylight if you can.",
+      "hi": "सप्तमी सूर्य की गर्मी रखती है। काम दिन की रोशनी में करें, यदि हो सके।"
+    },
+    "Ashtami": {
+      "en": "Ashtami is fierce and protective in many calendars. Keep a boundary today.",
+      "hi": "अष्टमी कई पंचांगों में उग्र और रक्षक है। आज एक सीमा बनाए रखें।"
+    },
+    "Navami": {
+      "en": "Navami remembers Rama in spring. Courage without cruelty.",
+      "hi": "नवमी वसंत में राम की स्मृति है। साहस, क्रूरता के बिना।"
+    },
+    "Dashami": {
+      "en": "Dashami closes a cycle of nine nights in autumn. Finish what you opened.",
+      "hi": "दशमी शरद में नवरात्र का समापन है। जो खोला, उसे पूरा करें।"
+    },
+    "Ekadashi": {
+      "en": "Ekadashi is traditionally a day of fasting and Vishnu's name. Light food, or none; a mala fits.",
+      "hi": "एकादशी पारंपरिक रूप से व्रत और विष्णु-नाम का दिन है। हलका आहार, या उपवास; एक माला ठीक बैठती है।"
+    },
+    "Dwadashi": {
+      "en": "Dwadashi is the breaking of the Ekadashi fast in many homes. Eat simply; do not rush.",
+      "hi": "द्वादशी कई घरों में एकादशी के व्रत का पारण है। सादा खाएँ; जल्दबाज़ी न करें।"
+    },
+    "Trayodashi": {
+      "en": "Trayodashi is often Pradosha, Shiva's evening. A short sit at dusk is traditional.",
+      "hi": "त्रयोदशी प्रायः प्रदोष, शिव की संध्या। गोधूलि पर छोटी बैठक पारंपरिक है।"
+    },
+    "Chaturdashi": {
+      "en": "Chaturdashi is the eve of the full or new moon. Keep the evening uncluttered.",
+      "hi": "चतुर्दशी पूर्णिमा या अमावस्या की पूर्व संध्या है। शाम को सरल रखें।"
+    },
+    "Purnima": {
+      "en": "Purnima, the full moon. What is already enough does not need adding.",
+      "hi": "पूर्णिमा, पूर्ण चन्द्र। जो पर्याप्त है, उसमें और जोड़ने की आवश्यकता नहीं।"
+    },
+    "Amavasya": {
+      "en": "Amavasya, the new moon. Many families remember ancestors and keep the lamps few.",
+      "hi": "अमावस्या, अमावस्या का अँधेरा। कई परिवार पितरों का स्मरण करते हैं और दीप कम रखते हैं।"
+    }
+  },
+  "nakshatra": {
+    "Ashwini": {
+      "en": "Ashwini: the healers' star. Begin a repair, not a new campaign.",
+      "hi": "अश्विनी: वैद्य नक्षत्र। मरम्मत आरंभ करें, नया अभियान नहीं।"
+    },
+    "Bharani": {
+      "en": "Bharani asks for restraint and carrying a weight to term.",
+      "hi": "भरणी संयम और बोझ को समय तक उठाने को कहती है।"
+    },
+    "Krittika": {
+      "en": "Krittika is a cutting fire. Trim what is excess; do not scorch.",
+      "hi": "कृत्तिका काटने वाली अग्नि है। अधिक काटें; जलाएँ नहीं।"
+    },
+    "Rohini": {
+      "en": "Rohini is growth and beauty. Water what is already planted.",
+      "hi": "रोहिणी वृद्धि और सौंदर्य है। जो बोया है, उसे सींचें।"
+    },
+    "Mrigashira": {
+      "en": "Mrigashira searches. Walk, look, do not settle the question yet.",
+      "hi": "मृगशिरा खोजती है। चलें, देखें, प्रश्न अभी मत बाँधें।"
+    },
+    "Ardra": {
+      "en": "Ardra is storm and tears that clear the air. Let feeling move through.",
+      "hi": "आर्द्रा तूफान और आँसू हैं जो वायु साफ करते हैं। भाव को निकलने दें।"
+    },
+    "Punarvasu": {
+      "en": "Punarvasu is return. Pick up a practice you dropped without shame.",
+      "hi": "पुनर्वसु वापसी है। छोड़ी हुई साधना बिना लज्जा के फिर उठाएँ।"
+    },
+    "Pushya": {
+      "en": "Pushya nourishes. Feed someone, including yourself, without display.",
+      "hi": "पुष्य पोषण है। किसी को, स्वयं को भी, दिखावे बिना भोजन दें।"
+    },
+    "Ashlesha": {
+      "en": "Ashlesha coils inward. Guard speech; not every thought needs air.",
+      "hi": "आश्लेषा भीतर लिपटती है। वाणी संभालें; हर विचार को हवा नहीं चाहिए।"
+    },
+    "Magha": {
+      "en": "Magha remembers the ancestors. A name, a lamp, a quiet bow.",
+      "hi": "मघा पितरों का स्मरण है। एक नाम, एक दीप, एक शांत प्रणाम।"
+    },
+    "Purva Phalguni": {
+      "en": "Purva Phalguni is rest after labour. Allow delight that harms no one.",
+      "hi": "पूर्वा फाल्गुनी श्रम के बाद विश्राम है। जो किसी को न सताए, वह आनंद रहने दें।"
+    },
+    "Uttara Phalguni": {
+      "en": "Uttara Phalguni favours contracts and lasting help. Keep a promise.",
+      "hi": "उत्तरा फाल्गुनी अनुबंध और स्थायी सहायता के लिए अनुकूल है। एक वचन निभाएँ।"
+    },
+    "Hasta": {
+      "en": "Hasta is the skilled hand. One careful task, finished.",
+      "hi": "हस्त कुशल हाथ है। एक सावधानी भरा काम, पूरा।"
+    },
+    "Chitra": {
+      "en": "Chitra designs. Make something small that is beautiful enough.",
+      "hi": "चित्रा रचना करती है। कुछ छोटा बनाएँ जो पर्याप्त सुंदर हो।"
+    },
+    "Swati": {
+      "en": "Swati is independent wind. Give yourself air without isolating others.",
+      "hi": "स्वाति स्वतंत्र वायु है। दूसरों को काटे बिना स्वयं को हवा दें।"
+    },
+    "Vishakha": {
+      "en": "Vishakha aims at a goal. Choose one aim; drop the second.",
+      "hi": "विशाखा लक्ष्य साधती है। एक लक्ष्य चुनें; दूसरा छोड़ दें।"
+    },
+    "Anuradha": {
+      "en": "Anuradha is friendship and devotion. Show up for one person.",
+      "hi": "अनुराधा मित्रता और भक्ति है। एक व्यक्ति के लिए उपस्थित हों।"
+    },
+    "Jyeshtha": {
+      "en": "Jyeshtha is the elder. Protect without controlling.",
+      "hi": "ज्येष्ठा ज्येष्ठ है। रक्षा करें, नियंत्रण नहीं।"
+    },
+    "Mula": {
+      "en": "Mula goes to the root. Ask what this feeling is actually about.",
+      "hi": "मूल जड़ तक जाती है। पूछें कि यह भाव वास्तव में किस बारे में है।"
+    },
+    "Purva Ashadha": {
+      "en": "Purva Ashadha is invincible water. Persist gently, do not flood.",
+      "hi": "पूर्वाषाढ़ा अजेय जल है। कोमलता से टिके रहें, बाढ़ न लाएँ।"
+    },
+    "Uttara Ashadha": {
+      "en": "Uttara Ashadha is victory that lasts. Finish cleanly.",
+      "hi": "उत्तराषाढ़ा टिकने वाली विजय है। साफ-सुथरा पूरा करें।"
+    },
+    "Shravana": {
+      "en": "Shravana listens. Hear a teaching, or a person, all the way through.",
+      "hi": "श्रवण सुनता है। एक शिक्षा, या एक व्यक्ति, पूरा सुनें।"
+    },
+    "Dhanishta": {
+      "en": "Dhanishta is drum and wealth shared. Offer skill, not display.",
+      "hi": "धनिष्ठा नगाड़ा और बाँटी गई समृद्धि है। कौशल दें, प्रदर्शन नहीं।"
+    },
+    "Shatabhisha": {
+      "en": "Shatabhisha heals in solitude. A quiet hour is medicine.",
+      "hi": "शतभिषा एकांत में चिकित्सा है। एक शांत घंटा औषधि है।"
+    },
+    "Purva Bhadrapada": {
+      "en": "Purva Bhadrapada is austere fire. Cut one indulgence without drama.",
+      "hi": "पूर्व भाद्रपद तप की अग्नि है। एक भोग बिना नाटक के छोड़ें।"
+    },
+    "Uttara Bhadrapada": {
+      "en": "Uttara Bhadrapada is the deep well. Sit longer than is comfortable.",
+      "hi": "उत्तर भाद्रपद गहरा कुआँ है। आराम से अधिक देर बैठें।"
+    },
+    "Revati": {
+      "en": "Revati shepherds the last crossing. Complete a kindness you postponed.",
+      "hi": "रेवती अंतिम पार लगाती है। जो कृपा टाली थी, उसे पूरा करें।"
+    }
+  },
+  "vaar": {
+    "Sunday": {
+      "en": "Sunday, the sun's day. Stand in light; do not hide the work.",
+      "hi": "रविवार, सूर्य का दिन। प्रकाश में खड़े रहें; काम न छिपाएँ।"
+    },
+    "Monday": {
+      "en": "Monday, the moon's day. Moods move; keep the practice anyway.",
+      "hi": "सोमवार, चन्द्र का दिन। मनोदशा चलती है; साधना फिर भी रखें।"
+    },
+    "Tuesday": {
+      "en": "Tuesday, Mars. One decisive act, then rest the blade.",
+      "hi": "मंगलवार, मंगल। एक निश्चयात्मक काम, फिर तलवार रख दें।"
+    },
+    "Wednesday": {
+      "en": "Wednesday, Mercury. Write, speak, or study with care.",
+      "hi": "बुधवार, बुध। लिखें, बोलें, या सावधानी से अध्ययन करें।"
+    },
+    "Thursday": {
+      "en": "Thursday, Jupiter. Seek a teacher, or be a gentle one.",
+      "hi": "गुरुवार, गुरु। शिक्षक खोजें, या स्वयं कोमल शिक्षक बनें।"
+    },
+    "Friday": {
+      "en": "Friday, Venus. Beauty and affection without waste.",
+      "hi": "शुक्रवार, शुक्र। सौंदर्य और स्नेह, अपव्यय के बिना।"
+    },
+    "Saturday": {
+      "en": "Saturday, Saturn. Slow work, honest limits, no self-punishment.",
+      "hi": "शनिवार, शनि। धीमा काम, ईमानदार सीमा, आत्म-दण्ड नहीं।"
+    }
+  },
+  "specials": {
+    "ekadashi": {
+      "en": "Ekadashi is kept for fasting and the name of Vishnu. A mala or a light meal is enough; do not perform hunger.",
+      "hi": "एकादशी व्रत और विष्णु-नाम के लिए रखी जाती है। एक माला या हलका भोजन पर्याप्त है; भूख का नाटक न करें।"
+    },
+    "purnima": {
+      "en": "Purnima, the full moon. Guru Purnima and many vows fall here. Sit with what is already complete.",
+      "hi": "पूर्णिमा, पूर्ण चन्द्र। गुरु पूर्णिमा और कई व्रत यहीं आते हैं। जो पहले से पूर्ण है, उसके साथ बैठें।"
+    },
+    "amavasya": {
+      "en": "Amavasya, the new moon. A traditional day for ancestors and for beginning again in the dark.",
+      "hi": "अमावस्या। पितरों के लिए, और अँधेरे में फिर आरंभ करने का पारंपरिक दिन।"
+    }
+  }
+}

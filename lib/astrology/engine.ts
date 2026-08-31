@@ -36,7 +36,10 @@ import type {
 } from "@/lib/astrology/types";
 import {
   buildDashamsaChart,
+  buildDrekkanaChart,
+  buildDwadasamsaChart,
   buildNavamsaChart,
+  buildSaptamsaChart,
 } from "@/lib/astrology/vargas";
 import { detectYogas } from "@/lib/astrology/yogas";
 
@@ -67,6 +70,7 @@ function toPosition(
     nakshatra: nak.nakshatra,
     nakshatraIndex: nak.nakshatraIndex,
     pada: nak.pada,
+    nakshatraLord: nak.lord,
     house:
       ascSignIndex != null
         ? wholeSignHouse(signIndex, ascSignIndex)
@@ -92,6 +96,7 @@ function toKpPosition(
     nakshatra: nak.nakshatra,
     nakshatraIndex: nak.nakshatraIndex,
     pada: nak.pada,
+    nakshatraLord: nak.lord,
     house: placidusHouseOf(longitude, cuspLongitudes),
     retrograde: speed < 0,
   };
@@ -206,8 +211,11 @@ export function computeChart(birth: BirthInput): ChartPayload {
     .filter((p) => p.id !== "rahu" && p.id !== "ketu")
     .map((p) => planetDignity(p.id, p.sign, p.degreeInSign));
 
+  const d3 = buildDrekkanaChart(planets, ascendant);
+  const d7 = buildSaptamsaChart(planets, ascendant);
   const d9 = buildNavamsaChart(planets, ascendant);
   const d10 = buildDashamsaChart(planets, ascendant);
+  const d12 = buildDwadasamsaChart(planets, ascendant);
   const transits = computeTransits(asOfDate, planets, ascSignIndex);
   const lalKitab = buildLalKitabReport(planets);
 
@@ -283,7 +291,7 @@ export function computeChart(birth: BirthInput): ChartPayload {
     kp,
     panchang,
     dignities,
-    vargas: { d9, d10 },
+    vargas: { d3, d7, d9, d10, d12 },
     transits,
     lalKitab,
     verdicts: { vedic: [], kp: [], blended: [] },

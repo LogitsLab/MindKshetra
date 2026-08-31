@@ -138,7 +138,11 @@ Ship to internal testers first (TestFlight / Play internal), then promote.
 
 **Before any store submission:** confirm no donate UI or link is reachable in
 the binary (Apple forbids fundraising for non-approved nonprofits; Play has
-flagged it too) and that notifications remain opt-in.
+flagged it too) and that notifications remain opt-in. Play memory / DEX
+(Feb 2027) and Restore Credentials (Apr 2027) are tracked in
+[docs/STORE_CHECKLIST.md](../STORE_CHECKLIST.md) — they do not block this
+internal/TestFlight binary. App Review **Submit for Review** is Saksham in
+the browser, never the ASC API.
 
 ## Rollback
 

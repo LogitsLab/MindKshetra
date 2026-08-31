@@ -142,3 +142,51 @@ export function wholeSignHouse(
 ): number {
   return ((planetSignIndex - ascSignIndex + 12) % 12) + 1;
 }
+
+/** `13° Leo 45' 35"` from degree-in-sign. */
+export function formatDmsInSign(
+  degreeInSign: number,
+  signLabel: string
+): string {
+  const clamped = Math.min(29.9999, Math.max(0, degreeInSign));
+  const d = Math.floor(clamped);
+  const mFloat = (clamped - d) * 60;
+  let m = Math.floor(mFloat);
+  let s = Math.round((mFloat - m) * 60);
+  if (s === 60) {
+    s = 0;
+    m += 1;
+  }
+  if (m === 60) {
+    m = 0;
+  }
+  return `${d}° ${signLabel} ${m}' ${s}"`;
+}
+
+export const SIGN_ABBR: Record<SignId, string> = {
+  aries: "Ar",
+  taurus: "Ta",
+  gemini: "Ge",
+  cancer: "Cn",
+  leo: "Le",
+  virgo: "Vi",
+  libra: "Li",
+  scorpio: "Sc",
+  sagittarius: "Sg",
+  capricorn: "Cp",
+  aquarius: "Aq",
+  pisces: "Pi",
+};
+
+export const PLANET_ABBR: Partial<Record<PlanetId, string>> = {
+  sun: "Su",
+  moon: "Mo",
+  mars: "Ma",
+  mercury: "Me",
+  jupiter: "Ju",
+  venus: "Ve",
+  saturn: "Sa",
+  rahu: "Ra",
+  ketu: "Ke",
+  ascendant: "As",
+};

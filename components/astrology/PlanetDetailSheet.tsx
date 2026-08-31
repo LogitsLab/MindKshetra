@@ -1,6 +1,6 @@
 "use client";
 
-import { longitudeToNakshatra } from "@/lib/astrology/signs";
+import { longitudeToNakshatra, formatDmsInSign } from "@/lib/astrology/signs";
 import type { ChartPayload } from "@/lib/astrology/types";
 
 type PlanetLike =
@@ -61,7 +61,7 @@ export default function PlanetDetailSheet({
           <Row label="Longitude" value={`${planet.longitude.toFixed(2)}°`} />
           <Row
             label="Sign"
-            value={`${labelSign(planet.sign)} · ${planet.degreeInSign.toFixed(1)}°`}
+            value={formatDmsInSign(planet.degreeInSign, labelSign(planet.sign))}
           />
           <Row
             label="Nakshatra"

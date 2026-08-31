@@ -12,8 +12,11 @@ edge-cache and egress stays low. Clients may still point
 ```
 {bucket}/manifest.json
 {bucket}/recitation/{chapter}-{verse}.m4a   # human, AAC ~80kbps
-{bucket}/ambient/meditation-drone.m4a      # optional loop under silence
+{bucket}/ambient/meditation-drone.m4a      # tanpura-ish pad
+{bucket}/ambient/bowls.m4a                 # singing-bowl bed
+{bucket}/ambient/rain.m4a                  # rain bed
 {bucket}/ambient/soft-bell.m4a             # optional one-shot at sit end
+{bucket}/japa/{mantra-id}.m4a              # human japa clips (also bundled)
 ```
 
 `tts/` was purged (Sarvam AI clips). Do **not** re-run `audio:tts` unless you
@@ -75,9 +78,56 @@ Current production coverage: all **701** verses, Ved Vyas, AAC ~80 kbps.
 ## Client behavior
 
 - Web: `lib/audio/narration.ts` — recitation from URL; EN/HI → `speechSynthesis`
-- App: `src/audio/` — warms manifest on boot, prefetches recitation on Listen
-  mount, waits for player load before `play()`
+- App: `src/audio/` — warms manifest on boot; **downloads the m4a to
+  device cache** (`expo-file-system`, `src/audio/cache.ts`) then plays a
+  local URI. Do **not** wait on `isLoaded` before `play()` — that race
+  was reverted. Sanskrit Listen is file-only (`playUrl`); never TTS-fallback
+  Devanagari (Home carousel used to, and Android voices often failed).
 - Manifest cached ~7 days on app (AsyncStorage); web uses HTTP cache
+- After reboot, scheduled local notifications are not restored until the
+  app opens (Android 15: `BOOT_COMPLETED` stripped so it cannot start
+  expo-audio foreground services)
+
+## Ambient loops (meditation)
+
+Original short beds generated for this app (public domain / CC0 equivalent —
+we hold the copyright and release them for free reuse):
+
+| File | Use | License |
+|------|-----|---------|
+| `ambient/meditation-drone.m4a` | tanpura-ish pad | original, unrestricted |
+| `ambient/bowls.m4a` | singing-bowl bed | original, unrestricted |
+| `ambient/rain.m4a` | rain bed | original, unrestricted |
+| `ambient/soft-bell.m4a` | sit-end one-shot | original, unrestricted |
+
+Bundled copies also live in `MindKshetra-app/assets/audio/` so sits are never
+dry if the bucket object 404s. The web origin also serves the same files from
+`/audio/ambient/*.m4a` before falling back to a generated tanpura pad.
+Attribution is not required; keep this table so store review can see provenance.
+
+## Japa recitations (assisted mala)
+
+Assisted japa plays a **bundled pre-recorded human clip** on each tap. Never
+device TTS, never STT. Custom naam and catalog mantras without a free
+isolated recording stay silent.
+
+Clips live in `MindKshetra-app/assets/audio/japa/` and
+`MindKshetra/public/audio/japa/` (AAC ~80 kbps mono). Format conversion and
+loud-norm are adaptations of the sources below.
+
+| File | Mantra | Source | License |
+|------|--------|--------|---------|
+| `japa/om.m4a` | oṁ | Tito Dutta, Wikimedia `File:Om pro.ogg` | CC BY-SA 3.0 |
+| `japa/om-namo-bhagavate-vasudevaya.m4a` | oṁ namo bhagavate vāsudevāya | Tito Dutta, Wikimedia | CC BY-SA 3.0 |
+| `japa/hare-krishna.m4a` | mahā-mantra (one cycle) | Lalanesha Dasa Prabhu, Jamendo / IA `jamendo-151553` | CC BY-SA 3.0 |
+| `japa/so-ham.m4a` | so'ham | Gedney2001, Wikimedia `File:Soham.oga` | CC0 |
+| `japa/om-namah-shivaya.m4a` | oṁ namaḥ śivāya | शिव साहिल, Wikimedia | CC BY-SA 4.0 |
+| `japa/gayatri.m4a` | Gāyatrī | Rameshvar, Wikimedia wav used on English Wikipedia | CC0 |
+| `japa/mahamrityunjaya.m4a` | Mahāmṛtyuñjaya | Rameshvar, Wikimedia `File:Mrityunjaya.ogg` | Free Art License |
+
+No isolated CC recitation was found for `om-gam-ganapataye`, `sri-ram`, or
+`om-shanti` that matched the catalog text (commercial albums and NC licenses
+were skipped). Those three and custom naam do not play audio.
 
 ## Egress checklist
 
@@ -88,5 +138,5 @@ Current production coverage: all **701** verses, Ved Vyas, AAC ~80 kbps.
 3. **Recommended fix:** host `recitation/` + `manifest.json` on **Cloudflare R2**
    (or similar) with free egress + proper `Cache-Control`, then point
    `NEXT_PUBLIC_AUDIO_BASE_URL` / `EXPO_PUBLIC_AUDIO_BASE_URL` at that origin
-4. Optional next: device disk-cache for played m4a (`expo-file-system`)
+4. App recitation now disk-caches played m4a (`src/audio/cache.ts`)
 5. Watch Supabase → Reports → Egress after R2 cutover; expect a cliff

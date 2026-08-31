@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AstroChat, { type AstroChatMessage } from "@/components/astrology/AstroChat";
+import CircularChart, {
+  type WheelMode,
+} from "@/components/astrology/CircularChart";
 import DashaTimeline from "@/components/astrology/DashaTimeline";
 import NorthIndianChart from "@/components/astrology/NorthIndianChart";
 import PlanetDetailSheet from "@/components/astrology/PlanetDetailSheet";
@@ -17,6 +20,7 @@ import type { DictKey } from "@/lib/i18n/dictionary";
 import {
   PLANET_LABELS,
   SIGN_LABELS,
+  formatDmsInSign,
   longitudeToNakshatra,
 } from "@/lib/astrology/signs";
 import type {
@@ -25,6 +29,7 @@ import type {
   ChartPayload,
   DashaPeriod,
   LifeArea,
+  VargaChart,
 } from "@/lib/astrology/types";
 
 type Tab =
@@ -38,8 +43,9 @@ type Tab =
   | "predictions"
   | "chat";
 
-type ChartStyle = "north" | "south";
-type VargaKind = "d9" | "d10";
+type ChartStyle = "north" | "south" | "circular";
+type ChartSystem = "vedic" | "kp";
+type VargaKind = "d1" | "d3" | "d7" | "d9" | "d10" | "d12";
 type PredDetail = "simple" | "detailed";
 
 type Props = {
@@ -151,13 +157,16 @@ export default function ChartHub({
   const [glossDismissed, setGlossDismissed] = useState<Record<string, boolean>>(
     {}
   );
-  const [chartStyle, setChartStyle] = useState<ChartStyle>("north");
+  const [chartStyle, setChartStyle] = useState<ChartStyle>("circular");
+  const [chartSystem, setChartSystem] = useState<ChartSystem>("vedic");
+  const [wheelMode, setWheelMode] = useState<WheelMode>("rashi");
   const [showBirthDetails, setShowBirthDetails] = useState(false);
   const [focusArea, setFocusArea] = useState<LifeArea | null>(null);
   const [predDetail, setPredDetail] = useState<PredDetail>("detailed");
-  const [vargaKind, setVargaKind] = useState<VargaKind>("d9");
+  const [vargaKind, setVargaKind] = useState<VargaKind>("d1");
   const [selectedPlanetId, setSelectedPlanetId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<AstroChatMessage[]>([]);
+  const [pendingChat, setPendingChat] = useState<string | null>(null);
 
   useEffect(() => {
     setChart(initial);
@@ -178,6 +187,19 @@ export default function ChartHub({
       }
     }
     setGlossDismissed(dismissed);
+    const storedStyle = sessionStorage.getItem("mk-astro-style");
+    if (
+      storedStyle === "north" ||
+      storedStyle === "south" ||
+      storedStyle === "circular"
+    ) {
+      setChartStyle(storedStyle);
+    }
+    const storedSystem = sessionStorage.getItem("mk-astro-system");
+    if (storedSystem === "vedic" || storedSystem === "kp") {
+      setChartSystem(storedSystem);
+      setWheelMode(storedSystem === "kp" ? "bhav" : "rashi");
+    }
   }, [storageId]);
 
   const dismissGuided = useCallback(() => {
@@ -196,6 +218,26 @@ export default function ChartHub({
     },
     [storageId]
   );
+
+  const persistStyle = useCallback((s: ChartStyle) => {
+    setChartStyle(s);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("mk-astro-style", s);
+    }
+  }, []);
+
+  const persistSystem = useCallback((s: ChartSystem) => {
+    setChartSystem(s);
+    setWheelMode(s === "kp" ? "bhav" : "rashi");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("mk-astro-system", s);
+    }
+  }, []);
+
+  const openChat = useCallback((prompt?: string) => {
+    if (prompt) setPendingChat(prompt);
+    setTab("chat");
+  }, []);
 
   const primaryTabs: { id: Tab; label: string }[] = [
     { id: "overview", label: t("astroTabOverview") },
@@ -369,8 +411,39 @@ export default function ChartHub({
     onPlanetClick: (id: string) => setSelectedPlanetId(id),
   };
 
-  const activeVarga =
-    vargaKind === "d9" ? chart.vargas?.d9 : chart.vargas?.d10;
+  const activeVarga: VargaChart | null = useMemo(() => {
+    if (vargaKind === "d1") {
+      return { ascendant: chart.ascendant, planets: chart.planets };
+    }
+    return chart.vargas?.[vargaKind] ?? null;
+  }, [chart, vargaKind]);
+
+  const facePlanets =
+    chartSystem === "kp" && chart.kp ? chart.kp.planets : chart.planets;
+  const tableChart: ChartPayload = {
+    ...chart,
+    planets: facePlanets,
+  };
+
+  const viewStarters = useMemo(() => {
+    if (tab === "timing") return [t("astroStarterKp7"), t("astroStarterLagna")];
+    if (tab === "navamsa") return [t("astroStarterVarga"), t("astroStarterLagna")];
+    if (tab === "dasha") return [t("astroStarterDasha"), t("astroStarterLagna")];
+    return [t("astroStarterLagna"), t("astroStarterDasha"), t("astroStarterKp7")];
+  }, [tab, t]);
+
+  const vargaLegend =
+    vargaKind === "d1"
+      ? t("astroVargaD1")
+      : vargaKind === "d3"
+        ? t("astroVargaD3")
+        : vargaKind === "d7"
+          ? t("astroVargaD7")
+          : vargaKind === "d9"
+            ? t("astroVargaD9")
+            : vargaKind === "d10"
+              ? t("astroVargaD10")
+              : t("astroVargaD12");
 
   const selectedPlanet = selectedPlanetId
     ? resolvePlanet(chart, selectedPlanetId)
@@ -443,7 +516,15 @@ export default function ChartHub({
           {chart.ephemerisMode === "swiss" ? (
             <span>{t("astroEpheSwiss")}</span>
           ) : chart.ephemerisMode ? (
-            <span>{t("astroEpheMoshier")}</span>
+            <span className="text-[var(--brass-soft)]">{t("astroEpheMoshier")}</span>
+          ) : null}
+          {typeof chart.ayanamsa === "number" ? (
+            <span>
+              {t("astroAyanamsa")} {chart.ayanamsa.toFixed(4)}°
+              {chartSystem === "kp" && chart.ayanamsaKp != null
+                ? ` · KP ${chart.ayanamsaKp.toFixed(4)}°`
+                : ""}
+            </span>
           ) : null}
           {incognito ? (
             <span className="text-[var(--brass-soft)]">
@@ -452,12 +533,28 @@ export default function ChartHub({
           ) : null}
         </div>
 
+        {chart.ephemerisMode && chart.ephemerisMode !== "swiss" ? (
+          <p className="border border-[var(--brass)]/40 bg-[var(--brass)]/10 px-3 py-2 text-sm text-[var(--text)]">
+            {t("astroEpheCaution")}
+          </p>
+        ) : null}
+
         {chart.tobUnknown ? (
           <p className="border-l-2 border-[var(--brass)]/50 pl-3 text-sm text-[var(--text-muted)]">
             {t("astroTobBanner")}
           </p>
         ) : null}
       </header>
+
+      {tab !== "chat" ? (
+        <AskDock
+          attachedLabel={t("astroChartAttached")}
+          title={title}
+          askLabel={t("astroAskThisChart")}
+          starters={viewStarters}
+          onAsk={openChat}
+        />
+      ) : null}
 
       {showGuidedPath && !guidedDismissed && tab === "overview" ? (
         <div className="relative overflow-hidden py-6">
@@ -578,31 +675,30 @@ export default function ChartHub({
         <section className="animate-fade space-y-10">
           <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
             <div className="space-y-3">
-              <ChartStyleToggle
+              <DeskToggles
                 chartStyle={chartStyle}
-                onChange={setChartStyle}
-                northLabel={t("astroChartStyleNorth")}
-                southLabel={t("astroChartStyleSouth")}
+                onStyle={persistStyle}
+                chartSystem={chartSystem}
+                onSystem={persistSystem}
+                wheelMode={wheelMode}
+                onWheel={setWheelMode}
+                showWheel={chartStyle === "circular"}
+                t={t}
               />
               <button
                 type="button"
                 onClick={() => setTab("chart")}
                 className="group max-w-sm text-left transition"
               >
-                {chartStyle === "north" ? (
-                  <NorthIndianChart
-                    {...chartCommonProps}
-                    className="transition group-hover:opacity-90"
-                    legend={t("astroOpenChart")}
-                    showAbbrLegend
-                  />
-                ) : (
-                  <SouthIndianChart
-                    {...chartCommonProps}
-                    className="transition group-hover:opacity-90"
-                    legend={t("astroOpenChart")}
-                  />
-                )}
+                <ChartFace
+                  {...chartCommonProps}
+                  chartStyle={chartStyle}
+                  wheelMode={wheelMode}
+                  planets={facePlanets}
+                  className="transition group-hover:opacity-90"
+                  legend={t("astroOpenChart")}
+                  showAbbrLegend
+                />
               </button>
               <p className="text-xs text-[var(--text-muted)]">
                 {t("astroPlanetLegend")}
@@ -795,30 +891,30 @@ export default function ChartHub({
 
       {tab === "chart" ? (
         <section className="space-y-6">
-          <ChartStyleToggle
+          <DeskToggles
             chartStyle={chartStyle}
-            onChange={setChartStyle}
-            northLabel={t("astroChartStyleNorth")}
-            southLabel={t("astroChartStyleSouth")}
+            onStyle={persistStyle}
+            chartSystem={chartSystem}
+            onSystem={persistSystem}
+            wheelMode={wheelMode}
+            onWheel={setWheelMode}
+            showWheel={chartStyle === "circular"}
+            t={t}
           />
-          {chartStyle === "north" ? (
-            <NorthIndianChart
-              {...chartCommonProps}
-              legend={t("astroChartLegend")}
-              showAbbrLegend
-            />
-          ) : (
-            <SouthIndianChart
-              {...chartCommonProps}
-              legend={t("astroChartLegend")}
-            />
-          )}
+          <ChartFace
+            {...chartCommonProps}
+            chartStyle={chartStyle}
+            wheelMode={wheelMode}
+            planets={facePlanets}
+            legend={t("astroChartLegend")}
+            showAbbrLegend
+          />
           <p className="text-xs text-[var(--text-muted)]">
             {t("astroPlanetLegend")}
           </p>
 
           <PlanetTable
-            chart={chart}
+            chart={tableChart}
             labelSign={labelSign}
             labelPlanet={labelPlanet}
             dignityOf={dignityOf}
@@ -1008,6 +1104,16 @@ export default function ChartHub({
                   {t("astroKpAyanamsa")}: {chart.ayanamsaKp.toFixed(4)}°
                 </p>
               ) : null}
+              <CircularChart
+                chart={chart}
+                planetsOverride={chart.kp.planets}
+                lagnaLongitude={chart.placidusCusps?.[0]?.longitude ?? null}
+                cusps={chart.placidusCusps}
+                mode="bhav"
+                legend={t("astroWheelBhav")}
+                emptyLabel={t("astroChartEmptyTob")}
+                onPlanetClick={(id) => setSelectedPlanetId(id)}
+              />
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[32rem] text-left text-sm">
                   <thead>
@@ -1096,64 +1202,62 @@ export default function ChartHub({
 
       {tab === "navamsa" ? (
         <section className="space-y-6">
+          <DeskToggles
+            chartStyle={chartStyle}
+            onStyle={persistStyle}
+            chartSystem={chartSystem}
+            onSystem={persistSystem}
+            wheelMode={wheelMode}
+            onWheel={setWheelMode}
+            showWheel={chartStyle === "circular"}
+            t={t}
+          />
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setVargaKind("d9")}
-              className={`px-3 py-1.5 text-sm transition ${
-                vargaKind === "d9"
-                  ? "bg-[var(--brass)] text-[var(--on-brass)]"
-                  : "border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/40"
-              }`}
-            >
-              {t("astroVargaD9")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setVargaKind("d10")}
-              className={`px-3 py-1.5 text-sm transition ${
-                vargaKind === "d10"
-                  ? "bg-[var(--brass)] text-[var(--on-brass)]"
-                  : "border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/40"
-              }`}
-            >
-              {t("astroVargaD10")}
-            </button>
+            {(
+              [
+                ["d1", "astroVargaD1"],
+                ["d3", "astroVargaD3"],
+                ["d7", "astroVargaD7"],
+                ["d9", "astroVargaD9"],
+                ["d10", "astroVargaD10"],
+                ["d12", "astroVargaD12"],
+              ] as const
+            ).map(([kind, key]) => (
+              <button
+                key={kind}
+                type="button"
+                onClick={() => setVargaKind(kind)}
+                className={`px-3 py-1.5 text-sm transition ${
+                  vargaKind === kind
+                    ? "bg-[var(--brass)] text-[var(--on-brass)]"
+                    : "border border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/40"
+                }`}
+              >
+                {t(key)}
+              </button>
+            ))}
           </div>
 
           {activeVarga ? (
             <>
-              {chartStyle === "north" ? (
-                <NorthIndianChart
-                  chart={chart}
-                  override={{
-                    ascendant: activeVarga.ascendant,
-                    planets: activeVarga.planets,
-                  }}
-                  legend={
-                    vargaKind === "d9"
-                      ? t("astroNavamsaLegend")
-                      : t("astroVargaD10")
-                  }
-                  emptyLabel={t("astroChartEmptyTob")}
-                  onPlanetClick={(id) => setSelectedPlanetId(id)}
-                />
-              ) : (
-                <SouthIndianChart
-                  chart={chart}
-                  override={{
-                    ascendant: activeVarga.ascendant,
-                    planets: activeVarga.planets,
-                  }}
-                  legend={
-                    vargaKind === "d9"
-                      ? t("astroNavamsaLegend")
-                      : t("astroVargaD10")
-                  }
-                  emptyLabel={t("astroChartEmptyTob")}
-                  onPlanetClick={(id) => setSelectedPlanetId(id)}
-                />
-              )}
+              <ChartFace
+                chart={chart}
+                chartStyle={chartStyle}
+                wheelMode="rashi"
+                override={
+                  vargaKind === "d1"
+                    ? undefined
+                    : {
+                        ascendant: activeVarga.ascendant,
+                        planets: activeVarga.planets,
+                      }
+                }
+                planets={activeVarga.planets}
+                legend={vargaLegend}
+                emptyLabel={t("astroChartEmptyTob")}
+                onPlanetClick={(id) => setSelectedPlanetId(id)}
+                showAbbrLegend
+              />
 
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[28rem] text-left text-sm">
@@ -1582,8 +1686,10 @@ export default function ChartHub({
             starters={chatStarters}
             messages={chatMessages}
             onMessagesChange={setChatMessages}
+            pendingPrompt={pendingChat}
+            onPendingConsumed={() => setPendingChat(null)}
             className="min-h-[70vh]"
-            contextLine={`${labelSign(chart.overview.ascendantSign)} Asc · ${labelSign(chart.overview.moonSign)} Moon · ${
+            contextLine={`${t("astroChartAttached")}: ${title} · ${labelSign(chart.overview.ascendantSign)} Asc · ${labelSign(chart.overview.moonSign)} Moon · ${
               chart.overview.currentMaha
                 ? labelPlanet(chart.overview.currentMaha.lord)
                 : "—"
@@ -1752,36 +1858,235 @@ function ChartStyleToggle({
   onChange,
   northLabel,
   southLabel,
+  circularLabel,
 }: {
   chartStyle: ChartStyle;
   onChange: (s: ChartStyle) => void;
   northLabel: string;
   southLabel: string;
+  circularLabel: string;
+}) {
+  const items: Array<{ id: ChartStyle; label: string }> = [
+    { id: "circular", label: circularLabel },
+    { id: "north", label: northLabel },
+    { id: "south", label: southLabel },
+  ];
+  return (
+    <div className="flex gap-1 border border-[var(--line)] p-0.5 text-xs w-fit">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onChange(item.id)}
+          className={`px-3 py-1.5 transition ${
+            chartStyle === item.id
+              ? "bg-[var(--brass)] text-[var(--on-brass)]"
+              : "text-[var(--text-muted)] hover:text-[var(--text)]"
+          }`}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Segmented<T extends string>({
+  value,
+  onChange,
+  items,
+}: {
+  value: T;
+  onChange: (v: T) => void;
+  items: Array<{ id: T; label: string }>;
 }) {
   return (
     <div className="flex gap-1 border border-[var(--line)] p-0.5 text-xs w-fit">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onChange(item.id)}
+          className={`px-3 py-1.5 transition ${
+            value === item.id
+              ? "bg-[var(--brass)] text-[var(--on-brass)]"
+              : "text-[var(--text-muted)] hover:text-[var(--text)]"
+          }`}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function DeskToggles({
+  chartStyle,
+  onStyle,
+  chartSystem,
+  onSystem,
+  wheelMode,
+  onWheel,
+  showWheel,
+  t,
+}: {
+  chartStyle: ChartStyle;
+  onStyle: (s: ChartStyle) => void;
+  chartSystem: ChartSystem;
+  onSystem: (s: ChartSystem) => void;
+  wheelMode: WheelMode;
+  onWheel: (m: WheelMode) => void;
+  showWheel: boolean;
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Segmented
+        value={chartSystem}
+        onChange={onSystem}
+        items={[
+          { id: "vedic", label: t("astroSystemVedic") },
+          { id: "kp", label: t("astroSystemKp") },
+        ]}
+      />
+      <ChartStyleToggle
+        chartStyle={chartStyle}
+        onChange={onStyle}
+        northLabel={t("astroChartStyleNorth")}
+        southLabel={t("astroChartStyleSouth")}
+        circularLabel={t("astroChartStyleCircular")}
+      />
+      {showWheel ? (
+        <Segmented
+          value={wheelMode}
+          onChange={onWheel}
+          items={[
+            { id: "rashi", label: t("astroWheelRashi") },
+            { id: "bhav", label: t("astroWheelBhav") },
+            { id: "combine", label: t("astroWheelCombine") },
+          ]}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function ChartFace({
+  chart,
+  chartStyle,
+  wheelMode,
+  override,
+  planets,
+  legend,
+  emptyLabel,
+  onPlanetClick,
+  showAbbrLegend,
+  className,
+}: {
+  chart: ChartPayload;
+  chartStyle: ChartStyle;
+  wheelMode: WheelMode;
+  override?: {
+    ascendant: ChartPayload["ascendant"];
+    planets: ChartPayload["planets"];
+  };
+  planets?: ChartPayload["planets"];
+  legend?: string;
+  emptyLabel?: string;
+  onPlanetClick?: (id: string) => void;
+  showAbbrLegend?: boolean;
+  className?: string;
+}) {
+  const click = onPlanetClick
+    ? (id: string) => onPlanetClick(id)
+    : undefined;
+  const northSouthOverride =
+    override ??
+    (planets && planets !== chart.planets
+      ? { ascendant: chart.ascendant, planets }
+      : undefined);
+  if (chartStyle === "circular") {
+    return (
+      <CircularChart
+        chart={chart}
+        className={className}
+        legend={legend}
+        override={override}
+        planetsOverride={planets}
+        lagnaLongitude={
+          override?.ascendant?.longitude ??
+          chart.ascendant?.longitude ??
+          chart.placidusCusps?.[0]?.longitude ??
+          null
+        }
+        cusps={chart.placidusCusps}
+        mode={wheelMode}
+        emptyLabel={emptyLabel}
+        onPlanetClick={click}
+      />
+    );
+  }
+  if (chartStyle === "south") {
+    return (
+      <SouthIndianChart
+        chart={chart}
+        className={className}
+        legend={legend}
+        override={northSouthOverride}
+        emptyLabel={emptyLabel}
+        onPlanetClick={click}
+      />
+    );
+  }
+  return (
+    <NorthIndianChart
+      chart={chart}
+      className={className}
+      legend={legend}
+      override={northSouthOverride}
+      emptyLabel={emptyLabel}
+      onPlanetClick={click}
+      showAbbrLegend={showAbbrLegend}
+    />
+  );
+}
+
+function AskDock({
+  attachedLabel,
+  title,
+  askLabel,
+  starters,
+  onAsk,
+}: {
+  attachedLabel: string;
+  title: string;
+  askLabel: string;
+  starters: string[];
+  onAsk: (prompt?: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2 border border-[var(--line)] px-3 py-2.5">
+      <p className="text-xs text-[var(--text-muted)]">
+        {attachedLabel}:{" "}
+        <span className="text-[var(--brass-soft)]">{title}</span>
+      </p>
       <button
         type="button"
-        onClick={() => onChange("north")}
-        className={`px-3 py-1.5 transition ${
-          chartStyle === "north"
-            ? "bg-[var(--brass)] text-[var(--on-brass)]"
-            : "text-[var(--text-muted)] hover:text-[var(--text)]"
-        }`}
+        onClick={() => onAsk()}
+        className="bg-[var(--brass)] px-3 py-1.5 text-xs text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
       >
-        {northLabel}
+        {askLabel}
       </button>
-      <button
-        type="button"
-        onClick={() => onChange("south")}
-        className={`px-3 py-1.5 transition ${
-          chartStyle === "south"
-            ? "bg-[var(--brass)] text-[var(--on-brass)]"
-            : "text-[var(--text-muted)] hover:text-[var(--text)]"
-        }`}
-      >
-        {southLabel}
-      </button>
+      {starters.map((s) => (
+        <button
+          key={s}
+          type="button"
+          onClick={() => onAsk(s)}
+          className="border border-[var(--line)] px-2.5 py-1.5 text-xs text-[var(--text-muted)] transition hover:border-[var(--brass)]/40 hover:text-[var(--text)]"
+        >
+          {s}
+        </button>
+      ))}
     </div>
   );
 }
@@ -1859,6 +2164,7 @@ function PlanetTable({
               <th className="py-2 pr-3 font-medium">{t("astroDegree")}</th>
               <th className="py-2 pr-3 font-medium">{t("astroLon")}</th>
               <th className="py-2 pr-3 font-medium">{t("astroNakshatra")}</th>
+              <th className="py-2 pr-3 font-medium">{t("astroPada")}</th>
               <th className="py-2 pr-3 font-medium">{t("astroNakLord")}</th>
               <th className="py-2 pr-3 font-medium">{t("astroHouse")}</th>
               <th className="py-2 pr-3 font-medium">{t("astroDignity")}</th>
@@ -1910,16 +2216,17 @@ function PlanetRow({
   labelPlanet: (id: string) => string;
   dignity?: string;
 }) {
-  const nakLord = longitudeToNakshatra(p.longitude).lord;
+  const nakLord = p.nakshatraLord ?? longitudeToNakshatra(p.longitude).lord;
   return (
     <tr className="border-b border-[var(--hairline)] text-[var(--text)]">
       <td className="py-2 pr-3">{label}</td>
       <td className="py-2 pr-3">{labelSign(p.sign)}</td>
-      <td className="py-2 pr-3">{p.degreeInSign.toFixed(1)}°</td>
-      <td className="py-2 pr-3">{p.longitude.toFixed(2)}°</td>
       <td className="py-2 pr-3">
-        {p.nakshatra} ({p.pada})
+        {formatDmsInSign(p.degreeInSign, labelSign(p.sign))}
       </td>
+      <td className="py-2 pr-3">{p.longitude.toFixed(2)}°</td>
+      <td className="py-2 pr-3">{p.nakshatra}</td>
+      <td className="py-2 pr-3">{p.pada}</td>
       <td className="py-2 pr-3">{labelPlanet(nakLord)}</td>
       <td className="py-2 pr-3">{p.house ?? "—"}</td>
       <td className="py-2 pr-3 text-[var(--text-muted)]">{dignity ?? "—"}</td>
@@ -1943,7 +2250,7 @@ function PlanetCard({
   dignity?: string;
   t: ReturnType<typeof useLanguage>["t"];
 }) {
-  const nakLord = longitudeToNakshatra(p.longitude).lord;
+  const nakLord = p.nakshatraLord ?? longitudeToNakshatra(p.longitude).lord;
   return (
     <div className="border border-[var(--line)] px-3 py-3 text-sm">
       <p className="font-medium text-[var(--text)]">
@@ -1955,11 +2262,13 @@ function PlanetCard({
       <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-[var(--text-muted)]">
         <div>
           <dt>{t("astroSign")}</dt>
-          <dd className="text-[var(--text)]">{labelSign(p.sign)}</dd>
+          <dd className="text-[var(--text)]">
+            {formatDmsInSign(p.degreeInSign, labelSign(p.sign))}
+          </dd>
         </div>
         <div>
-          <dt>{t("astroDegree")}</dt>
-          <dd className="text-[var(--text)]">{p.degreeInSign.toFixed(1)}°</dd>
+          <dt>{t("astroLon")}</dt>
+          <dd className="text-[var(--text)]">{p.longitude.toFixed(2)}°</dd>
         </div>
         <div>
           <dt>{t("astroHouse")}</dt>
@@ -1968,7 +2277,7 @@ function PlanetCard({
         <div>
           <dt>{t("astroNakshatra")}</dt>
           <dd className="text-[var(--text)]">
-            {p.nakshatra} ({p.pada})
+            {p.nakshatra} · {t("astroPada")} {p.pada}
           </dd>
         </div>
         <div>

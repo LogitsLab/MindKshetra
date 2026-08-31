@@ -255,7 +255,8 @@ Without Redis on Vercel, each Lambda keeps only process-local memory — fine fo
 - Version bump on `main` (or manual workflow) → EAS `production` build  
 - Auto-submit: iOS TestFlight; Android Play **internal** track by default  
 - Marketing version: `app.json` `expo.version`; native build numbers: EAS remote auto-increment  
-- Release notes: `store/release-notes/<version>.md`
+- Release notes: `store/release-notes/<version>.md`  
+- Play quality (memory / DEX Feb 2027, Restore Credentials Apr 2027): [docs/STORE_CHECKLIST.md](docs/STORE_CHECKLIST.md) — do not block the current binary; App Review click stays Saksham in the browser
 
 ---
 
@@ -329,6 +330,7 @@ Maintainer CI secrets (not in git): `VERCEL_*`, `EXPO_TOKEN`, `GOOGLE_SERVICE_AC
 | [README.md](README.md) | Quick start, contributing invite |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Issues & PRs |
 | [docs/api.md](docs/api.md) | HTTP contracts |
+| [docs/STORE_CHECKLIST.md](docs/STORE_CHECKLIST.md) | App Review identity + Play 2027 memory / DEX / Zero-Tap |
 | [DESIGN.md](DESIGN.md) | Visual system |
 | [`.env.example`](.env.example) | Env template |
 

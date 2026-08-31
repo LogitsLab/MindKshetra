@@ -82,6 +82,8 @@ export type FestivalRule = {
   practiceHint?: FestivalPracticeHint;
   verseRef?: string;
   notes?: string;
+  storyEn?: string;
+  storyHi?: string;
 };
 
 export type FestivalMatch = {
@@ -90,6 +92,8 @@ export type FestivalMatch = {
   labelHi: string;
   practiceHint?: FestivalPracticeHint;
   verseRef?: string;
+  storyEn?: string;
+  storyHi?: string;
 };
 
 const LUNAR_MONTHS: LunarMonthId[] = [
@@ -174,6 +178,8 @@ export function matchFestivalRules(
       labelHi: r.labelHi,
       practiceHint: r.practiceHint,
       verseRef: r.verseRef,
+      storyEn: r.storyEn,
+      storyHi: r.storyHi,
     }));
 }
 

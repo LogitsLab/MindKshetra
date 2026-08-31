@@ -1,12 +1,26 @@
 /**
  * Soft ambient bed under meditation sits. Prefers a hosted loop when present
- * (audio/ambient/meditation-drone.m4a on the public audio bucket); otherwise
- * a quiet Web Audio tanpura-ish pad so sits never feel dry or clinical.
+ * (audio/ambient/*.m4a on the public audio bucket); then the same files under
+ * /audio/ambient/ on this origin; otherwise a quiet Web Audio tanpura-ish pad
+ * so sits never feel dry or clinical.
  */
 
-const DRONE_PATH = "ambient/meditation-drone.m4a";
-/** Optional one-shot at sit end — fail soft if the bucket object is missing. */
+export type AmbientBed = "off" | "drone" | "bowls" | "rain";
+
+const HOSTED: Record<Exclude<AmbientBed, "off">, string> = {
+  drone: "ambient/meditation-drone.m4a",
+  bowls: "ambient/bowls.m4a",
+  rain: "ambient/rain.m4a",
+};
+
+const LOCAL: Record<Exclude<AmbientBed, "off">, string> = {
+  drone: "/audio/ambient/meditation-drone.m4a",
+  bowls: "/audio/ambient/bowls.m4a",
+  rain: "/audio/ambient/rain.m4a",
+};
+
 const BELL_PATH = "ambient/soft-bell.m4a";
+const LOCAL_BELL = "/audio/ambient/soft-bell.m4a";
 
 let padCtx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
@@ -21,10 +35,11 @@ function audioBase(): string | null {
   return raw.replace(/\/$/, "");
 }
 
-/** Hosted CC0/licensed loop, if the bucket has one. */
-export function ambientLoopUrl(): string | null {
+export function ambientLoopUrl(
+  bed: Exclude<AmbientBed, "off"> = "drone"
+): string | null {
   const base = audioBase();
-  return base ? `${base}/${DRONE_PATH}` : null;
+  return base ? `${base}/${HOSTED[bed]}` : null;
 }
 
 export function softBellUrl(): string | null {
@@ -32,11 +47,41 @@ export function softBellUrl(): string | null {
   return base ? `${base}/${BELL_PATH}` : null;
 }
 
+function playElement(
+  url: string,
+  loop: boolean,
+  volume: number
+): Promise<HTMLAudioElement> {
+  return new Promise((resolve, reject) => {
+    const el = new Audio();
+    el.loop = loop;
+    el.preload = "auto";
+    el.volume = Math.min(1, Math.max(0, volume));
+    let settled = false;
+    const fail = () => {
+      if (settled) return;
+      settled = true;
+      el.onerror = null;
+      el.removeAttribute("src");
+      reject(new Error("audio failed"));
+    };
+    el.onerror = fail;
+    el.src = url;
+    void el
+      .play()
+      .then(() => {
+        if (settled) return;
+        settled = true;
+        resolve(el);
+      })
+      .catch(fail);
+    window.setTimeout(fail, 4000);
+  });
+}
+
 /** One-shot soft bell when the last phase ends. Never throws; missing = no-op. */
 export async function playSoftBell(volume = 0.35): Promise<boolean> {
   if (typeof window === "undefined") return false;
-  const url = softBellUrl();
-  if (!url) return false;
   try {
     if (bellEl) {
       bellEl.onerror = null;
@@ -44,20 +89,20 @@ export async function playSoftBell(volume = 0.35): Promise<boolean> {
       bellEl.removeAttribute("src");
       bellEl = null;
     }
-    const el = new Audio();
-    el.loop = false;
-    el.preload = "auto";
-    el.volume = Math.min(1, Math.max(0, volume));
-    el.src = url;
-    await el.play();
-    bellEl = el;
-    el.onended = () => {
-      if (bellEl === el) bellEl = null;
-    };
-    el.onerror = () => {
-      if (bellEl === el) bellEl = null;
-    };
-    return true;
+    const urls = [softBellUrl(), LOCAL_BELL].filter(Boolean) as string[];
+    for (const url of urls) {
+      try {
+        const el = await playElement(url, false, volume);
+        bellEl = el;
+        el.onended = () => {
+          if (bellEl === el) bellEl = null;
+        };
+        return true;
+      } catch {
+        /* next candidate */
+      }
+    }
+    return false;
   } catch {
     bellEl = null;
     return false;
@@ -134,76 +179,34 @@ function startPad(volume: number): boolean {
   return true;
 }
 
-function tryHostedLoop(volume: number): Promise<boolean> {
-  const url = ambientLoopUrl();
-  if (!url) return Promise.resolve(false);
-
-  return new Promise((resolve) => {
-    const el = new Audio();
-    el.loop = true;
-    el.preload = "auto";
-    el.volume = Math.min(1, Math.max(0, volume));
-    let settled = false;
-    const fail = () => {
-      if (settled) return;
-      settled = true;
-      el.onerror = null;
-      el.oncanplaythrough = null;
-      el.removeAttribute("src");
-      resolve(false);
-    };
-    const succeed = async () => {
-      if (settled) return;
-      settled = true;
-      try {
-        await el.play();
-        if (!running) {
-          el.pause();
-          resolve(false);
-          return;
-        }
-        loopEl = el;
-        resolve(true);
-      } catch {
-        fail();
-      }
-    };
-    el.onerror = fail;
-    el.oncanplaythrough = () => {
-      void succeed();
-    };
-    // Some browsers never fire canplaythrough for short loops — race a play().
-    el.src = url;
-    void el
-      .play()
-      .then(() => {
-        if (settled) return;
-        settled = true;
-        if (!running) {
-          el.pause();
-          resolve(false);
-          return;
-        }
-        loopEl = el;
-        resolve(true);
-      })
-      .catch(() => {
-        /* wait for canplaythrough / error */
-      });
-    window.setTimeout(fail, 4000);
-  });
-}
-
 /**
- * Start the ambient bed. Tries the hosted loop first; falls back to the pad.
+ * Start the ambient bed. Hosted loop, then origin copy, then generated pad.
  * Safe to call repeatedly — restarts cleanly.
  */
-export async function startAmbient(volume = 0.07): Promise<boolean> {
+export async function startAmbient(
+  volume = 0.07,
+  bed: AmbientBed = "drone"
+): Promise<boolean> {
   if (typeof window === "undefined") return false;
   stopAmbient();
+  if (bed === "off") return false;
   running = true;
 
-  if (await tryHostedLoop(volume)) return true;
+  const urls = [ambientLoopUrl(bed), LOCAL[bed]].filter(Boolean) as string[];
+  for (const url of urls) {
+    try {
+      const el = await playElement(url, true, volume);
+      if (!running) {
+        el.pause();
+        el.removeAttribute("src");
+        return false;
+      }
+      loopEl = el;
+      return true;
+    } catch {
+      /* next */
+    }
+  }
   if (!running) return false;
   return startPad(volume);
 }
