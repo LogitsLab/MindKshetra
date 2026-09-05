@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { extractCitedRefs } from "@/lib/cite";
+import { extractCitedRefs, mentionedRetrievedVerses, verifyAndFixCitations } from "@/lib/cite";
+import type { Sloka } from "@/lib/types";
 
 /**
  * lib/cite.ts finds Gita chapter.verse citations in model output.
@@ -72,5 +73,80 @@ describe("citation extraction", () => {
   it("KNOWN: a degree reading can also parse as a verse ref", () => {
     // Chapter 10 has 42 verses, so 10.42 is a valid ref AND a plausible degree.
     expect(extractCitedRefs("Mars at 10.42 degrees")).toContain("10.42");
+  });
+});
+
+const v247: Sloka = {
+  id: 47,
+  chapter: 2,
+  verse_number: 47,
+  sanskrit_devanagari: "",
+  transliteration_iast: "",
+  hindi_translation: "",
+  english_translation: "You have a right to action alone",
+  tags: [],
+};
+
+const v626: Sloka = {
+  id: 626,
+  chapter: 6,
+  verse_number: 26,
+  sanskrit_devanagari: "",
+  transliteration_iast: "",
+  hindi_translation: "",
+  english_translation: "Whenever the mind wanders",
+  tags: [],
+};
+
+const v335: Sloka = {
+  id: 335,
+  chapter: 3,
+  verse_number: 35,
+  sanskrit_devanagari: "",
+  transliteration_iast: "",
+  hindi_translation: "",
+  english_translation: "Better one's own dharma",
+  tags: [],
+};
+
+describe("verifyAndFixCitations", () => {
+  it("strips invented refs and does not bolt on a verse when none were cited", () => {
+    const out = verifyAndFixCitations(
+      "Sit for ten minutes. Do not look at 18.66 for a sign.",
+      [v247]
+    );
+    expect(out).not.toMatch(/18\.66/);
+    expect(out).not.toMatch(/See 2\.47/);
+    expect(out).toContain("Sit for ten minutes");
+  });
+
+  it("keeps a retrieved ref the reply actually named", () => {
+    const out = verifyAndFixCitations(
+      "2.47 is the right to the act, not the fruit.",
+      [v247]
+    );
+    expect(out).toContain("2.47");
+  });
+});
+
+describe("mentionedRetrievedVerses", () => {
+  it("returns nothing when the reply named no verse", () => {
+    expect(
+      mentionedRetrievedVerses("Sit for ten minutes where you are.", [
+        v247,
+        v626,
+      ])
+    ).toEqual([]);
+  });
+
+  it("returns at most two retrieved verses, in mention order", () => {
+    const used = mentionedRetrievedVerses(
+      "6.26 for the wandering mind. 2.47 for the act. 3.35 is extra.",
+      [v247, v626, v335]
+    );
+    expect(used.map((s) => `${s.chapter}.${s.verse_number}`)).toEqual([
+      "6.26",
+      "2.47",
+    ]);
   });
 });

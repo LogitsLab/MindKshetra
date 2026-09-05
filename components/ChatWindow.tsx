@@ -19,6 +19,7 @@ const CHART_INVITE_KEY = "mindkshetra-chart-invite-dismissed";
 import ChatMarkdown from "@/components/ChatMarkdown";
 import SpeakButton from "@/components/SpeakButton";
 import { postChat, readChatStream } from "@/lib/chat-stream";
+import { fillName } from "@/lib/madhav/today";
 import { stopSpeaking } from "@/lib/tts";
 
 const INCOGNITO_KEY = "mindkshetra-chat-incognito";
@@ -103,24 +104,30 @@ export default function ChatWindow({
   fullScreen = false,
 }: Props) {
   const { lang, t } = useLanguage();
+  const fallbackName = lang === "hi" ? "पार्थ" : "Parth";
+  const [addressName, setAddressName] = useState(fallbackName);
+  const [todayGreeting, setTodayGreeting] = useState<string | null>(null);
+  const [todayStarters, setTodayStarters] = useState<string[] | null>(null);
+
   const welcome = useMemo<UiMessage>(
     () => ({
       id: "welcome",
       role: "assistant",
-      content: t("welcomeMadhav"),
+      content: todayGreeting ?? fillName(t("welcomeMadhav"), addressName),
     }),
-    [t]
+    [t, todayGreeting, addressName]
   );
 
   const starters = useMemo(
-    () => [
-      t("starter1"),
-      t("starter2"),
-      t("starter3"),
-      t("starter4"),
-      t("starter5"),
-    ],
-    [t]
+    () =>
+      todayStarters ?? [
+        t("starter1"),
+        t("starter2"),
+        t("starter3"),
+        t("starter4"),
+        t("starter5"),
+      ],
+    [t, todayStarters]
   );
 
   const [messages, setMessages] = useState<UiMessage[]>([welcome]);
@@ -307,6 +314,54 @@ export default function ChatWindow({
       );
     });
   }, [welcome]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setTodayGreeting(null);
+    setTodayStarters(null);
+    setAddressName((prev) =>
+      prev === "Parth" || prev === "पार्थ"
+        ? lang === "hi"
+          ? "पार्थ"
+          : "Parth"
+        : prev
+    );
+    let timezone: string | undefined;
+    try {
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+      timezone = undefined;
+    }
+    const params = new URLSearchParams({ lang });
+    if (timezone) params.set("tz", timezone);
+    fetch(`/api/madhav/today?${params}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: {
+        addressName?: string;
+        greeting?: string;
+        starters?: string[];
+      } | null) => {
+        if (cancelled || !data) return;
+        const name =
+          typeof data.addressName === "string" ? data.addressName.trim() : "";
+        if (name) setAddressName(name);
+        if (typeof data.greeting === "string" && data.greeting.trim()) {
+          setTodayGreeting(data.greeting.trim());
+        }
+        const chips = Array.isArray(data.starters)
+          ? data.starters.filter(
+              (s): s is string => typeof s === "string" && s.trim().length > 0
+            )
+          : [];
+        if (chips.length) setTodayStarters(chips);
+      })
+      .catch(() => {
+        /* keep fallback greeting and starters */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [lang]);
 
   useEffect(() => {
     if (!stickToBottom.current) return;
@@ -950,7 +1005,7 @@ export default function ChatWindow({
               priority
             />
             <p className="mt-5 max-w-lg text-base font-light leading-relaxed text-[var(--text-muted)] sm:text-[17px] sm:leading-[1.75]">
-              {t("madhavIntro")}
+              {fillName(t("madhavIntro"), addressName)}
             </p>
           </div>
         )}
@@ -1016,7 +1071,7 @@ export default function ChatWindow({
                     : "text-[var(--text-muted)]"
                 }`}
               >
-                {msg.role === "user" ? t("you") : t("madhav")}
+                {msg.role === "user" ? addressName : t("madhav")}
               </p>
               {msg.role === "assistant" && msg.content.trim() ? (
                 /* des/D5 — teaching only. `msg.content` is the teaching; the
@@ -1234,7 +1289,9 @@ export default function ChatWindow({
           }}
           onKeyDown={onKeyDown}
           placeholder={
-            listening ? t("voiceListening") : t("sharePlaceholder")
+            listening
+              ? t("voiceListening")
+              : fillName(t("composerPlaceholder"), addressName)
           }
           disabled={loading}
           rows={1}

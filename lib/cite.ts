@@ -1,4 +1,4 @@
-import { formatVerseRef } from "@/lib/slokas";
+import { formatVerseRef } from "@/lib/sloka-utils";
 import type { Sloka } from "@/lib/types";
 
 const VERSE_COUNTS: Record<number, number> = {
@@ -74,10 +74,60 @@ export function extractCitedRefs(text: string): string[] {
   return Array.from(new Set(refs));
 }
 
+function mentionsRetrievedRef(text: string, s: Sloka): boolean {
+  const ref = formatVerseRef(s);
+  if (text.includes(ref)) return true;
+  if (
+    new RegExp(
+      `chapter\\s+${s.chapter}[^\\d]{0,12}verse\\s+${s.verse_number}`,
+      "i"
+    ).test(text)
+  ) {
+    return true;
+  }
+  return new RegExp(
+    `श्लोक\\s*${s.chapter}\\s*[.:]?\\s*${s.verse_number}`
+  ).test(text);
+}
+
+/**
+ * Retrieved slokas that this reply actually named, in first-mention order.
+ * Caps at two — Madhav may cite 1–2 related verses, not the whole shelf.
+ */
+export function mentionedRetrievedVerses(
+  text: string,
+  retrieved: Sloka[],
+  limit = 2
+): Sloka[] {
+  if (!text.trim() || retrieved.length === 0) return [];
+  const allowed = new Set(retrieved.map((s) => formatVerseRef(s)));
+  const byRef = new Map(retrieved.map((s) => [formatVerseRef(s), s]));
+  const out: Sloka[] = [];
+  const seen = new Set<string>();
+
+  for (const ref of extractCitedRefs(text)) {
+    if (!allowed.has(ref) || seen.has(ref)) continue;
+    const sloka = byRef.get(ref);
+    if (!sloka) continue;
+    seen.add(ref);
+    out.push(sloka);
+    if (out.length >= limit) return out;
+  }
+
+  for (const s of retrieved) {
+    const ref = formatVerseRef(s);
+    if (seen.has(ref) || !mentionsRetrievedRef(text, s)) continue;
+    seen.add(ref);
+    out.push(s);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 /**
  * Ensure Madhav only cites retrieved verses.
- * Invented refs are stripped (not remapped); if nothing valid remains,
- * append a grounding note.
+ * Invented refs are stripped (not remapped). A reply with no verse is valid —
+ * verses are optional, so we do not append a grounding note.
  */
 export function verifyAndFixCitations(
   text: string,
@@ -86,7 +136,6 @@ export function verifyAndFixCitations(
   if (!text.trim() || retrieved.length === 0) return text;
 
   const allowed = new Set(retrieved.map((s) => formatVerseRef(s)));
-  const primary = formatVerseRef(retrieved[0]);
   const cited = extractCitedRefs(text);
   const invented = cited.filter((ref) => !allowed.has(ref));
 
@@ -97,29 +146,9 @@ export function verifyAndFixCitations(
     out = out.replace(pattern, "").replace(/[ \t]{2,}/g, " ");
   }
 
-  out = out
+  return out
     .replace(/\(\s*\)/g, "")
     .replace(/\s+([,;.])/g, "$1")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-
-  const after = extractCitedRefs(out);
-  const hasAllowed = after.some((ref) => allowed.has(ref));
-  const mentionsInWords = retrieved.some((s) => {
-    const ref = formatVerseRef(s);
-    return (
-      out.includes(ref) ||
-      new RegExp(
-        `chapter\\s+${s.chapter}[^\\d]{0,12}verse\\s+${s.verse_number}`,
-        "i"
-      ).test(out) ||
-      new RegExp(`श्लोक\\s*${s.chapter}\\s*[.:]?\\s*${s.verse_number}`).test(out)
-    );
-  });
-
-  if (!hasAllowed && !mentionsInWords) {
-    out = `${out} (See ${primary}.)`;
-  }
-
-  return out;
 }

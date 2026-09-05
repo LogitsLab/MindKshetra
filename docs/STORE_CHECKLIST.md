@@ -63,4 +63,5 @@ before **30 Sep 2026**; we never shipped it, so the path is Restore
 Credentials, not Block Store.
 
 Web sign-in (cookies) is out of scope for this Play rule; it applies to the
-Android client only.
+Android client only. Keep this file in step with
+`MindKshetra-app/docs/STORE_CHECKLIST.md` (implementation + Expo QA).

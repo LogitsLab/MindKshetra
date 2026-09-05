@@ -76,6 +76,10 @@ nonprofit plan. When you pick one up, delete the line in the same PR.
 - [ ] GitHub secret CRON_SECRET for the push-dispatch workflow
 - [x] Mobile push client scaffold (expo-notifications); APNs/FCM still needed
       in EAS before a push-capable store build
+- [ ] **Play memory + DEX (Feb 2027)** — After the first Play AAB, confirm
+      Android vitals Memory (anon RSS + swap, bitmap P90) and App bundle
+      explorer DEX shrink/optimize/obfuscate ≥ 25% if DEX > 10 MB. Thresholds
+      and dates: [docs/STORE_CHECKLIST.md](docs/STORE_CHECKLIST.md)
 - [ ] **Play Zero-Tap Sign-In (Apr 2027)** — Restore Credentials on Android so
       a restored phone opens already signed in. Browser OAuth does not count.
       Native rewrite in MindKshetra-app; do not block the current binary. See
