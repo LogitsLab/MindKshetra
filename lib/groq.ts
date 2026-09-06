@@ -226,7 +226,7 @@ function isQwenModel(model: string): boolean {
   return model.includes("qwen");
 }
 
-/** Structured astrology predictions — GPT-OSS reasoning by default. */
+/** Structured astrology predictions — Qwen3.8 27B with high reasoning by default. */
 export async function createGroqPredictionCompletion(
   messages: ChatTurn[],
   options: { temperature?: number; max_completion_tokens?: number } = {}
