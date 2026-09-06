@@ -8,7 +8,7 @@ import type { Sloka } from "@/lib/types";
 import { hasCommentary } from "@/lib/verseDisplay";
 
 export const GROQ_MODEL =
-  process.env.GROQ_MODEL?.trim() || "qwen/qwen3.6-27b";
+  process.env.GROQ_MODEL?.trim() || "qwen/qwen3.8-27b";
 
 /**
  * Highest-reasoning model for one-shot astrology predictions (cached). Qwen3.8
