@@ -10,9 +10,13 @@ import { hasCommentary } from "@/lib/verseDisplay";
 export const GROQ_MODEL =
   process.env.GROQ_MODEL?.trim() || "qwen/qwen3.6-27b";
 
-/** Heavier reasoning model for one-shot astrology predictions (cached). */
+/**
+ * Highest-reasoning model for one-shot astrology predictions (cached). Qwen3.8
+ * 27B at high reasoning gave the most accurate, grounded readings in testing;
+ * the predictions output (~7k tokens) fits well under its 16,384 completion cap.
+ */
 export const GROQ_PREDICTIONS_MODEL =
-  process.env.GROQ_PREDICTIONS_MODEL?.trim() || "openai/gpt-oss-120b";
+  process.env.GROQ_PREDICTIONS_MODEL?.trim() || "qwen/qwen3.8-27b";
 
 /**
  * Highest-reasoning model for the cached house-by-house reading. Qwen3.8 27B at
@@ -27,9 +31,9 @@ export type GroqReasoningEffort = "low" | "medium" | "high";
 export const GROQ_PREDICTIONS_REASONING_EFFORT: GroqReasoningEffort =
   process.env.GROQ_PREDICTIONS_REASONING_EFFORT?.trim() === "low"
     ? "low"
-    : process.env.GROQ_PREDICTIONS_REASONING_EFFORT?.trim() === "high"
-      ? "high"
-      : "medium";
+    : process.env.GROQ_PREDICTIONS_REASONING_EFFORT?.trim() === "medium"
+      ? "medium"
+      : "high";
 
 export const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -230,7 +234,9 @@ export async function createGroqPredictionCompletion(
   const model = GROQ_PREDICTIONS_MODEL;
   const body: Record<string, unknown> = {
     temperature: options.temperature ?? 0.5,
-    max_completion_tokens: options.max_completion_tokens ?? 12_000,
+    // Qwen3.8 27B caps completion at 16,384; predictions use ~7k, leaving room
+    // for high-effort reasoning tokens.
+    max_completion_tokens: options.max_completion_tokens ?? 16_000,
     response_format: { type: "json_object" },
     stream: false,
     messages,
@@ -240,7 +246,7 @@ export async function createGroqPredictionCompletion(
     body.reasoning_effort = GROQ_PREDICTIONS_REASONING_EFFORT;
     body.include_reasoning = false;
   } else if (isQwenModel(model)) {
-    body.reasoning_effort = "default";
+    body.reasoning_effort = GROQ_PREDICTIONS_REASONING_EFFORT;
     body.reasoning_format = "hidden";
   }
 
