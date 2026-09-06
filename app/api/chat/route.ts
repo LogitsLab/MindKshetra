@@ -1,5 +1,8 @@
 import { NextRequest } from "next/server";
-import { verifyAndFixCitations } from "@/lib/cite";
+import {
+  mentionedRetrievedVerses,
+  verifyAndFixCitations,
+} from "@/lib/cite";
 import {
   createChatSession,
   saveChatMessage,
@@ -11,6 +14,7 @@ import {
   createGroqCompletion,
   stripThinkBlocks,
 } from "@/lib/groq";
+import { loadMadhavSeeker, madhavMaxTokens } from "@/lib/madhav/seeker";
 import { clientKey, rateLimit } from "@/lib/rateLimit";
 import { warnIfRedisMissing } from "@/lib/redis";
 import { buildRetrievalQuery, retrieveSlokas } from "@/lib/retrieve";
@@ -296,8 +300,12 @@ export async function POST(request: NextRequest) {
 
       try {
         const retrievalQuery = buildRetrievalQuery(messages);
-        const cited = await retrieveSlokas(retrievalQuery || lastUser.content, 5);
-        const systemPrompt = buildMadhavSystemPrompt(cited, language);
+        const [cited, seeker] = await Promise.all([
+          retrieveSlokas(retrievalQuery || lastUser.content, 5),
+          loadMadhavSeeker(userId),
+        ]);
+        const systemPrompt = buildMadhavSystemPrompt(cited, language, seeker);
+        const maxTokens = madhavMaxTokens(seeker);
 
         const history = messages
           .filter((m) => m.role === "user" || m.role === "assistant")
@@ -312,16 +320,9 @@ export async function POST(request: NextRequest) {
           ...history,
         ];
 
-        const citations = cited.map((s) => ({
-          id: s.id,
-          ref: formatVerseRef(s),
-          english: s.english_translation,
-          hindi: s.hindi_translation,
-        }));
-        const citedIds = cited.map((s) => s.id);
-        send({ type: "citations", citations });
-
-        const groqRes = await createGroqChatStream(promptMessages);
+        const groqRes = await createGroqChatStream(promptMessages, {
+          max_tokens: maxTokens,
+        });
         if (!groqRes.body) {
           send({ type: "error", error: "Empty Groq stream" });
           return;
@@ -378,7 +379,9 @@ export async function POST(request: NextRequest) {
         }
 
         if (!visibleSent.trim()) {
-          const fallback = await createGroqCompletion(promptMessages);
+          const fallback = await createGroqCompletion(promptMessages, {
+            max_tokens: maxTokens,
+          });
           if (fallback) {
             send({ type: "token", content: fallback });
             visibleSent = fallback;
@@ -392,9 +395,25 @@ export async function POST(request: NextRequest) {
             visibleSent = fixed;
           }
 
+          const used = mentionedRetrievedVerses(visibleSent, cited, 2);
+          send({
+            type: "citations",
+            citations: used.map((s) => ({
+              id: s.id,
+              ref: formatVerseRef(s),
+              english: s.english_translation,
+              hindi: s.hindi_translation,
+            })),
+          });
+
           if (sessionId) {
             await saveChatMessage(sessionId, "user", lastUser.content);
-            await saveChatMessage(sessionId, "assistant", visibleSent, citedIds);
+            await saveChatMessage(
+              sessionId,
+              "assistant",
+              visibleSent,
+              used.map((s) => s.id)
+            );
           }
 
           send({ type: "done" });

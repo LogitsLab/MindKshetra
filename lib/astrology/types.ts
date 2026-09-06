@@ -13,7 +13,7 @@
  * If you do bump it, warm the cache for active members rather than letting
  * organic traffic recompute them all simultaneously.
  */
-export const ENGINE_VERSION = "2.1.0";
+export const ENGINE_VERSION = "2.2.0";
 
 export type Relationship =
   | "self"
@@ -72,6 +72,8 @@ export type PlanetPosition = {
   nakshatra: string;
   nakshatraIndex: number;
   pada: number;
+  /** Vimshottari lord of the occupied nakshatra. */
+  nakshatraLord?: PlanetId;
   house?: number;
   retrograde?: boolean;
 };
@@ -292,8 +294,11 @@ export type ChartPayload = {
   panchang: BirthPanchang | null;
   dignities: PlanetDignity[];
   vargas: {
+    d3: VargaChart | null;
+    d7: VargaChart | null;
     d9: VargaChart | null;
     d10: VargaChart | null;
+    d12: VargaChart | null;
   };
   aspects: GrahaAspect[];
   transits: TransitSnapshot | null;
@@ -311,6 +316,24 @@ export type ChartPayload = {
     /** How the prose was produced — llm when Groq succeeded, rules on fallback. */
     source?: "llm" | "rules";
   };
+  /** LLM-reasoned house-by-house reading (grounded in the computed placements). */
+  housesText?: {
+    language: "en" | "hi";
+    houses: HouseReading[];
+    generatedAt: string;
+    source?: "llm" | "rules";
+  };
+};
+
+export type HouseStrengthLevel = "weak" | "moderate" | "strong" | "complex";
+
+export type HouseReading = {
+  house: number;
+  strength: HouseStrengthLevel;
+  /** One-line justification citing the concrete chart factors. */
+  why: string;
+  /** Plain-language meaning for this life area (2 sentences). */
+  meaning: string;
 };
 
 export type AstrologyMember = {

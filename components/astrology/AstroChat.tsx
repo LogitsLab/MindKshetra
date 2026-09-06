@@ -19,6 +19,8 @@ type Props = {
   /** Controlled message list — when set with onMessagesChange, parent owns history */
   messages?: AstroChatMessage[];
   onMessagesChange?: (messages: AstroChatMessage[]) => void;
+  pendingPrompt?: string | null;
+  onPendingConsumed?: () => void;
   className?: string;
 };
 
@@ -30,6 +32,8 @@ export default function AstroChat({
   contextLine,
   messages: controlledMessages,
   onMessagesChange,
+  pendingPrompt,
+  onPendingConsumed,
   className = "",
 }: Props) {
   const { t, lang } = useLanguage();
@@ -82,6 +86,15 @@ export default function AstroChat({
     nearBottom.current =
       el.scrollTop + el.clientHeight >= el.scrollHeight - pad;
   }
+
+  useEffect(() => {
+    if (!pendingPrompt || busy) return;
+    const text = pendingPrompt;
+    onPendingConsumed?.();
+    void send(text);
+    // send is recreated each render; consume the prompt once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPrompt]);
 
   async function send(text: string) {
     const content = text.trim();

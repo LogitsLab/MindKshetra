@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import {
@@ -13,7 +13,7 @@ import {
   sessionTranscript,
 } from "@/lib/meditation-core";
 import { markGuestJourneyDay } from "@/lib/journeys/local";
-import { playSoftBell, startAmbient, stopAmbient } from "@/lib/audio/ambient";
+import { playSoftBell, startAmbient, stopAmbient, type AmbientBed } from "@/lib/audio/ambient";
 import { playOrSpeak, stopNarration } from "@/lib/audio/narration";
 import { isSpeechSynthesisSupported } from "@/lib/tts";
 
@@ -21,6 +21,9 @@ type Stage = "moodBefore" | "play" | "moodAfter" | "done";
 
 const LEGACY_GUEST_KEY = "mindkshetra-meditation-run-foundation-7";
 const GUEST_QUEUE_KEY = "mindkshetra-meditation-queue";
+
+type SitMode = "guided" | "silent";
+const BEDS: AmbientBed[] = ["off", "drone", "bowls", "rain"];
 
 function newClientRef(): string {
   try {
@@ -97,7 +100,8 @@ export default function MeditationPlayerClient({
   const [speaking, setSpeaking] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [rate, setRate] = useState(1);
-  const [ambientOn, setAmbientOn] = useState(true);
+  const [sitMode, setSitMode] = useState<SitMode>("guided");
+  const [bed, setBed] = useState<AmbientBed>("drone");
   const [saving, setSaving] = useState(false);
   const [guestSaved, setGuestSaved] = useState(false);
   const [ttsOk, setTtsOk] = useState(false);
@@ -109,7 +113,19 @@ export default function MeditationPlayerClient({
   const autoAdvanceRef = useRef(false);
 
   const signedIn = Boolean(user && !user.is_anonymous);
-  const phase = session.phases[phaseIdx];
+  const playPhases = useMemo(
+    () =>
+      sitMode === "guided"
+        ? session.phases
+        : [
+            {
+              type: "silence" as const,
+              seconds: Math.max(60, session.duration_minutes * 60),
+            },
+          ],
+    [sitMode, session.phases, session.duration_minutes]
+  );
+  const phase = playPhases[phaseIdx];
   const title = lang === "hi" ? session.title_hi : session.title_en;
   const theme = lang === "hi" ? session.theme_hi : session.theme_en;
   const transcript = sessionTranscript(session, lang);
@@ -186,13 +202,13 @@ export default function MeditationPlayerClient({
     setSpeaking(false);
     setSilenceLeft(null);
     silenceStartRef.current = null;
-    if (phaseIdx >= session.phases.length - 1) {
+    if (phaseIdx >= playPhases.length - 1) {
       void playSoftBell();
       setStage("moodAfter");
       return;
     }
     setPhaseIdx((i) => i + 1);
-  }, [phaseIdx, session.phases.length]);
+  }, [phaseIdx, playPhases.length]);
 
   useEffect(() => {
     if (stage !== "play" || !phase || phase.type !== "silence") return;
@@ -247,15 +263,15 @@ export default function MeditationPlayerClient({
 
   // Music rides with the silence countdown — auto-starts, user can stop/play.
   useEffect(() => {
-    if (stage !== "play" || phase?.type !== "silence" || !ambientOn) {
+    if (stage !== "play" || phase?.type !== "silence" || bed === "off") {
       stopAmbient();
       return;
     }
-    void startAmbient(0.08);
+    void startAmbient(0.08, bed);
     return () => {
       stopAmbient();
     };
-  }, [stage, phase?.type, phaseIdx, ambientOn]);
+  }, [stage, phase?.type, phaseIdx, bed]);
 
   function startPlay() {
     satSecRef.current = 0;
@@ -405,14 +421,77 @@ export default function MeditationPlayerClient({
       ) : null}
 
       {!locked && stage === "moodBefore" ? (
-        <MoodRow
-          label={t("medMoodBefore")}
-          value={moodBefore}
-          onPick={(n) => {
-            setMoodBefore(n);
-            startPlay();
-          }}
-        />
+        <>
+          <MoodRow
+            label={t("medMoodBefore")}
+            value={moodBefore}
+            onPick={setMoodBefore}
+          />
+          <fieldset className="mt-8">
+            <legend className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+              {t("medSitModeLabel")}
+            </legend>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(["guided", "silent"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setSitMode(m)}
+                  className={`min-h-10 border px-4 py-2 text-sm ${
+                    sitMode === m
+                      ? "border-[var(--brass)] text-[var(--brass-soft)]"
+                      : "border-[var(--line)] text-[var(--text-muted)]"
+                  }`}
+                >
+                  {m === "guided" ? t("medSitGuided") : t("medSitSilent")}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              {sitMode === "guided"
+                ? t("medSitGuidedHint")
+                : t("medSitSilentHint")}
+            </p>
+          </fieldset>
+          <fieldset className="mt-6">
+            <legend className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
+              {t("medAmbientLabel")}
+            </legend>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {BEDS.map((b) => (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => setBed(b)}
+                  className={`min-h-10 border px-4 py-2 text-sm ${
+                    bed === b
+                      ? "border-[var(--brass)] text-[var(--brass-soft)]"
+                      : "border-[var(--line)] text-[var(--text-muted)]"
+                  }`}
+                >
+                  {b === "off"
+                    ? t("medAmbientSilence")
+                    : b === "drone"
+                      ? t("medAmbientDrone")
+                      : b === "bowls"
+                        ? t("medAmbientBowls")
+                        : t("medAmbientRain")}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              {t("medAmbientCredit")}
+            </p>
+          </fieldset>
+          <button
+            type="button"
+            disabled={moodBefore == null}
+            onClick={startPlay}
+            className="mt-8 min-h-11 bg-[var(--brass)] px-5 py-2 text-sm font-medium text-[var(--on-brass)] disabled:opacity-50"
+          >
+            {t("medBeginSit")}
+          </button>
+        </>
       ) : null}
 
       {!locked && stage === "play" && phase ? (
@@ -437,7 +516,7 @@ export default function MeditationPlayerClient({
                   · {phase.type === "speak"
                     ? t("medPhaseSpeak")
                     : t("medPhaseSilence")}{" "}
-                  · {phaseIdx + 1}/{session.phases.length}
+                  · {phaseIdx + 1}/{playPhases.length}
                 </p>
                 <h1 className="mt-2 font-display text-2xl text-white sm:text-3xl">
                   {title}
@@ -492,14 +571,32 @@ export default function MeditationPlayerClient({
                   <p className="mt-6 text-sm tracking-[0.14em] text-white/55">
                     {t("medSilenceHint")}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => setAmbientOn((v) => !v)}
-                    className="mt-6 inline-flex h-10 items-center border border-white/25 px-4 text-sm text-white/80"
-                    aria-pressed={ambientOn}
-                  >
-                    {ambientOn ? t("medAmbientOn") : t("medAmbientOff")}
-                  </button>
+                  <div className="mt-6 flex flex-wrap justify-center gap-2">
+                    {BEDS.map((b) => (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => setBed(b)}
+                        className={`inline-flex h-10 items-center border px-3 text-sm ${
+                          bed === b
+                            ? "border-white/80 text-white"
+                            : "border-white/25 text-white/80"
+                        }`}
+                        aria-pressed={bed === b}
+                      >
+                        {b === "off"
+                          ? t("medAmbientSilence")
+                          : b === "drone"
+                            ? t("medAmbientDrone")
+                            : b === "bowls"
+                              ? t("medAmbientBowls")
+                              : t("medAmbientRain")}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-xs text-white/45">
+                    {t("medAmbientCredit")}
+                  </p>
                   <button
                     type="button"
                     onClick={advancePhase}

@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import ImmersiveHero from "@/components/ImmersiveHero";
 import { useLanguage } from "@/components/LanguageProvider";
 import EmptyState from "@/components/EmptyState";
+import SpeakButton from "@/components/SpeakButton";
 import { SkeletonPanel } from "@/components/Skeleton";
+import { loreForPanchang, pickBlurb } from "@/lib/panchang-lore";
 
 type DailyPanchang = {
   tithi: string;
@@ -24,6 +26,26 @@ type DailyPanchang = {
   isEkadashi: boolean;
   isPurnima: boolean;
   isAmavasya: boolean;
+  festivals?: Array<{
+    id: string;
+    labelEn: string;
+    labelHi: string;
+    storyEn?: string;
+    storyHi?: string;
+    verseRef?: string;
+  }>;
+};
+
+type VotdPayload = {
+  id: number;
+  ref: string;
+  sloka?: {
+    chapter: number;
+    verse_number: number;
+    sanskrit_devanagari: string;
+    english_translation: string;
+    hindi_translation: string;
+  };
 };
 
 /** "2026-07-31T18:42:10+05:30" → "18:42" (already in the location's zone). */
@@ -33,9 +55,10 @@ function clockOf(iso: string | null): string | null {
 }
 
 export default function PanchangView() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [panchang, setPanchang] = useState<DailyPanchang | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+  const [votd, setVotd] = useState<VotdPayload | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +71,14 @@ export default function PanchangView() {
       })
       .catch(() => {
         if (!cancelled) setState("error");
+      });
+    fetch("/api/votd/today?full=1")
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error())))
+      .then((data) => {
+        if (!cancelled) setVotd(data as VotdPayload);
+      })
+      .catch(() => {
+        /* verse card is optional */
       });
     return () => {
       cancelled = true;
@@ -92,6 +123,11 @@ export default function PanchangView() {
       : panchang.isAmavasya
         ? t("panchangAmavasyaToday")
         : null;
+
+  const lore = loreForPanchang(panchang);
+  const festival = panchang.festivals?.[0];
+  const festivalStory =
+    festival && (lang === "hi" ? festival.storyHi : festival.storyEn);
 
   const limbs: Array<{ label: string; value: string; until?: string | null }> =
     [
@@ -146,6 +182,69 @@ export default function PanchangView() {
           </Link>
         }
       />
+
+      <section className="mt-10">
+        <p className="eyebrow text-[var(--brass)]">{t("panchangWhyTitle")}</p>
+        <h2 className="mt-2 font-display text-2xl text-[var(--text)]">
+          {t("panchangWhyTitle")}
+        </h2>
+        {festival ? (
+          <div className="mt-6 border border-[var(--line)] px-5 py-5">
+            <p className="text-xs uppercase tracking-[0.16em] text-[var(--brass-soft)]">
+              {t("panchangFestivalStory")}
+            </p>
+            <p className="mt-2 font-display text-xl text-[var(--text)]">
+              {lang === "hi" ? festival.labelHi : festival.labelEn}
+            </p>
+            {festivalStory ? (
+              <p className="mt-3 max-w-2xl text-[15px] font-light leading-relaxed text-[var(--text-muted)]">
+                {festivalStory}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        <div className="mt-6 max-w-2xl space-y-4 text-[15px] font-light leading-relaxed text-[var(--text-muted)]">
+          {lore.special ? <p>{pickBlurb(lore.special, lang)}</p> : null}
+          {lore.tithi ? <p>{pickBlurb(lore.tithi, lang)}</p> : null}
+          {lore.nakshatra ? <p>{pickBlurb(lore.nakshatra, lang)}</p> : null}
+          {lore.vaar ? <p>{pickBlurb(lore.vaar, lang)}</p> : null}
+        </div>
+      </section>
+
+      {votd?.sloka ? (
+        <section className="mt-10">
+          <p className="eyebrow text-[var(--brass)]">{t("panchangVotdTitle")}</p>
+          <h2 className="mt-2 font-display text-2xl text-[var(--text)]">
+            {votd.ref}
+          </h2>
+          <p className="mt-4 font-display text-xl text-[var(--text)]">
+            {votd.sloka.sanskrit_devanagari}
+          </p>
+          <p className="mt-3 max-w-2xl text-[15px] font-light text-[var(--text-muted)]">
+            {lang === "hi"
+              ? votd.sloka.hindi_translation
+              : votd.sloka.english_translation}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <SpeakButton
+              text={votd.sloka.sanskrit_devanagari}
+              lang={lang}
+              listenLabel={t("verseListen")}
+              stopLabel={t("verseStop")}
+              unsupportedLabel={t("ttsUnsupported")}
+              chapter={votd.sloka.chapter}
+              verseNumber={votd.sloka.verse_number}
+              recitationOnly
+            />
+            <Link
+              href={`/sloka/${votd.id}`}
+              className="text-sm text-[var(--brass-soft)] hover:underline"
+            >
+              {t("homeFeaturedDetail")} →
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <section>
         <p className="eyebrow text-[var(--brass)]">{t("panchangEyebrow")}</p>

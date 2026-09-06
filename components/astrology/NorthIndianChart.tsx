@@ -72,7 +72,7 @@ type Props = {
     planets: ChartPayload["planets"];
   };
   emptyLabel?: string;
-  onPlanetClick?: (id: PlanetId | "ascendant") => void;
+  onPlanetClick?: (id: string) => void;
   /** Show Su=Sun etc. abbreviation key under the chart */
   showAbbrLegend?: boolean;
 };

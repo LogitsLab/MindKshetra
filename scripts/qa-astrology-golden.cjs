@@ -8,7 +8,7 @@ const path = require("path");
 const runner = `
 import { computeChart, healthSunLongitude } from "./lib/astrology/engine.ts";
 import { getEphemerisMode } from "./lib/astrology/swe.ts";
-import { longitudeToNavamsa, longitudeToDashamsa } from "./lib/astrology/vargas.ts";
+import { longitudeToNavamsa, longitudeToDashamsa, longitudeToDrekkana, longitudeToSaptamsa, longitudeToDwadasamsa } from "./lib/astrology/vargas.ts";
 import { longitudeToSubLords } from "./lib/astrology/kp.ts";
 import { findCurrentDasha } from "./lib/astrology/dasha.ts";
 
@@ -23,7 +23,7 @@ function near(a, b, tol, label) {
 const h = healthSunLongitude();
 assert(h.ok, "health failed");
 assert(h.ephemeris === "swiss" || h.ephemeris === "moshier", "bad ephemeris mode");
-assert(h.engine.startsWith("2.1"), "engine should be 2.1.x, got " + h.engine);
+assert(h.engine.startsWith("2.2"), "engine should be 2.2.x, got " + h.engine);
 assert(getEphemerisMode() === h.ephemeris, "mode mismatch");
 
 // Fixed JD Sun: 1990-06-15 06:30 UTC Lahiri
@@ -43,7 +43,7 @@ const delhi = {
 };
 
 const chart = computeChart(delhi);
-assert(chart.engineVersion.startsWith("2.1"), "chart engine");
+assert(chart.engineVersion.startsWith("2.2"), "chart engine");
 assert(chart.ephemerisMode === h.ephemeris, "chart ephemeris");
 assert(chart.ascendant, "missing ascendant");
 assert(chart.dasha.tree.length, "missing dasha");
@@ -54,6 +54,9 @@ assert(chart.panchang?.tithi, "missing panchang");
 assert(chart.dignities?.length >= 7, "missing dignities");
 assert(chart.vargas?.d9?.planets?.length >= 9, "missing D9");
 assert(chart.vargas?.d10?.planets?.length >= 9, "missing D10");
+assert(chart.vargas?.d3?.planets?.length >= 9, "missing D3");
+assert(chart.vargas?.d7?.planets?.length >= 9, "missing D7");
+assert(chart.vargas?.d12?.planets?.length >= 9, "missing D12");
 assert(Array.isArray(chart.aspects), "missing aspects");
 assert(chart.transits?.asOfDate === chart.asOfDate, "transit asOf");
 assert(Array.isArray(chart.transits?.emphasis), "transit emphasis");
@@ -65,6 +68,8 @@ const sun = chart.planets.find((p) => p.id === "sun");
 const moon = chart.planets.find((p) => p.id === "moon");
 near(sun.longitude, 60.1834, 0.05, "chart sun lon");
 near(moon.longitude, 318.578, 0.05, "chart moon lon");
+assert(sun.nakshatraLord, "sun nakshatra lord");
+assert(moon.nakshatraLord, "moon nakshatra lord");
 assert(chart.overview.ascendantSign === "leo", "asc should be Leo, got " + chart.overview.ascendantSign);
 near(chart.ascendant.longitude, 145.7, 0.5, "asc lon");
 
@@ -86,6 +91,9 @@ assert(n15.signIndex === 4, "15° Aries D9 should be Leo, got " + n15.signIndex)
 
 const d10_0 = longitudeToDashamsa(0);
 assert(d10_0.signIndex === 0, "0° Aries D10");
+assert(longitudeToDrekkana(15).signIndex === 4, "15° Aries D3 Leo");
+assert(longitudeToSaptamsa(0).signIndex === 0, "0° Aries D7");
+assert(longitudeToDwadasamsa(15).signIndex === 6, "15° Aries D12 Libra");
 
 // Local vaar: 1990-06-15 12:00 Asia/Kolkata is Friday
 assert(chart.panchang.vaar === "Friday", "local vaar Friday, got " + chart.panchang.vaar);
@@ -182,6 +190,7 @@ console.log("qa:astrology OK", {
   kpSub1: c1.subLord,
   d9asc: chart.vargas.d9.ascendant?.sign,
   d10asc: chart.vargas.d10.ascendant?.sign,
+  d3asc: chart.vargas.d3.ascendant?.sign,
   yogas: chart.yogas.length,
   aspects: chart.aspects.length,
   vaar: chart.panchang.vaar,
