@@ -14,6 +14,14 @@ export const GROQ_MODEL =
 export const GROQ_PREDICTIONS_MODEL =
   process.env.GROQ_PREDICTIONS_MODEL?.trim() || "openai/gpt-oss-120b";
 
+/**
+ * Highest-reasoning model for the cached house-by-house reading. Qwen3.8 27B at
+ * `reasoning_effort: high` gave the most accurate, grounded house verdicts in
+ * testing (see lib/astrology/houses.ts).
+ */
+export const GROQ_HOUSES_MODEL =
+  process.env.GROQ_HOUSES_MODEL?.trim() || "qwen/qwen3.8-27b";
+
 export type GroqReasoningEffort = "low" | "medium" | "high";
 
 export const GROQ_PREDICTIONS_REASONING_EFFORT: GroqReasoningEffort =
@@ -233,6 +241,40 @@ export async function createGroqPredictionCompletion(
     body.include_reasoning = false;
   } else if (isQwenModel(model)) {
     body.reasoning_effort = "default";
+    body.reasoning_format = "hidden";
+  }
+
+  const res = await groqRequest(body, 0, model);
+  const data = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  return stripThinkBlocks(data.choices?.[0]?.message?.content ?? "");
+}
+
+/**
+ * House-by-house reading with maximum reasoning. Uses GROQ_HOUSES_MODEL
+ * (Qwen3.8 27B) at `reasoning_effort: high` — slow but cached once per chart,
+ * where accuracy matters more than latency.
+ */
+export async function createGroqHousesCompletion(
+  messages: ChatTurn[],
+  options: { temperature?: number; max_completion_tokens?: number } = {}
+): Promise<string> {
+  const model = GROQ_HOUSES_MODEL;
+  const body: Record<string, unknown> = {
+    temperature: options.temperature ?? 0.4,
+    // Qwen3.8 27B caps completion at 16384; high reasoning eats most of it.
+    max_completion_tokens: options.max_completion_tokens ?? 15_000,
+    response_format: { type: "json_object" },
+    stream: false,
+    messages,
+  };
+
+  if (isGptOssModel(model)) {
+    body.reasoning_effort = "high";
+    body.include_reasoning = false;
+  } else if (isQwenModel(model)) {
+    body.reasoning_effort = "high";
     body.reasoning_format = "hidden";
   }
 

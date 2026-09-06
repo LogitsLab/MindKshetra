@@ -316,6 +316,24 @@ export type ChartPayload = {
     /** How the prose was produced — llm when Groq succeeded, rules on fallback. */
     source?: "llm" | "rules";
   };
+  /** LLM-reasoned house-by-house reading (grounded in the computed placements). */
+  housesText?: {
+    language: "en" | "hi";
+    houses: HouseReading[];
+    generatedAt: string;
+    source?: "llm" | "rules";
+  };
+};
+
+export type HouseStrengthLevel = "weak" | "moderate" | "strong" | "complex";
+
+export type HouseReading = {
+  house: number;
+  strength: HouseStrengthLevel;
+  /** One-line justification citing the concrete chart factors. */
+  why: string;
+  /** Plain-language meaning for this life area (2 sentences). */
+  meaning: string;
 };
 
 export type AstrologyMember = {
