@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import ChatMarkdown from "@/components/ChatMarkdown";
 import { useLanguage } from "@/components/LanguageProvider";
 import { postChat, readChatStream } from "@/lib/chat-stream";
 
@@ -43,6 +44,8 @@ export default function AstroChat({
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [streaming, setStreaming] = useState(false);
+  const lastUserText = useRef<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
@@ -77,7 +80,7 @@ export default function AstroChat({
     } else {
       bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-  }, [messages, busy]);
+  }, [messages, busy, streaming]);
 
   function onListScroll() {
     const el = listRef.current;
@@ -100,13 +103,16 @@ export default function AstroChat({
     const content = text.trim();
     if (!content || busy) return;
     setError(null);
+    lastUserText.current = content;
+    const prevMessages = messages;
     const nextMessages: AstroChatMessage[] = [
-      ...messages,
+      ...prevMessages,
       { role: "user", content },
     ];
     setMessages(nextMessages);
     setInput("");
     setBusy(true);
+    setStreaming(true);
     nearBottom.current = true;
 
     try {
@@ -125,14 +131,15 @@ export default function AstroChat({
           ...nextMessages,
           { role: "assistant", content: assistant },
         ]);
-      paint();
 
       for await (const ev of readChatStream(res.body!)) {
         if (ev.type === "token" && ev.content) {
           assistant += ev.content;
+          setStreaming(false);
           paint();
         } else if (ev.type === "replace" && ev.content) {
           assistant = ev.content;
+          setStreaming(false);
           paint();
         } else if (ev.type === "error") {
           throw new Error(ev.error);
@@ -147,9 +154,12 @@ export default function AstroChat({
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Chat failed");
-      setMessages(nextMessages);
+      // Roll the failed turn back out of history so Retry re-sends it cleanly
+      // instead of appending a duplicate user bubble.
+      setMessages(prevMessages);
     } finally {
       setBusy(false);
+      setStreaming(false);
     }
   }
 
@@ -212,26 +222,56 @@ export default function AstroChat({
           </div>
         ) : null}
 
-        {messages.map((m, i) => (
-          <div key={`${m.role}-${i}`} className="max-w-[90%]">
-            <div
-              className={`whitespace-pre-wrap text-sm leading-relaxed ${
-                m.role === "user"
-                  ? "ml-auto bg-[var(--brass)]/15 px-3 py-2 text-[var(--text)]"
-                  : "text-[var(--text)]"
-              }`}
-            >
-              {m.content || (busy && i === messages.length - 1 ? "…" : "")}
+        {messages.map((m, i) =>
+          m.role === "user" ? (
+            <div key={`${m.role}-${i}`} className="max-w-[90%]">
+              <div className="ml-auto whitespace-pre-wrap bg-[var(--brass)]/15 px-3 py-2 text-sm leading-relaxed text-[var(--text)]">
+                {m.content}
+              </div>
             </div>
+          ) : (
+            <div key={`${m.role}-${i}`} className="max-w-[90%]">
+              <ChatMarkdown
+                content={m.content}
+                className="text-sm leading-relaxed text-[var(--text)]"
+              />
+            </div>
+          )
+        )}
+
+        {streaming ? (
+          <div className="flex items-center gap-2 text-sm text-[var(--brass-soft)]">
+            <span className="flex gap-1" aria-hidden>
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--brass-soft)] [animation-delay:-0.3s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--brass-soft)] [animation-delay:-0.15s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--brass-soft)]" />
+            </span>
+            <span aria-live="polite">{t("astroChatReading")}</span>
           </div>
-        ))}
+        ) : null}
         <div ref={bottomRef} />
       </div>
 
       {error ? (
-        <p className="shrink-0 px-4 text-sm text-red-400" role="alert">
-          {error}
-        </p>
+        <div
+          className="flex shrink-0 flex-wrap items-center gap-3 px-4 pb-1"
+          role="alert"
+        >
+          <p className="text-sm text-red-400">{error}</p>
+          {lastUserText.current ? (
+            <button
+              type="button"
+              onClick={() => {
+                const retry = lastUserText.current;
+                if (retry) void send(retry);
+              }}
+              disabled={busy}
+              className="border border-[var(--brass)]/40 px-3 py-1 text-xs text-[var(--brass-soft)] transition hover:bg-[var(--brass)]/10 disabled:opacity-40"
+            >
+              {t("astroChatRetry")}
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
       <form

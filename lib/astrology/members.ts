@@ -1,4 +1,5 @@
 import type { AstrologyMember, BirthInput, Relationship, Gender } from "@/lib/astrology/types";
+import { resolveIanaTz } from "@/lib/astrology/geo";
 
 export function mapMemberRow(row: {
   id: string;
@@ -74,7 +75,11 @@ export function parseBirthBody(body: unknown): BirthInput | null {
     placeLabel,
     lat,
     lng,
-    ianaTz: ianaTz || "UTC",
+    // Derive the zone from coordinates when the client omits it. Defaulting to
+    // "UTC" here is truthy, so it silently suppressed resolveBirthInstant's own
+    // lat/lng fallback — a birth with no ianaTz was computed in UTC, shifting
+    // the ascendant, houses and dasha by the real offset (e.g. +5:30 for IST).
+    ianaTz: ianaTz || resolveIanaTz(lat, lng),
     utcOffsetMinutes: Number(b.utcOffsetMinutes ?? b.utc_offset_minutes ?? 0),
     gender: (b.gender as Gender | null | undefined) ?? null,
   };

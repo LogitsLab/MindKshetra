@@ -1,4 +1,5 @@
 import { createGroqPredictionCompletion } from "@/lib/groq";
+import { verifyChartClaims } from "@/lib/bridge/chart-verify";
 import { AREA_LABEL, LIFE_AREAS } from "@/lib/astrology/blend";
 import { nearTermWindow } from "@/lib/astrology/dasha";
 import type {
@@ -277,6 +278,60 @@ export function buildPredictionFacts(chart: ChartPayload) {
   };
 }
 
+/**
+ * Strip unverifiable planet / house / sign / dasha claims from an LLM
+ * prediction — the same guard the astrology chat already applies via
+ * verifyChartClaims. Predictions (the main reading surface) previously shipped
+ * unverified, relying only on the prompt's "never invent placements". Prose is
+ * cleaned in place; a bullet that is entirely an unverifiable claim is dropped.
+ * A field the model actually wrote is never left blank — if cleaning would
+ * empty it we keep the original and rely on the logged count to surface a
+ * prompt regression. Headlines are short thematic labels, left untouched.
+ */
+function verifyPredictions(
+  pt: NonNullable<ChartPayload["predictionsText"]>,
+  chart: ChartPayload
+): NonNullable<ChartPayload["predictionsText"]> {
+  let violations = 0;
+  const clean = (text: string): string => {
+    if (!text) return text;
+    const r = verifyChartClaims(text, chart);
+    violations += r.violations.length;
+    return r.text.trim() ? r.text : text;
+  };
+  const cleanBullets = (bullets: string[]): string[] => {
+    const out = bullets
+      .map((b) => {
+        const r = verifyChartClaims(b, chart);
+        violations += r.violations.length;
+        return r.text.trim();
+      })
+      .filter(Boolean);
+    return out.length ? out : bullets;
+  };
+
+  const areas = {} as Record<LifeArea, AreaPrediction>;
+  for (const area of LIFE_AREAS) {
+    const a = pt.areas[area];
+    areas[area] = {
+      ...a,
+      overview: clean(a.overview),
+      now: clean(a.now),
+      nearTerm: clean(a.nearTerm),
+      guidance: clean(a.guidance),
+      strengths: cleanBullets(a.strengths),
+      watchouts: cleanBullets(a.watchouts),
+    };
+  }
+
+  if (violations > 0) {
+    console.warn(
+      `[astrology] predictions: ${violations} unverifiable claim(s) dropped`
+    );
+  }
+  return { ...pt, portrait: clean(pt.portrait), areas };
+}
+
 export async function writePredictions(
   chart: ChartPayload,
   language: "en" | "hi" = "en"
@@ -375,13 +430,16 @@ Area =
       areas[area] = normalizeArea(parsed[area], chart, area, language);
     }
 
-    return {
-      language,
-      portrait,
-      areas,
-      generatedAt: new Date().toISOString(),
-      source: "llm",
-    };
+    return verifyPredictions(
+      {
+        language,
+        portrait,
+        areas,
+        generatedAt: new Date().toISOString(),
+        source: "llm",
+      },
+      chart
+    );
   } catch (err) {
     console.warn("[astrology] prediction write-up error", err);
     return fallbackCopy(chart, language);

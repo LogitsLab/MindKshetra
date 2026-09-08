@@ -191,10 +191,13 @@ export function computeChart(birth: BirthInput): ChartPayload {
   const moon = planets.find((p) => p.id === "moon")!;
   const sun = planets.find((p) => p.id === "sun")!;
 
+  // Two cycles (~240y). One cycle is only balance + 8 mahas (~100–120y from
+  // birth), so findCurrentDasha returned null for a native older than that,
+  // silently dropping every "dasha now" fact from an otherwise valid chart.
   const { balanceDays, tree } = buildVimshottariTree(
     moon.longitude,
     resolved.utcIso,
-    1
+    2
   );
   const asOfDate = DateTime.utc().toISODate()!;
   const current = findCurrentDasha(tree, asOfDate);
