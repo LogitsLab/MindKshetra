@@ -69,6 +69,41 @@ function planetIn(sentence: string): PlanetId | null {
   return null;
 }
 
+/**
+ * BUG B fix — how many DISTINCT planets a sentence names.
+ *
+ * The old code extracted only the FIRST planet, so "Mars and Venus sit in Leo"
+ * was verified as if it were purely a Mars claim: a false Venus claim rode
+ * through untouched, and (worse) a sentence could be wrongly attributed. Rather
+ * than mis-attribute, we count the planets and — when there is more than one —
+ * skip verification for that sentence entirely (see verifyChartClaims). That is
+ * the conservative choice this module already prefers: never delete or "verify"
+ * a sentence we cannot pin unambiguously to a single subject.
+ */
+function planetCount(sentence: string): number {
+  const lower = sentence.toLowerCase();
+  const seen = new Set<PlanetId>();
+  for (const [word, id] of Object.entries(PLANET_WORDS)) {
+    if (new RegExp(`\\b${word}\\b`).test(lower)) seen.add(id);
+  }
+  return seen.size;
+}
+
+/**
+ * BUG A fix — a present-tense cue that turns a dasha mention into an assertion
+ * that the planet is running RIGHT NOW.
+ *
+ * The astrology-chat prompt (lib/astrology/predictions.ts) explicitly asks the
+ * model to discuss upcoming/past dasha windows ("you may briefly preview that
+ * shift in nearTerm"). So "your upcoming Venus dasha will bring change" is a
+ * CORRECT statement about a future window, not a claim that Venus is the current
+ * lord. We only treat a dasha mention as a checkable "is this the current lord?"
+ * claim when the sentence asserts the present.
+ */
+function assertsCurrentDasha(sentence: string): boolean {
+  return /\b(now|current|currently|running|present|ongoing)\b/i.test(sentence);
+}
+
 function houseIn(sentence: string): number | null {
   const lower = sentence.toLowerCase();
   for (const [word, n] of Object.entries(ORDINAL_HOUSE)) {
@@ -124,6 +159,14 @@ export function verifyChartClaims(
   for (const sentence of splitSentences(text)) {
     const planet = planetIn(sentence);
     if (!planet) continue;
+
+    // BUG B fix — a sentence naming more than one planet (e.g. "Mars and Venus
+    // sit in Leo") cannot be unambiguously attributed to a single subject with
+    // the single-planet extractor below, so we would either miss the second
+    // planet's claim or mis-attribute it. Skip verification entirely rather than
+    // risk deleting a true sentence on a wrong attribution.
+    if (planetCount(sentence) > 1) continue;
+
     const pos = chart.planets.find((p) => p.id === planet);
 
     const house = houseIn(sentence);
@@ -154,16 +197,33 @@ export function verifyChartClaims(
     }
 
     if (/\b(dasha|period|mahadasha|antardasha)\b/i.test(sentence)) {
-      const isCurrent = dashaLords.has(planet);
-      claims.push({
-        kind: "dasha",
-        planet,
-        claimed: "current dasha lord",
-        actual: Array.from(dashaLords).join(",") || null,
-        // Only flag when we positively know the lords and this planet is absent.
-        ok: dashaLords.size === 0 ? true : isCurrent,
-        sentence,
-      });
+      // BUG A fix — do NOT flag every planet+dasha mention as "must be a current
+      // lord". The prompt (lib/astrology/predictions.ts) asks the model to
+      // discuss upcoming/past dasha windows, so "your upcoming Venus dasha will
+      // bring change" is legitimate even though Venus is not a current lord.
+      //
+      // The check is meaningful ONLY for sentences that assert the PRESENT
+      // (now/current/running/…). A past/future-tense mention is left unverified
+      // and therefore kept.
+      //
+      // Note on chart.dasha.tree: every one of the nine grahas appears somewhere
+      // in a complete Vimshottari sequence, so "is this planet in the dasha
+      // tree?" is true for all of them and cannot distinguish a current lord
+      // from any other. It is therefore NOT usable to validate a present-tense
+      // claim — only the actual current lords can. Hence we check current lords.
+      if (assertsCurrentDasha(sentence)) {
+        const isCurrent = dashaLords.has(planet);
+        claims.push({
+          kind: "dasha",
+          planet,
+          claimed: "current dasha lord",
+          actual: Array.from(dashaLords).join(",") || null,
+          // Only flag when we positively know the current lords and this planet
+          // is absent from them.
+          ok: dashaLords.size === 0 ? true : isCurrent,
+          sentence,
+        });
+      }
     }
   }
 

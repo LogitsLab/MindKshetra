@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 type Payload = {
   date: string;
@@ -29,45 +30,79 @@ function fmt(iso: string) {
 }
 
 export default function MuhuratPage() {
+  const { t, lang } = useLanguage();
   const [data, setData] = useState<Payload | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setError(false);
+    setLoading(true);
+    setData(null);
     void fetch("/api/astrology/muhurat")
       .then(async (r) => {
-        if (!r.ok) throw new Error((await r.json()).error ?? "Unavailable");
+        if (!r.ok) throw new Error("unavailable");
         return r.json();
       })
       .then(setData)
-      .catch((e) => setError(e.message));
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  function qualityLabel(quality: string): string {
+    if (quality === "good") return t("astroChoghQualityGood");
+    if (quality === "neutral") return t("astroChoghQualityNeutral");
+    if (quality === "avoid") return t("astroChoghQualityAvoid");
+    return quality;
+  }
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
       <Link href="/astrology" className="text-sm text-[var(--text-muted)]">
-        ← Astrology
+        ← {t("astroTitle")}
       </Link>
       <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl text-[var(--text)]">
-        Muhurats
+        {t("astroMuhuratTitle")}
       </h1>
       <p className="mt-2 text-sm text-[var(--text-soft)]">
-        Auspicious windows for the day — lifestyle layer pending accuracy review.
+        {t("astroMuhuratIntro")} {t("astroMuhuratApprox")}
       </p>
       {error ? (
-        <p className="mt-6 text-sm text-red-400">{error}</p>
-      ) : !data ? (
-        <p className="mt-6 text-[var(--text-muted)]">Loading…</p>
+        <div className="mt-6 space-y-3">
+          <p className="text-sm text-[var(--text-muted)]">
+            {t("astroMuhuratUnavailable")}
+          </p>
+          <p className="text-sm text-[var(--text-soft)]">
+            {t("astroMuhuratUnavailableBody")}
+          </p>
+          <button
+            type="button"
+            onClick={load}
+            className="bg-[var(--brass)] px-4 py-2.5 text-sm text-[var(--on-brass)]"
+          >
+            {t("errorRetry")}
+          </button>
+        </div>
+      ) : loading || !data ? (
+        <p className="mt-6 text-[var(--text-muted)]">{t("loading")}</p>
       ) : (
         <div className="mt-8 space-y-6">
-          <p className="text-xs text-[var(--text-muted)]">{data.disclaimer}</p>
-          <p className="text-sm text-[var(--text-soft)]">Date · {data.date}</p>
+          <p className="text-sm text-[var(--text-soft)]">
+            {t("astroMuhuratDate")} · {data.date}
+          </p>
           {data.muhurats.map((m) => (
             <div
               key={m.nameEn}
               className="rounded-md border border-[var(--line)] bg-[var(--surface)] p-4"
             >
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[var(--text)]">{m.nameEn}</p>
+                <p className="text-[var(--text)]">
+                  {lang === "hi" ? m.nameHi : m.nameEn}
+                </p>
                 <span className="text-xs text-[var(--brass-soft)]">{m.tag}</span>
               </div>
               <p className="mt-2 text-sm text-[var(--text-soft)]">
@@ -76,7 +111,7 @@ export default function MuhuratPage() {
             </div>
           ))}
           <div>
-            <p className="eyebrow text-[var(--brass)]">Choghadiya</p>
+            <p className="eyebrow text-[var(--brass)]">{t("astroChoghadiya")}</p>
             <ul className="mt-3 space-y-2">
               {data.choghadiya.map((c) => (
                 <li
@@ -85,7 +120,9 @@ export default function MuhuratPage() {
                 >
                   <span className="text-[var(--text)]">
                     {c.kind}{" "}
-                    <span className="text-[var(--text-muted)]">({c.quality})</span>
+                    <span className="text-[var(--text-muted)]">
+                      ({qualityLabel(c.quality)})
+                    </span>
                   </span>
                   <span className="text-[var(--text-muted)]">
                     {fmt(c.startIso)}–{fmt(c.endIso)}

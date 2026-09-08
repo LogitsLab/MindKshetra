@@ -108,6 +108,8 @@ export const en = {
   astroPredRetryCountdown: "Retrying automatically in",
   astroChatSend: "Send",
   astroChatEmpty: "I couldn’t form a reply, try again in a moment.",
+  astroChatReading: "Madhav is reading your chart…",
+  astroChatRetry: "Retry",
   astroIntroNew: "Enter a birth moment. We cast the chart from Swiss Ephemeris, then read dashas, yogas, and a detailed forecast.",
   astroCastTitle: "Cast a birth chart",
   astroCastBlurb: "Start here. You can save it to your account afterward.",
@@ -343,6 +345,17 @@ export const en = {
   astroStarterKp7: "Explain my KP sub-lord on the 7th",
   astroStarterDasha: "What is this dasha asking of me?",
   astroStarterVarga: "What does this varga add to the Lagna chart?",
+  astroMuhuratTitle: "Muhurats",
+  astroMuhuratIntro: "Auspicious windows for the day.",
+  astroMuhuratApprox: "Timing windows are approximate.",
+  astroChoghadiya: "Choghadiya",
+  astroMuhuratDate: "Date",
+  astroMuhuratUnavailable: "Muhurats are resting right now.",
+  astroMuhuratUnavailableBody:
+    "The windows couldn’t be loaded. Nothing you have saved is affected, trying again is usually enough.",
+  astroChoghQualityGood: "good",
+  astroChoghQualityNeutral: "neutral",
+  astroChoghQualityAvoid: "avoid",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
@@ -448,6 +461,8 @@ export const hi: Record<keyof typeof en, string> = {
   astroPredRetryCountdown: "स्वतः पुनः प्रयास:",
   astroChatSend: "भेजें",
   astroChatEmpty: "उत्तर नहीं बन पाया, थोड़ी देर बाद फिर कोशिश करें।",
+  astroChatReading: "माधव आपकी कुंडली पढ़ रहे हैं…",
+  astroChatRetry: "फिर कोशिश करें",
   astroIntroNew: "जन्म क्षण दर्ज करें। हम स्विस एफमेरिस से कुंडली बनाते हैं, फिर दशा, योग और विस्तृत पठन।",
   astroCastTitle: "जन्म कुंडली बनाएँ",
   astroCastBlurb: "यहीं से शुरू करें। बाद में खाते में सहेज सकते हैं।",
@@ -683,4 +698,15 @@ export const hi: Record<keyof typeof en, string> = {
   astroStarterKp7: "सातवें भाव के के.पी. सब-लॉर्ड समझाएँ",
   astroStarterDasha: "यह दशा मुझसे क्या माँग रही है?",
   astroStarterVarga: "यह वर्ग लग्न कुंडली में क्या जोड़ता है?",
+  astroMuhuratTitle: "मुहूर्त",
+  astroMuhuratIntro: "दिन के शुभ मुहूर्त।",
+  astroMuhuratApprox: "समय की खिड़कियाँ अनुमानित हैं।",
+  astroChoghadiya: "चौघड़िया",
+  astroMuhuratDate: "तिथि",
+  astroMuhuratUnavailable: "मुहूर्त अभी विश्राम में हैं।",
+  astroMuhuratUnavailableBody:
+    "मुहूर्त लोड नहीं हो सके। आपका सहेजा हुआ कुछ भी प्रभावित नहीं हुआ, प्रायः फिर से प्रयास पर्याप्त होता है।",
+  astroChoghQualityGood: "शुभ",
+  astroChoghQualityNeutral: "सामान्य",
+  astroChoghQualityAvoid: "त्याज्य",
 };
