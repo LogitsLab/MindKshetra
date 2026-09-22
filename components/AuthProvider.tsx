@@ -14,6 +14,7 @@ import {
 } from "@/lib/journeys/local";
 import { createClient } from "@/lib/supabase/client";
 import { supabaseBrowserConfigured } from "@/lib/supabase/client";
+import { configuredSiteOrigin } from "@/lib/site";
 import type { User } from "@supabase/supabase-js";
 
 type AuthResult = { error?: string };
@@ -80,14 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (code) {
       const isLocalHost = /localhost|127\.0\.0\.1/.test(url.hostname);
       const hasVerifier = document.cookie.includes("code-verifier");
-      const configured = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(
-        /\/$/,
-        ""
-      );
-      const productionOrigin =
-        configured && !/localhost|127\.0\.0\.1/.test(configured)
-          ? configured
-          : "https://mind.logitslab.com";
+      const productionOrigin = configuredSiteOrigin();
 
       // OAuth started on production but Supabase bounced to localhost.
       if (isLocalHost && !hasVerifier) {

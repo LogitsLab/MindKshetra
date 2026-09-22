@@ -35,12 +35,19 @@ export default function PrivacyPage() {
         <p className="text-[15px] leading-relaxed text-[var(--text-muted)]">
           Use of{" "}
           <a
+            href="https://mindkshetra.in"
+            className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
+          >
+            mindkshetra.in
+          </a>
+          ,{" "}
+          <a
             href="https://mind.logitslab.com"
             className="text-[var(--brass-soft)] underline-offset-2 hover:underline"
           >
             mind.logitslab.com
           </a>
-          , related domains, and the MindKshetra iOS / Android apps. Web and
+          , and the MindKshetra iOS / Android apps. Web and
           mobile share the same account and backend.
         </p>
       </section>

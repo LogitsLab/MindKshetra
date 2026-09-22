@@ -8,6 +8,39 @@
 - **`main`** — production only. Nothing merges to `main` except an owner-driven
   promotion of `dev` (which triggers the existing production deploy on web and
   the EAS release train on mobile). Day-to-day work never targets it.
+  Production serves the same deployment at **https://mind.logitslab.com** and
+  **https://mindkshetra.in** (`www` redirects to the apex). Dev does **not**
+  use the brand domain.
+
+## Production domains (`mindkshetra.in`)
+
+Same Vercel production project as `mind.logitslab.com`. Preview stays on
+`mind-dev.logitslab.com`.
+
+1. **Vercel**: ✅ `mindkshetra.in` and `www.mindkshetra.in` are attached to
+   project `mindkshetra` (2026-09-21).
+2. **GoDaddy**: the domain is new (`addPeriod`) and currently **`clientHold`**.
+   DNS will not publish until GoDaddy lifts the hold (usually the ICANN
+   registrant-email verification). Then add:
+
+   | Type | Name | Value |
+   |---|---|---|
+   | A | `@` | `216.198.79.1` |
+   | A | `@` | `64.29.17.1` |
+   | CNAME | `www` | `aba8dfe99e6600d1.vercel-dns-017.com` |
+
+   Keep GoDaddy nameservers (`ns07`/`ns08.domaincontrol.com`). Do not switch
+   to Vercel nameservers unless you want Vercel to host all DNS for `.in`.
+3. **Supabase (MindKshetra-prod)**: Authentication → URL Configuration →
+   Redirect URLs, add `https://mindkshetra.in/auth/callback` and
+   `https://www.mindkshetra.in/auth/callback`. Leave Site URL on
+   `https://mind.logitslab.com` until you flip `NEXT_PUBLIC_SITE_URL`.
+4. **Canonical**: `NEXT_PUBLIC_SITE_URL` on Vercel Production stays
+   `https://mind.logitslab.com` (sitemap, OG, email links). Flip it to
+   `https://mindkshetra.in` when the brand host should become canonical; both
+   hosts keep serving either way.
+
+Verify: `vercel domains verify mindkshetra.in --scope sakshams-projects-a0dd23b8`
 
 ## One-time setup (owner, ~15 minutes)
 
@@ -63,7 +96,7 @@ bearer.
 Org **MindKshetra** (see `docs/runbooks/supabase-org-migration.md`):
 
 - **MindKshetra-prod** (`bpxszivjvexmqznnshlx`) — serves `main` /
-  mind.logitslab.com. Schema moves only at promotion time.
+  mind.logitslab.com and mindkshetra.in. Schema moves only at promotion time.
 - **MindKshetra-dev** (`awqvyohcdxamkacwlsnq`) — serves the `dev` branch /
   mind-dev.logitslab.com and local development. Fresh migrations land here
   first and soak.

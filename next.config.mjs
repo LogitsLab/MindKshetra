@@ -5,6 +5,19 @@ const nextConfig = {
       // WS6 rename: the surface is /community now; shared /sangha links keep
       // working forever. (The sangha_attended event name is unchanged.)
       { source: "/sangha", destination: "/community", permanent: true },
+      // Brand apex is mindkshetra.in; www is an alias, not a second origin.
+      {
+        source: "/",
+        has: [{ type: "host", value: "www.mindkshetra.in" }],
+        destination: "https://mindkshetra.in/",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.mindkshetra.in" }],
+        destination: "https://mindkshetra.in/:path*",
+        permanent: true,
+      },
     ];
   },
   experimental: {

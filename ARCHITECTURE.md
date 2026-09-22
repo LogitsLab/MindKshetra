@@ -2,7 +2,8 @@
 
 End-to-end architecture for the MindKshetra product: the **web API + Gita/Jyotish engine** ([MindKshetra](https://github.com/LogitsLab/MindKshetra)) and the **Expo mobile client** ([MindKshetra-app](https://github.com/LogitsLab/MindKshetra-app)).
 
-Live site: [https://mind.logitslab.com](https://mind.logitslab.com)
+Live site: [https://mindkshetra.in](https://mindkshetra.in) (also
+[https://mind.logitslab.com](https://mind.logitslab.com))
 
 ---
 
