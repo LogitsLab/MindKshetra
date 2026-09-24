@@ -1,5 +1,11 @@
 name: Deploy to Vercel
 
+# Production custom domains (same --prod deployment):
+#   mind.logitslab.com
+#   mindkshetra.in (+ www.mindkshetra.in → apex)
+# Preview/dev stays on mind-dev.logitslab.com (deploy-dev.yml). Do not alias
+# the brand domain onto preview.
+
 on:
   push:
     branches: [main]

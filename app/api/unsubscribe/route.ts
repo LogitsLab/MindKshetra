@@ -128,6 +128,6 @@ export async function POST(request: NextRequest) {
   return page(
     "Unsubscribed",
     `<h1 style="font-size:24px;font-weight:600;margin:0 0 12px;">You are unsubscribed</h1>
-<p style="font-size:15px;line-height:1.6;color:#444;margin:0;">The Verse of the Day email will stop. The verse itself remains at mind.logitslab.com whenever you want it.</p>`
+<p style="font-size:15px;line-height:1.6;color:#444;margin:0;">The Verse of the Day email will stop. The verse itself remains on the site whenever you want it.</p>`
   );
 }

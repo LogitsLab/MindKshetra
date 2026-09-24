@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { configuredSiteOrigin } from "@/lib/site";
 
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -9,22 +10,12 @@ const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Max-Age": "86400",
 };
 
-const PRODUCTION_ORIGIN = "https://mind.logitslab.com";
-
 function withCors(response: NextResponse, isApi: boolean): NextResponse {
   if (!isApi) return response;
   for (const [key, value] of Object.entries(CORS_HEADERS)) {
     response.headers.set(key, value);
   }
   return response;
-}
-
-function configuredProductionOrigin(): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "";
-  if (configured && !/localhost|127\.0\.0\.1/.test(configured)) {
-    return configured;
-  }
-  return PRODUCTION_ORIGIN;
 }
 
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
@@ -92,7 +83,7 @@ export async function middleware(request: NextRequest) {
       .some((c) => c.name.includes("code-verifier"));
 
     if (isLocalHost && !hasVerifier) {
-      const dest = new URL("/auth/callback", configuredProductionOrigin());
+      const dest = new URL("/auth/callback", configuredSiteOrigin());
       request.nextUrl.searchParams.forEach((value, key) => {
         dest.searchParams.set(key, value);
       });
