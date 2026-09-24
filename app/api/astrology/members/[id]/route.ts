@@ -10,6 +10,33 @@ export const dynamic = "force-dynamic";
 
 type Ctx = { params: { id: string } };
 
+export async function GET(_request: NextRequest, { params }: Ctx) {
+  const unconfigured = requireSupabase();
+  if (unconfigured) return unconfigured;
+  const userId = await getSignedInUserId();
+  if (!userId) {
+    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("astrology_members")
+    .select("*")
+    .eq("id", params.id)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  if (!data) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ member: mapMemberRow(data) });
+}
+
 export async function PATCH(request: NextRequest, { params }: Ctx) {
   const unconfigured = requireSupabase();
   if (unconfigured) return unconfigured;
