@@ -23,12 +23,12 @@ export default function VerseOfTheDayHeader({
   preview: string[];
   nakshatra?: string | null;
 }) {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
 
   return (
     <LocalizedPageHeader
       eyebrowKey="votdEyebrow"
-      title={verseRef}
+      title={`${lang === "hi" ? "भगवद्गीता" : "Bhagavad Gita"} ${verseRef}`}
       className="mb-6"
     >
       <p className="mt-3 font-devanagari text-lg leading-[1.9] text-[var(--text-soft)]">

@@ -1,8 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import JsonLd from "@/components/JsonLd";
 import MoodDetailClient from "@/components/MoodDetailClient";
+import { moodSeo } from "@/lib/mood-seo";
 import { getAllMoods, getMoodById } from "@/lib/moods";
-import { metaDescription } from "@/lib/sloka-utils";
+import {
+  breadcrumbNode,
+  pageMetadata,
+  publisherRef,
+  SCHEMA_IDS,
+} from "@/lib/seo";
+import { absoluteUrl } from "@/lib/site";
+import { formatVerseRef, metaDescription, toCardSloka } from "@/lib/sloka-utils";
 import { getSlokasByTags } from "@/lib/slokas";
 
 type Props = { params: { id: string } };
@@ -12,7 +21,9 @@ type Props = { params: { id: string } };
 // demote the prerender silently.
 export const dynamic = "force-static";
 export const revalidate = 86400;
-export const dynamicParams = true;
+// Every valid id is prerendered above; anything else is a real 404 from the
+// router (it used to render on demand as a cached 200 + noindex soft 404).
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const moods = await getAllMoods();
@@ -20,43 +31,24 @@ export async function generateStaticParams() {
 }
 
 /**
- * Mood pages are the product's front door for search — people arrive typing how
- * they feel, not a verse number — and all 18 shared the generic site title.
- * No per-mood OG route exists, so the card stays the site image.
+ * Mood pages are the product's front door for search — people arrive typing
+ * how they feel, not a verse number. Copy comes from lib/mood-seo.ts; the
+ * fallback covers a mood added to the database before its copy is written.
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const mood = await getMoodById(params.id);
-  if (!mood) return {};
+  if (!mood) notFound();
 
-  const title = `Feeling ${mood.label.toLowerCase()} · Bhagavad Gita verses`;
-  const description = metaDescription(
-    `Verses from the Bhagavad Gita for ${mood.label.toLowerCase()} — on ${mood.tags
-      .slice(0, 4)
-      .map((tag) => tag.replace(/_/g, " "))
-      .join(", ")} — with translation, meaning and commentary.`
-  );
-  const url = `/mood/${mood.id}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical: url },
-    openGraph: {
-      type: "article",
-      url,
-      title,
-      description,
-      images: [
-        { url: "/images/og.jpg", width: 1200, height: 630, alt: "MindKshetra" },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: ["/images/og.jpg"],
-    },
-  };
+  const seo = moodSeo(mood.id);
+  return pageMetadata({
+    title: seo?.title ?? `Bhagavad Gita verses for ${mood.label.toLowerCase()}`,
+    description:
+      seo?.description ??
+      metaDescription(
+        `Bhagavad Gita verses for when you feel ${mood.label.toLowerCase()}, with Sanskrit, Hindi and English meaning.`
+      ),
+    path: `/mood/${mood.id}`,
+  });
 }
 
 export default async function MoodDetailPage({ params }: Props) {
@@ -64,5 +56,50 @@ export default async function MoodDetailPage({ params }: Props) {
   if (!mood) notFound();
 
   const slokas = (await getSlokasByTags(mood.tags)).slice(0, 40);
-  return <MoodDetailClient mood={mood} slokas={slokas} />;
+  const seo = moodSeo(mood.id);
+  const path = `/mood/${mood.id}`;
+  const pageUrl = absoluteUrl(path);
+  const name =
+    seo?.heading ?? `Bhagavad Gita verses for ${mood.label.toLowerCase()}`;
+
+  return (
+    <>
+      <JsonLd
+        graph={[
+          {
+            "@type": "CollectionPage",
+            "@id": `${pageUrl}#webpage`,
+            url: pageUrl,
+            name,
+            inLanguage: "en",
+            isPartOf: { "@id": SCHEMA_IDS.website() },
+            breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+            publisher: publisherRef(),
+            mainEntity: {
+              "@type": "ItemList",
+              numberOfItems: slokas.length,
+              itemListElement: slokas.map((s, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                name: `Bhagavad Gita ${formatVerseRef(s)}`,
+                url: absoluteUrl(`/sloka/${s.id}`),
+              })),
+            },
+          },
+          breadcrumbNode(path, [
+            { name: "MindKshetra", path: "/" },
+            { name: "Verses for how you feel", path: "/mood" },
+            { name },
+          ]),
+        ]}
+      />
+      <MoodDetailClient
+        mood={mood}
+        slokas={slokas.map(toCardSloka)}
+        heading={seo?.heading}
+        pathId={seo?.pathId}
+        showCare={seo?.care ?? false}
+      />
+    </>
+  );
 }
