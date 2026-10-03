@@ -1,6 +1,6 @@
 import "server-only";
 import { daySeed, getVerseOfTheDay } from "@/lib/day-seed";
-import { PRODUCTION_ORIGIN } from "@/lib/site";
+import { configuredSiteOrigin } from "@/lib/site";
 import { formatVerseRef, getTeachingPassage } from "@/lib/slokas";
 import { getCachedStory } from "@/lib/stories";
 import type { Sloka } from "@/lib/types";
@@ -164,9 +164,7 @@ export async function loadTodaysVotdPayload(): Promise<VotdPayload | null> {
     storyHiText = storyHi?.story ?? null;
   }
 
-  const site =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    PRODUCTION_ORIGIN;
+  const site = configuredSiteOrigin();
   const ref = formatVerseRef(sloka);
   const from =
     process.env.RESEND_FROM?.trim() ||

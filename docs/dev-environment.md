@@ -32,13 +32,22 @@ Same Vercel production project as `mind.logitslab.com`. Preview stays on
    Keep GoDaddy nameservers (`ns07`/`ns08.domaincontrol.com`). Do not switch
    to Vercel nameservers unless you want Vercel to host all DNS for `.in`.
 3. **Supabase (MindKshetra-prod)**: Authentication → URL Configuration →
-   Redirect URLs, add `https://mindkshetra.in/auth/callback` and
-   `https://www.mindkshetra.in/auth/callback`. Leave Site URL on
-   `https://mind.logitslab.com` until you flip `NEXT_PUBLIC_SITE_URL`.
-4. **Canonical**: `NEXT_PUBLIC_SITE_URL` on Vercel Production stays
-   `https://mind.logitslab.com` (sitemap, OG, email links). Flip it to
-   `https://mindkshetra.in` when the brand host should become canonical; both
-   hosts keep serving either way.
+   Redirect URLs must include `https://mindkshetra.in/auth/callback` and
+   `https://www.mindkshetra.in/auth/callback` (keep the logitslab entries for
+   in-flight sessions and the mobile app). Set **Site URL** to
+   `https://mindkshetra.in`.
+4. **Canonical**: `mindkshetra.in` is the canonical origin. Set
+   `NEXT_PUBLIC_SITE_URL=https://mindkshetra.in` on Vercel Production as a
+   non-sensitive variable (a "Sensitive" var pulls as `[SENSITIVE]` in CI).
+   `next.config.mjs` 308s page paths on `mind.logitslab.com` and
+   `mindkshetra.vercel.app` to the brand domain; `/api/`, `/auth/`, `/_next/`
+   and `/.well-known/` stay on the logitslab host for the mobile app and OAuth
+   returns. Middleware sends `X-Robots-Tag: noindex` on every non-production
+   host (mind-dev, preview URLs).
+5. **Search consoles**: verify `mindkshetra.in` and `logitslab.com` as Domain
+   properties (DNS TXT) in Google Search Console and Bing Webmaster Tools,
+   submit `https://mindkshetra.in/sitemap.xml`, then run Change of Address
+   (Google) / Site Move (Bing) from the logitslab property.
 
 Verify: `vercel domains verify mindkshetra.in --scope sakshams-projects-a0dd23b8`
 
