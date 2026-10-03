@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
@@ -141,10 +141,28 @@ async function logPractice(
   }
 }
 
+/** Hands the URL's search params up without making the page read them. */
+function SearchParamsBridge({
+  onChange,
+}: {
+  onChange: (params: URLSearchParams) => void;
+}) {
+  const params = useSearchParams();
+  useEffect(() => {
+    onChange(new URLSearchParams(params.toString()));
+  }, [params, onChange]);
+  return null;
+}
+
 export default function SadhanaClient() {
   const { lang, t } = useLanguage();
   const { user } = useAuth();
-  const searchParams = useSearchParams();
+  // Deep-link params arrive through <SearchParamsBridge> below rather than a
+  // useSearchParams() call here: reading them in this component bailed the
+  // whole page out to client rendering, so /sadhana shipped empty HTML.
+  const [searchParams, setSearchParams] = useState<URLSearchParams>(
+    () => new URLSearchParams()
+  );
   const [stage, setStage] = useState<Stage>("mood");
   const [doneToday, setDoneToday] = useState(false);
   const [sloka, setSloka] = useState<Sloka | null>(null);
@@ -590,6 +608,9 @@ export default function SadhanaClient() {
 
   return (
     <div className="life-hub pb-10">
+      <Suspense fallback={null}>
+        <SearchParamsBridge onChange={setSearchParams} />
+      </Suspense>
       <div aria-live="polite" className="sr-only">
         {announcement}
       </div>

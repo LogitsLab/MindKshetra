@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import ExploreSearch from "@/components/ExploreSearch";
 import { useLanguage } from "@/components/LanguageProvider";
 import {
@@ -45,7 +45,12 @@ export default function ExplorePageClient({
         ) : null}
       </header>
 
-      <ExploreSearch onActiveChange={setSearchActive} />
+      {/* ExploreSearch reads `?q=` with useSearchParams. Without its own
+          boundary that bailed the whole hub out to client rendering, so the
+          server HTML had no heading and none of the 18 chapter links. */}
+      <Suspense fallback={<div className="mt-8 h-20" aria-hidden />}>
+        <ExploreSearch onActiveChange={setSearchActive} />
+      </Suspense>
 
       {!searchActive ? (
         <div className="mt-12" id="chapters">

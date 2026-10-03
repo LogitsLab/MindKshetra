@@ -1,6 +1,9 @@
 import "server-only";
+import {
+  createClient as createSupabaseClient,
+  type SupabaseClient,
+} from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import type { Mood, Sloka } from "@/lib/types";
 
 type DbSlokaRow = {
@@ -44,16 +47,54 @@ const SLOKA_SELECT = `
   sloka_tags ( tags ( name ) )
 `;
 
-async function getClient() {
-  try {
-    return await createClient();
-  } catch {
-    return createAdminClient();
+let publicClient: SupabaseClient | null = null;
+
+/**
+ * Content tables (slokas, tags, moods, stories) are public-read, so reads use
+ * one cookie-less anon client.
+ *
+ * This used to be the request-scoped client from lib/supabase/server.ts,
+ * which calls `cookies()` and `headers()`. Those are dynamic APIs: any page
+ * that read a verse without `dynamic = "force-static"` was silently switched
+ * to per-request rendering in production — the home page shipped
+ * `Cache-Control: private, no-store` and ran a cold function on every visit,
+ * while local builds without Supabase env showed it as static.
+ */
+function getClient(): SupabaseClient {
+  if (!publicClient) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+    if (!url || !key) return createAdminClient();
+    publicClient = createSupabaseClient(url, key, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    });
   }
+  return publicClient;
 }
 
-export async function dbGetAllSlokas(): Promise<Sloka[]> {
-  const supabase = await getClient();
+// The full corpus is read by tag matching (verse of the day, related verses,
+// mood pages); one static render can ask for it several times in parallel.
+// Share one in-flight read per process for a few minutes instead of
+// downloading all 701 rows each time.
+const CORPUS_TTL_MS = 10 * 60_000;
+let corpus: { at: number; rows: Promise<Sloka[]> } | null = null;
+
+export function dbGetAllSlokas(): Promise<Sloka[]> {
+  if (corpus && Date.now() - corpus.at < CORPUS_TTL_MS) return corpus.rows;
+  const rows = fetchAllSlokas();
+  corpus = { at: Date.now(), rows };
+  rows.catch(() => {
+    if (corpus?.rows === rows) corpus = null;
+  });
+  return rows;
+}
+
+async function fetchAllSlokas(): Promise<Sloka[]> {
+  const supabase = getClient();
   const { data, error } = await supabase
     .from("slokas")
     .select(SLOKA_SELECT)
@@ -64,7 +105,7 @@ export async function dbGetAllSlokas(): Promise<Sloka[]> {
 }
 
 export async function dbGetSlokaById(id: number): Promise<Sloka | undefined> {
-  const supabase = await getClient();
+  const supabase = getClient();
   const { data, error } = await supabase
     .from("slokas")
     .select(SLOKA_SELECT)
@@ -76,7 +117,7 @@ export async function dbGetSlokaById(id: number): Promise<Sloka | undefined> {
 
 export async function dbGetSlokasByIds(ids: number[]): Promise<Sloka[]> {
   if (ids.length === 0) return [];
-  const supabase = await getClient();
+  const supabase = getClient();
   const { data, error } = await supabase
     .from("slokas")
     .select(SLOKA_SELECT)
@@ -97,7 +138,7 @@ export async function dbGetSlokasByIds(ids: number[]): Promise<Sloka[]> {
 }
 
 export async function dbGetSlokasByChapter(chapter: number): Promise<Sloka[]> {
-  const supabase = await getClient();
+  const supabase = getClient();
   const { data, error } = await supabase
     .from("slokas")
     .select(SLOKA_SELECT)
@@ -108,7 +149,7 @@ export async function dbGetSlokasByChapter(chapter: number): Promise<Sloka[]> {
 }
 
 export async function dbGetChapters(): Promise<number[]> {
-  const supabase = await getClient();
+  const supabase = getClient();
   const { data, error } = await supabase
     .from("slokas")
     .select("chapter")
@@ -122,7 +163,7 @@ export async function dbGetSlokaByRef(
   chapter: number,
   verse: number
 ): Promise<Sloka | undefined> {
-  const supabase = await getClient();
+  const supabase = getClient();
   const { data, error } = await supabase
     .from("slokas")
     .select(SLOKA_SELECT)
@@ -162,7 +203,7 @@ export async function dbGetSlokasByTags(tags: string[]): Promise<Sloka[]> {
 }
 
 export async function dbGetAllMoods(): Promise<Mood[]> {
-  const supabase = await getClient();
+  const supabase = getClient();
   const { data: moods, error } = await supabase
     .from("moods")
     .select("id, label, label_hi, mood_tags ( tag_name )")
@@ -207,7 +248,7 @@ export async function dbGetStory(
   lang: "en" | "hi",
   variantIndex = 0
 ): Promise<string | null> {
-  const supabase = await getClient();
+  const supabase = getClient();
   const { data, error } = await supabase
     .from("stories")
     .select("story_text")
@@ -238,7 +279,7 @@ export async function dbSaveStory(
 }
 
 export async function dbCountStories(slokaId: number): Promise<number> {
-  const supabase = await getClient();
+  const supabase = getClient();
   const { count, error } = await supabase
     .from("stories")
     .select("id", { count: "exact", head: true })
@@ -253,7 +294,7 @@ export type DbStoryVariant = { en: string; hi: string };
 export async function dbLoadStoryVariants(
   slokaId: number
 ): Promise<DbStoryVariant[]> {
-  const supabase = await getClient();
+  const supabase = getClient();
   const { data, error } = await supabase
     .from("stories")
     .select("language, story_text, variant_index")

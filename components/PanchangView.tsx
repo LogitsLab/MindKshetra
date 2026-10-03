@@ -9,7 +9,7 @@ import SpeakButton from "@/components/SpeakButton";
 import { SkeletonPanel } from "@/components/Skeleton";
 import { loreForPanchang, pickBlurb } from "@/lib/panchang-lore";
 
-type DailyPanchang = {
+export type DailyPanchang = {
   tithi: string;
   tithiIndex: number;
   nakshatra: string;
@@ -36,7 +36,7 @@ type DailyPanchang = {
   }>;
 };
 
-type VotdPayload = {
+export type VotdPayload = {
   id: number;
   ref: string;
   sloka?: {
@@ -54,14 +54,39 @@ function clockOf(iso: string | null): string | null {
   return m ? `${m[1]}:${m[2]}` : null;
 }
 
-export default function PanchangView() {
+/** Today in the panchang's zone (IST for the default New Delhi sky). */
+function todayIn(timeZone: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date());
+}
+
+type Props = {
+  /**
+   * Today's panchang rendered on the server (New Delhi, IST), so the page
+   * ships the tithi, nakshatra and timings in its HTML instead of a loading
+   * skeleton. The client refetches only if that render is from a previous day.
+   */
+  initialPanchang?: DailyPanchang | null;
+  initialVotd?: VotdPayload | null;
+};
+
+export default function PanchangView({
+  initialPanchang = null,
+  initialVotd = null,
+}: Props) {
   const { t, lang } = useLanguage();
-  const [panchang, setPanchang] = useState<DailyPanchang | null>(null);
-  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const [votd, setVotd] = useState<VotdPayload | null>(null);
+  const [panchang, setPanchang] = useState<DailyPanchang | null>(
+    initialPanchang
+  );
+  const [state, setState] = useState<"loading" | "ready" | "error">(
+    initialPanchang ? "ready" : "loading"
+  );
+  const [votd, setVotd] = useState<VotdPayload | null>(initialVotd);
 
   useEffect(() => {
     let cancelled = false;
+    const fresh =
+      initialPanchang && initialPanchang.date === todayIn(initialPanchang.ianaTz);
+    if (fresh && initialVotd) return;
     fetch("/api/panchang")
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error())))
       .then((data) => {
@@ -83,6 +108,8 @@ export default function PanchangView() {
     return () => {
       cancelled = true;
     };
+    // Mount-only: the server props never change for a mounted page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (state === "loading") {
