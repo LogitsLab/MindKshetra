@@ -44,6 +44,10 @@ export const en = {
   navSangha: "Community",
   navPrivacy: "Privacy",
   navAccount: "Account",
+  storeAppStoreKicker: "Download on the",
+  storeAppStore: "App Store",
+  storePlayKicker: "Get it on",
+  storePlay: "Google Play",
 } as const;
 
 export const hi: Record<keyof typeof en, string> = {
@@ -81,4 +85,8 @@ export const hi: Record<keyof typeof en, string> = {
   navSangha: "समुदाय",
   navPrivacy: "गोपनीयता",
   navAccount: "खाता",
+  storeAppStoreKicker: "डाउनलोड करें",
+  storeAppStore: "App Store",
+  storePlayKicker: "यहाँ पाएँ",
+  storePlay: "Google Play",
 };

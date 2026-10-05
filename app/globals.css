@@ -888,6 +888,26 @@ body {
   color: white;
 }
 
+.store-badge {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0.95rem 0.45rem 0.75rem;
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  background: rgba(7, 9, 15, 0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    border-color 0.3s ease,
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.store-badge:hover {
+  transform: translateY(-2px);
+  border-color: var(--brass-soft);
+}
+
 .home-arrow {
   display: inline-block;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
