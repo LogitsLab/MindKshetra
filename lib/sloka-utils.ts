@@ -1,4 +1,4 @@
-import type { Sloka } from "@/lib/types";
+import type { Mood, Sloka } from "@/lib/types";
 
 export function formatVerseRef(sloka: Sloka): string {
   return `${sloka.chapter}.${sloka.verse_number}`;
@@ -69,6 +69,27 @@ export function truncatePreview(text: string, max = PREVIEW_MAX_CHARS): string {
   return `${cut.trimEnd()}…`;
 }
 
+/**
+ * A verse trimmed for list pages (chapter, mood): the card shows two clamped
+ * lines of commentary, but full rows shipped every commentary and word gloss
+ * twice — once as HTML, once in the hydration payload. /explore/2 was 564 KB,
+ * and the same commentary paragraph appeared on three URLs.
+ */
+export const CARD_COMMENTARY_MAX_CHARS = 220;
+
+export function toCardSloka(sloka: Sloka): Sloka {
+  return {
+    ...sloka,
+    english_meaning: sloka.english_meaning
+      ? truncatePreview(sloka.english_meaning, CARD_COMMENTARY_MAX_CHARS)
+      : undefined,
+    hindi_meaning: sloka.hindi_meaning
+      ? truncatePreview(sloka.hindi_meaning, CARD_COMMENTARY_MAX_CHARS)
+      : undefined,
+    word_meanings: undefined,
+  };
+}
+
 export function toRelatedVersePreview(sloka: Sloka): RelatedVersePreview {
   return {
     id: sloka.id,
@@ -80,15 +101,36 @@ export function toRelatedVersePreview(sloka: Sloka): RelatedVersePreview {
 }
 
 /**
+ * Deterministic per-(page, candidate) hash: a stable, well-spread tie-break so
+ * equally related verses rotate across pages instead of always resolving to
+ * the earliest chapter.
+ */
+function tieSpread(currentId: number, candidateId: number): number {
+  let h = Math.imul(currentId, 0x9e3779b1) ^ Math.imul(candidateId, 0x85ebca77);
+  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
+  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
+  return (h ^ (h >>> 16)) >>> 0;
+}
+
+/**
  * Rank candidate verses by how many tags they share with `current`.
  *
  * - the current verse itself is excluded
  * - zero-overlap candidates are dropped
- * - ties break deterministically by chapter, then verse number
+ * - equal overlap breaks by tag rarity (sharing a rare tag says more than
+ *   sharing a common one), then by a deterministic per-page spread
+ * - at most one verse per chapter until every chapter is used, then the
+ *   remaining slots fill in rank order
+ *
+ * Ties used to break by chapter, then verse number. With only 26 tags most
+ * candidates tie, so every page linked the same early verses: 2.2 received 65
+ * related links, 36% of all links pointed at chapters 1–2, and 245 verses
+ * received none. Prerendered into all 701 pages, so it must stay pure and
+ * deterministic.
  *
  * Candidates typically come from `getSlokasByTags(current.tags)`, which
- * returns every verse sharing at least one tag; this reduces that pool to the
- * strongest few. Pure and isomorphic so it can be unit-tested directly.
+ * returns every verse sharing at least one tag — so tag frequency within the
+ * pool equals corpus frequency for the tags that matter here.
  */
 export function rankRelatedSlokas(
   current: Sloka,
@@ -97,26 +139,81 @@ export function rankRelatedSlokas(
 ): Sloka[] {
   const currentTags = new Set(current.tags);
   const seen = new Set<number>();
+  const pool = candidates.filter((s) => {
+    if (s.id === current.id || seen.has(s.id)) return false;
+    seen.add(s.id);
+    return true;
+  });
 
-  return candidates
-    .filter((s) => {
-      if (s.id === current.id || seen.has(s.id)) return false;
-      seen.add(s.id);
-      return true;
+  const frequency = new Map<string, number>();
+  for (const s of pool) {
+    for (const t of Array.from(new Set(s.tags))) {
+      if (currentTags.has(t)) frequency.set(t, (frequency.get(t) ?? 0) + 1);
+    }
+  }
+
+  const ranked = pool
+    .map((sloka) => {
+      const shared = Array.from(new Set(sloka.tags)).filter((t) =>
+        currentTags.has(t)
+      );
+      const rarity = shared.reduce(
+        (sum, t) => sum + 1 / (frequency.get(t) ?? 1),
+        0
+      );
+      return {
+        sloka,
+        overlap: shared.length,
+        rarity: Math.round(rarity * 1e6),
+        spread: tieSpread(current.id, sloka.id),
+      };
     })
-    .map((sloka) => ({
-      sloka,
-      overlap: new Set(sloka.tags.filter((t) => currentTags.has(t))).size,
-    }))
     .filter(({ overlap }) => overlap > 0)
     .sort(
       (a, b) =>
-        b.overlap - a.overlap ||
-        a.sloka.chapter - b.sloka.chapter ||
-        a.sloka.verse_number - b.sloka.verse_number
+        b.overlap - a.overlap || b.rarity - a.rarity || a.spread - b.spread
     )
-    .slice(0, limit)
     .map(({ sloka }) => sloka);
+
+  const picked: Sloka[] = [];
+  const chaptersUsed = new Set<number>();
+  for (const sloka of ranked) {
+    if (picked.length >= limit) break;
+    if (chaptersUsed.has(sloka.chapter)) continue;
+    chaptersUsed.add(sloka.chapter);
+    picked.push(sloka);
+  }
+  for (const sloka of ranked) {
+    if (picked.length >= limit) break;
+    if (!picked.includes(sloka)) picked.push(sloka);
+  }
+  return picked;
+}
+
+export type MoodLink = { id: string; label: string; labelHi: string };
+
+/**
+ * Mood pages whose tags this verse carries, strongest overlap first. Verse
+ * pages linked their themes only to `/explore?q=` search URLs, so the mood
+ * pages — the landing pages people search for — got no links from the 701
+ * verses that feed them.
+ */
+export function relatedMoods(
+  sloka: Sloka,
+  moods: Mood[],
+  limit = 3
+): MoodLink[] {
+  const tags = new Set(sloka.tags);
+  return moods
+    .map((mood, order) => ({
+      mood,
+      order,
+      overlap: mood.tags.filter((t) => tags.has(t)).length,
+    }))
+    .filter(({ overlap }) => overlap > 0)
+    .sort((a, b) => b.overlap - a.overlap || a.order - b.order)
+    .slice(0, limit)
+    .map(({ mood }) => ({ id: mood.id, label: mood.label, labelHi: mood.labelHi }));
 }
 
 export const SEARCH_SUGGESTIONS = [

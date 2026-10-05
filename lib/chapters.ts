@@ -6,6 +6,8 @@ export type ChapterMeta = {
   /** Hindi common title (not transliteration of English). */
   name_hi?: string;
   name_sanskrit: string;
+  /** Romanised Sanskrit name searchers use ("Sankhya Yoga"). */
+  name_romanized?: string;
   verses_count: number;
   summary: string;
   summary_hi?: string;
@@ -22,6 +24,11 @@ export function getChapterMetas(): ChapterMeta[] {
 
 export function getChapterMeta(number: number): ChapterMeta | undefined {
   return chapters.find((c) => c.number === number);
+}
+
+/** "Sankhya Yoga" — falls back to the English name for older data. */
+export function chapterRomanizedName(meta: ChapterMeta): string {
+  return meta.name_romanized?.trim() || meta.name;
 }
 
 export function chapterMoral(

@@ -1,5 +1,49 @@
+/**
+ * Hosts that serve the production deployment but must not be indexed as a
+ * second copy of the site. Page paths 308 to the brand domain; `/api/`,
+ * `/auth/`, `/_next/` and `/.well-known/` are exempt because the mobile app's
+ * API base and in-flight OAuth returns still use mind.logitslab.com, and a
+ * cross-origin redirect drops the Authorization header.
+ * Keep in sync with LEGACY_HOSTS in lib/site.ts.
+ */
+const LEGACY_HOSTS = ["mind\\.logitslab\\.com", "mindkshetra\\.vercel\\.app"];
+const LEGACY_EXEMPT = "(?!api(?:/|$)|auth(?:/|$)|_next/|\\.well-known/)";
+
+const SECURITY_HEADERS = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  // Madhav's voice input needs the microphone; nothing uses the camera.
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(self), geolocation=(self)",
+  },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  poweredByHeader: false,
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
+  async headers() {
+    return [
+      { source: "/:path*", headers: SECURITY_HEADERS },
+      // public/ files are not content-hashed, so they shipped with
+      // max-age=0 and were revalidated on every page view. A day of
+      // freshness plus a week of stale-while-revalidate keeps edits visible
+      // within a day without re-downloading the hero on every navigation.
+      {
+        source: "/:dir(images|brand|ornaments|icons)/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       // WS6 rename: the surface is /community now; shared /sangha links keep
@@ -18,6 +62,22 @@ const nextConfig = {
         destination: "https://mindkshetra.in/:path*",
         permanent: true,
       },
+      // One canonical origin: legacy production hosts hand page traffic to
+      // the brand domain (see LEGACY_HOSTS above for the exemptions).
+      ...LEGACY_HOSTS.flatMap((host) => [
+        {
+          source: "/",
+          has: [{ type: "host", value: host }],
+          destination: "https://mindkshetra.in/",
+          permanent: true,
+        },
+        {
+          source: `/:path(${LEGACY_EXEMPT}.+)`,
+          has: [{ type: "host", value: host }],
+          destination: "https://mindkshetra.in/:path",
+          permanent: true,
+        },
+      ]),
     ];
   },
   experimental: {
@@ -43,6 +103,8 @@ const nextConfig = {
       // boundary. Same trap as documented in CLAUDE.md — keep them in sync.
       "/": ["./ephemeris/**"],
       "/verse-of-the-day": ["./ephemeris/**"],
+      // /panchang server-renders today's panchang (computeDailyPanchang).
+      "/panchang": ["./ephemeris/**"],
       "/api/votd/**": ["./ephemeris/**"],
       "/api/cron/votd-email": ["./ephemeris/**"],
       "/api/cron/push-dispatch": ["./ephemeris/**"],

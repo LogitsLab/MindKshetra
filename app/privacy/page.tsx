@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy · MindKshetra",
+export const metadata: Metadata = pageMetadata({
+  title: "Privacy policy",
   description:
     "How MindKshetra collects, uses, and protects data on web and mobile.",
-};
+  path: "/privacy",
+});
 
 const updated = "1 August 2026";
 

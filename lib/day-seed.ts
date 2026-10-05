@@ -68,9 +68,11 @@ function orderedByRef(slokas: Sloka[]): Sloka[] {
   );
 }
 
-// One selection per IST day per process — the home page renders this on every
-// request and must not recompute ephemeris math each time.
-let cached: { day: string; selection: VotdSelection | null } | null = null;
+// One selection per IST day per process. A map, not a single slot: the home
+// page asks for today and the two previous days in one render, and a
+// one-entry cache let those three evict each other on every request.
+const selections = new Map<string, Promise<VotdSelection | null>>();
+const MAX_CACHED_DAYS = 8;
 
 /**
  * Nakshatra-driven verse of the day: today's Moon nakshatra maps to verse
@@ -82,10 +84,17 @@ export async function getVerseOfTheDaySelection(
   now = new Date()
 ): Promise<VotdSelection | null> {
   const day = istDay(now);
-  if (cached?.day === day) return cached.selection;
-
-  const selection = await computeSelection(now);
-  cached = { day, selection };
+  let selection = selections.get(day);
+  if (!selection) {
+    selection = computeSelection(now);
+    selections.set(day, selection);
+    // A failed computation must not be cached for the rest of the day.
+    selection.catch(() => selections.delete(day));
+    if (selections.size > MAX_CACHED_DAYS) {
+      const oldest = selections.keys().next().value;
+      if (oldest !== undefined) selections.delete(oldest);
+    }
+  }
   return selection;
 }
 

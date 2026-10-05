@@ -1,5 +1,7 @@
 import { ImageResponse } from "@vercel/og";
+import { truncatePreview } from "@/lib/sloka-utils";
 import { getSlokaById } from "@/lib/slokas";
+import { versePopularName } from "@/lib/verse-names";
 
 export const runtime = "nodejs";
 
@@ -14,8 +16,13 @@ export async function GET(
   }
 
   const ref = `${sloka.chapter}.${sloka.verse_number}`;
-  const sanskrit = (sloka.sanskrit_devanagari ?? "").slice(0, 120);
-  const english = (sloka.english_translation ?? "").slice(0, 180);
+  const name = versePopularName(sloka.chapter, sloka.verse_number);
+  // IAST, not Devanagari: Satori has no Indic shaping, so the Devanagari came
+  // out with broken conjuncts (visible halants, misplaced i-mātrā) — a
+  // misspelled verse on every share of a scripture site. Latin with
+  // diacritics renders correctly.
+  const transliteration = truncatePreview(sloka.transliteration_iast ?? "", 130);
+  const english = truncatePreview(sloka.english_translation ?? "", 180);
 
   return new ImageResponse(
     (
@@ -33,7 +40,7 @@ export async function GET(
         }}
       >
         <div style={{ display: "flex", fontSize: 28, color: "#c9a227" }}>
-          MindKshetra · {ref}
+          {`Bhagavad Gita ${ref}${name ? ` · ${name}` : ""}`}
         </div>
         <div
           style={{
@@ -44,7 +51,7 @@ export async function GET(
             justifyContent: "center",
           }}
         >
-          {sanskrit}
+          {transliteration}
         </div>
         <div
           style={{
@@ -55,6 +62,9 @@ export async function GET(
           }}
         >
           {english}
+        </div>
+        <div style={{ display: "flex", fontSize: 20, color: "#c9a227" }}>
+          mindkshetra.in
         </div>
       </div>
     ),

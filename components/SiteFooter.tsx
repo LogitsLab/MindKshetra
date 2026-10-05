@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BRAND_NAME } from "@/components/BrandWordmark";
+import { StoreTextLinks } from "@/components/StoreLinks";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function SiteFooter() {
@@ -18,7 +19,7 @@ export default function SiteFooter() {
         <p className="text-xs text-[var(--text-muted)]">
           © {year} {BRAND_NAME} by{" "}
           <a
-            href="https://logitslab.com"
+            href="https://www.logitslab.com"
             target="_blank"
             rel="noopener noreferrer"
             className="transition hover:text-[var(--brass-soft)]"
@@ -57,6 +58,7 @@ export default function SiteFooter() {
           >
             {t("navAccount")}
           </Link>
+          <StoreTextLinks />
           {process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL ? (
             <a
               href={process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL}

@@ -82,6 +82,9 @@ export default function ChapterPageClient({
         />
         <p className="eyebrow text-[var(--brass-soft)]">
           {t("chapter")} {chapter}
+          {/* The romanised name ("Sankhya Yoga") is how the chapter is
+              searched and cited; it appeared nowhere on the page. */}
+          {meta?.name_romanized ? ` · ${meta.name_romanized}` : ""}
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--text)] sm:text-5xl">
           {chapterTitle(meta, lang, `${t("chapter")} ${chapter}`)}

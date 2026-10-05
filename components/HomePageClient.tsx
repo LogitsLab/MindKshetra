@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import SpeakButton from "@/components/SpeakButton";
+import { StoreBadges } from "@/components/StoreLinks";
 import { stopNarration } from "@/lib/audio/narration";
 
 export type FeaturedVerse = {
@@ -422,13 +423,15 @@ export default function HomePageClient({
 
         <div className="relative z-10 mx-auto w-full max-w-[80rem] px-5 sm:px-8 lg:px-10 xl:px-12">
           <div className="max-w-3xl">
-            <h1 className="animate-rise whitespace-nowrap font-display text-[clamp(2.75rem,5.2vw,5.25rem)] font-semibold leading-[0.95] tracking-tight text-white">
+            {/* The wordmark is the brand, not the page's subject: the H1 is the
+                tagline, which says what the site is about. Same styles. */}
+            <p className="animate-rise whitespace-nowrap font-display text-[clamp(2.75rem,5.2vw,5.25rem)] font-semibold leading-[0.95] tracking-tight text-white">
               MindKshetra
-            </h1>
-
-            <p className="animate-rise-delay-2 mt-5 max-w-xl font-display text-[clamp(1.25rem,1.9vw,1.75rem)] leading-snug text-[var(--brass-hover)] sm:mt-6">
-              {t("homeTagline")}
             </p>
+
+            <h1 className="animate-rise-delay-2 mt-5 max-w-xl font-display text-[clamp(1.25rem,1.9vw,1.75rem)] leading-snug text-[var(--brass-hover)] sm:mt-6">
+              {t("homeTagline")}
+            </h1>
             <p className="animate-rise-delay-3 mt-4 max-w-lg text-sm font-light leading-relaxed text-white/80 sm:text-base">
               {t("homeBody")}
             </p>
@@ -453,6 +456,7 @@ export default function HomePageClient({
                 {t("homeCtaExplore")}
               </Link>
             </div>
+            <StoreBadges className="animate-rise-delay-4 mt-4" />
           </div>
         </div>
 

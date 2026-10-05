@@ -1,11 +1,25 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import JsonLd from "@/components/JsonLd";
 import SlokaPageClient from "@/components/SlokaPageClient";
-import { getChapterMeta } from "@/lib/chapters";
+import { chapterRomanizedName, getChapterMeta } from "@/lib/chapters";
+import { verseCredits } from "@/lib/commentary-sources";
+import { getAllMoods } from "@/lib/moods";
+import {
+  breadcrumbNode,
+  gitaBookNode,
+  pageMetadata,
+  publisherRef,
+  SCHEMA_IDS,
+  verseSeoDescription,
+  verseSeoTitle,
+} from "@/lib/seo";
+import { absoluteUrl } from "@/lib/site";
 import {
   formatVerseRef,
   metaDescription,
   rankRelatedSlokas,
+  relatedMoods,
   toRelatedVersePreview,
 } from "@/lib/sloka-utils";
 import {
@@ -15,10 +29,9 @@ import {
   getSlokasByTags,
   getTeachingPassage,
 } from "@/lib/slokas";
+import { versePopularName } from "@/lib/verse-names";
 
 type Props = { params: { id: string } };
-
-const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // Verse content is immutable; pre-rendering all 701 pages makes navigation
 // (and Link prefetch) instant instead of a cold SSR round-trip per click.
@@ -28,147 +41,150 @@ const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 // table still shows ● but the prerender manifest stays empty).
 export const dynamic = "force-static";
 export const revalidate = 86400;
-export const dynamicParams = true;
+// Every valid id is prerendered above; anything else is a real 404 from the
+// router (it used to render on demand as a cached 200 + noindex soft 404).
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const all = await getAllSlokas();
   return all.map((sloka) => ({ id: String(sloka.id) }));
 }
 
+async function loadSloka(rawId: string) {
+  const id = Number(rawId);
+  return Number.isInteger(id) ? getSlokaById(id) : undefined;
+}
+
 /**
- * Per-verse share cards.
- *
- * `/api/og/verse/[id]` has been rendering a proper card — the ref, the
- * Devanagari, the translation — since it was built, and not one of the 701
- * verse pages referenced it. Every share of every verse showed the same
- * generic site image, which is to say sharing a verse communicated nothing
- * about the verse. This is the whole fix: point at the route that already
- * exists.
- *
- * Image URLs stay relative; `metadataBase` in the root layout makes them
- * absolute. JSON-LD cannot rely on that, so it builds its own.
+ * Per-verse share cards come from `/api/og/verse/[id]`; image URLs stay
+ * relative and `metadataBase` in the root layout makes them absolute.
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const id = Number(params.id);
-  const sloka = Number.isInteger(id) ? await getSlokaById(id) : null;
-  if (!sloka) return {};
+  const sloka = await loadSloka(params.id);
+  // notFound() here, not `return {}`: metadata resolves before the root
+  // loading boundary streams, so this is what makes a bad id a real 404.
+  if (!sloka) notFound();
 
   const ref = formatVerseRef(sloka);
-  const chapter = getChapterMeta(sloka.chapter);
-  const title = chapter
-    ? `Bhagavad Gita ${ref} · ${chapter.name}`
-    : `Bhagavad Gita ${ref}`;
-  const description = metaDescription(sloka.english_translation);
-  const url = `/sloka/${sloka.id}`;
-  const image = `/api/og/verse/${sloka.id}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical: url },
-    openGraph: {
-      type: "article",
-      url,
-      title,
-      description,
-      images: [{ url: image, width: 1200, height: 630, alt: `Bhagavad Gita ${ref}` }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [image],
-    },
-  };
+  return pageMetadata({
+    title: verseSeoTitle(ref, versePopularName(sloka.chapter, sloka.verse_number)),
+    description: verseSeoDescription(ref, sloka.english_translation),
+    path: `/sloka/${sloka.id}`,
+    type: "article",
+    image: { url: `/api/og/verse/${sloka.id}`, alt: `Bhagavad Gita ${ref}` },
+  });
 }
 
 export default async function SlokaPage({ params }: Props) {
-  const id = Number(params.id);
-  if (!Number.isInteger(id)) notFound();
-
-  const sloka = await getSlokaById(id);
+  const sloka = await loadSloka(params.id);
   if (!sloka) notFound();
+  const id = sloka.id;
 
-  const [{ prev, next }, passage, tagMatches] = await Promise.all([
+  const [{ prev, next }, passage, tagMatches, moods] = await Promise.all([
     getAdjacentSlokas(id),
     getTeachingPassage(id),
     sloka.tags.length > 0 ? getSlokasByTags(sloka.tags) : Promise.resolve([]),
+    getAllMoods(),
   ]);
 
   // Related-verse interlinks ride the static prerender (SEO + engagement):
   // ranked server-side by shared-tag overlap, serialized as slim previews.
-  const related = rankRelatedSlokas(sloka, tagMatches).map(
-    toRelatedVersePreview
-  );
+  // Verses in this page's teaching passage are already listed there.
+  const passageIds = new Set(passage?.verses.map((v) => v.id) ?? []);
+  const related = rankRelatedSlokas(
+    sloka,
+    tagMatches.filter((s) => !passageIds.has(s.id))
+  ).map(toRelatedVersePreview);
 
   const ref = formatVerseRef(sloka);
   const chapterMeta = getChapterMeta(sloka.chapter);
+  const popularName = versePopularName(sloka.chapter, sloka.verse_number);
+  const credits = verseCredits(sloka.chapter, sloka.verse_number);
+  const moodLinks = relatedMoods(sloka, moods);
 
-  // One @graph rather than two <script> tags: the breadcrumb and the article
-  // describe the same page, and a single node set lets the article reference
-  // the trail by id instead of restating it.
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "BreadcrumbList",
-        "@id": `${site}/sloka/${sloka.id}#breadcrumb`,
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "MindKshetra", item: site },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "Bhagavad Gita",
-            item: `${site}/explore`,
-          },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: chapterMeta
-              ? `Chapter ${sloka.chapter}: ${chapterMeta.name}`
-              : `Chapter ${sloka.chapter}`,
-            item: `${site}/explore/${sloka.chapter}`,
-          },
-          { "@type": "ListItem", position: 4, name: `Verse ${ref}` },
-        ],
+  const path = `/sloka/${id}`;
+  const pageUrl = absoluteUrl(path);
+  const chapterPath = `/explore/${sloka.chapter}`;
+  const chapterName = chapterMeta
+    ? `Chapter ${sloka.chapter}: ${chapterRomanizedName(chapterMeta)}`
+    : `Chapter ${sloka.chapter}`;
+
+  /**
+   * The page is about a verse of a scripture, not an article MindKshetra
+   * wrote, so the main entity is the verse itself, placed in its chapter and
+   * in the Bhagavad Gita (Wikidata Q46802). Translation and commentary are
+   * credited to their actual authors.
+   */
+  const graph = [
+    {
+      "@type": "WebPage",
+      "@id": `${pageUrl}#webpage`,
+      url: pageUrl,
+      name: verseSeoTitle(ref, popularName),
+      description: metaDescription(sloka.english_translation),
+      inLanguage: "en",
+      isPartOf: { "@id": SCHEMA_IDS.website() },
+      breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+      primaryImageOfPage: absoluteUrl(`/api/og/verse/${id}`),
+      mainEntity: { "@id": `${pageUrl}#verse` },
+      publisher: publisherRef(),
+    },
+    {
+      "@type": "CreativeWork",
+      "@id": `${pageUrl}#verse`,
+      name: `Bhagavad Gita ${ref}`,
+      ...(popularName ? { alternateName: popularName } : {}),
+      position: sloka.verse_number,
+      inLanguage: "sa",
+      text: sloka.sanskrit_devanagari,
+      isPartOf: {
+        "@type": "Chapter",
+        "@id": `${absoluteUrl(chapterPath)}#chapter`,
+        name: chapterName,
+        position: sloka.chapter,
+        url: absoluteUrl(chapterPath),
+        isPartOf: { "@id": gitaBookNode()["@id"] },
       },
-      {
-        "@type": "Article",
-        "@id": `${site}/sloka/${sloka.id}#article`,
-        mainEntityOfPage: `${site}/sloka/${sloka.id}`,
-        headline: `Bhagavad Gita ${ref}`,
-        description: metaDescription(sloka.english_translation),
-        image: `${site}/api/og/verse/${sloka.id}`,
-        inLanguage: "en",
-        articleSection: chapterMeta?.name ?? `Chapter ${sloka.chapter}`,
-        keywords: sloka.tags.join(", "),
-        isPartOf: {
-          "@type": "Book",
-          name: "Bhagavad Gita",
-          inLanguage: "sa",
+      ...(sloka.tags.length > 0
+        ? { keywords: sloka.tags.map((t) => t.replace(/_/g, " ")).join(", ") }
+        : {}),
+      workTranslation: [
+        {
+          "@type": "CreativeWork",
+          inLanguage: "en",
+          text: sloka.english_translation,
+          // A modernised adaptation, so "based on" rather than "translator".
+          ...(credits.englishTranslation
+            ? {
+                isBasedOn: {
+                  "@type": "CreativeWork",
+                  author: { "@type": "Person", name: credits.englishTranslation },
+                },
+              }
+            : {}),
         },
-        breadcrumb: { "@id": `${site}/sloka/${sloka.id}#breadcrumb` },
-        publisher: {
-          "@type": "Organization",
-          name: "MindKshetra",
-          url: site,
-          logo: `${site}/brand/mark.svg`,
+        {
+          "@type": "CreativeWork",
+          inLanguage: "hi",
+          text: sloka.hindi_translation,
+          ...(credits.hindiTranslation
+            ? { translator: { "@type": "Person", name: credits.hindiTranslation } }
+            : {}),
         },
-      },
-    ],
-  };
+      ],
+    },
+    gitaBookNode(),
+    breadcrumbNode(path, [
+      { name: "MindKshetra", path: "/" },
+      { name: "Bhagavad Gita", path: "/explore" },
+      { name: chapterName, path: chapterPath },
+      { name: `Verse ${ref}` },
+    ]),
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        // JSON.stringify does not escape "<", so a literal "</script>" anywhere
-        // in the data would close this tag early. The content layer is ours, but
-        // the escape costs nothing and the failure mode is XSS.
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
-        }}
-      />
+      <JsonLd graph={graph} />
       <SlokaPageClient
         sloka={sloka}
         chapterMeta={chapterMeta}
@@ -176,6 +192,9 @@ export default async function SlokaPage({ params }: Props) {
         next={next}
         passage={passage}
         related={related}
+        popularName={popularName}
+        credits={credits}
+        moodLinks={moodLinks}
       />
     </>
   );
