@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BRAND_NAME } from "@/components/BrandWordmark";
+import { StoreTextLinks } from "@/components/StoreLinks";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function SiteFooter() {
@@ -57,6 +58,7 @@ export default function SiteFooter() {
           >
             {t("navAccount")}
           </Link>
+          <StoreTextLinks />
           {process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL ? (
             <a
               href={process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL}

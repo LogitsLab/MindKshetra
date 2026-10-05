@@ -17,6 +17,10 @@ export const BRAND_ORIGIN = PRODUCTION_ORIGIN;
 export const LEGACY_ORIGIN = "https://mind.logitslab.com";
 export const DEV_ORIGIN = "https://mind-dev.logitslab.com";
 
+export const APP_STORE_URL = "https://apps.apple.com/app/id6795863564";
+export const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=app.mindkshetra.mobile";
+
 export const PRODUCTION_HOSTS = [
   "mindkshetra.in",
   "www.mindkshetra.in",

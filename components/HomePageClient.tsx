@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import SpeakButton from "@/components/SpeakButton";
+import { StoreBadges } from "@/components/StoreLinks";
 import { stopNarration } from "@/lib/audio/narration";
 
 export type FeaturedVerse = {
@@ -455,6 +456,7 @@ export default function HomePageClient({
                 {t("homeCtaExplore")}
               </Link>
             </div>
+            <StoreBadges className="animate-rise-delay-4 mt-4" />
           </div>
         </div>
 
