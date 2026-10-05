@@ -18,7 +18,7 @@ export default function SiteFooter() {
         <p className="text-xs text-[var(--text-muted)]">
           © {year} {BRAND_NAME} by{" "}
           <a
-            href="https://logitslab.com"
+            href="https://www.logitslab.com"
             target="_blank"
             rel="noopener noreferrer"
             className="transition hover:text-[var(--brass-soft)]"

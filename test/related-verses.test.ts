@@ -10,8 +10,9 @@ import type { Sloka } from "@/lib/types";
 /**
  * T5 — related-verse interlinks on the verse page. The section is prerendered
  * into all 701 static pages, so the ranking must be pure and deterministic:
- * tag-overlap count first, then chapter/verse order. A flaky tie-break would
- * churn every prerender diff.
+ * tag-overlap count first, then tag rarity, then a stable per-page spread,
+ * one verse per chapter first. A flaky tie-break would churn every prerender
+ * diff; a chapter-order tie-break sent every page's links to chapter 2.
  */
 
 function makeSloka(partial: Partial<Sloka> & { id: number }): Sloka {
@@ -55,32 +56,52 @@ describe("rankRelatedSlokas", () => {
     expect(rankRelatedSlokas(current, [stranger])).toEqual([]);
   });
 
-  it("breaks equal overlap deterministically by chapter, then verse", () => {
-    const late = makeSloka({
-      id: 20,
-      chapter: 18,
-      verse_number: 2,
-      tags: ["duty"],
+  it("prefers the rarer shared tag when overlap is equal", () => {
+    // "duty" is on four candidates, "detachment" on one: sharing the rare
+    // tag is the stronger signal.
+    const common = [11, 12, 13].map((id) =>
+      makeSloka({ id, chapter: 3, verse_number: id, tags: ["duty"] })
+    );
+    const rare = makeSloka({
+      id: 14,
+      chapter: 4,
+      verse_number: 1,
+      tags: ["duty", "detachment"].slice(1),
     });
-    const earlyChapterLateVerse = makeSloka({
-      id: 21,
-      chapter: 3,
-      verse_number: 30,
-      tags: ["duty"],
-    });
-    const earlyChapterEarlyVerse = makeSloka({
-      id: 22,
-      chapter: 3,
-      verse_number: 4,
-      tags: ["duty"],
-    });
+    const alsoDuty = makeSloka({ id: 15, chapter: 5, verse_number: 1, tags: ["duty"] });
+    const ranked = rankRelatedSlokas(current, [...common, alsoDuty, rare]);
+    expect(ranked[0].id).toBe(14);
+  });
 
-    const ranked = rankRelatedSlokas(current, [
-      late,
-      earlyChapterLateVerse,
-      earlyChapterEarlyVerse,
-    ]);
-    expect(ranked.map((s) => s.id)).toEqual([22, 21, 20]);
+  it("breaks ties deterministically, per page, without favouring early chapters", () => {
+    const pool = Array.from({ length: 40 }, (_, i) =>
+      makeSloka({
+        id: 200 + i,
+        chapter: 1 + (i % 18),
+        verse_number: 1 + Math.floor(i / 18),
+        tags: ["duty"],
+      })
+    );
+    const first = rankRelatedSlokas(current, pool).map((s) => s.id);
+    expect(rankRelatedSlokas(current, [...pool].reverse()).map((s) => s.id)).toEqual(first);
+
+    // Another page with the same tags gets a different, equally valid set.
+    const other = { ...current, id: 101 };
+    expect(rankRelatedSlokas(other, pool).map((s) => s.id)).not.toEqual(first);
+
+    // Ties no longer collapse onto chapter 1.
+    const chapters = rankRelatedSlokas(current, pool).map((s) => s.chapter);
+    expect(new Set(chapters).size).toBe(4);
+  });
+
+  it("spreads picks across chapters before repeating one", () => {
+    const pool = [
+      makeSloka({ id: 31, chapter: 2, verse_number: 1, tags: ["duty", "action"] }),
+      makeSloka({ id: 32, chapter: 2, verse_number: 2, tags: ["duty", "action"] }),
+      makeSloka({ id: 33, chapter: 6, verse_number: 1, tags: ["duty"] }),
+    ];
+    const ranked = rankRelatedSlokas(current, pool, 2);
+    expect(ranked.map((s) => s.chapter).sort()).toEqual([2, 6]);
   });
 
   it("caps at 4 by default and honours an explicit limit", () => {

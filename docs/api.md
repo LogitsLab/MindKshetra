@@ -1,8 +1,9 @@
 # MindKshetra API
 
 REST JSON endpoints for the web app and the Expo mobile app. Base URL is
-`NEXT_PUBLIC_SITE_URL` — production `https://mind.logitslab.com` (also served at
-`https://mindkshetra.in`), dev site
+`NEXT_PUBLIC_SITE_URL` — production `https://mindkshetra.in` (the API is also
+served at `https://mind.logitslab.com`, which the mobile app uses; page paths
+on that host redirect to the brand domain), dev site
 `https://mind-dev.logitslab.com`, local `http://localhost:3000`.
 
 The mobile client `MindKshetra-app/src/api/endpoints.ts` (in the

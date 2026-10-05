@@ -13,9 +13,14 @@ import VerseStory from "@/components/VerseStory";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useProgress } from "@/components/ProgressProvider";
 import type { ChapterMeta } from "@/lib/chapters";
+import type { VerseCredits } from "@/lib/commentary-sources";
 import type { Sloka } from "@/lib/types";
-import { formatVerseRef } from "@/lib/sloka-utils";
-import type { RelatedVersePreview, TeachingPassage } from "@/lib/sloka-utils";
+import { formatVerseRef, truncatePreview } from "@/lib/sloka-utils";
+import type {
+  MoodLink,
+  RelatedVersePreview,
+  TeachingPassage,
+} from "@/lib/sloka-utils";
 import {
   cleanCommentary,
   hasCommentary,
@@ -29,6 +34,11 @@ type Props = {
   next?: Sloka | null;
   passage?: TeachingPassage | null;
   related?: RelatedVersePreview[];
+  popularName?: string;
+  credits?: VerseCredits;
+  moodLinks?: MoodLink[];
+  /** "h2" where the page already has its own H1 (verse of the day). */
+  headingLevel?: "h1" | "h2";
 };
 
 export default function SlokaDetail({
@@ -38,6 +48,10 @@ export default function SlokaDetail({
   next = null,
   passage = null,
   related = [],
+  popularName,
+  credits,
+  moodLinks = [],
+  headingLevel = "h1",
 }: Props) {
   const { lang, t } = useLanguage();
   const { recordOpen, markManyComplete, isComplete } = useProgress();
@@ -54,9 +68,23 @@ export default function SlokaDetail({
 
   const translation =
     lang === "hi" ? sloka.hindi_translation : sloka.english_translation;
+  // Both translations ship in the HTML. The language toggle is client state
+  // and the server renders English, so the Hindi translation — complete for
+  // all 701 verses — existed only inside the hydration payload, where search
+  // engines do not read it.
+  const otherTranslation =
+    lang === "hi" ? sloka.english_translation : sloka.hindi_translation;
+  const Heading = headingLevel;
 
   const preferredMeaning =
     lang === "hi" ? sloka.hindi_meaning : sloka.english_meaning;
+  const commentaryCredit = credits
+    ? lang === "hi"
+      ? credits.hindiCommentary
+      : credits.englishCommentary
+    : lang === "hi"
+      ? t("commentarySourceHi")
+      : t("commentarySourceEn");
   const commentary = hasCommentary(preferredMeaning)
     ? cleanCommentary(preferredMeaning!)
     : "";
@@ -80,23 +108,42 @@ export default function SlokaDetail({
   return (
     <article className="animate-fade">
       <header className="border-b border-[var(--hairline)] pb-8 text-center">
-        <p className="eyebrow font-body text-[var(--brass-soft)]">
-          {/* Devanagari inside a tracked Latin eyebrow: the globals.css guard
-              only fires under html[lang="hi"], so an EN reader was getting
-              0.22em pulled through "भगवद्गीता" — matras off their base
-              consonants, exactly what DESIGN.md forbids. */}
-          <span className="font-devanagari tracking-normal">
-            {lang === "hi" ? "भगवद्गीता" : "Bhagavad Gita"}
-          </span>{" "}
-          · {formatVerseRef(sloka)}
-          {chapterTitle ? ` · ${chapterTitle}` : ""}
-          {progressLabel ? (
-            <>
-              <span className="mx-1.5 opacity-40">·</span>
-              {progressLabel}
-            </>
-          ) : null}
-        </p>
+        {/* Visible breadcrumb, matching the BreadcrumbList in the page's
+            JSON-LD. The verse ref moved into the H1 below. */}
+        <nav
+          aria-label={t("breadcrumbLabel")}
+          className="eyebrow font-body text-[var(--brass-soft)]"
+        >
+          <ol className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1">
+            <li>
+              <Link href="/explore" className="transition hover:text-[var(--brass)]">
+                {/* Devanagari inside a tracked Latin eyebrow: the globals.css
+                    guard only fires under html[lang="hi"], so an EN reader
+                    was getting 0.22em pulled through "भगवद्गीता" — matras off
+                    their base consonants, exactly what DESIGN.md forbids. */}
+                <span className="font-devanagari tracking-normal">
+                  {lang === "hi" ? "भगवद्गीता" : "Bhagavad Gita"}
+                </span>
+              </Link>
+            </li>
+            <li aria-hidden className="opacity-40">·</li>
+            <li>
+              <Link
+                href={`/explore/${sloka.chapter}`}
+                className="transition hover:text-[var(--brass)]"
+              >
+                {t("chapter")} {sloka.chapter}
+                {chapterTitle ? ` · ${chapterTitle}` : ""}
+              </Link>
+            </li>
+            {progressLabel ? (
+              <>
+                <li aria-hidden className="opacity-40">·</li>
+                <li>{progressLabel}</li>
+              </>
+            ) : null}
+          </ol>
+        </nav>
 
         <div className="relative mx-auto mt-6 max-w-3xl">
           {prev ? (
@@ -123,14 +170,29 @@ export default function SlokaDetail({
           {/* No `tracking-*` here: the html[lang="hi"] reset in globals.css only
               matches bracketed Tailwind values, so a bare `tracking-wide` slipped
               past it and tracked the verse in both languages. */}
-          <h1 className="space-y-3 font-devanagari text-[1.65rem] font-semibold leading-[1.75] text-[var(--text)] sm:text-[2rem] md:text-[2.15rem]">
-            {sanskritLines.map((line, i) => (
-              <span key={i} className="block">
-                {line}
-                {i < sanskritLines.length - 1 ? "।" : " ॥"}
-              </span>
-            ))}
-          </h1>
+          {/* The H1 names the verse the way it is searched ("Bhagavad Gita
+              2.47 · Karmanye Vadhikaraste") above the Devanagari it used to
+              consist of alone, which gave English queries nothing to match
+              in the page's main heading. */}
+          <Heading className="font-devanagari text-[1.65rem] font-semibold leading-[1.75] text-[var(--text)] sm:text-[2rem] md:text-[2.15rem]">
+            <span className="mb-3 block font-body text-sm font-medium leading-normal text-[var(--brass-soft)] sm:text-base">
+              {lang === "hi" ? (
+                <span className="font-devanagari">भगवद्गीता</span>
+              ) : (
+                "Bhagavad Gita"
+              )}{" "}
+              {formatVerseRef(sloka)}
+              {popularName ? ` · ${popularName}` : ""}
+            </span>
+            <span lang="sa" className="block space-y-3">
+              {sanskritLines.map((line, i) => (
+                <span key={i} className="block">
+                  {line}
+                  {i < sanskritLines.length - 1 ? "।" : " ॥"}
+                </span>
+              ))}
+            </span>
+          </Heading>
         </div>
 
         <div className="mx-auto mt-5 max-w-2xl space-y-1 text-base italic font-light leading-relaxed text-[var(--text-muted)] sm:text-lg">
@@ -223,6 +285,9 @@ export default function SlokaDetail({
           {t("readReflection")}
         </a>
         <Link
+          // A tool action, not a document: one prompt URL per verse would
+          // otherwise be 701 crawlable copies of the same chat shell.
+          rel="nofollow"
           href={`/madhav?prompt=${encodeURIComponent(
             lang === "hi"
               ? `श्लोक ${formatVerseRef(sloka)} के बारे में मुझे समझाइए — आज मेरे जीवन में इसका क्या अर्थ हो सकता है?`
@@ -260,6 +325,21 @@ export default function SlokaDetail({
             <p className="font-display text-xl leading-relaxed text-[var(--text)] sm:text-[1.35rem]">
               {translation}
             </p>
+            {otherTranslation ? (
+              <div className="mt-5">
+                <h3 className="eyebrow mb-2 text-[var(--text-muted)]">
+                  {t("otherTranslation")}
+                </h3>
+                <p
+                  lang={lang === "hi" ? "en" : "hi"}
+                  className={`text-[15px] font-light leading-relaxed text-[var(--text-soft)] ${
+                    lang === "hi" ? "" : "font-devanagari"
+                  }`}
+                >
+                  {otherTranslation}
+                </p>
+              </div>
+            ) : null}
           </div>
 
           <div className="h-px bg-[var(--line)]" />
@@ -278,9 +358,7 @@ export default function SlokaDetail({
                   ))}
                 </div>
                 <p className="mt-4 text-xs tracking-[0.12em] text-[var(--text-muted)]/70">
-                  {lang === "hi"
-                    ? t("commentarySourceHi")
-                    : t("commentarySourceEn")}
+                  {commentaryCredit}
                 </p>
               </>
             ) : (
@@ -344,7 +422,7 @@ export default function SlokaDetail({
                               {formatVerseRef(v)}
                             </span>
                             <span className="mt-1 block text-[15px] leading-relaxed text-[var(--text)]">
-                              {line}
+                              {truncatePreview(line)}
                             </span>
                           </p>
                         ) : (
@@ -355,8 +433,11 @@ export default function SlokaDetail({
                             <span className="font-display text-sm text-[var(--text-muted)]">
                               {formatVerseRef(v)}
                             </span>
-                            <span className="mt-1 block text-[15px] font-light leading-relaxed text-[var(--text-muted)] line-clamp-3">
-                              {line}
+                            {/* Previews, not full translations: printing every
+                                verse of the unit on every verse page made
+                                neighbouring pages 70–88% identical. */}
+                            <span className="mt-1 block text-[15px] font-light leading-relaxed text-[var(--text-muted)]">
+                              {truncatePreview(line)}
                             </span>
                           </Link>
                         )}
@@ -396,6 +477,29 @@ export default function SlokaDetail({
                   ))}
                 </dl>
               </details>
+            </>
+          )}
+
+          {moodLinks.length > 0 && (
+            <>
+              <div className="h-px bg-[var(--line)]" />
+              <div>
+                <h2 className="eyebrow mb-3 text-[var(--text-muted)]">
+                  {t("verseMoodLinks")}
+                </h2>
+                <ul className="flex flex-wrap gap-2">
+                  {moodLinks.map((mood) => (
+                    <li key={mood.id}>
+                      <Link
+                        href={`/mood/${mood.id}`}
+                        className="inline-block border border-[var(--brass)]/35 px-2.5 py-1 text-xs text-[var(--brass-soft)] transition hover:border-[var(--brass)] hover:text-[var(--text)]"
+                      >
+                        {lang === "hi" ? mood.labelHi : mood.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </>
           )}
 

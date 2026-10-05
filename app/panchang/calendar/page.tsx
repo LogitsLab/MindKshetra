@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import PanchangCalendarView from "@/components/PanchangCalendarView";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Panchang calendar · MindKshetra",
+export const metadata: Metadata = pageMetadata({
+  title: "Panchang calendar: tithi and nakshatra by month",
   description:
-    "Month view of tithi and nakshatra — same Swiss Ephemeris as today’s panchang.",
-};
+    "Month view of tithi, nakshatra and Gita festivals, computed with the Swiss Ephemeris at local sunrise. Tap any day for its full panchang.",
+  path: "/panchang/calendar",
+});
 
 export default function PanchangCalendarPage() {
   return (

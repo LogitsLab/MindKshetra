@@ -5,12 +5,14 @@ import {
   loadDailySits,
   loadSittingProgram,
 } from "@/lib/meditation";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Meditation course · MindKshetra",
+export const metadata: Metadata = pageMetadata({
+  title: "Free meditation course",
   description:
-    "A free progressive sit — foundation, habit, and deepening. Unlock day by day. Not japa, not a marketplace.",
-};
+    "A free progressive sitting course (foundation, habit and deepening) that unlocks day by day, plus short daily sits. Not japa, not a marketplace.",
+  path: "/meditation",
+});
 
 export default function MeditationPage() {
   const program = loadSittingProgram();

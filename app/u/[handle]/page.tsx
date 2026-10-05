@@ -1,35 +1,45 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { HANDLE_SHAPE } from "@/lib/profiles";
+import { NOINDEX } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Profile · MindKshetra",
-};
+type Props = { params: { handle: string } };
+
+const loadProfile = cache(async (rawHandle: string | undefined) => {
+  const handle = rawHandle?.toLowerCase();
+  if (!handle || !HANDLE_SHAPE.test(handle)) return null;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("public_profiles")
+    .select("handle, display_name, bio, avatar_key, created_at")
+    .eq("handle", handle)
+    .eq("is_public", true)
+    .maybeSingle();
+  return data;
+});
+
+/**
+ * Profiles are personal and thin, so they stay out of the index. The lookup
+ * runs here as well as in the page so an unknown handle 404s before the root
+ * loading boundary streams a 200 shell (React `cache` dedupes the query).
+ */
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const profile = await loadProfile(params.handle);
+  if (!profile) notFound();
+  return { ...NOINDEX, title: "Profile" };
+}
 
 /**
  * Public profile — deliberately quiet. A name, a line, since-when. No
  * activity feed, no streak numbers, no follower counts: presence without
  * performance.
  */
-export default async function ProfilePage({
-  params,
-}: {
-  params: { handle: string };
-}) {
-  const handle = params.handle?.toLowerCase();
-  if (!handle || !HANDLE_SHAPE.test(handle)) notFound();
-
-  const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from("public_profiles")
-    .select("handle, display_name, bio, avatar_key, created_at")
-    .eq("handle", handle)
-    .eq("is_public", true)
-    .maybeSingle();
-
+export default async function ProfilePage({ params }: Props) {
+  const profile = await loadProfile(params.handle);
   if (!profile) notFound();
 
   const since = new Date(profile.created_at as string).toLocaleDateString(

@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { configuredSiteOrigin } from "@/lib/site";
+import { configuredSiteOrigin, isProductionHost } from "@/lib/site";
 
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -16,6 +16,36 @@ function withCors(response: NextResponse, isApi: boolean): NextResponse {
     response.headers.set(key, value);
   }
   return response;
+}
+
+/**
+ * Every non-production host — mind-dev, Vercel preview URLs, the
+ * mindkshetra.vercel.app alias — serves a full copy of the site with
+ * self-referencing canonicals. Vercel only adds `X-Robots-Tag: noindex` to
+ * per-deployment URLs, not to custom aliases, so mind-dev was indexable.
+ * Keyed on the request host at runtime, so it holds however the build's env
+ * was set. The Host / X-Forwarded-Host headers are read rather than
+ * `nextUrl.hostname`, which can report the server's own hostname instead of
+ * the one the visitor asked for — and a wrong answer here would noindex the
+ * production site.
+ */
+function requestHostname(request: NextRequest): string {
+  const raw =
+    request.headers.get("x-forwarded-host") ??
+    request.headers.get("host") ??
+    request.nextUrl.hostname;
+  return raw.split(",")[0].trim().replace(/:\d+$/, "").toLowerCase();
+}
+
+function finalize(
+  response: NextResponse,
+  request: NextRequest,
+  isApi: boolean
+): NextResponse {
+  if (!isProductionHost(requestHostname(request))) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+  return withCors(response, isApi);
 }
 
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
@@ -57,8 +87,9 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isApi && isCrossSiteCookieWrite(request)) {
-    return withCors(
+    return finalize(
       NextResponse.json({ error: "Cross-site request rejected" }, { status: 403 }),
+      request,
       true
     );
   }
@@ -104,7 +135,7 @@ export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) {
-    return withCors(NextResponse.next(), isApi);
+    return finalize(NextResponse.next(), request, isApi);
   }
 
   // No Supabase auth cookies (sb-*) means there is no session to refresh —
@@ -113,7 +144,7 @@ export async function middleware(request: NextRequest) {
     .getAll()
     .some((c) => c.name.startsWith("sb-"));
   if (!hasAuthCookies) {
-    return withCors(NextResponse.next(), isApi);
+    return finalize(NextResponse.next(), request, isApi);
   }
 
   let response = NextResponse.next({ request });
@@ -140,7 +171,7 @@ export async function middleware(request: NextRequest) {
     await supabase.auth.getUser();
   }
 
-  return withCors(response, isApi);
+  return finalize(response, request, isApi);
 }
 
 export const config = {

@@ -10,6 +10,8 @@ import SkipLink from "@/components/SkipLink";
 import SiteFooter from "@/components/SiteFooter";
 import NavigationProgress from "@/components/NavigationProgress";
 import WelcomeGate from "@/components/WelcomeGate";
+import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
+import { configuredSiteOrigin } from "@/lib/site";
 import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -42,47 +44,35 @@ const devanagari = Noto_Serif_Devanagari({
   variable: "--font-devanagari",
 });
 
-function metadataBaseUrl(): URL {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  // Vercel "Sensitive" env pulls as the literal "[SENSITIVE]" into prebuilt CI.
-  if (raw && raw !== "[SENSITIVE]") {
-    try {
-      return new URL(raw);
-    } catch {
-      /* fall through */
-    }
-  }
-  return new URL("http://localhost:3000");
-}
+/**
+ * Absolute URLs (canonical, og:url, og:image) resolve against the canonical
+ * origin — the brand domain in production, mind-dev on the dev deployment.
+ * See lib/site.ts for why a legacy or local SITE_URL is never trusted here.
+ */
+const SITE_DESCRIPTION =
+  "Read all 701 Bhagavad Gita verses in Sanskrit, Hindi and English with word meanings, find verses for how you feel, see today's Panchang, and ask Madhav.";
 
 export const metadata: Metadata = {
-  metadataBase: metadataBaseUrl(),
-  title: "MindKshetra",
-  description:
-    "Clarity from the Gita, for the battlefield of the mind. Explore verses, match your mood, and talk with Madhav.",
+  metadataBase: new URL(configuredSiteOrigin()),
+  title: {
+    default: "MindKshetra — Bhagavad Gita verses, meanings and daily guidance",
+    template: "%s · MindKshetra",
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/brand/mark.svg" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
-    title: "MindKshetra",
-    description:
-      "Clarity from the Gita, for the battlefield of the mind. Explore verses, match your mood, and talk with Madhav.",
-    images: [
-      {
-        url: "/images/og.jpg",
-        width: 1200,
-        height: 630,
-        alt: "MindKshetra",
-      },
-    ],
     type: "website",
+    siteName: SITE_NAME,
+    locale: "en_IN",
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "MindKshetra",
-    description: "Clarity from the Gita, for the battlefield of the mind.",
-    images: ["/images/og.jpg"],
+    images: [DEFAULT_OG_IMAGE.url],
   },
 };
 
