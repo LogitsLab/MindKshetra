@@ -127,6 +127,7 @@ export function buildVotdHtml(opts: {
         <p style="margin: 0 0 8px;"><a href="${site}/sloka/${sloka.id}?ref=votd" style="color: #8a6a2f;">Full verse page →</a></p>
         <p style="margin: 0;"><a href="${site}/madhav" style="color: #8a6a2f;">Ask Madhav about this teaching →</a></p>
       </div>
+      <!-- votd-attachments -->
       <p style="margin-top: 24px; font-size: 12px; color: #888;">
         You can turn off Verse of the Day emails anytime in Account settings on MindKshetra.
       </p>
@@ -230,7 +231,11 @@ export async function sendVotdEmail(
   to: string,
   payload: VotdPayload,
   resendKey: string,
-  opts: { unsubscribeUrl?: string } = {}
+  opts: {
+    unsubscribeUrl?: string;
+    /** Base64 files. Built once per broadcast and reused for every recipient. */
+    attachments?: { filename: string; content: string }[];
+  } = {}
 ): Promise<{ ok: true; id?: string } | { ok: false; error: string; status: number }> {
   // RFC 2369 + RFC 8058: List-Unsubscribe with a one-click POST target keeps
   // Gmail/Yahoo bulk-sender compliance and gives readers a native way out.
@@ -254,6 +259,14 @@ export async function sendVotdEmail(
       html: payload.html,
       text: payload.text,
       ...(headers ? { headers } : {}),
+      ...(opts.attachments?.length
+        ? {
+            attachments: opts.attachments.map((file) => ({
+              filename: file.filename,
+              content: file.content,
+            })),
+          }
+        : {}),
     }),
   });
 
