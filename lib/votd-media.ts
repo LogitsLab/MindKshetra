@@ -67,7 +67,7 @@ export async function withVotdAttachments(payload: VotdPayload): Promise<{
         signal: AbortSignal.timeout(30_000),
       });
       attachments.push({
-        filename: reelFilename(payload.ref),
+        filename: reelFilename(),
         content: video.toString("base64"),
       });
     } catch (err) {

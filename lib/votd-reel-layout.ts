@@ -90,9 +90,9 @@ export function reelTimeline(audioSec: number): ReelTimeline {
   };
 }
 
-export function reelFilename(ref: string): string {
-  const safe = ref.replace(/[^0-9A-Za-z.]+/g, "-").replace(/^-+|-+$/g, "");
-  return `verse-of-the-day-${safe || "verse"}.mp4`;
+/** One name every day, so a stored copy replaces yesterday's reel. */
+export function reelFilename(): string {
+  return "verse-of-day.mp4";
 }
 
 export function attachmentNote(hasVideo: boolean): string {

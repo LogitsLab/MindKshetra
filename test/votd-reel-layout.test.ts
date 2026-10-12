@@ -53,8 +53,8 @@ describe("reelTimeline", () => {
 });
 
 describe("email attachments", () => {
-  it("names the reel from the verse ref", () => {
-    expect(reelFilename("5.25")).toBe("verse-of-the-day-5.25.mp4");
+  it("uses one filename so each day replaces the previous reel", () => {
+    expect(reelFilename()).toBe("verse-of-day.mp4");
   });
 
   it("tells the reader the reel is attached", () => {
