@@ -4,6 +4,7 @@ import {
   unsubscribeUrl,
 } from "@/lib/notifications/unsubscribe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { withVotdAttachments } from "@/lib/votd-media";
 import { loadTodaysVotdPayload, sendVotdEmail } from "@/lib/votd-email";
 
 export const dynamic = "force-dynamic";
@@ -95,6 +96,17 @@ export async function GET(request: NextRequest) {
     if (page > 50) break; // safety cap
   }
 
+  // One reel for the whole list, and only once we know someone will receive
+  // it. A failed render leaves the letter as it was: the broadcast still
+  // goes out, just without the file.
+  let delivery: Awaited<ReturnType<typeof withVotdAttachments>> = {
+    payload,
+    attachments: [],
+  };
+  if (recipients.length > 0) {
+    delivery = await withVotdAttachments(payload);
+  }
+
   let sent = 0;
   let failed = 0;
   const errors: { email: string; error: string }[] = [];
@@ -106,7 +118,7 @@ export async function GET(request: NextRequest) {
   const unsubLinkFor = (userId: string): string | undefined => {
     if (!unsubConfigured) return undefined;
     try {
-      return unsubscribeUrl(userId, payload.site);
+      return unsubscribeUrl(userId, delivery.payload.site);
     } catch (err) {
       if (err instanceof UnsubscribeConfigError) {
         unsubConfigured = false;
@@ -118,9 +130,15 @@ export async function GET(request: NextRequest) {
   };
 
   for (const recipient of recipients) {
-    const result = await sendVotdEmail(recipient.email, payload, resendKey, {
-      unsubscribeUrl: unsubLinkFor(recipient.id),
-    });
+    const result = await sendVotdEmail(
+      recipient.email,
+      delivery.payload,
+      resendKey,
+      {
+        unsubscribeUrl: unsubLinkFor(recipient.id),
+        attachments: delivery.attachments,
+      }
+    );
     if (result.ok) {
       sent += 1;
     } else {
@@ -134,18 +152,20 @@ export async function GET(request: NextRequest) {
   }
 
   console.info("[cron/votd-email]", {
-    ref: payload.ref,
+    ref: delivery.payload.ref,
     recipients: recipients.length,
     sent,
     failed,
+    media: delivery.attachments.map((file) => file.filename),
   });
 
   return NextResponse.json({
     ok: true,
-    ref: payload.ref,
+    ref: delivery.payload.ref,
     recipients: recipients.length,
     sent,
     failed,
+    media: delivery.attachments.map((file) => file.filename),
     errors: errors.length ? errors : undefined,
   });
 }
