@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 import { requireSupabase } from "@/lib/supabase/require";
 import { getAuthUserId, createClient } from "@/lib/supabase/server";
 import { rateLimit, clientKey } from "@/lib/rateLimit";
+import { withVotdAttachments } from "@/lib/votd-media";
 import {
   loadTodaysVotdPayload,
   sendVotdEmail,
 } from "@/lib/votd-email";
+
+export const maxDuration = 60;
 
 export async function GET() {
   const resendKey = process.env.RESEND_API_KEY?.trim();
@@ -109,7 +112,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Verse unavailable" }, { status: 500 });
   }
 
-  const result = await sendVotdEmail(email, payload, resendKey);
+  const delivery = await withVotdAttachments(payload);
+  const result = await sendVotdEmail(email, delivery.payload, resendKey, {
+    attachments: delivery.attachments,
+  });
   if (!result.ok) {
     return NextResponse.json(
       { error: result.error, providerStatus: result.status },
@@ -117,5 +123,10 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ ok: true, ref: payload.ref, to: email });
+  return NextResponse.json({
+    ok: true,
+    ref: payload.ref,
+    to: email,
+    media: delivery.attachments.map((file) => file.filename),
+  });
 }

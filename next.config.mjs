@@ -81,7 +81,7 @@ const nextConfig = {
     ];
   },
   experimental: {
-    serverComponentsExternalPackages: ["sweph"],
+    serverComponentsExternalPackages: ["sweph", "ffmpeg-static", "@napi-rs/canvas"],
 
     // lib/astrology/swe.ts resolves the .se1 files at runtime with
     // path.join(process.cwd(), "ephemeris"). That is a runtime string, so Next's
@@ -106,7 +106,27 @@ const nextConfig = {
       // /panchang server-renders today's panchang (computeDailyPanchang).
       "/panchang": ["./ephemeris/**"],
       "/api/votd/**": ["./ephemeris/**"],
-      "/api/cron/votd-email": ["./ephemeris/**"],
+      "/api/cron/votd-email": [
+        "./ephemeris/**",
+        // The reel is painted at request time from these files. The paths are
+        // built with process.cwd(), so the tracer cannot see them — same trap
+        // as the ephemeris files above. ffmpeg and canvas are native binaries.
+        "./assets/reel/**",
+        "./node_modules/ffmpeg-static/**",
+        "./node_modules/@napi-rs/canvas/**",
+        "./node_modules/@napi-rs/canvas-linux-x64-gnu/**",
+        "./node_modules/@napi-rs/canvas-linux-arm64-gnu/**",
+        "./node_modules/@napi-rs/canvas-linux-x64-musl/**",
+      ],
+      "/api/votd/email": [
+        "./ephemeris/**",
+        "./assets/reel/**",
+        "./node_modules/ffmpeg-static/**",
+        "./node_modules/@napi-rs/canvas/**",
+        "./node_modules/@napi-rs/canvas-linux-x64-gnu/**",
+        "./node_modules/@napi-rs/canvas-linux-arm64-gnu/**",
+        "./node_modules/@napi-rs/canvas-linux-x64-musl/**",
+      ],
       "/api/cron/push-dispatch": ["./ephemeris/**"],
       "/api/panchang/**": ["./ephemeris/**"],
       // Madhav computes a chart inline when one is attached (app/api/chat
@@ -137,7 +157,7 @@ const nextConfig = {
     if (isServer) {
       config.externals = config.externals || [];
       if (Array.isArray(config.externals)) {
-        config.externals.push("sweph");
+        config.externals.push("sweph", "ffmpeg-static", "@napi-rs/canvas");
       }
     }
     return config;
