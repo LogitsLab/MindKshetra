@@ -261,7 +261,7 @@ async function renderFrames(dir: string, sloka: Sloka, ref: string): Promise<voi
   if (foot < H - 48) {
     verse.fillStyle = BRASS;
     verse.font = `28px "${SERIF}"`;
-    verse.fillText("Read the rest in the app", COL_X, foot);
+    verse.fillText("Go deeper in the MindKshetra app", COL_X, foot);
   }
 
   await writeFile(path.join(dir, "02-verse.png"), canvas.toBuffer("image/png"));
