@@ -16,8 +16,10 @@ import {
 import ffmpegStatic from "ffmpeg-static";
 import type { Sloka } from "@/lib/types";
 import {
-  reelTimeline,
+  dailyStoryTimeline,
+  istDayKey,
   sanskritLines,
+  startupStillName,
   type ReelTimeline,
 } from "@/lib/votd-reel-layout";
 
@@ -143,6 +145,50 @@ function drawLockup(ctx: SKRSContext2D, artwork: Image): void {
   ctx.drawImage(artwork, 0, (H - W) / 2, W, W);
 }
 
+function drawCover(ctx: SKRSContext2D, still: Image): void {
+  const scale = Math.max(W / still.width, H / still.height);
+  const dw = still.width * scale;
+  const dh = still.height * scale;
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(still, (W - dw) / 2, (H - dh) / 2, dw, dh);
+}
+
+/** Name sits in the middle of the frame, clear of the story chrome. */
+function drawCenterName(ctx: SKRSContext2D): void {
+  const band = ctx.createLinearGradient(0, 720, 0, 1180);
+  band.addColorStop(0, "rgba(1, 6, 10, 0)");
+  band.addColorStop(0.32, "rgba(1, 6, 10, 0.5)");
+  band.addColorStop(0.5, "rgba(1, 6, 10, 0.62)");
+  band.addColorStop(0.68, "rgba(1, 6, 10, 0.5)");
+  band.addColorStop(1, "rgba(1, 6, 10, 0)");
+  ctx.fillStyle = band;
+  ctx.fillRect(0, 720, W, 460);
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = CREAM;
+  ctx.font = `68px "${SERIF}"`;
+  ctx.fillText("MindKshetra", W / 2, 900);
+
+  ctx.fillStyle = BRASS;
+  ctx.font = `22px "${SERIF}"`;
+  const credit = "BY LOGITSLAB";
+  const gap = 3.2;
+  let width = 0;
+  for (const ch of credit) width += ctx.measureText(ch).width + gap;
+  width -= gap;
+  let x = (W - width) / 2;
+  const y = 980;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  for (const ch of credit) {
+    ctx.fillText(ch, x, y);
+    x += ctx.measureText(ch).width + gap;
+  }
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+}
+
 function fitLines(
   ctx: SKRSContext2D,
   family: string,
@@ -160,21 +206,13 @@ function fitLines(
   return size;
 }
 
-async function renderFrames(dir: string, sloka: Sloka, ref: string): Promise<void> {
-  ensureFonts();
-  const artwork = await loadImage(asset("lockup.jpg"));
-  const lotus = lotusMark(artwork);
-
-  const intro = createCanvas(W, H);
-  const introCtx = intro.getContext("2d");
-  introCtx.fillStyle = BG;
-  introCtx.fillRect(0, 0, W, H);
-  drawLockup(introCtx, artwork);
-  await writeFile(path.join(dir, "01-intro.png"), intro.toBuffer("image/png"));
-
-  const verse = paintBase();
-  const canvas = verse.canvas;
-  verse.drawImage(lotus, (W - lotus.width) / 2, 86);
+function paintVerseText(
+  verse: SKRSContext2D,
+  sloka: Sloka,
+  ref: string,
+  lotus: Canvas | null
+): void {
+  if (lotus) verse.drawImage(lotus, (W - lotus.width) / 2, 86);
   verse.textBaseline = "top";
   verse.fillStyle = BRASS;
   verse.font = `22px "${SERIF}"`;
@@ -263,8 +301,30 @@ async function renderFrames(dir: string, sloka: Sloka, ref: string): Promise<voi
     verse.font = `28px "${SERIF}"`;
     verse.fillText("Go deeper in the MindKshetra app", COL_X, foot);
   }
+}
 
-  await writeFile(path.join(dir, "02-verse.png"), canvas.toBuffer("image/png"));
+async function renderFrames(
+  dir: string,
+  sloka: Sloka,
+  ref: string,
+  still: Image
+): Promise<void> {
+  ensureFonts();
+  const artwork = await loadImage(asset("lockup.jpg"));
+  const lotus = lotusMark(artwork);
+
+  const intro = createCanvas(W, H);
+  const introCtx = intro.getContext("2d");
+  drawCover(introCtx, still);
+  drawCenterName(introCtx);
+  await writeFile(path.join(dir, "01-intro.png"), intro.toBuffer("image/png"));
+
+  const verse = paintBase();
+  paintVerseText(verse, sloka, ref, lotus);
+  await writeFile(
+    path.join(dir, "02-verse.png"),
+    verse.canvas.toBuffer("image/png")
+  );
 
   const end = createCanvas(W, H);
   const endCtx = end.getContext("2d");
@@ -319,10 +379,12 @@ function encodeArgs(dir: string, timeline: ReelTimeline): string[] {
     "-i", path.join(dir, "recitation.m4a"),
     "-filter_complex",
     [
-      "[0:v]format=yuv420p,setsar=1[v0]",
-      "[1:v]format=yuv420p,setsar=1[v1]",
-      "[2:v]format=yuv420p,setsar=1[v2]",
-      `[v0][v1]xfade=transition=fade:duration=${n(timeline.xfade)}:offset=${n(timeline.offset1)}[x1]`,
+      "[0:v]fps=30,format=yuv420p,setsar=1[v0]",
+      "[1:v]fps=30,format=yuv420p,setsar=1[v1]",
+      "[2:v]fps=30,format=yuv420p,setsar=1[v2]",
+      timeline.openFade > 0
+        ? `[v0][v1]xfade=transition=fade:duration=${n(timeline.openFade)}:offset=${n(timeline.offset1)}[x1]`
+        : "[v0][v1]concat=n=2:v=1:a=0,fps=30,settb=1/30[x1]",
       `[x1][v2]xfade=transition=fade:duration=${n(timeline.xfade)}:offset=${n(timeline.offset2)}[v]`,
       `[3:a]adelay=${delay}|${delay},afade=t=in:st=${n(timeline.audioDelay)}:d=${n(timeline.fadeIn)},afade=t=out:st=${n(timeline.fadeOut)}:d=${n(timeline.fadeOutDur)},apad=whole_dur=${n(timeline.total + 0.5)}[a]`,
     ].join(";"),
@@ -341,23 +403,27 @@ function encodeArgs(dir: string, timeline: ReelTimeline): string[] {
   ];
 }
 
-/** Paint the approved dark reel and mux today's recitation under the verse card. */
+/** Paint the daily story and mux today's recitation under the verse card. */
 export async function renderVotdReel(input: {
   sloka: Sloka;
   ref: string;
   audio: Buffer;
   signal?: AbortSignal;
+  /** IST day key. Tests can pin it; the morning job uses today. */
+  day?: string;
 }): Promise<Buffer> {
   const dir = await mkdtemp(path.join(tmpdir(), "votd-reel-"));
   const execOpts = { maxBuffer: 8 * 1024 * 1024, signal: input.signal };
   try {
     const audioPath = path.join(dir, "recitation.m4a");
     await writeFile(audioPath, input.audio);
-    await renderFrames(dir, input.sloka, input.ref);
+    const day = input.day ?? istDayKey();
+    const still = await loadImage(asset("stills", startupStillName(day)));
+    await renderFrames(dir, input.sloka, input.ref, still);
     const duration = await probeDuration(audioPath, input.signal);
     await execFileAsync(
       ffmpegBin(),
-      encodeArgs(dir, reelTimeline(duration)),
+      encodeArgs(dir, dailyStoryTimeline(duration)),
       execOpts
     );
     return await readFile(path.join(dir, "reel.mp4"));

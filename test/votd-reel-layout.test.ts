@@ -3,9 +3,13 @@ import slokas from "../data/slokas.json";
 import {
   applyAttachmentNote,
   attachmentNote,
+  dailyStoryTimeline,
+  istDayKey,
   reelFilename,
   reelTimeline,
   sanskritLines,
+  startupStillName,
+  storyTimeline,
 } from "@/lib/votd-reel-layout";
 
 const VERSE_5_25 =
@@ -36,6 +40,7 @@ describe("reelTimeline", () => {
   it("holds the verse card for the recitation and fades as the approved reel did", () => {
     const timeline = reelTimeline(28.055);
     expect(timeline.intro).toBe(2.8);
+    expect(timeline.openFade).toBe(0.5);
     expect(timeline.verse).toBe(28.055);
     expect(timeline.offset1).toBeCloseTo(2.3, 5);
     expect(timeline.offset2).toBeCloseTo(29.855, 5);
@@ -44,6 +49,33 @@ describe("reelTimeline", () => {
     expect(timeline.offset2).toBeLessThan(
       timeline.intro + timeline.verse - timeline.xfade
     );
+  });
+
+  it("opens a story on a half-second still and keeps the store card", () => {
+    const timeline = storyTimeline(28.055, 0.5);
+    expect(timeline.intro).toBe(0.5);
+    expect(timeline.openFade).toBe(0);
+    expect(timeline.end).toBe(5.2);
+    expect(timeline.xfade).toBe(0.5);
+    expect(timeline.audioDelay).toBe(0.5);
+    expect(timeline.offset2).toBeCloseTo(28.055, 5);
+    expect(timeline.verse).toBe(28.055);
+  });
+
+  it("holds the named startup still for one second before the shloka", () => {
+    const timeline = dailyStoryTimeline(12);
+    expect(timeline.intro).toBe(1);
+    expect(timeline.audioDelay).toBe(1);
+    expect(timeline.openFade).toBe(0);
+    expect(timeline.end).toBe(5.2);
+    expect(timeline.offset2).toBeCloseTo(12.5, 5);
+  });
+
+  it("picks the same startup still for a given day", () => {
+    expect(startupStillName("2026-10-13")).toBe("19.jpg");
+    expect(startupStillName("2026-10-13")).toBe(startupStillName("2026-10-13"));
+    expect(startupStillName("2026-10-14")).not.toBe("");
+    expect(istDayKey(new Date("2026-10-13T20:30:00.000Z"))).toBe("2026-10-14");
   });
 
   it("caps a runaway recording so the mail stays a short reel", () => {
