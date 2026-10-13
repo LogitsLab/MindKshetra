@@ -8,7 +8,7 @@ import {
   sendVotdEmail,
 } from "@/lib/votd-email";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function GET() {
   const resendKey = process.env.RESEND_API_KEY?.trim();

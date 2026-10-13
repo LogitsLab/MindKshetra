@@ -8,7 +8,7 @@ import { withVotdAttachments } from "@/lib/votd-media";
 import { loadTodaysVotdPayload, sendVotdEmail } from "@/lib/votd-email";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 function authorizeCron(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET?.trim();

@@ -58,13 +58,14 @@ export async function withVotdAttachments(payload: VotdPayload): Promise<{
 
     try {
       const { renderVotdReel } = await import("@/lib/votd-reel");
-      // Leave the rest of the 60s cron for the send loop. Past this, the
-      // letter still goes out without the reel.
+      // The production function allows 300s. Keep most of that for the
+      // encode so a slow machine still attaches the reel, and leave the
+      // remainder for the send loop.
       const video = await renderVotdReel({
         sloka: payload.sloka,
         ref: payload.ref,
         audio,
-        signal: AbortSignal.timeout(30_000),
+        signal: AbortSignal.timeout(240_000),
       });
       attachments.push({
         filename: reelFilename(),
