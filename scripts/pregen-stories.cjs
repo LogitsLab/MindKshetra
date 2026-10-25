@@ -134,7 +134,8 @@ No title, no preface, no English sentences. No <think> tags — only the Hindi s
 
 async function groqComplete(apiKey, prompt, temperature) {
   let lastReason = "empty";
-  for (let attempt = 0; attempt < 2; attempt++) {
+  // A few attempts: qwen occasionally degenerates, but rarely the same way twice.
+  for (let attempt = 0; attempt < 4; attempt++) {
     const res = await fetch(GROQ_URL, {
       method: "POST",
       headers: {
@@ -194,6 +195,7 @@ async function main() {
 
   let generated = 0;
   let skipped = 0;
+  const failed = [];
 
   for (const sloka of targets) {
     for (const variant of args.variants) {
@@ -212,39 +214,50 @@ async function main() {
       }
 
       process.stdout.write(`g${sloka.id}.v${variant}…`);
-      const en = await groqComplete(
-        groqKey,
-        buildStoryPrompt(sloka, variant),
-        0.85
-      );
-      await sleep(400);
-      const hi = await groqComplete(groqKey, buildTranslatePrompt(en), 0.4);
+      // One bad verse must not abort the whole batch: log it and move on.
+      // Re-running the script resumes (skip-existing) and retries failures.
+      try {
+        const en = await groqComplete(
+          groqKey,
+          buildStoryPrompt(sloka, variant),
+          0.85
+        );
+        await sleep(400);
+        const hi = await groqComplete(groqKey, buildTranslatePrompt(en), 0.4);
 
-      const { error } = await supabase.from("stories").upsert(
-        [
-          {
-            sloka_id: sloka.id,
-            language: "en",
-            story_text: en,
-            variant_index: variant,
-          },
-          {
-            sloka_id: sloka.id,
-            language: "hi",
-            story_text: hi,
-            variant_index: variant,
-          },
-        ],
-        { onConflict: "sloka_id,language,variant_index" }
-      );
-      if (error) throw error;
-      generated++;
-      process.stdout.write("ok ");
+        const { error } = await supabase.from("stories").upsert(
+          [
+            {
+              sloka_id: sloka.id,
+              language: "en",
+              story_text: en,
+              variant_index: variant,
+            },
+            {
+              sloka_id: sloka.id,
+              language: "hi",
+              story_text: hi,
+              variant_index: variant,
+            },
+          ],
+          { onConflict: "sloka_id,language,variant_index" }
+        );
+        if (error) throw error;
+        generated++;
+        process.stdout.write("ok ");
+      } catch (err) {
+        failed.push(`${sloka.id}.v${variant}`);
+        const msg = (err && err.message ? err.message : String(err)).slice(0, 50);
+        process.stdout.write(`FAIL(${msg}) `);
+      }
       await sleep(DELAY_MS);
     }
   }
 
-  console.log(`\nDone. Generated ${generated}, skipped ${skipped}.`);
+  console.log(
+    `\nDone. Generated ${generated}, skipped ${skipped}, failed ${failed.length}.`
+  );
+  if (failed.length) console.log(`Failed items: ${failed.join(", ")}`);
 }
 
 main().catch((err) => {
