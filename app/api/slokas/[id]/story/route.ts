@@ -208,10 +208,13 @@ export async function POST(request: NextRequest, { params }: Params) {
   }
 
   const storyKey = passage.anchorId;
+  // How many variants already exist → rotate the protagonist for the next one.
+  const existingForVariant = await getCachedStory(storyKey, lang);
   const genMeta = {
     title: passage.titleEn,
     theme: passage.themeEn,
     mode: passage.mode,
+    variantIndex: existingForVariant?.total ?? 0,
   };
 
   try {

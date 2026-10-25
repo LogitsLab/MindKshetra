@@ -109,7 +109,7 @@ export const hi: Record<keyof typeof en, string> = {
   sadhanaSignInHint: "अपनी साधना का क्रम बनाए रखने के लिए साइन इन करें।",
   sadhanaHomeLink: "आज की साधना आरंभ करें",
   sadhanaHomeBody: "एक श्लोक, एक छोटी बैठक, एक शांत पंक्ति।",
-  sadhanaChartVerse: "आज का Pressure→Practice श्लोक लें",
+  sadhanaChartVerse: "आज का ‘दबाव-से-साधना’ श्लोक लें",
   sadhanaChartVerseBlurb:
     "कुंडली का मुख्य दबाव एक गीता श्लोक से मिलता है, वैकल्पिक, अनिवार्य नहीं।",
   sadhanaPathDayHint: "मार्ग का दिन, यह श्लोक, फिर बैठें और पूर्ण करें।",
