@@ -42,7 +42,12 @@ function parseArgs(argv) {
 }
 
 function stripThink(text) {
-  return text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  // Remove complete reasoning blocks, then — if qwen spent its budget inside an
+  // UNCLOSED <think> (no closing tag), drop everything from the opening tag on.
+  let out = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  const open = out.search(/<think>/i);
+  if (open !== -1) out = out.slice(0, open);
+  return out.replace(/<\/?think>/gi, "").trim();
 }
 
 // Mirror of lib/groq.ts looksDegenerate — catch the qwen repetition-loop
@@ -142,6 +147,9 @@ async function groqComplete(apiKey, prompt, temperature) {
         // Deeper stories + token-heavy Devanagari can overrun 900 and truncate.
         max_tokens: 1200,
         stream: false,
+        // Without this, qwen3 spends the whole budget inside <think> and the
+        // "story" is its reasoning dump (matches lib/groq.ts completeStory).
+        reasoning_effort: "none",
         // Discourage the qwen repetition-loop failure mode on the Hindi pass.
         frequency_penalty: 0.4,
         messages: [{ role: "user", content: prompt }],
