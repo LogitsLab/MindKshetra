@@ -471,7 +471,7 @@ export const hi: Record<keyof typeof en, string> = {
   astroSaveAsMember: "नाम वाले सदस्य के रूप में सहेजें",
   astroNewChart: "दूसरी कुंडली बनाएँ",
   astroGuestChart: "जन्म कुंडली",
-  astroEngineNote: "स्विस एफमेरिस (लाहिरि) · ऐतिहासिक समय क्षेत्र · Manage Charts या सहेजें चुनने तक कुछ नहीं सहेजा जाता।",
+  astroEngineNote: "स्विस एफमेरिस (लाहिरि) · ऐतिहासिक समय क्षेत्र · कुंडलियाँ प्रबंधित करें या सहेजें चुनने तक कुछ नहीं सहेजा जाता।",
   astroAsOf: "तिथि",
   astroTz: "समय क्षेत्र",
   astroAyanamsa: "अयनांश",

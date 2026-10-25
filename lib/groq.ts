@@ -323,12 +323,33 @@ export async function createGroqCompletion(
   return stripThinkBlocks(data.choices?.[0]?.message?.content ?? "");
 }
 
+/**
+ * A rotating cast so variants (and neighbouring verses) don't all collapse into
+ * the same nameless-professional-at-a-laptop scene. Indexed by verse id +
+ * variant in generateBilingualStory.
+ */
+const STORY_PERSONAS = [
+  "a student the night before results",
+  "a nurse at the end of a double shift",
+  "a new parent awake at 3 a.m.",
+  "a shopkeeper closing up alone",
+  "someone caring for an ageing parent",
+  "a delivery rider waiting out the rain",
+  "a schoolteacher with one unreachable child",
+  "someone a month into looking for work",
+  "a sibling after an argument that never resolved",
+  "a widow learning to cook for one",
+  "a farmer watching the sky for rain",
+  "a daughter who just moved back home",
+];
+
 export function buildStoryPrompt(
   passage: Sloka[],
   focus: Sloka,
   meta?: {
     title?: string;
     theme?: string;
+    personaHint?: string;
   }
 ): string {
   const tags = Array.from(
@@ -349,6 +370,9 @@ export function buildStoryPrompt(
 
   const title = meta?.title?.trim() || "Teaching passage";
   const theme = meta?.theme?.trim() || "a lived human struggle";
+  const personaLine = meta?.personaHint?.trim()
+    ? `\nCenter the scene on ${meta.personaHint.trim()} (or someone whose life rhymes with that). Do not fall back on a nameless "young professional".\n`
+    : "";
 
   return `You write short modern reflections for MindKshetra, a Bhagavad Gita reading app.
 
@@ -359,15 +383,15 @@ Passage (for YOUR understanding only — do NOT quote these lines, do NOT write 
 ${verseBlock}
 
 Theme tags: ${tags}
-
-Write ONE contemporary scene (160–260 words) in natural English that a tired, sincere adult can feel in their body — a student, parent, nurse, founder, sibling, caregiver, etc. Make it specific (place, gesture, small sensory detail). The emotional arc should mirror the FULL unit’s teaching, not only the focus line.
+${personaLine}
+Write ONE contemporary scene (220–320 words) in natural English that a tired, sincere adult can feel in their body. Give the person a specific life — a place, an hour, a gesture, one small sensory detail (a sound, a smell, the weight of something in the hand). Let it breathe in three movements: drop us into the moment, let the difficulty turn, then close as something quietly shifts. The emotional arc should mirror the FULL unit’s teaching, not only the focus line.
 
 Hard rules:
 - NOT a Mahabharata / Kurukshetra retelling
-- No Sanskrit, no chapter.verse citations, no "the Gita says"
+- No Sanskrit, no chapter.verse citations, no "the Gita says", no moral spelled out
 - Not preachy, not a worksheet, not bullet advice disguised as story
-- No template openers like "On an ordinary weekday" or "It feels a lot like…"
-- End with one quiet line the reader can carry
+- No template openers ("On an ordinary weekday", "In a crowded room", "It feels a lot like…", "Imagine a…")
+- End with ONE quiet, concrete line — an image or a small action the reader can carry, never a maxim or instruction
 
 No title. No <think> tags — only the story.`;
 }
@@ -404,51 +428,100 @@ No Mahabharata fan-fiction. No "Verse X.Y meets…". No title. No <think> tags.`
 }
 
 function buildTranslateStoryPrompt(englishStory: string): string {
-  return `Translate the following reflective text into natural Hindi (Devanagari).
+  return `Re-express the following reflection in natural, literary Hindi (Devanagari) — as if a thoughtful Hindi writer had written it first, not as a translation.
 
-Keep the SAME content: same characters, setting, events, and ending. Do not invent a new plot. Only change the language. No title, no preface.
+Keep the SAME content: same person, setting, events, turning point and ending. Do not invent a new plot, and do not add or drop scenes.
+
+Make the Hindi genuinely read like Hindi:
+- idiomatic Hindi rhythm and word order, never word-for-word from the English
+- everyday Hindi an ordinary reader speaks; let Sanskrit/dharma words (धर्म, कर्म, मन, साधना) appear only where they fall naturally, not forced in
+- transliterate names and modern things the way a Hindi speaker would (फ़ोन, बस, दफ़्तर)
+- keep the final line as quiet and concrete in Hindi as it is in English
 
 Text:
 ${englishStory}
 
-Do not include <think> tags or chain-of-thought — only the Hindi text.`;
+No title, no preface, no English sentences. No <think> tags — only the Hindi text.`;
+}
+
+/**
+ * Catch the qwen repetition-loop failure mode (a short phrase repeated dozens
+ * of times until the token cap) — seen in Hindi translation output. Any 3-word
+ * shingle that recurs more than 6 times means the model got stuck, not that the
+ * prose is legitimately repetitive.
+ */
+export function looksDegenerate(text: string): boolean {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length < 40) return false;
+  const counts = new Map<string, number>();
+  for (let i = 0; i + 3 <= words.length; i++) {
+    const key = `${words[i]} ${words[i + 1]} ${words[i + 2]}`;
+    const n = (counts.get(key) ?? 0) + 1;
+    counts.set(key, n);
+    if (n > 6) return true;
+  }
+  return false;
 }
 
 async function completeStory(prompt: string, temperature: number): Promise<string> {
-  const res = await groqRequest({
-    temperature,
-    max_tokens: 900,
-    stream: false,
-    reasoning_effort: "none",
-    messages: [{ role: "user", content: prompt }],
-  });
+  let lastReason = "empty";
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const res = await groqRequest({
+      temperature,
+      // Deeper stories (220–320 words) plus Devanagari, which is token-heavy,
+      // can overrun 900 and truncate mid-sentence; 1200 leaves headroom.
+      max_tokens: 1200,
+      stream: false,
+      reasoning_effort: "none",
+      // Discourage the verbatim repetition loop qwen can fall into on the Hindi
+      // pass; paired with the looksDegenerate guard + retry below.
+      frequency_penalty: 0.4,
+      messages: [{ role: "user", content: prompt }],
+    });
 
-  const data = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  const story = stripThinkBlocks(data.choices?.[0]?.message?.content ?? "").trim();
-  if (!story) {
-    throw new Error("Groq returned an empty story");
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    const story = stripThinkBlocks(data.choices?.[0]?.message?.content ?? "").trim();
+    if (story && !looksDegenerate(story)) return story;
+    lastReason = story ? "degenerate" : "empty";
   }
-  return story;
+  throw new Error(`Groq story generation failed (${lastReason})`);
 }
 
 /** Generate one story in English, then the same story in Hindi. */
 export async function generateBilingualStory(
   passage: Sloka[],
   focus: Sloka,
-  meta?: { title?: string; theme?: string; mode?: "teaching" | "scene" }
+  meta?: {
+    title?: string;
+    theme?: string;
+    mode?: "teaching" | "scene";
+    /** Rotate the protagonist so variant 2/3 aren't paraphrases of variant 1. */
+    variantIndex?: number;
+  }
 ): Promise<{ en: string; hi: string }> {
   const verses = passage.length > 0 ? passage : [focus];
+  const personaHint =
+    meta?.mode === "scene"
+      ? undefined
+      : STORY_PERSONAS[
+          Math.abs(focus.id + (meta?.variantIndex ?? 0)) % STORY_PERSONAS.length
+        ];
   const prompt =
     meta?.mode === "scene"
       ? buildSceneNotePrompt(verses, focus, {
           title: meta.title || "Scene",
           theme: meta.theme || "pause and see",
         })
-      : buildStoryPrompt(verses, focus, meta);
+      : buildStoryPrompt(verses, focus, {
+          title: meta?.title,
+          theme: meta?.theme,
+          personaHint,
+        });
   const en = await completeStory(prompt, meta?.mode === "scene" ? 0.55 : 0.85);
-  const hi = await completeStory(buildTranslateStoryPrompt(en), 0.3);
+  // 0.4 (was 0.3) loosens the Hindi just enough to read idiomatic, not literal.
+  const hi = await completeStory(buildTranslateStoryPrompt(en), 0.4);
   return { en, hi };
 }
 
