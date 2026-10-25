@@ -6,6 +6,7 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withVotdAttachments } from "@/lib/votd-media";
 import { loadTodaysVotdPayload, sendVotdEmail } from "@/lib/votd-email";
+import { isVotdBroadcastRecipient } from "@/lib/votd-recipients";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -87,6 +88,7 @@ export async function GET(request: NextRequest) {
       const email = user.email?.trim();
       if (!email) continue;
       if (user.is_anonymous) continue;
+      if (!isVotdBroadcastRecipient(email)) continue;
       if (optedOut.has(user.id)) continue;
       recipients.push({ id: user.id, email });
     }
