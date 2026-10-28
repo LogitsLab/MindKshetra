@@ -92,9 +92,9 @@ export default function Nav() {
           <Image
             src="/brand/mark.png"
             alt=""
-            width={28}
-            height={28}
-            className="shrink-0 opacity-90 transition group-hover:opacity-100"
+            width={55}
+            height={40}
+            className="h-8 w-auto shrink-0 opacity-90 transition group-hover:opacity-100 sm:h-10"
             priority
           />
           <BrandNavWordmark />
