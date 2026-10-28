@@ -90,7 +90,7 @@ export default function Nav() {
           onClick={() => setMenuOpen(false)}
         >
           <Image
-            src="/brand/mark.svg"
+            src="/brand/mark.png"
             alt=""
             width={28}
             height={28}
