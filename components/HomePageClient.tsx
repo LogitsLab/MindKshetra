@@ -457,6 +457,25 @@ export default function HomePageClient({
               </Link>
             </div>
             <StoreBadges className="animate-rise-delay-4 mt-4" />
+            {process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL ? (
+              <a
+                href={process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="animate-rise-delay-4 mt-4 inline-flex min-h-11 items-center gap-2 text-sm text-white/80 underline-offset-4 transition hover:text-[var(--brass-soft)] hover:underline"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="#25D366"
+                  aria-hidden
+                >
+                  <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.004c5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2Zm5.8 14.17c-.24.68-1.42 1.32-1.95 1.37-.5.05-.95.23-3.2-.67-2.7-1.06-4.42-3.8-4.56-3.98-.13-.18-1.1-1.46-1.1-2.79 0-1.33.7-1.98.95-2.25.24-.27.53-.34.7-.34.18 0 .35 0 .5.01.17.01.39-.06.6.46.24.56.82 1.94.9 2.08.07.14.12.3.02.48-.1.18-.15.3-.3.46-.14.17-.3.38-.44.5-.14.14-.29.3-.12.58.17.3.76 1.25 1.63 2.03 1.12 1 2.06 1.3 2.35 1.45.3.14.47.12.64-.07.18-.2.74-.86.94-1.16.2-.3.4-.25.66-.15.27.1 1.7.8 1.99.95.3.14.5.21.57.33.07.12.07.68-.17 1.36Z" />
+                </svg>
+                {t("homeJoinWhatsApp")}
+              </a>
+            ) : null}
           </div>
         </div>
 
