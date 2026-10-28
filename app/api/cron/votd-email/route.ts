@@ -7,6 +7,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { withVotdAttachments } from "@/lib/votd-media";
 import { loadTodaysVotdPayload, sendVotdEmail } from "@/lib/votd-email";
 import { isVotdBroadcastRecipient } from "@/lib/votd-recipients";
+import {
+  publishVotdReel,
+  votdCommunityCaption,
+} from "@/lib/votd-community";
+import { reelFilename } from "@/lib/votd-reel-layout";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -109,6 +114,23 @@ export async function GET(request: NextRequest) {
     delivery = await withVotdAttachments(payload);
   }
 
+  // Same bytes the email attached. The public URL and caption are what the
+  // morning community announcement is posted from. A failed upload still
+  // sends the letter.
+  const video = delivery.attachments.find(
+    (file) => file.filename === reelFilename()
+  );
+  const community = video
+    ? await publishVotdReel({
+        bytes: Buffer.from(video.content, "base64"),
+        caption: votdCommunityCaption({
+          ref: delivery.payload.ref,
+          english: delivery.payload.sloka.english_translation,
+          verseUrl: `${delivery.payload.site}/sloka/${delivery.payload.sloka.id}`,
+        }),
+      })
+    : null;
+
   let sent = 0;
   let failed = 0;
   const errors: { email: string; error: string }[] = [];
@@ -159,6 +181,7 @@ export async function GET(request: NextRequest) {
     sent,
     failed,
     media: delivery.attachments.map((file) => file.filename),
+    community,
   });
 
   return NextResponse.json({
@@ -168,6 +191,7 @@ export async function GET(request: NextRequest) {
     sent,
     failed,
     media: delivery.attachments.map((file) => file.filename),
+    community,
     errors: errors.length ? errors : undefined,
   });
 }
