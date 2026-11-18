@@ -59,3 +59,12 @@ export function dailyVerseDedupeKey(
 ): string {
   return `daily-verse:${localDayInTz(tz, now)}`;
 }
+
+/** One festival/Ekadashi reminder per user per LOCAL day. */
+export function festivalReminderDedupeKey(
+  tz: string | null | undefined,
+  now: Date,
+  markId: string
+): string {
+  return `festival:${markId}:${localDayInTz(tz, now)}`;
+}

@@ -6,10 +6,12 @@
     "name_sanskrit": "अर्जुनविषादयोग",
     "name_romanized": "Arjuna Vishada Yoga",
     "verses_count": 47,
-    "summary": "The first chapter of the Bhagavad Gita - \"Arjuna Vishada Yoga\" introduces the setup, the setting, the characters and the circumstances that led to the epic battle of Mahabharata, fought between the Pandavas and the Kauravas. It outlines the reasons that led to the revelation of the Bhagavad Gita.",
-    "summary_hi": "भगवद्गीता का पहला अध्याय — अर्जुनविषादयोग — महाभारत के युद्ध की पृष्ठभूमि, पात्रों और परिस्थितियों का परिचय देता है, जहाँ अर्जुन का शोक गीता के उपदेश का आरंभ बनता है।",
-    "moral": "Honest sorrow is not weakness — naming your fear is the first step onto the field.",
-    "moral_hi": "सच्चा शोक कमज़ोरी नहीं — अपने भय को नाम देना ही क्षेत्र में पहला कदम है।"
+    "tags": ["battlefield", "grief", "duty", "kinship", "refusal"],
+    "tags_hi": ["युद्धभूमि", "शोक", "कर्तव्य", "स्नेह", "इंकार"],
+    "summary": "The Gita opens on Kurukshetra with the two armies already drawn up. Dhritarashtra asks Sanjaya what his sons and the Pandavas are doing; Sanjaya narrates. Duryodhana reviews the warriors on both sides for Drona. Conches sound. Arjuna asks Krishna to drive the chariot between the armies so he can see whom he must fight.\n\nWhen Arjuna looks, he sees teachers, cousins, uncles, and friends. His limbs weaken, his mouth dries, the Gandiva slips. He argues that killing kin will destroy family dharma and stain the winners. He would rather be killed unarmed than take part in this slaughter.\n\nThis chapter is the crisis that makes teaching necessary. Krishna has not yet given doctrine. Arjuna sits down in the chariot, overwhelmed. Everything that follows answers this moment.",
+    "summary_hi": "गीता कुरुक्षेत्र पर शुरू होती है — दोनों सेनाएँ खड़ी हैं। धृतराष्ट्र संजय से पूछते हैं कि उनके और पांडु के पुत्र क्या कर रहे हैं; संजय वर्णन करते हैं। दुर्योधन द्रोण के सामने दोनों पक्षों के योद्धा गिनाता है। शंख बजते हैं। अर्जुन कृष्ण से रथ सेनाओं के बीच ले जाने को कहते हैं, ताकि वे देख सकें कि किन्हें लड़ना है।\n\nजब अर्जुन देखते हैं, गुरु, चचेरे भाई, मामा, मित्र सब दिखते हैं। अंग शिथिल होते हैं, मुँह सूखता है, गांडीव ढीला पड़ता है। वे कहते हैं कि स्वजनों का वध कुल-धर्म नष्ट करेगा और विजेताओं को कलंकित करेगा। वे निहत्थे मारे जाना बेहतर समझते हैं।\n\nयह अध्याय वह संकट है जिसके बिना उपदेश की ज़रूरत ही नहीं पड़ती। कृष्ण ने अभी सिद्धांत नहीं दिया। अर्जुन रथ में बैठ जाते हैं। आगे का पूरा ग्रंथ इसी क्षण का उत्तर है।",
+    "moral": "Before any teaching: admit when duty and love collide, and stop pretending the choice is easy.",
+    "moral_hi": "उपदेश से पहले: जब कर्तव्य और स्नेह टकराएँ, स्वीकार करो — और यह न दिखाओ कि चुनाव आसान है।"
   },
   {
     "number": 2,
@@ -18,10 +20,12 @@
     "name_sanskrit": "सांख्ययोग",
     "name_romanized": "Sankhya Yoga",
     "verses_count": 72,
-    "summary": "The second chapter of the Bhagavad Gita is \"Sankhya Yoga\". This is the most important chapter of the Bhagavad Gita as Lord Krishna condenses the teachings of the entire Gita in this chapter.",
-    "summary_hi": "दूसरा अध्याय सांख्ययोग है। यहाँ श्रीकृष्ण आत्मा, कर्म और स्थिर बुद्धि का सार बताते हैं — पूरे गीता-उपदेश का बीज इसी अध्याय में है।",
-    "moral": "You have a right to action, not to fruits — steady wisdom acts without clinging to results.",
-    "moral_hi": "कर्म पर अधिकार है, फल पर नहीं — स्थिर बुद्धि परिणाम की आसक्ति के बिना कर्म करती है।"
+    "tags": ["self", "impermanence", "karma-yoga", "steady-wisdom", "duty"],
+    "tags_hi": ["आत्मा", "अनित्यता", "कर्मयोग", "स्थितप्रज्ञ", "कर्तव्य"],
+    "summary": "Krishna’s first reply mixes compassion with firmness. He tells Arjuna that the wise do not grieve for the living or the dead in the way of ordinary attachment, because the Self is not born and does not die with the body. Weapons cannot cut it; fire cannot burn it. Bodies pass like worn clothes.\n\nFrom that grounding he turns to Arjuna’s role as a warrior: for a kshatriya, a righteous battle is not optional theater. Then comes the teaching that later chapters expand — act, but do not cling to the fruit of action (famous around 2.47). Desire-driven action binds; even a little of this yoga saves from great fear.\n\nThe chapter closes with the portrait of the sthita-prajña: senses drawn in, mind steady in pleasure and pain, free of craving and ego-spikes. Chapter 2 is the Gita in miniature — Self, duty, detached action, and a mind that does not thrash.",
+    "summary_hi": "कृष्ण का पहला उत्तर करुणा और दृढ़ता दोनों रखता है। वे कहते हैं कि ज्ञानी जीवित या मृत के लिए साधारण आसक्ति जैसा शोक नहीं करते, क्योंकि आत्मा शरीर के साथ जन्म-मरण नहीं लेती। शस्त्र काट नहीं सकते; अग्नि जला नहीं सकती। शरीर पुराने वस्त्रों की तरह बदलते हैं।\n\nउसी आधार से वे अर्जुन की योद्धा-भूमिका पर आते हैं — क्षत्रिय के लिए धर्मयुद्ध ऐच्छिक नाटक नहीं। फिर वह शिक्षा आती है जो आगे के अध्याय खोलते हैं — कर्म करो, फल की आसक्ति मत रखो (विशेषकर २.४७ के आसपास)। कामना-प्रेरित कर्म बाँधता है; इस योग का थोड़ा भी अंश बड़े भय से बचाता है।\n\nअध्याय स्थितप्रज्ञ के चित्र पर समाप्त होता है — इंद्रियाँ समेटी हुईं, सुख-दुःख में स्थिर मन, तृष्णा और अहंकार के झटकों से मुक्त। अध्याय २ पूरा गीता का संक्षेप है — आत्मा, कर्तव्य, अनासक्त कर्म, और अशांत न होने वाला मन।",
+    "moral": "Know what does not die; then do your work without making the outcome your master.",
+    "moral_hi": "जो नहीं मरता उसे जानो; फिर काम करो बिना परिणाम को अपना स्वामी बनाए।"
   },
   {
     "number": 3,
@@ -30,10 +34,12 @@
     "name_sanskrit": "कर्मयोग",
     "name_romanized": "Karma Yoga",
     "verses_count": 43,
-    "summary": "The third chapter of the Bhagavad Gita is \"Karma Yoga\" or the \"Path of Selfless Service\". Here Lord Krishna emphasizes the importance of karma in life. He reveals that it is important for every human being to engage in some sort of activity in this material world.",
-    "summary_hi": "तीसरा अध्याय कर्मयोग है — निष्काम सेवा का मार्ग। श्रीकृष्ण बताते हैं कि संसार में रहकर भी कर्तव्य-कर्म आवश्यक है; निष्क्रियता मुक्ति नहीं।",
-    "moral": "Inaction is not freedom; selfless action done as duty purifies and uplifts life.",
-    "moral_hi": "निष्क्रियता मुक्ति नहीं; कर्तव्य रूप में किया निष्काम कर्म जीवन को शुद्ध और ऊँचा करता है।"
+    "tags": ["action", "sacrifice", "example", "desire", "anger"],
+    "tags_hi": ["कर्म", "यज्ञ", "आदर्श", "कामना", "क्रोध"],
+    "summary": "Arjuna is still confused: if knowledge is better, why push him into battle? Krishna refuses the fantasy of doing nothing. Nobody sits idle in truth; nature forces activity. The question is whether action is selfish or offered.\n\nHe describes work as yajña — participation in a cycle that sustains the world — and warns that a person who eats only for themselves lives in vain. Leaders must act carefully because others copy them (the lokasaṅgraha argument). Krishna cites his own constant activity without need.\n\nThe chapter ends by naming the inner enemies: desire and anger born of rajas, which steal knowledge. The way out is discipline of the senses and intellect, not quitting the field. Karma yoga here means engaged life without the poison of “mine.”",
+    "summary_hi": "अर्जुन अभी भी उलझे हैं — यदि ज्ञान श्रेष्ठ है तो युद्ध में क्यों धकेलना? कृष्ण “कुछ न करने” की कल्पना अस्वीकार करते हैं। सच में कोई निष्क्रिय नहीं बैठता; प्रकृति कर्म कराती है। प्रश्न यह है कि कर्म स्वार्थ का है या अर्पण का।\n\nवे कर्म को यज्ञ कहते हैं — उस चक्र में भागीदारी जो जगत चलाती है — और चेतावनी देते हैं कि केवल अपने लिए खाने वाला व्यर्थ जीता है। नेताओं को सावधानी से कर्म करना चाहिए क्योंकि दूसरे उनकी नकल करते हैं (लोकसंग्रह)। कृष्ण स्वयं बिना आवश्यकता के भी निरंतर कर्म का उदाहरण देते हैं।\n\nअध्याय अंत में भीतरी शत्रु नाम देता है — रजस् से जन्मी कामना और क्रोध, जो ज्ञान चुरा लेते हैं। मार्ग इंद्रिय-बुद्धि का अनुशासन है, मैदान छोड़ना नहीं। यहाँ कर्मयोग का अर्थ है “मेरा” के विष के बिना सक्रिय जीवन।",
+    "moral": "Stay in necessary work; purify motive. Desire and anger — not the job itself — are what bind.",
+    "moral_hi": "ज़रूरी काम में रहो; हेतु शुद्ध करो। बाँधता काम नहीं — कामना और क्रोध बाँधते हैं।"
   },
   {
     "number": 4,
@@ -42,10 +48,12 @@
     "name_sanskrit": "ज्ञानकर्मसंन्यासयोग",
     "name_romanized": "Jnana Karma Sanyasa Yoga",
     "verses_count": 42,
-    "summary": "The fourth chapter of the Bhagavad Gita is \"Jnana Karma Sanyasa Yoga\". In this chapter, Krishna glorifies the Karma Yoga and imparts the Transcendental Knowledge (the knowledge of the soul and the Ultimate Truth) to Arjuna.",
-    "summary_hi": "चौथा अध्याय ज्ञानकर्मसंन्यासयोग है। इसमें श्रीकृष्ण कर्मयोग की महिमा और आत्मा तथा परम सत्य का ज्ञान अर्जुन को देते हैं।",
-    "moral": "True knowledge ends the cycle of bondage — act with understanding, not blind habit.",
-    "moral_hi": "सच्चा ज्ञान बंधन का अंत करता है — अंधी आदत से नहीं, समझ के साथ कर्म करो।"
+    "tags": ["lineage", "avatar", "knowledge", "sacrifice", "doubt"],
+    "tags_hi": ["परंपरा", "अवतार", "ज्ञान", "यज्ञ", "संशय"],
+    "summary": "Krishna places the teaching in a lineage: he taught this yoga to Vivasvan long ago; it was lost and is being given again to Arjuna as friend and devotee. He explains his own births — whenever dharma declines and adharma rises, he manifests to protect the good and re-establish order.\n\nAction and knowledge are braided. One who sees inaction in action and action in inaction is wise among humans. Many kinds of sacrifice are listed; the sacrifice of ignorance in the fire of knowledge is called supreme. Faith, teacher, and inquiry matter; the doubting mind is described as restless and unhappy.\n\nCut doubt with the sword of knowledge, Krishna says, and stand up to fight. The chapter stitches metaphysics to Arjuna’s immediate duty.",
+    "summary_hi": "कृष्ण शिक्षा को परंपरा में रखते हैं — उन्होंने यह योग बहुत पहले विवस्वान को दिया; वह खो गया और मित्र-भक्त अर्जुन को फिर दिया जा रहा है। वे अपने जन्म समझाते हैं — जब धर्म गिरता और अधर्म उठता है, वे सज्जनों की रक्षा और व्यवस्था की पुनर्स्थापना के लिए प्रकट होते हैं।\n\nकर्म और ज्ञान गुँथे हैं। जो कर्म में अकर्म और अकर्म में कर्म देखता है, वही मनुष्यों में पंडित है। अनेक यज्ञ गिनाए गए हैं; अज्ञान का ज्ञान-अग्नि में हवन सर्वोच्च कहा गया है। श्रद्धा, गुरु और जिज्ञासा महत्त्वपूर्ण हैं; संशयी मन अशांत और दुःखी कहा गया है।\n\nकृष्ण कहते हैं — ज्ञान की तलवार से संशय काटो और युद्ध के लिए खड़े होओ। यह अध्याय तत्वज्ञान को अर्जुन के तत्काल कर्तव्य से जोड़ता है।",
+    "moral": "Learn so you can act cleanly; do not use philosophy as an excuse to freeze.",
+    "moral_hi": "इसलिए सीखो कि कर्म शुद्ध हो सके; दर्शन को ठहर जाने का बहाना मत बनाओ।"
   },
   {
     "number": 5,
@@ -54,10 +62,12 @@
     "name_sanskrit": "कर्मसंन्यासयोग",
     "name_romanized": "Karma Sanyasa Yoga",
     "verses_count": 29,
-    "summary": "The fifth chapter of the Bhagavad Gita is \"Karma Sanyasa Yoga\". In this chapter, Krishna compares the paths of renunciation in actions (Karma Sanyas) and actions with detachment (Karma Yoga) and explains that both are means to reach the same goal and we can choose either.",
-    "summary_hi": "पाँचवाँ अध्याय कर्मसंन्यासयोग है। श्रीकृष्ण कर्म-संन्यास और अनासक्त कर्मयोग की तुलना करते हैं — दोनों एक ही लक्ष्य तक पहुँचाते हैं।",
-    "moral": "Renunciation and engaged work meet in the same peace when the ego drops the claim of doership.",
-    "moral_hi": "संन्यास और कर्मयोग एक ही शांति में मिलते हैं जब अहंकार कर्तृत्व का दावा छोड़ देता है।"
+    "tags": ["renunciation", "detachment", "doership", "equality", "peace"],
+    "tags_hi": ["संन्यास", "वैराग्य", "कर्तृत्व", "समता", "शांति"],
+    "summary": "Arjuna asks which is better: renouncing actions, or performing them with yoga. Krishna honors both and then prefers karma yoga for most people as more practical. True renunciation is not empty hands; it is freedom from desire and the claim “I alone did this.”\n\nThe sage who works with the body, mind, and senses for purification, without attachment, is described as untouched by sin — like a lotus leaf on water. Seeing the same Self in a learned priest, a cow, an elephant, a dog, and an outcaste is the mark of knowledge.\n\nPeace comes when pleasure and pain, honor and disgrace, are met evenly, and when the person knows Krishna as the enjoyer of sacrifice and austerity, the lord of all worlds, the friend of all beings.",
+    "summary_hi": "अर्जुन पूछते हैं — कर्म छोड़ना श्रेष्ठ है या योग के साथ कर्म करना? कृष्ण दोनों का सम्मान करते हैं, फिर अधिक लोगों के लिए कर्मयोग को व्यावहारिक बताते हैं। सच्चा संन्यास खाली हाथ नहीं; कामना और “यह मैंने ही किया” के दावे से मुक्ति है।\n\nजो शरीर-मन-इंद्रियों से शुद्धिकरण हेतु काम करता है, आसक्ति के बिना, वह पाप से अछूता कहा गया है — जल पर कमल-पत्र की तरह। विद्वान ब्राह्मण, गाय, हाथी, कुत्ता और चाण्डाल में एक ही आत्मा देखना ज्ञान का लक्षण है।\n\nशांति तब आती है जब सुख-दुःख, मान-अपमान समान लगें, और व्यक्ति कृष्ण को यज्ञ-तप का भोक्ता, सब लोकों का स्वामी, सब प्राणियों का मित्र जाने।",
+    "moral": "You can keep working; drop the ego’s authorship and the fever of results.",
+    "moral_hi": "काम जारी रख सकते हो; अहंकार का “मैंने किया” और फल का बुखार छोड़ो।"
   },
   {
     "number": 6,
@@ -66,10 +76,12 @@
     "name_sanskrit": "ध्यानयोग",
     "name_romanized": "Dhyana Yoga",
     "verses_count": 47,
-    "summary": "The sixth chapter of the Bhagavad Gita is \"Dhyana Yoga\". In this chapter, Krishna reveals the \"Yoga of Meditation\" and how to practise this Yoga. He discusses the role of action in preparing for Meditation, how performing duties in devotion purifies one's mind and heightens one's spiritual consciousness.",
-    "summary_hi": "छठा अध्याय ध्यानयोग है। श्रीकृष्ण ध्यान की साधना बताते हैं — भक्तिपूर्ण कर्तव्य मन को शुद्ध कर आध्यात्मिक चेतना को ऊँचा करते हैं।",
-    "moral": "Master the mind gently through practice and detachment — the self is both friend and enemy.",
-    "moral_hi": "अभ्यास और वैराग्य से मन को कोमलता से साधो — आत्मा मित्र भी है और शत्रु भी।"
+    "tags": ["meditation", "mind", "practice", "moderation", "yoga"],
+    "tags_hi": ["ध्यान", "मन", "अभ्यास", "संयम", "योग"],
+    "summary": "Having urged action, Krishna now describes the yogi’s seat. The true renunciant is the one who does what must be done without depending on the fruit. Yoga is defined as evenness — not extremes of eating, sleeping, or waking.\n\nPractical instructions follow: a clean, steady seat, body and head erect, mind fixed, seeing the Self. The mind is called restless and hard to restrain, yet trainable by practice (abhyāsa) and dispassion (vairāgya). One’s own Self is friend or enemy depending on how it is ruled.\n\nArjuna worries about the yogi who falls short; Krishna reassures that no sincere effort is lost — such a person is reborn into conditions favorable to continue. Among yogis, the one who joins the mind to Krishna with faith stands highest. This is the chapter for anyone who actually sits.",
+    "summary_hi": "कर्म पर ज़ोर देने के बाद कृष्ण योगी के आसन का वर्णन करते हैं। सच्चा संन्यासी वह है जो करना आवश्यक हो वह करे, फल पर निर्भर हुए बिना। योग समत्व है — खाने, सोने या जागने की अति नहीं।\n\nव्यावहारिक निर्देश आते हैं — स्वच्छ स्थिर आसन, सीधा शरीर-शीर्ष, स्थिर मन, आत्मा का दर्शन। मन चंचल और कठिन कहा गया है, फिर भी अभ्यास और वैराग्य से साधा जा सकता है। अपनी आत्मा मित्र या शत्रु इस बात से बनती है कि उसे कैसे साधा जाए।\n\nअर्जुन अधूरे योगी की चिंता करते हैं; कृष्ण आश्वासन देते हैं कि सच्चा प्रयास नष्ट नहीं होता — ऐसा व्यक्ति अनुकूल परिस्थितियों में फिर जन्म लेता है। योगियों में जो श्रद्धा से मन को कृष्ण में जोड़ता है, वह श्रेष्ठ है। यह अध्याय उनके लिए है जो सच में बैठते हैं।",
+    "moral": "Train the mind with regular sitting and restraint — force less, return more often.",
+    "moral_hi": "नियमित बैठक और संयम से मन साधो — ज़बरदस्ती कम, वापसी अधिक।"
   },
   {
     "number": 7,
@@ -78,10 +90,12 @@
     "name_sanskrit": "ज्ञानविज्ञानयोग",
     "name_romanized": "Jnana Vijnana Yoga",
     "verses_count": 30,
-    "summary": "The seventh chapter of the Bhagavad Gita is \"Gyaan Vigyana Yoga \". In this chapter, Krishna reveals that he is the Supreme Truth, the principal cause and the sustaining force of everything.",
-    "summary_hi": "सातवाँ अध्याय ज्ञानविज्ञानयोग है। श्रीकृष्ण प्रकट करते हैं कि वे परम सत्य हैं — सबके मूल कारण और धारण करने वाली शक्ति।",
-    "moral": "See the One behind the many; devotion rooted in knowledge frees you from Maya’s spell.",
-    "moral_hi": "अनेक के पीछे एक को देखो; ज्ञान-युक्त भक्ति माया के मोह से मुक्त करती है।"
+    "tags": ["god", "nature", "maya", "devotion", "knowing"],
+    "tags_hi": ["ईश्वर", "प्रकृति", "माया", "भक्ति", "ज्ञान"],
+    "summary": "Krishna shifts from method to who he is. He asks Arjuna to know him fully: the lower nature (earth, water, fire, air, space, mind, intellect, ego) and the higher nature — the life that upholds the world. He is the taste in water, the light in sun and moon, the sacred syllable Om, the strength of the strong free of desire.\n\nYet Maya, made of the three guṇas, is hard to cross; those who take refuge in him cross it. Four kinds of devotees approach — the distressed, the seeker of wealth, the curious, the wise — and the wise who love without bargaining are called dear. Rare is the great soul who knows Krishna as all.\n\nThe chapter warns against being trapped by desire and ritualism that never asks who stands behind the many forms.",
+    "summary_hi": "कृष्ण विधि से हटकर अपना स्वरूप बताते हैं। वे अर्जुन से कहते हैं उन्हें पूरा जानो — अधरी प्रकृति (पृथ्वी, जल, अग्नि, वायु, आकाश, मन, बुद्धि, अहंकार) और ऊँची प्रकृति, वह जीवन जो जगत को धारण करता है। वे जल में रस हैं, सूर्य-चंद्र में प्रकाश, ॐ, कामना-रहित बलवानों का बल।\n\nफिर भी तीन गुणों की माया कठिन है; जो उनकी शरण लेते हैं, वे पार करते हैं। चार प्रकार के भक्त आते हैं — आर्त, अर्थार्थी, जिज्ञासु, ज्ञानी — और बिना सौदे के प्रेम करने वाला ज्ञानी प्रिय कहा गया है। दुर्लभ है वह महात्मा जो कृष्ण को सर्व रूप में जाने।\n\nअध्याय चेतावनी देता है — कामना और केवल कर्मकांड में मत फँसो, जो कभी न पूछे कि अनेक रूपों के पीछे कौन है।",
+    "moral": "Study the world as his nature; love without treating God like a vending machine.",
+    "moral_hi": "जगत को उनकी प्रकृति जानो; ईश्वर को मशीन समझकर मोलभाव वाला प्रेम मत करो।"
   },
   {
     "number": 8,
@@ -90,10 +104,12 @@
     "name_sanskrit": "अक्षरब्रह्मयोग",
     "name_romanized": "Akshara Brahma Yoga",
     "verses_count": 28,
-    "summary": "The eighth chapter of the Bhagavad Gita is \"Akshara Brahma Yoga\". In this chapter, Krishna reveals the importance of the last thought before death. If we can remember Krishna at the time of death, we will certainly attain him.",
-    "summary_hi": "आठवाँ अध्याय अक्षरब्रह्मयोग है। इसमें अंतिम विचार का महत्त्व बताया गया है — मृत्यु के समय कृष्ण-स्मरण से उन्हें अवश्य प्राप्त किया जा सकता है।",
-    "moral": "How you live shapes how you leave — remember the Divine in life, and at the last breath.",
-    "moral_hi": "जैसे जीते हो, वैसा ही अंतिम क्षण बनता है — जीवन में और अंतिम श्वास में भी ईश्वर को याद रखो।"
+    "tags": ["death", "remembrance", "brahman", "path", "habit"],
+    "tags_hi": ["मृत्यु", "स्मरण", "ब्रह्म", "मार्ग", "आदत"],
+    "summary": "Arjuna asks a cluster of definitions: Brahman, adhyātma, karma, adhibhūta, adhidaiva, and how the Lord is known at the time of death. Krishna answers briefly, then stresses practice: whoever remembers him at the end, leaving the body, reaches his being — therefore remember him in all activities.\n\nHe describes yoga at death — mind fixed, breath held between the brows, uttering Om and thinking of him. Two paths are outlined: the path of light (no return) and the path of smoke/darkness (return). The yogi who understands these times is not deluded.\n\nThe chapter’s practical edge is simple: the last thought is prepared by a lifetime of attention. Dying well starts in ordinary days.",
+    "summary_hi": "अर्जुन कई परिभाषाएँ पूछते हैं — ब्रह्म, अध्यात्म, कर्म, अधिभूत, अधिदैव, और मृत्यु के समय भगवान कैसे जाने जाते हैं। कृष्ण संक्षेप में उत्तर देते हैं, फिर अभ्यास पर ज़ोर — जो अंत में उन्हें याद कर शरीर छोड़ता है, उनके भाव को प्राप्त होता है — इसलिए सब कर्मों में उन्हें स्मरण करो।\n\nमृत्यु पर योग का वर्णन है — स्थिर मन, भ्रुकुटी के बीच प्राण, ॐ का उच्चारण और उनका चिंतन। दो मार्ग बताए गए हैं — प्रकाश का मार्ग (न लौटना) और धूम/अंधकार का मार्ग (लौटना)। जो ये काल समझता है, वह मोहित नहीं होता।\n\nअध्याय का व्यावहारिक किनारा सीधा है — अंतिम विचार जीवन भर के ध्यान से बनता है। अच्छा मरना साधारण दिनों में शुरू होता है।",
+    "moral": "What you rehearse daily becomes what you can remember when everything else falls away.",
+    "moral_hi": "जो रोज़ अभ्यास में हो, वही तब याद रह सकता है जब बाकी सब छूट जाए।"
   },
   {
     "number": 9,
@@ -102,10 +118,12 @@
     "name_sanskrit": "राजविद्याराजगुह्ययोग",
     "name_romanized": "Raja Vidya Raja Guhya Yoga",
     "verses_count": 34,
-    "summary": "The ninth chapter of the Bhagavad Gita is \"Raja Vidya Yoga\". In this chapter, Krishna explains that He is Supreme and how this material existence is created, maintained and destroyed by His Yogmaya and all beings come and go under his supervision.",
-    "summary_hi": "नौवाँ अध्याय राजविद्याराजगुह्ययोग है। श्रीकृष्ण बताते हैं कि वे परम हैं — योगमाया से सृष्टि का निर्माण, पालन और संहार होता है।",
-    "moral": "The Divine receives even the simplest offering given with love — no one is shut out of grace.",
-    "moral_hi": "प्रेम से दिया गया साधारण अर्पण भी स्वीकार होता है — कृपा से कोई वंचित नहीं।"
+    "tags": ["sovereignty", "grace", "offering", "faith", "presence"],
+    "tags_hi": ["ऐश्वर्य", "कृपा", "अर्पण", "श्रद्धा", "उपस्थिति"],
+    "summary": "Krishna calls this the most secret knowledge, purifying and easy to practice: the world is pervaded by him, yet he is not confined in it; beings rest in him, yet in another sense he supports them without being stained. Creation and dissolution cycle under his oversight.\n\nThose who dismiss him as merely human miss the truth. Worshippers of other deities with faith also receive their fruit through him. A leaf, flower, fruit, or water offered with devotion is accepted. He is the same toward all; hatred and clinging both miss the mark.\n\nThe chapter’s warmth is radical hospitality — even someone of “sinful” reputation who turns with exclusive devotion is to be regarded as righteous. Fix the mind on him, be his devotee, offer to him, bow to him.",
+    "summary_hi": "कृष्ण इसे अत्यंत गुह्य, पवित्र और सहज ज्ञान कहते हैं — जगत उनमें व्याप्त है, फिर भी वे उसमें सीमित नहीं; प्राणी उनमें टिकते हैं, फिर भी वे उन्हें धारण करते हुए भी लिप्त नहीं। सृष्टि-प्रलय का चक्र उनकी देखरेख में चलता है।\n\nजो उन्हें केवल मनुष्य समझकर ठुकराते हैं, सत्य चूक जाते हैं। श्रद्धा से अन्य देवों की पूजा करने वालों का फल भी उन्हीं के माध्यम से मिलता है। भक्ति से दिया पत्ता, फूल, फल या जल स्वीकार होता है। वे सबके प्रति समान हैं; द्वेष और आसक्ति दोनों चूक हैं।\n\nअध्याय की गर्माहट कट्टर अतिथि-सत्कार है — “पापी” कहे जाने वाला भी यदि एकनिष्ठ भक्ति से मुड़े तो उसे धर्मात्मा मानना चाहिए। मन उनमें लगाओ, उनके भक्त बनो, उन्हें अर्पित करो, उन्हें नमन करो।",
+    "moral": "Offer what you can with love; no sincere turn toward God is wasted.",
+    "moral_hi": "प्रेम से जो दे सको अर्पित करो; ईश्वर की ओर कोई सच्चा मुड़ना व्यर्थ नहीं जाता।"
   },
   {
     "number": 10,
@@ -114,10 +132,12 @@
     "name_sanskrit": "विभूतियोग",
     "name_romanized": "Vibhuti Yoga",
     "verses_count": 42,
-    "summary": "The tenth chapter of the Bhagavad Gita is \"Vibhooti Yoga\". In this chapter, Krishna reveals Himself as the cause of all causes. He describes His various manifestations and opulences in order to increase Arjuna's Bhakti.",
-    "summary_hi": "दसवाँ अध्याय विभूतियोग है। श्रीकृष्ण स्वयं को सब कारणों का कारण बताते हैं और अपनी विभूतियों का वर्णन कर अर्जुन की भक्ति बढ़ाते हैं।",
-    "moral": "Wherever you find excellence, power, or beauty, recognize a spark of the Infinite.",
-    "moral_hi": "जहाँ उत्कृष्टता, शक्ति या सौंदर्य दिखे, वहाँ अनंत की एक चिंगारी पहचानो।"
+    "tags": ["glory", "manifestation", "wonder", "devotion", "excellence"],
+    "tags_hi": ["ऐश्वर्य", "विभूति", "विस्मय", "भक्ति", "उत्कृष्टता"],
+    "summary": "Arjuna asks to hear more of Krishna’s divine glories so that his mind may stay fixed. Krishna lists vibhūtis: among the Adityas he is Vishnu; among lights, the radiant sun; among words, the single syllable Om; among weapons, the thunderbolt; among rivers, the Ganga; among sciences, the science of the Self — and many more.\n\nThe point is not a catalog for trivia. Wherever power, beauty, or excellence stands out, that is a fragment of his splendor. Yet he adds that with a single portion of himself he supports the whole universe — so the list is only a hint.\n\nUse this chapter to train attention: when you meet greatness in the world, let it turn the mind toward its source rather than stop at envy or celebrity.",
+    "summary_hi": "अर्जुन कृष्ण की दिव्य विभूतियाँ और सुनना चाहते हैं ताकि मन टिका रहे। कृष्ण विभूतियाँ गिनाते हैं — आदित्यों में विष्णु; ज्योतियों में सूर्य; शब्दों में एकाक्षर ॐ; शस्त्रों में वज्र; नदियों में गंगा; विद्याओं में आत्मविद्या — और बहुत कुछ।\n\nउद्देश्य सामान्य ज्ञान की सूची नहीं। जहाँ शक्ति, सौंदर्य या उत्कृष्टता चमकती है, वह उनके तेज का अंश है। फिर भी वे जोड़ते हैं कि अपने एक अंश से वे सारा ब्रह्मांड धारण करते हैं — अतः सूची संकेत मात्र है।\n\nइस अध्याय से दृष्टि साधो — जगत में महत्ता दिखे तो ईर्ष्या या प्रसिद्धि पर न रुककर स्रोत की ओर मुड़ो।",
+    "moral": "Treat excellence as a pointer to the Infinite, not as a reason to inflate or shrink yourself.",
+    "moral_hi": "उत्कृष्टता को अनंत की ओर इशारा मानो — खुद को फूलाने या सिकोड़ने का बहाना नहीं।"
   },
   {
     "number": 11,
@@ -126,10 +146,12 @@
     "name_sanskrit": "विश्वरूपदर्शनयोग",
     "name_romanized": "Vishvarupa Darshana Yoga",
     "verses_count": 55,
-    "summary": "The eleventh chapter of the Bhagavad Gita is \"Vishwaroopa Darshana Yoga\". In this chapter, Arjuna requests Krishna to reveal His Universal Cosmic Form that encompasses all the universes, the entire existence.",
-    "summary_hi": "ग्यारहवाँ अध्याय विश्वरूपदर्शनयोग है। अर्जुन श्रीकृष्ण से उनका विश्वरूप दिखाने का अनुरोध करते हैं — जो समस्त सृष्टि को समेटे हुए है।",
-    "moral": "Awe humbles the ego: the universe is vast, and surrender is wiser than control.",
-    "moral_hi": "विस्मय अहंकार को नम्र करता है — ब्रह्मांड विशाल है, और समर्पण नियंत्रण से बुद्धिमान है।"
+    "tags": ["cosmic-form", "awe", "time", "surrender", "vision"],
+    "tags_hi": ["विश्वरूप", "विस्मय", "काल", "समर्पण", "दर्शन"],
+    "summary": "Arjuna asks for a direct vision of the Lord’s form that spans the cosmos. Krishna grants divine sight. Sanjaya describes what Arjuna sees: endless mouths and eyes, blazing light like a thousand suns, gods and creatures inside one body, and the warriors of both armies rushing into fierce mouths like moths into flame.\n\nKrishna speaks as Time, the destroyer of worlds, already having slain these warriors; Arjuna is to be the instrument. Terrified and astonished, Arjuna praises, apologizes for past familiarity, and begs to see again the gentle four-armed form. Krishna returns to his familiar appearance.\n\nOnly devotion, he says, makes such vision possible and bearable. The chapter is theology as shock — the universe is not a toy for human control.",
+    "summary_hi": "अर्जुन ब्रह्मांडव्यापी रूप का साक्षात् दर्शन माँगते हैं। कृष्ण दिव्य दृष्टि देते हैं। संजय वर्णन करते हैं — अनगिनत मुख और नेत्र, हजार सूर्यों-सा तेज, एक शरीर में देव और प्राणी, और दोनों सेनाओं के योद्धा उग्र मुखों में पतंगों की तरह समाते हुए।\n\nकृष्ण काल के रूप में बोलते हैं — लोकों का संहारक, इन योद्धाओं को पहले ही मार चुका; अर्जुन निमित्त बनें। भयभीत और विस्मित अर्जुन स्तुति करते हैं, पुरानी अनौपचारिकता के लिए क्षमा माँगते हैं, और फिर कोमल चतुर्भुज रूप देखने को कहते हैं। कृष्ण परिचित रूप में लौटते हैं।\n\nवे कहते हैं — ऐसी दृष्टि केवल भक्ति से संभव और सहनीय है। अध्याय झटके के रूप में धर्म है — ब्रह्मांड मनुष्य के नियंत्रण का खिलौना नहीं।",
+    "moral": "Let awe correct pride; then return to the near, friendly face of the Divine.",
+    "moral_hi": "विस्मय से अहंकार सुधारो; फिर ईश्वर के निकट, मित्रवत रूप पर लौटो।"
   },
   {
     "number": 12,
@@ -138,10 +160,12 @@
     "name_sanskrit": "भक्तियोग",
     "name_romanized": "Bhakti Yoga",
     "verses_count": 20,
-    "summary": "The twelfth chapter of the Bhagavad Gita is \"Bhakti Yoga\". In this chapter, Krishna emphasizes the superiority of Bhakti Yoga (the path of devotion) over all other types of spiritual disciplines and reveals various aspects of devotion.",
-    "summary_hi": "बारहवाँ अध्याय भक्तियोग है। श्रीकृष्ण भक्ति-मार्ग की श्रेष्ठता बताते हैं और भक्ति के अनेक रूपों का वर्णन करते हैं।",
-    "moral": "Love expressed as kindness, patience, and steady devotion is the surest path.",
-    "moral_hi": "दया, धैर्य और स्थिर भक्ति के रूप में प्रकट प्रेम सबसे पक्का मार्ग है।"
+    "tags": ["devotion", "love", "practice-ladder", "character", "personal-god"],
+    "tags_hi": ["भक्ति", "प्रेम", "साधना-क्रम", "चरित्र", "सगुण"],
+    "summary": "After the cosmic vision, Arjuna asks whether worship of the unmanifest Absolute or devotion to a personal form is better. Krishna says those who fix the mind on him with faith are most united to him; the path of the unmanifest is harder for embodied beings.\n\nHe gives a ladder if the mind will not stay: practice; if not, work for his sake; if not, renounce the fruit of action. Then he lists qualities of the dear devotee — not hating any being, friendly and compassionate, free of “I and mine,” even-minded in pain and pleasure, forgiving, content, steady in resolve.\n\nShort chapter, clear ethic: devotion is measured in how you treat people and weather, not only in ritual intensity.",
+    "summary_hi": "विश्वरूप के बाद अर्जुन पूछते हैं — अव्यक्त की उपासना श्रेष्ठ है या सगुण भक्ति? कृष्ण कहते हैं जो श्रद्धा से मन उनमें लगाते हैं वे सबसे जुड़े हैं; देहधारियों के लिए अव्यक्त मार्ग कठिन है।\n\nयदि मन न टिके तो सीढ़ी देते हैं — अभ्यास करो; न हो तो उनके लिए कर्म; न हो तो फल त्याग। फिर प्रिय भक्त के गुण — किसी से द्वेष नहीं, मित्रता और करुणा, “मैं-मेरा” से मुक्त, सुख-दुःख में सम, क्षमाशील, संतुष्ट, दृढ़ निश्चय।\n\nछोटा अध्याय, साफ नीति — भक्ति अनुष्ठान की तीव्रता से नहीं, लोगों और परिस्थितियों के साथ व्यवहार से नापी जाती है।",
+    "moral": "If the mind wanders, climb down the ladder — but keep love visible as patience and kindness.",
+    "moral_hi": "मन भटके तो सीढ़ी उतरो — पर प्रेम धैर्य और दया के रूप में दिखता रहे।"
   },
   {
     "number": 13,
@@ -150,10 +174,12 @@
     "name_sanskrit": "क्षेत्र-क्षेत्रज्ञविभागयोग",
     "name_romanized": "Kshetra Kshetrajna Vibhaga Yoga",
     "verses_count": 35,
-    "summary": "The thirteenth chapter of the Bhagavad Gita is \"Ksetra Ksetrajna Vibhaaga Yoga\". The word \"kshetra\" means \"the field\", and the \"kshetrajna\" means \"the knower of the field\". We can think of our material body as the field and our immortal soul as the knower of the field.",
-    "summary_hi": "तेरहवाँ अध्याय क्षेत्र-क्षेत्रज्ञविभागयोग है। शरीर क्षेत्र है और अमर आत्मा क्षेत्रज्ञ — इसी भेद से ज्ञान आरंभ होता है।",
-    "moral": "Know the body as the field and the Self as its knower — wisdom begins with this distinction.",
-    "moral_hi": "शरीर को क्षेत्र और आत्मा को क्षेत्रज्ञ जानो — ज्ञान इसी भेद से शुरू होता है।"
+    "tags": ["body", "consciousness", "discrimination", "prakriti", "purusha"],
+    "tags_hi": ["शरीर", "चैतन्य", "विवेक", "प्रकृति", "पुरुष"],
+    "summary": "This chapter is a map. The field (kshetra) is the body and its conditions — senses, mind, ego, the elements, desire, aversion, pleasure, pain, the organism’s cohesion. The knower of the field (kshetrajña) is the conscious principle; Krishna also identifies himself as the knower in all fields.\n\nKnowledge is defined not as data but as virtues: humility, non-harm, uprightness, purity, steadfastness, self-mastery, detachment, absence of egoism, even-mindedness toward birth and death, devotion to the teacher, constancy in spiritual insight.\n\nPrakriti and purusha, the gunas, and how seeing the Self in all beings ends rebirth are explained. Confusion of field and knower is treated as the root mistake; clear seeing is liberation’s start.",
+    "summary_hi": "यह अध्याय मानचित्र है। क्षेत्र शरीर और उसकी स्थितियाँ हैं — इंद्रिय, मन, अहंकार, महाभूत, इच्छा, द्वेष, सुख, दुःख, शरीर की एकता। क्षेत्रज्ञ चैतन्य तत्त्व है; कृष्ण स्वयं को सब क्षेत्रों में क्षेत्रज्ञ भी कहते हैं।\n\nज्ञान सूचना नहीं, गुण हैं — नम्रता, अहिंसा, आर्जव, शौच, स्थैर्य, आत्मसंयम, वैराग्य, अहंकार का अभाव, जन्म-मरण में समभाव, गुरु-भक्ति, अध्यात्म ज्ञान में निरंतरता।\n\nप्रकृति-पुरुष, गुण, और सब प्राणियों में आत्मा देखने से पुनर्जन्म कैसे रुकता है — यह समझाया गया है। क्षेत्र और क्षेत्रज्ञ का घालमेल मूल भूल है; साफ देखना मुक्ति की शुरुआत है।",
+    "moral": "Separate what you observe from who observes — that cut is the beginning of wisdom.",
+    "moral_hi": "जो देखा जा रहा है उसे देखने वाले से अलग करो — यही काट ज्ञान की शुरुआत है।"
   },
   {
     "number": 14,
@@ -162,10 +188,12 @@
     "name_sanskrit": "गुणत्रयविभागयोग",
     "name_romanized": "Gunatraya Vibhaga Yoga",
     "verses_count": 27,
-    "summary": "The fourteenth chapter of the Bhagavad Gita is \"Gunatraya Vibhaga Yoga\". In this chapter, Krishna reveals the three gunas (modes) of the material nature - goodness, passion and ignorance which everything in the material existence is influenced by.",
-    "summary_hi": "चौदहवाँ अध्याय गुणत्रयविभागयोग है। श्रीकृष्ण प्रकृति के तीन गुण — सत्त्व, रजस् और तमस् — बताते हैं जो भौतिक जीवन को प्रभावित करते हैं।",
-    "moral": "Rise above the three gunas; do not be tossed by restless passion or dull inertia.",
-    "moral_hi": "तीनों गुणों से ऊपर उठो; चंचल रजस् या जड़ तमस् में मत बहो।"
+    "tags": ["gunas", "sattva", "rajas", "tamas", "bondage"],
+    "tags_hi": ["गुण", "सत्त्व", "रजस्", "तमस्", "बंधन"],
+    "summary": "Krishna analyzes the three strands of nature. Sattva binds through attachment to happiness and knowledge; rajas through craving and restless work; tamas through negligence, sleep, and delusion. They dominate by turns; one can watch which is rising.\n\nFruits differ: sattva leads upward, rajas to the middle, tamas downward. The chapter describes signs of each at death and how the wise transcend being pushed around by the gunas while still living in the body — impartial, unshaken when sattva, rajas, or tamas appear.\n\nCrossing the gunas is linked to unwavering devotion to Krishna. This is a diagnostic chapter for moods and habits, not a scolding.",
+    "summary_hi": "कृष्ण प्रकृति के तीन धागों का विश्लेषण करते हैं। सत्त्व सुख और ज्ञान की आसक्ति से बाँधता है; रजस् तृष्णा और चंचल कर्म से; तमस् प्रमाद, निद्रा और मोह से। वे बारी-बारी हावी होते हैं; कौन उठ रहा है, देखा जा सकता है।\n\nफल भिन्न हैं — सत्त्व ऊर्ध्व, रजस् मध्य, तमस् अधोगति। मृत्यु पर प्रत्येक के लक्षण और ज्ञानी कैसे शरीर में रहकर भी गुणों के धक्के से ऊपर रहता है — जब सत्त्व, रजस् या तमस् दिखें तब भी अकंप — यह वर्णन है।\n\nगुणों से पार होना कृष्ण की अचल भक्ति से जुड़ा है। यह मनोदशा और आदतों का नैदानिक अध्याय है, डाँट नहीं।",
+    "moral": "Name which guna is running you today; choose practices that strengthen clarity over frenzy or fog.",
+    "moral_hi": "आज कौन-सा गुण चला रहा है, नाम लो; उन्माद या कोहरे से ज़्यादा स्पष्टता बढ़ाने वाली साधना चुनो।"
   },
   {
     "number": 15,
@@ -174,10 +202,12 @@
     "name_sanskrit": "पुरुषोत्तमयोग",
     "name_romanized": "Purushottama Yoga",
     "verses_count": 20,
-    "summary": "The fifteenth chapter of the Bhagavad Gita is \"Purushottama Yoga\". In Sanskrit, Purusha means the \"All-pervading God\", and Purushottam means the timeless & transcendental aspect of God.",
-    "summary_hi": "पंद्रहवाँ अध्याय पुरुषोत्तमयोग है। पुरुष सर्वव्यापी ईश्वर है, और पुरुषोत्तम उनका कालातीत, पारलौकिक स्वरूप।",
-    "moral": "Cut attachment to the world-tree with non-attachment, and take refuge in the Supreme Self.",
-    "moral_hi": "वैराग्य से संसार-वृक्ष की आसक्ति काटो, और परम पुरुष में शरण लो।"
+    "tags": ["world-tree", "detachment", "supreme-person", "refuge", "eternity"],
+    "tags_hi": ["संसार-वृक्ष", "वैराग्य", "पुरुषोत्तम", "शरण", "नित्यता"],
+    "summary": "The world is pictured as an inverted ashvattha tree: roots above, branches below, nourished by the gunas, with sense objects as shoots. Its form is not perceived as it is here; one must cut it with the strong axe of non-attachment and seek the primal person from whom the ancient path extends.\n\nKrishna describes the eternal portion of himself that becomes the living soul in the world of life, drawing the senses. He is the digester of food as vaishvānara fire, seated in hearts as memory, knowledge, and their loss; he is to be known through the Vedas.\n\nTwo persons are mentioned — perishable and imperishable — and beyond both, Purushottama. Knowing that, one becomes all-knowing and does one’s whole duty. Compact metaphysics with a clear ask: loosen the world’s grip and take refuge.",
+    "summary_hi": "संसार उल्टे अश्वत्थ की तरह चित्रित है — जड़ें ऊपर, डालियाँ नीचे, गुणों से पोषित, विषय कोंपलों जैसे। इसका रूप यहाँ जैसा है वैसा नहीं दिखता; वैराग्य की दृढ़ कुल्हाड़ी से काटना होता है और उस आदि पुरुष को खोजना जिससे प्राचीन मार्ग निकलता है।\n\nकृष्ण अपने उस नित्य अंश का वर्णन करते हैं जो जीवन-लोक में जीवात्मा बनता है और इंद्रियों को खींचता है। वे वैश्वानर अग्नि के रूप में अन्न पचाते हैं, हृदय में स्मृति-ज्ञान और उनके लोप के रूप में बैठे हैं; वेदों से जाने जाते हैं।\n\nदो पुरुष — क्षर और अक्षर — और दोनों से परे पुरुषोत्तम। उसे जानकर व्यक्ति सर्वज्ञ होता है और पूरा कर्तव्य करता है। संक्षिप्त तत्वज्ञान, साफ माँग — संसार की पकड़ ढीली करो और शरण लो।",
+    "moral": "Loosen one root of craving; aim refuge at what does not wither with the world-tree.",
+    "moral_hi": "तृष्णा की एक जड़ ढीली करो; शरण उसे दो जो संसार-वृक्ष के साथ नहीं कुम्हलाता।"
   },
   {
     "number": 16,
@@ -186,10 +216,12 @@
     "name_sanskrit": "दैवासुरसम्पद्विभागयोग",
     "name_romanized": "Daivasura Sampad Vibhaga Yoga",
     "verses_count": 24,
-    "summary": "The sixteenth chapter of the Bhagavad Gita is \"Daivasura Sampad Vibhaga Yoga\". In this chapter, Krishna describes explicitly the two kinds of natures among human beings - divine and demoniac.",
-    "summary_hi": "सोलहवाँ अध्याय दैवासुरसम्पद्विभागयोग है। श्रीकृष्ण स्पष्ट रूप से दो प्रकृतियाँ बताते हैं — दैवी और आसुरी।",
-    "moral": "Choose divine qualities — truth, restraint, compassion — over arrogance and harm.",
-    "moral_hi": "अहंकार और हिंसा के बजाय सत्य, संयम और करुणा — दैवी गुण चुनो।"
+    "tags": ["character", "virtue", "vice", "truth", "restraint"],
+    "tags_hi": ["चरित्र", "सद्गुण", "दोष", "सत्य", "संयम"],
+    "summary": "Krishna lists two constellations of traits. Divine wealth includes fearlessness, purity, generosity, self-restraint, sacrifice, study, austerity, non-harm, truth, absence of anger, renunciation, peace, compassion, absence of greed, gentleness, modesty, steadiness.\n\nDemoniac traits include hypocrisy, arrogance, harshness, ignorance, insatiable desire, belief that the world is without truth or God, and a life bent on grabbing and harming. Hell’s gates are named as desire, anger, and greed — abandon them.\n\nScripture is given as the guide for what to do and avoid. The chapter is ethical inventory, aimed at tendencies inside one person, not at branding outsiders.",
+    "summary_hi": "कृष्ण दो गुण-समूह गिनाते हैं। दैवी संपद् में अभय, शुद्धता, दान, दम, यज्ञ, स्वाध्याय, तप, अहिंसा, सत्य, अक्रोध, त्याग, शांति, दया, अलोलुपता, मार्दव, ह्री, स्थिरता आदि हैं।\n\nआसुरी लक्षणों में दंभ, दर्प, क्रोध, अज्ञान, अतृप्त कामना, यह मानना कि जगत बिना सत्य और ईश्वर के है, और छीनने-हानि पहुँचाने वाला जीवन। नरक के द्वार काम, क्रोध, लोभ कहे गए हैं — इन्हें छोड़ो।\n\nक्या करें क्या न करें, इसके लिए शास्त्र मार्गदर्शक बताया गया है। अध्याय नैतिक जाँच है — बाहरी लोगों पर ठप्पा लगाने के लिए नहीं, एक व्यक्ति के भीतर की प्रवृत्तियों के लिए।",
+    "moral": "Audit your habits against the divine list; starve arrogance, feed truthfulness and restraint.",
+    "moral_hi": "दैवी सूची से अपनी आदतें जाँचो; अहंकार भूखा रखो, सत्य और संयम को पालो।"
   },
   {
     "number": 17,
@@ -198,10 +230,12 @@
     "name_sanskrit": "श्रद्धात्रयविभागयोग",
     "name_romanized": "Shraddhatraya Vibhaga Yoga",
     "verses_count": 28,
-    "summary": "The seventeenth chapter of the Bhagavad Gita is \"Sraddhatraya Vibhaga Yoga\". In this chapter, Krishna describes the three types of faith corresponding to the three modes of the material nature.",
-    "summary_hi": "सत्रहवाँ अध्याय श्रद्धात्रयविभागयोग है। श्रीकृष्ण प्रकृति के तीन गुणों के अनुरूप तीन प्रकार की श्रद्धा का वर्णन करते हैं।",
-    "moral": "Faith shapes destiny; purify what you trust, eat, give, and offer.",
-    "moral_hi": "श्रद्धा भाग्य गढ़ती है — जिस पर विश्वास, आहार, दान और यज्ञ हो, उसे शुद्ध करो।"
+    "tags": ["faith", "food", "austerity", "charity", "om-tat-sat"],
+    "tags_hi": ["श्रद्धा", "आहार", "तप", "दान", "ॐ-तत्-सत्"],
+    "summary": "Arjuna asks about people who sacrifice with faith but ignore scriptural rules. Krishna answers that faith itself is threefold according to the gunas, and a person is what their faith is.\n\nFood preferred by each type, kinds of sacrifice, austerity of body/speech/mind, and charity are classified as sattvic, rajasic, or tamasic — from clean nourishing meals and sincere giving without return, to harsh showy austerity and gifts given with contempt or at the wrong time.\n\nOm Tat Sat is explained as the seal of Brahman used to sanctify acts. Asat — action without faith — is called barren. The chapter turns spirituality into daily discernment: what you eat, give, and vow.",
+    "summary_hi": "अर्जुन पूछते हैं — जो श्रद्धा से यज्ञ करते हैं पर शास्त्र विधि छोड़ देते हैं? कृष्ण कहते हैं श्रद्धा स्वयं गुणों के अनुसार तीन प्रकार की है, और व्यक्ति जैसी श्रद्धा वैसा ही होता है।\n\nप्रत्येक प्रकार का प्रिय अन्न, यज्ञ, कायिक-वाचिक-मानसिक तप और दान सात्त्विक, राजसिक या तामसिक वर्गों में बाँटे गए हैं — स्वच्छ पुष्ट आहार और बिना बदले सच्चा दान से लेकर दिखावटी कठोर तप और तिरस्कार या गलत समय के दान तक।\n\nॐ तत् सत् ब्रह्म की मुहर के रूप में समझाया गया है जिससे कर्म पवित्र किए जाते हैं। असत् — बिना श्रद्धा का कर्म — निष्फल कहा गया है। अध्याय आध्यात्मिकता को रोज़ के विवेक में लाता है — क्या खाते, देते और व्रत लेते हो।",
+    "moral": "Align faith with sattva in meals, vows, and gifts — sincerity beats spectacle.",
+    "moral_hi": "भोजन, व्रत और दान में श्रद्धा को सत्त्व की ओर रखो — दिखावे से सच्चाई बड़ी है।"
   },
   {
     "number": 18,
@@ -210,9 +244,11 @@
     "name_sanskrit": "मोक्षसंन्यासयोग",
     "name_romanized": "Moksha Sanyasa Yoga",
     "verses_count": 78,
-    "summary": "The eighteenth chapter of the Bhagavad Gita is \"Moksha Sanyas Yoga\". Arjuna requests the Lord to explain the difference between the two types of renunciations - sanyaas(renunciation of actions) and tyaag(renunciation of desires).",
-    "summary_hi": "अठारहवाँ अध्याय मोक्षसंन्यासयोग है। अर्जुन संन्यास (कर्मों का त्याग) और त्याग (फल-आसक्ति का त्याग) का भेद जानना चाहते हैं — यही गीता का समापन अध्याय है।",
-    "moral": "Surrender the fruits, fulfill your own duty, and rest in grace — that is liberation in action.",
-    "moral_hi": "फल छोड़ो, अपना स्वधर्म निभाओ, और कृपा में विश्राम करो — यही कर्म में मोक्ष है।"
+    "tags": ["surrender", "duty", "renunciation", "liberation", "summary"],
+    "tags_hi": ["समर्पण", "कर्तव्य", "त्याग", "मोक्ष", "सार"],
+    "summary": "The longest chapter gathers the threads. Arjuna asks the difference between sannyāsa and tyāga. Krishna distinguishes giving up actions from giving up attachment to results; certain duties should not be abandoned. Acts are analyzed through the five factors of action, knowledge, knower, and the three gunas again — including types of intellect, firmness, and pleasure.\n\nDuties associated with social roles are described in the language of the time; the deeper point is fidelity to one’s own work over imitation of another’s. The teaching climbs to renunciation of fruit, peace, and finally the intimate call: abandon all dharmas and take refuge in Krishna alone — he will free Arjuna from sin; do not grieve.\n\nArjuna’s delusion ends; he is ready to act. Sanjaya recalls the dialogue with wonder and declares that wherever Krishna and Arjuna are, there is fortune and righteousness. The book closes on the field where it began, with a mind restored to duty.",
+    "summary_hi": "सबसे लंबा अध्याय सूत्र समेटता है। अर्जुन संन्यास और त्याग का भेद पूछते हैं। कृष्ण कर्म छोड़ने और फल-आसक्ति छोड़ने में अंतर करते हैं; कुछ कर्तव्य छोड़ने योग्य नहीं। कर्म के पाँच कारण, ज्ञान-ज्ञाता, और फिर तीन गुण — बुद्धि, धृति, सुख के भेद सहित — विश्लेषित होते हैं।\n\nसामाजिक भूमिकाओं से जुड़े कर्तव्य तत्कालीन भाषा में हैं; गहरा बिंदु है अपने काम के प्रति निष्ठा, दूसरे के अनुकरण से अधिक। शिक्षा फल-त्याग, शांति, और अंत में अंतरंग आह्वान तक चढ़ती है — सब धर्म छोड़कर केवल कृष्ण की शरण लो — वे अर्जुन को पाप से मुक्त करेंगे; शोक मत करो।\n\nअर्जुन का मोह टूटता है; वे कर्म को तैयार हैं। संजय विस्मय में संवाद याद करते हैं और कहते हैं जहाँ कृष्ण और अर्जुन हैं वहीं श्री और नीति है। ग्रंथ उसी क्षेत्र पर बंद होता है जहाँ शुरू हुआ था — कर्तव्य के लिए तैयार मन के साथ।",
+    "moral": "Do your own duty without clinging to fruit; when confused, take refuge and stand up again.",
+    "moral_hi": "फल की आसक्ति छोड़कर अपना कर्तव्य करो; उलझन में शरण लो और फिर खड़े होओ।"
   }
 ]

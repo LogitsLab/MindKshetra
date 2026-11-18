@@ -5,12 +5,18 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import BrandLinksPanel from "@/components/BrandLinksPanel";
 import ImmersiveHero from "@/components/ImmersiveHero";
 import { useLanguage } from "@/components/LanguageProvider";
+import {
+  INSTAGRAM_URL,
+  resolveWhatsAppChannelUrl,
+} from "@/lib/brand-links";
 import { track } from "@/lib/track";
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL;
+const WHATSAPP = resolveWhatsAppChannelUrl();
 const TELEGRAM = process.env.NEXT_PUBLIC_TELEGRAM_URL;
+const INSTAGRAM = process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim() || INSTAGRAM_URL;
 
 export default function SanghaClient({
   microSevaHref,
@@ -29,7 +35,7 @@ export default function SanghaClient({
     setAttended(true);
   }
 
-  const hasChannels = Boolean(WHATSAPP || TELEGRAM);
+  const hasChannels = Boolean(WHATSAPP || TELEGRAM || INSTAGRAM);
 
   return (
     <div className="life-hub pb-10">
@@ -48,6 +54,16 @@ export default function SanghaClient({
                 className="inline-flex min-h-12 items-center bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
               >
                 {t("sanghaJoinWhatsApp")}
+              </a>
+            ) : null}
+            {INSTAGRAM ? (
+              <a
+                href={INSTAGRAM}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-12 items-center border border-white/25 px-5 py-3 text-sm text-white/80 transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]"
+              >
+                {t("sanghaJoinInstagram")}
               </a>
             ) : null}
             {TELEGRAM ? (
@@ -144,6 +160,12 @@ export default function SanghaClient({
           </Link>
         </div>
       </div>
+
+      <BrandLinksPanel
+        whatsapp={WHATSAPP}
+        includeStores
+        className="mt-10 surface px-5 py-5"
+      />
 
       <p className="mt-10 text-sm text-[var(--text-muted)]">
         <Link

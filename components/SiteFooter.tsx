@@ -5,6 +5,11 @@ import { usePathname } from "next/navigation";
 import { BRAND_NAME } from "@/components/BrandWordmark";
 import { StoreTextLinks } from "@/components/StoreLinks";
 import { useLanguage } from "@/components/LanguageProvider";
+import {
+  INSTAGRAM_HANDLE,
+  INSTAGRAM_URL,
+  resolveWhatsAppChannelUrl,
+} from "@/lib/brand-links";
 
 export default function SiteFooter() {
   const pathname = usePathname();
@@ -59,16 +64,22 @@ export default function SiteFooter() {
             {t("navAccount")}
           </Link>
           <StoreTextLinks />
-          {process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL ? (
-            <a
-              href={process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
-            >
-              WhatsApp
-            </a>
-          ) : null}
+          <a
+            href={resolveWhatsAppChannelUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+          >
+            WhatsApp
+          </a>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
+          >
+            {INSTAGRAM_HANDLE}
+          </a>
           {process.env.NEXT_PUBLIC_TELEGRAM_URL ? (
             <a
               href={process.env.NEXT_PUBLIC_TELEGRAM_URL}

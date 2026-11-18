@@ -61,6 +61,26 @@ export function stopNarrationIfOwner(ownerSession: number): void {
   }
 }
 
+/** Pause without ending the session (chapter playlist / scrub). */
+export function pauseNarration(): boolean {
+  if (!element || element.paused) return false;
+  element.pause();
+  return true;
+}
+
+/** Resume the current session’s file if still owned. */
+export async function resumeNarration(
+  ownerSession: number
+): Promise<boolean> {
+  if (ownerSession !== session || !element?.src) return false;
+  try {
+    await element.play();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export type NarrationOptions = SpeakOptions & {
   /** Explicit file to prefer over the text-hash lookup (e.g. recitation). */
   url?: string | null;

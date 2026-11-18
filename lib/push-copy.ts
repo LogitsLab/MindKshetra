@@ -43,3 +43,20 @@ export function streakReminderCopy(
     body: "One verse this evening keeps it alive.",
   };
 }
+
+export function festivalReminderCopy(
+  lang: Lang,
+  label: string,
+  isEkadashi: boolean
+): { title: string; body: string } {
+  if (lang === "hi") {
+    return {
+      title: isEkadashi && !label ? "आज एकादशी है" : `आज · ${label}`,
+      body: "एक क्षण रुकें — गीता या जप के साथ दिन को स्मरण करें।",
+    };
+  }
+  return {
+    title: isEkadashi && !label ? "Ekadashi today" : `Today · ${label}`,
+    body: "A quiet pause — remember the day with a verse or japa.",
+  };
+}

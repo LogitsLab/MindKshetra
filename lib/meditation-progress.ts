@@ -151,6 +151,48 @@ export async function getMeditationProgress(
   };
 }
 
+const SLEEP_JOURNEY_ID = "sleep-7";
+
+/** Next evening lives on journey_runs id sleep-7, not the sitting course. */
+export async function getSleepEveningProgress(userId: string | null): Promise<{
+  programId: "sleep-7";
+  currentDay: number;
+  completedDays: number[];
+  guest: boolean;
+  streak: null;
+}> {
+  if (!userId) {
+    return {
+      programId: "sleep-7",
+      currentDay: 1,
+      completedDays: [],
+      guest: true,
+      streak: null,
+    };
+  }
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("journey_runs")
+    .select("current_day, completed_days")
+    .eq("user_id", userId)
+    .eq("journey_id", SLEEP_JOURNEY_ID)
+    .maybeSingle();
+  const completedDays = Array.isArray(data?.completed_days)
+    ? (data.completed_days as unknown[]).filter(
+        (n): n is number => typeof n === "number" && n >= 1 && n <= 7
+      )
+    : [];
+  const stored = Number(data?.current_day) || 1;
+  const currentDay = stored > 7 ? 7 : Math.max(1, Math.min(7, stored));
+  return {
+    programId: "sleep-7",
+    currentDay,
+    completedDays,
+    guest: false,
+    streak: null,
+  };
+}
+
 export type CompleteMeditationInput = {
   sessionId: string;
   moodBefore?: number | null;
@@ -166,7 +208,39 @@ function clampMood(v: unknown): number | null {
   return n;
 }
 
-const COURSE_TIERS = new Set(["foundation", "habit", "deepening", "goal"]);
+const SITTING_TIERS = new Set(["foundation", "habit", "deepening"]);
+
+async function advanceSleepEvening(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  day: number
+) {
+  const { data } = await supabase
+    .from("journey_runs")
+    .select("completed_days")
+    .eq("user_id", userId)
+    .eq("journey_id", "sleep-7")
+    .maybeSingle();
+  const prev = Array.isArray(data?.completed_days)
+    ? (data.completed_days as number[])
+    : [];
+  if (day > 1 && !prev.includes(day - 1)) {
+    throw new Error("Day is locked");
+  }
+  const days = Array.from(new Set([...prev, day])).sort((a, b) => a - b);
+  const { error } = await supabase.from("journey_runs").upsert(
+    {
+      user_id: userId,
+      journey_id: "sleep-7",
+      current_day: Math.min(8, day + 1),
+      completed_days: days,
+      track: "sleep",
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id,journey_id" }
+  );
+  if (error) throw new Error("Could not update progress");
+}
 
 export async function completeMeditationSession(
   userId: string,
@@ -202,7 +276,7 @@ export async function completeMeditationSession(
   const daysCount = journey?.days_count ?? loadSittingProgram()?.days_count ?? 7;
 
   // Server-side unlock for course days (dailies stay always-open).
-  if (COURSE_TIERS.has(session.tier) && session.day_number >= 1) {
+  if (SITTING_TIERS.has(session.tier) && session.day_number >= 1) {
     const existing = await readUnionCompletedDays(userId, daysCount);
     if (
       !isDayUnlocked(
@@ -238,7 +312,7 @@ export async function completeMeditationSession(
   let milestone: SittingMilestone | null = null;
   let progress: MeditationProgress;
 
-  if (COURSE_TIERS.has(session.tier) && session.day_number >= 1) {
+  if (SITTING_TIERS.has(session.tier) && session.day_number >= 1) {
     const existing = await readUnionCompletedDays(userId, daysCount);
     const next = advanceRun(
       existing.completedDays,
@@ -276,6 +350,13 @@ export async function completeMeditationSession(
       { onConflict: "user_id,program_id" }
     );
 
+    progress = await getMeditationProgress(userId, SITTING_COURSE_ID);
+  } else if (
+    session.track === "sleep" &&
+    session.tier === "goal" &&
+    session.day_number >= 1
+  ) {
+    await advanceSleepEvening(supabase, userId, session.day_number);
     progress = await getMeditationProgress(userId, SITTING_COURSE_ID);
   } else {
     progress = await getMeditationProgress(userId, SITTING_COURSE_ID);

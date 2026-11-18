@@ -1,0 +1,135 @@
+{
+  "_comment": "Curated side-by-side emphases for flagship verses. Texts are original MindKshetra paraphrases of traditional teaching angles — not verbatim copyrighted purports. Keys are chapter.verse.",
+  "2.20": {
+    "en": [
+      {
+        "id": "sivananda",
+        "label": "Sivananda",
+        "text": "The Self never takes birth and never dies. Bodies change through six transformations; the Atman does not diminish, grow, or perish with them."
+      },
+      {
+        "id": "chinmayananda",
+        "label": "Chinmayananda",
+        "text": "What we call ‘I’ as the changing person is not the real subject. Birth and death belong to the body-mind; the witnessing Self stays untouched."
+      }
+    ],
+    "hi": [
+      {
+        "id": "chinmayananda",
+        "label": "चिन्मयानन्द",
+        "text": "शरीर के छह विकार आत्मा को नहीं छूते। जन्म-मृत्यु देह के हैं; जानने वाला नित्य साक्षी अलग है।"
+      },
+      {
+        "id": "ramsukhdas",
+        "label": "रामसुखदास",
+        "text": "आत्मा अजन्मा और अविनाशी है। शोक तब उठता है जब हम नश्वर देह को ‘मैं’ मान बैठते हैं।"
+      }
+    ]
+  },
+  "2.47": {
+    "en": [
+      {
+        "id": "sivananda",
+        "label": "Sivananda",
+        "text": "You may act, but craving the fruit binds you to rebirth. Work without thirst for reward — and do not slide into laziness either."
+      },
+      {
+        "id": "prabhupada",
+        "label": "Prabhupada",
+        "text": "Duty is yours; the result is the Lord’s. Act as service, not as a bargain for enjoyment — that is freedom in action."
+      }
+    ],
+    "hi": [
+      {
+        "id": "chinmayananda",
+        "label": "चिन्मयानन्द",
+        "text": "कर्म करो, फल की आसक्ति छोड़ो। निष्काम कर्म चित्त शुद्ध करता है; फल-तृष्णा ही बार-बार बाँधती है।"
+      },
+      {
+        "id": "ramsukhdas",
+        "label": "रामसुखदास",
+        "text": "अधिकार केवल कर्म पर है। फल ईश्वर पर छोड़ो — न फल को हेतु बनाओ, न अकर्म में फँसो।"
+      }
+    ]
+  },
+  "2.48": {
+    "en": [
+      {
+        "id": "sivananda",
+        "label": "Sivananda",
+        "text": "Yoga is evenness of mind in success and failure. Act from that balance, offering the work rather than clutching the outcome."
+      },
+      {
+        "id": "chinmayananda",
+        "label": "Chinmayananda",
+        "text": "Samatva is the practice: ego softens when praise and blame no longer swing the mind. Then work becomes yoga."
+      }
+    ]
+  },
+  "4.7": {
+    "en": [
+      {
+        "id": "sivananda",
+        "label": "Sivananda",
+        "text": "When dharma that upholds life weakens and adharma rises, the Divine manifests again — to restore what sustains."
+      },
+      {
+        "id": "prabhupada",
+        "label": "Prabhupada",
+        "text": "The Lord descends age after age when righteousness declines — not as myth only, but as living protection of devotees and dharma."
+      }
+    ]
+  },
+  "9.22": {
+    "en": [
+      {
+        "id": "sivananda",
+        "label": "Sivananda",
+        "text": "Those who worship without separation — seeing the Lord in all — are carried: what they lack is filled, what they have is guarded."
+      },
+      {
+        "id": "prabhupada",
+        "label": "Prabhupada",
+        "text": "One-pointed devotion brings yoga-kṣema: Krishna personally supplies and protects those who fix the mind on him alone."
+      }
+    ],
+    "hi": [
+      {
+        "id": "chinmayananda",
+        "label": "चिन्मयानन्द",
+        "text": "अनन्य भाव की उपासना योगक्षेम खोलती है — कमी भरना और रक्षा, दोनों उस एकाग्र भक्ति में आते हैं।"
+      },
+      {
+        "id": "ramsukhdas",
+        "label": "रामसुखदास",
+        "text": "जो केवल मेरी शरण में चित्त रखते हैं, उनकी आवश्यकता और रक्षा मैं स्वयं उठाता हूँ।"
+      }
+    ]
+  },
+  "18.66": {
+    "en": [
+      {
+        "id": "prabhupada",
+        "label": "Prabhupada",
+        "text": "Release every separate ‘religion of duty’ as your final refuge and surrender to Krishna alone — he frees from sin; do not grieve."
+      },
+      {
+        "id": "sivananda",
+        "label": "Sivananda",
+        "text": "Abandon clinging to limited dharmas and take shelter in the Supreme. Grace completes what effort alone cannot; fear drops."
+      }
+    ],
+    "hi": [
+      {
+        "id": "chinmayananda",
+        "label": "चिन्मयानन्द",
+        "text": "यह श्लोक चरम शरणागति कहता है — सीमित धर्म-ग्रह को छोड़कर पूर्ण समर्पण; विवाद व्याख्याओं में है, हृदय में सरलता।"
+      },
+      {
+        "id": "ramsukhdas",
+        "label": "रामसुखदास",
+        "text": "सब धर्म छोड़कर एक मेरी शरण — मैं पाप से मुक्त करूँगा। शोक का कारण अहं-आश्रय है, शरणागति उसे काटती है।"
+      }
+    ]
+  }
+}

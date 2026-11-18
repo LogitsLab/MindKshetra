@@ -4,31 +4,24 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
-import { reflectionsOpen } from "@/lib/kill-switch-public";
 
 type Props = {
   slokaId: number;
 };
 
 /**
- * Dispatched on window after a reflection is successfully shared, with
- * { slokaId } as detail. VerseReflections listens and refetches so the
- * person's line appears on the page they are looking at.
+ * Kept for VerseReflections listeners if soft-sangha UI returns later.
+ * Share CTAs are removed until G1/G2/G3 gates pass (private journal only).
  */
 export const REFLECTION_SHARED_EVENT = "mindkshetra:reflection-shared";
 
 export default function JournalBox({ slokaId }: Props) {
   const { user } = useAuth();
-  const { lang, t } = useLanguage();
+  const { t } = useLanguage();
   const [reflection, setReflection] = useState("");
   const [saved, setSaved] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [savedId, setSavedId] = useState<number | null>(null);
-  const [shareState, setShareState] = useState<
-    "idle" | "sharing" | "shared" | "held"
-  >("idle");
-  const [shareNotice, setShareNotice] = useState<string | null>(null);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -45,11 +38,7 @@ export default function JournalBox({ slokaId }: Props) {
         body: JSON.stringify({ slokaId, reflection: text }),
       });
       if (!res.ok) throw new Error("journal save failed");
-      const data = await res.json().catch(() => null);
       setSaved(true);
-      setSavedId(typeof data?.id === "number" ? data.id : null);
-      setShareState("idle");
-      setShareNotice(null);
       setReflection("");
     } catch {
       // The words stay in the box — a failed save must never look like a
@@ -57,35 +46,6 @@ export default function JournalBox({ slokaId }: Props) {
       setSaveFailed(true);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function share() {
-    if (!savedId) return;
-    setShareState("sharing");
-    setShareNotice(null);
-    try {
-      const res = await fetch(`/api/journal/${savedId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ visibility: "shared", language: lang }),
-      });
-      const data = await res.json().catch(() => null);
-      if (res.ok && data?.shared) {
-        setShareState("shared");
-        window.dispatchEvent(
-          new CustomEvent(REFLECTION_SHARED_EVENT, { detail: { slokaId } })
-        );
-      } else if (res.ok && data?.held) {
-        setShareState("held");
-        // Crisis holds carry the helpline text — show it verbatim, gently.
-        if (typeof data?.message === "string") setShareNotice(data.message);
-      } else {
-        setShareState("idle");
-        if (typeof data?.error === "string") setShareNotice(data.error);
-      }
-    } catch {
-      setShareState("idle");
     }
   }
 
@@ -134,37 +94,6 @@ export default function JournalBox({ slokaId }: Props) {
         <p className="border-l-2 border-[var(--brass)]/60 pl-3 text-sm text-[var(--text-soft)]">
           {t("journalSaveFailed")}
         </p>
-      ) : null}
-
-      {saved && savedId && reflectionsOpen() ? (
-        <div className="pt-1">
-          {shareState === "shared" ? (
-            <p className="text-sm text-[var(--brass-soft)]">
-              {t("reflectShared")}
-            </p>
-          ) : shareState === "held" ? (
-            <p className="text-sm text-[var(--text-muted)]">{t("reflectHeld")}</p>
-          ) : (
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => void share()}
-                disabled={shareState === "sharing"}
-                className="min-h-10 border border-[var(--line)] px-3 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)] disabled:opacity-50"
-              >
-                {t("reflectShare")}
-              </button>
-              <span className="text-xs font-light text-[var(--text-muted)]">
-                {t("reflectShareConsent")}
-              </span>
-            </div>
-          )}
-          {shareNotice ? (
-            <p className="mt-3 whitespace-pre-line border-l-2 border-[var(--brass)]/60 pl-3 text-sm leading-relaxed text-[var(--text-muted)]">
-              {shareNotice}
-            </p>
-          ) : null}
-        </div>
       ) : null}
     </form>
   );
