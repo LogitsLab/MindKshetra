@@ -9,6 +9,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import { loadJourney } from "@/lib/journeys/content";
 import { journeyDay, type MeditationDay } from "@/lib/journeys/core";
+import { adHocMeditationSession } from "@/lib/meditation-audio";
 import {
   SITTING_COURSE_ID,
   sessionTranscript,
@@ -119,7 +120,12 @@ export function getSessionById(sessionId: string): MeditationSession | null {
   const fromCourse = program?.days.find((d) => d.id === sessionId);
   if (fromCourse) return fromCourse;
   const dailies = loadDailySits();
-  return dailies?.sessions.find((s) => s.id === sessionId) ?? null;
+  const fromDaily = dailies?.sessions.find((s) => s.id === sessionId);
+  if (fromDaily) return fromDaily;
+  const sleep = loadGoalTrack("sleep-7");
+  const fromSleep = sleep?.days.find((d) => d.id === sessionId);
+  if (fromSleep) return fromSleep;
+  return adHocMeditationSession(sessionId);
 }
 
 export function enrichTranscripts(session: MeditationSession): MeditationSession {

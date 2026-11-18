@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SITTING_COURSE_ID } from "@/lib/meditation";
-import { getMeditationProgress } from "@/lib/meditation-progress";
+import { getMeditationProgress, getSleepEveningProgress } from "@/lib/meditation-progress";
 import { requireSupabase } from "@/lib/supabase/require";
 import { getSignedInUserId } from "@/lib/supabase/server";
 
@@ -19,6 +19,10 @@ export async function GET(request: NextRequest) {
   if (userId) {
     const unconfigured = requireSupabase();
     if (unconfigured) return unconfigured;
+  }
+
+  if (program === "sleep-7") {
+    return NextResponse.json(await getSleepEveningProgress(userId));
   }
 
   const progress = await getMeditationProgress(userId, program);

@@ -1,19 +1,20 @@
 /**
  * Client-readable mirror of the community kill switches.
  *
- * The server-side switch (lib/kill-switch.ts) is `server-only`, so no client
- * component could see it — which meant the UI offered "Share with seekers" on
- * every saved journal note and "be the first to reflect" on all 701 verse
- * pages while the API answered 503 "Sharing is paused right now." The person
- * got an invitation and then a refusal.
+ * Soft-sangha share CTAs were removed from JournalBox / mobile verse journal
+ * (private reflections only) until G1/G2/G3 gates pass. These helpers stay
+ * false for UI surfaces so env typos cannot resurrect half-gated community.
+ * The API still uses server-side `killSwitchEngaged` as a hard guard.
  *
- * Same fail-safe reading as the server: unset or unrecognised means PAUSED,
- * so a missing NEXT_PUBLIC_ var hides the affordance rather than dangling it.
- * Keep the two in step — the client hides the door, the server still guards it.
+ * Same fail-safe reading as the server: unset or unrecognised means PAUSED.
  */
 const ON_VALUES = new Set(["1", "true", "on", "yes"]);
 
+/** Soft sangha UI stays dark until product re-enables share surfaces. */
+const SOFT_SANGHA_UI = false;
+
 function open(raw: string | undefined): boolean {
+  if (!SOFT_SANGHA_UI) return false;
   if (raw == null) return false;
   return ON_VALUES.has(raw.trim().toLowerCase());
 }

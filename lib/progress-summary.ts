@@ -12,6 +12,8 @@ export type ProgressSummary = {
   sessions: number;
   durationMinutes: number;
   mantras: number;
+  meditationMinutes: number;
+  meditationSits: number;
   versesCompleted: number;
   journalEntries: number;
   distribution: {
@@ -28,6 +30,17 @@ export type ProgressSummary = {
   chartsCast: number;
   madhavSessions: number;
 };
+
+function distinctIstDays(stamps: Array<string | null | undefined>): number {
+  const days = new Set<string>();
+  for (const stamp of stamps) {
+    if (!stamp) continue;
+    const t = new Date(stamp).getTime();
+    if (!Number.isFinite(t)) continue;
+    days.add(new Date(t + 5.5 * 3_600_000).toISOString().slice(0, 10));
+  }
+  return days.size;
+}
 
 function rangeStart(range: ProgressRange): Date {
   const now = new Date();
@@ -75,7 +88,7 @@ export async function loadAchievementStats(
       .eq("practice", "japa"),
     supabase
       .from("meditation_completions")
-      .select("id", { count: "exact", head: true })
+      .select("completed_at")
       .eq("user_id", userId),
     supabase
       .from("journey_runs")
@@ -109,12 +122,15 @@ export async function loadAchievementStats(
     0
   );
   const malaCount = Math.floor(japaBeads / 108);
+  const meditationDays = distinctIstDays(
+    (meditationRes.data ?? []).map((row) => row.completed_at as string | null)
+  );
 
   return {
     visitLongestStreak: streakRes.data?.longest_streak ?? 0,
     practiceLongestStreak: practiceLongest,
     malaCount,
-    meditationDays: meditationRes.count ?? 0,
+    meditationDays,
     pathsCompleted: pathsRes.count ?? 0,
     journalDaysOrEntries: journalRes.count ?? 0,
     chartsCast: chartsRes.count ?? 0,
@@ -131,18 +147,12 @@ export async function loadProgressSummary(
   const stats = await loadAchievementStats(supabase, userId);
   const since = rangeStart(range).toISOString();
 
-  const [sadhanaRes, meditationRes, versesRes, journalRes, streakRes] =
-    await Promise.all([
+  const [sadhanaRes, versesRes, journalRes, streakRes] = await Promise.all([
       supabase
         .from("sadhana_sessions")
-        .select("practice, count, duration_seconds")
+        .select("practice, count, duration_sec")
         .eq("user_id", userId)
         .gte("created_at", since),
-      supabase
-        .from("meditation_completions")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .gte("completed_at", since),
       supabase
         .from("verse_completions")
         .select("sloka_id", { count: "exact", head: true })
@@ -161,22 +171,26 @@ export async function loadProgressSummary(
     ]);
 
   let durationMinutes = 0;
+  let meditationMinutes = 0;
   let mantras = 0;
   let japaSessions = 0;
+  let meditationSessions = 0;
   let otherSessions = 0;
   for (const row of sadhanaRes.data ?? []) {
+    const sec =
+      typeof row.duration_sec === "number" ? row.duration_sec : 0;
+    if (sec > 0) durationMinutes += Math.round(sec / 60);
     if (row.practice === "japa") {
       japaSessions += 1;
       mantras += typeof row.count === "number" ? row.count : 0;
+    } else if (row.practice === "meditation") {
+      meditationSessions += 1;
+      if (sec > 0) meditationMinutes += Math.round(sec / 60);
     } else {
       otherSessions += 1;
     }
-    if (typeof row.duration_seconds === "number") {
-      durationMinutes += Math.round(row.duration_seconds / 60);
-    }
   }
 
-  const meditationSessions = meditationRes.count ?? 0;
   const reading = versesRes.count ?? 0;
   const sessions = japaSessions + otherSessions + meditationSessions;
 
@@ -188,6 +202,8 @@ export async function loadProgressSummary(
     sessions,
     durationMinutes,
     mantras,
+    meditationMinutes,
+    meditationSits: meditationSessions,
     versesCompleted: reading,
     journalEntries: journalRes.count ?? 0,
     distribution: {

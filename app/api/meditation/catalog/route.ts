@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { sleepTracks } from "@/lib/meditation-audio";
 import {
   loadDailySits,
+  loadGoalTrack,
   loadSittingProgram,
   sessionTranscript,
 } from "@/lib/meditation";
@@ -28,12 +30,25 @@ export async function GET() {
       transcript_hi: sessionTranscript(s, "hi"),
     })) ?? [];
 
+  const sleep = loadGoalTrack("sleep-7");
+
   return NextResponse.json(
     {
       program: { ...program, days },
       dailies: dailies
         ? { ...dailies, sessions }
         : { id: "daily-sits", sessions: [] },
+      library: sleepTracks(),
+      sleep: sleep
+        ? {
+            ...sleep,
+            days: sleep.days.map((d) => ({
+              ...d,
+              transcript_en: sessionTranscript(d, "en"),
+              transcript_hi: sessionTranscript(d, "hi"),
+            })),
+          }
+        : null,
     },
     {
       headers: {

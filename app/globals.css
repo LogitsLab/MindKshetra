@@ -1374,6 +1374,27 @@ button.med-hub__day:hover:not([aria-disabled]) {
   transition: stroke-dashoffset 0.45s linear;
 }
 
+.med-player__breath {
+  position: absolute;
+  inset: 18%;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  animation: med-breath 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes med-breath {
+  0%,
+  100% {
+    transform: scale(0.86);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.7;
+  }
+}
+
 .med-mood {
   display: flex;
   flex-wrap: wrap;
@@ -1408,12 +1429,21 @@ button.med-hub__day:hover:not([aria-disabled]) {
   color: var(--brass-soft);
 }
 
+.med-mood__mark--wide {
+  width: auto;
+  min-width: 5.5rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .med-hub__path-fill,
   .med-hub__day,
   .med-player__ring-progress,
   .med-mood__mark,
-  .paths-hub__bar-fill {
+  .paths-hub__bar-fill,
+  .med-player__breath {
     transition: none;
+    animation: none;
   }
 }

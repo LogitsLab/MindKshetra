@@ -210,14 +210,6 @@ export default function HoroscopeClient() {
       <Link href="/astrology" className="text-sm text-[var(--text-muted)]">
         ← {t("astroTitle") || (L === "hi" ? "ज्योतिष" : "Astrology")}
       </Link>
-      <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl text-[var(--text)]">
-        {L === "hi" ? "राशिफल" : "Horoscope insights"}
-      </h1>
-      <p className="mt-2 text-sm text-[var(--text-soft)]">
-        {L === "hi"
-          ? "मार्गदर्शन आपके चार्ट तथ्यों से आता है — कल्पित ग्रह नहीं।"
-          : "Guidance is narrated from your chart facts — never invented placements."}
-      </p>
 
       {!source && !loadingChart ? (
         <div className="mt-8 space-y-3">

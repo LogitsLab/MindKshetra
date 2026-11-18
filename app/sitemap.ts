@@ -18,9 +18,10 @@ function istToday(): string {
 
 /**
  * Only indexable, server-rendered destinations belong here. Per-user shells
- * (favorites, journal, account) and the delete-account form are noindexed,
- * and tool pages that need a chart to show anything stay out until they carry
- * server-rendered copy of their own.
+ * (favorites, journal, account) and the delete-account form are noindexed.
+ * Chart/location tool hubs (horoscope, transits, muhurat, milan, panchang
+ * calendar) ship server-rendered intros and are indexed; interactive chart
+ * shells still load client-side below the fold.
  *
  * `lastModified` is a real content date, never `new Date()`: stamping every
  * URL with the regeneration time taught crawlers to ignore the field.
@@ -39,9 +40,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/mood",
     "/madhav",
     "/astrology",
+    "/astrology/horoscope",
+    "/astrology/transits",
+    "/astrology/muhurat",
+    "/astrology/milan",
+    "/panchang/calendar",
     "/paths",
     "/meditation",
+    "/meditation/silent",
+    "/meditation/library",
+    "/meditation/credits",
     "/sadhana",
+    "/japa",
+    "/pranayama",
     "/wallpapers",
     "/community",
     "/care",

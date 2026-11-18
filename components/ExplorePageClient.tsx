@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import ExploreSearch from "@/components/ExploreSearch";
 import { useLanguage } from "@/components/LanguageProvider";
 import {
   chapterMoral,
   chapterSubtitle,
   chapterSummary,
+  chapterTags,
   chapterTitle,
   type ChapterMeta,
 } from "@/lib/chapters";
@@ -24,6 +25,30 @@ export default function ExplorePageClient({
 }: Props) {
   const { lang, t } = useLanguage();
   const [searchActive, setSearchActive] = useState(false);
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+
+  const tagOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const chapter of chapters) {
+      const en = chapter.tags ?? [];
+      const hi = chapter.tags_hi ?? [];
+      en.forEach((tag, i) => {
+        const key = tag.trim().toLowerCase();
+        if (!key || map.has(key)) return;
+        map.set(key, lang === "hi" && hi[i] ? hi[i] : tag);
+      });
+    }
+    return Array.from(map.entries())
+      .map(([key, label]) => ({ key, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, lang === "hi" ? "hi" : "en"));
+  }, [chapters, lang]);
+
+  const visible = useMemo(() => {
+    if (!tagFilter) return chapters;
+    return chapters.filter((c) =>
+      (c.tags ?? []).some((tag) => tag.trim().toLowerCase() === tagFilter)
+    );
+  }, [chapters, tagFilter]);
 
   return (
     <div className="animate-fade">
@@ -45,20 +70,51 @@ export default function ExplorePageClient({
         ) : null}
       </header>
 
-      {/* ExploreSearch reads `?q=` with useSearchParams. Without its own
-          boundary that bailed the whole hub out to client rendering, so the
-          server HTML had no heading and none of the 18 chapter links. */}
       <Suspense fallback={<div className="mt-8 h-20" aria-hidden />}>
         <ExploreSearch onActiveChange={setSearchActive} />
       </Suspense>
 
       {!searchActive ? (
         <div className="mt-12" id="chapters">
+          <p className="eyebrow mb-3 text-[var(--text-muted)]">
+            {t("chapterFilterLabel")}
+          </p>
+          <div className="mb-6 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setTagFilter(null)}
+              className={`border px-3 py-1.5 text-[11px] tracking-[0.06em] transition ${
+                tagFilter == null
+                  ? "border-[var(--brass)] bg-[var(--brass)]/15 text-[var(--brass-soft)]"
+                  : "border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/45"
+              }`}
+            >
+              {t("chapterFilterAll")}
+            </button>
+            {tagOptions.map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() =>
+                  setTagFilter((cur) => (cur === key ? null : key))
+                }
+                className={`border px-3 py-1.5 text-[11px] tracking-[0.06em] transition ${
+                  tagFilter === key
+                    ? "border-[var(--brass)] bg-[var(--brass)]/15 text-[var(--brass-soft)]"
+                    : "border-[var(--line)] text-[var(--text-muted)] hover:border-[var(--brass)]/45"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <p className="eyebrow mb-4 text-[var(--text-muted)]">
             {t("chapters")}
+            {tagFilter ? ` · ${visible.length}` : ""}
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {chapters.map((chapter) => (
+            {visible.map((chapter) => (
               <Link
                 key={chapter.number}
                 href={`/explore/${chapter.number}`}
@@ -86,16 +142,29 @@ export default function ExplorePageClient({
                       {chapterSubtitle(chapter, lang)}
                     </p>
                   ) : null}
+                  {chapterTags(chapter, lang).length ? (
+                    <ul className="mt-3 flex flex-wrap gap-1.5">
+                      {chapterTags(chapter, lang)
+                        .slice(0, 4)
+                        .map((tag) => (
+                          <li
+                            key={tag}
+                            className="border border-[var(--line)] px-2 py-0.5 text-[10px] tracking-[0.06em] text-[var(--brass-soft)]"
+                          >
+                            {tag}
+                          </li>
+                        ))}
+                    </ul>
+                  ) : null}
                   {chapterSummary(chapter, lang) ? (
-                    <p className="mt-3 line-clamp-2 text-sm font-light leading-relaxed text-[var(--text-muted)]">
-                      {chapterSummary(chapter, lang)}
+                    <p className="mt-3 line-clamp-3 text-sm font-light leading-relaxed text-[var(--text-muted)]">
+                      {chapterSummary(chapter, lang)
+                        .split(/\n\n+/)[0]
+                        ?.trim()}
                     </p>
                   ) : null}
                   {chapterMoral(chapter, lang) ? (
-                    <p className="mt-3 line-clamp-3 border-l border-[var(--brass)]/40 pl-3 text-sm leading-snug text-[var(--brass-soft)]">
-                      <span className="eyebrow mb-1 block text-[var(--text-muted)]">
-                        {t("chapterMoral")}
-                      </span>
+                    <p className="mt-3 line-clamp-2 border-l border-[var(--brass)]/40 pl-3 text-sm leading-snug text-[var(--brass-soft)]">
                       {chapterMoral(chapter, lang)}
                     </p>
                   ) : null}

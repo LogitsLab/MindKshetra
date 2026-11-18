@@ -10,6 +10,7 @@ import SkipLink from "@/components/SkipLink";
 import SiteFooter from "@/components/SiteFooter";
 import NavigationProgress from "@/components/NavigationProgress";
 import WelcomeGate from "@/components/WelcomeGate";
+import MetaPixel from "@/components/MetaPixel";
 import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
 import { configuredSiteOrigin } from "@/lib/site";
 import { themeInitScript } from "@/lib/theme";
@@ -103,6 +104,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript() }} />
       </head>
       <body className="font-body antialiased">
+        <MetaPixel />
         <ThemeProvider>
           <AuthProvider>
             <LanguageProvider>

@@ -31,6 +31,8 @@ export default function Nav() {
     { href: "/panchang", label: t("navPanchang") },
     { href: "/community", label: t("navSangha") },
     { href: "/meditation", label: t("homeMeditationTitle") },
+    { href: "/japa", label: t("japaTitle") },
+    { href: "/pranayama", label: t("pranaTitle") },
     { href: "/wallpapers", label: t("navWallpapers") },
     { href: "/support", label: t("navSupport") },
   ];

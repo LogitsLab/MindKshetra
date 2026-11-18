@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import BrandLinksPanel from "@/components/BrandLinksPanel";
 import ImmersiveHero from "@/components/ImmersiveHero";
 import { useLanguage } from "@/components/LanguageProvider";
 import { PracticeMarks } from "@/components/MilestoneMarks";
@@ -48,6 +49,7 @@ export default function AccountPageClient() {
   const [notifDailyVerse, setNotifDailyVerse] = useState(false);
   const [notifDailyVerseHour, setNotifDailyVerseHour] = useState(8);
   const [notifStreakReminder, setNotifStreakReminder] = useState(false);
+  const [notifFestivalReminders, setNotifFestivalReminders] = useState(false);
   const [notifCommunity, setNotifCommunity] = useState(true);
   const [streak, setStreak] = useState(0);
   const [displayName, setDisplayName] = useState("");
@@ -186,6 +188,14 @@ export default function AccountPageClient() {
         }
         if (typeof d.notifCommunity === "boolean") {
           setNotifCommunity(d.notifCommunity);
+        }
+      })
+      .catch(() => {});
+    fetch("/api/account/notification-preferences")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d && typeof d.festivalReminders === "boolean") {
+          setNotifFestivalReminders(d.festivalReminders);
         }
       })
       .catch(() => {});
@@ -340,6 +350,30 @@ export default function AccountPageClient() {
 
   async function onToggleNotifStreakReminder() {
     await patchPrefs({ notifStreakReminder: !notifStreakReminder });
+  }
+
+  async function onToggleNotifFestivalReminders() {
+    const next = !notifFestivalReminders;
+    setPrefsBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/account/notification-preferences", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ festivalReminders: next }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || t("exportFailed"));
+      if (typeof data.festivalReminders === "boolean") {
+        setNotifFestivalReminders(data.festivalReminders);
+      } else {
+        setNotifFestivalReminders(next);
+      }
+    } catch {
+      setError(t("exportFailed"));
+    } finally {
+      setPrefsBusy(false);
+    }
   }
 
   async function onToggleNotifCommunity() {
@@ -973,6 +1007,38 @@ export default function AccountPageClient() {
 
             <div className="flex items-start justify-between gap-4 px-5 py-5 sm:px-7">
               <div className="min-w-0 space-y-1">
+                <p className="text-sm text-[var(--text)]">
+                  {t("notifFestivalReminders")}
+                </p>
+                <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+                  {t("notifFestivalRemindersHint")}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={notifFestivalReminders}
+                disabled={prefsBusy}
+                onClick={() => void onToggleNotifFestivalReminders()}
+                className={`relative h-8 w-14 shrink-0 border transition disabled:opacity-50 ${
+                  notifFestivalReminders
+                    ? "border-[var(--brass)]/55 bg-[var(--brass)]/25"
+                    : "border-[var(--line)] bg-[var(--surface)]"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 h-5 w-5 bg-[var(--brass-soft)] transition ${
+                    notifFestivalReminders ? "left-8" : "left-1 opacity-50"
+                  }`}
+                />
+                <span className="sr-only">
+                  {notifFestivalReminders ? t("notifOn") : t("notifOff")}
+                </span>
+              </button>
+            </div>
+
+            <div className="flex items-start justify-between gap-4 px-5 py-5 sm:px-7">
+              <div className="min-w-0 space-y-1">
                 <p className="text-sm text-[var(--text)]">{t("notifCommunity")}</p>
                 <p className="text-xs leading-relaxed text-[var(--text-muted)]">
                   {t("notifCommunityBlurb")}
@@ -1077,6 +1143,8 @@ export default function AccountPageClient() {
               ) : null}
             </div>
           )}
+
+          <BrandLinksPanel includeStores className="mt-8 border-t border-[var(--hairline)] pt-6" />
 
           <p>
             <Link

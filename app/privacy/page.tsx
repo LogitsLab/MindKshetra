@@ -94,7 +94,16 @@ export default function PrivacyPage() {
             completed”, “streak recorded”, “chart cast” — stored with your
             account id but without IP address or user agent. We use them only to
             understand how the practice features serve people and to improve the
-            product. No third-party analytics, no advertising use.
+            product.
+          </li>
+          <li>
+            <span className="text-[var(--text)]">Advertising measurement (optional).</span>{" "}
+            When Meta / Facebook ads are active, we may load Meta Pixel on the
+            website and Meta App Events in the mobile app to measure installs and
+            early practice (for example opening a verse or completing a sit). On
+            iOS we ask for App Tracking Transparency before advertising
+            identifiers are used. You can decline; the app still works. We do not
+            sell personal information.
           </li>
           <li>
             <span className="text-[var(--text)]">Technical data.</span> Basic
@@ -128,11 +137,14 @@ export default function PrivacyPage() {
           <li>Vercel — web hosting and scheduled jobs</li>
           <li>Resend — transactional and Verse of the Day email</li>
           <li>LLM / AI providers — generating Madhav replies and related content</li>
+          <li>
+            Meta (Facebook) — optional Pixel / App Events only when ads are
+            configured, to measure campaign effectiveness
+          </li>
         </ul>
         <p className="text-[15px] leading-relaxed text-[var(--text-muted)]">
           They process data under their own terms, only as needed for these
-          purposes. We do not sell personal information or share it for
-          third-party advertising.
+          purposes. We do not sell personal information.
         </p>
       </section>
 
@@ -143,8 +155,9 @@ export default function PrivacyPage() {
         <p className="text-[15px] leading-relaxed text-[var(--text-muted)]">
           We use cookies and similar storage for authentication (including PKCE
           for magic links), preferences such as theme/language, and essential
-          site operation. We do not use third-party ad trackers on the core
-          reading experience.
+          site operation. Meta Pixel, when enabled via environment
+          configuration, may set cookies for advertising measurement. Core
+          reading and practice work without it.
         </p>
       </section>
 

@@ -11,8 +11,11 @@ export const en = {
   sanghaTitle: "Practice together",
   sanghaIntro:
     "Small circles and a weekly live, not a social feed. Join the channel, sit with others, then tap that you attended so we can see the community is real.",
-  sanghaJoinWhatsApp: "WhatsApp daily verse",
+  sanghaJoinWhatsApp: "WhatsApp Channel",
+  sanghaJoinInstagram: "Instagram",
   sanghaJoinTelegram: "Telegram discussion",
+  sanghaFollowUs: "Follow us",
+  sanghaWebsite: "Website",
   sanghaChannelsSoon:
     "Community channels are being set up. Check back soon, or watch the footer once invite links are live.",
   sanghaLiveTitle: "Weekly live",
@@ -87,8 +90,11 @@ export const hi: Record<keyof typeof en, string> = {
   sanghaTitle: "साथ अभ्यास",
   sanghaIntro:
     "छोटे मंडल और साप्ताहिक सत्संग, सामाजिक फ़ीड नहीं। चैनल जॉइन करें, साथ बैठें, फिर उपस्थिति दर्ज करें ताकि समुदाय सच में मापा जा सके।",
-  sanghaJoinWhatsApp: "व्हाट्सऐप दैनिक श्लोक",
+  sanghaJoinWhatsApp: "व्हाट्सऐप चैनल",
+  sanghaJoinInstagram: "इंस्टाग्राम",
   sanghaJoinTelegram: "टेलीग्राम चर्चा",
+  sanghaFollowUs: "हमसे जुड़ें",
+  sanghaWebsite: "वेबसाइट",
   sanghaChannelsSoon:
     "समुदाय चैनल तैयार हो रहे हैं। जल्द वापस आएँ, या आमंत्रण लिंक आने पर पादलेख देखें।",
   sanghaLiveTitle: "साप्ताहिक सत्संग",

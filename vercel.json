@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/votd-email",
       "schedule": "30 2 * * *"
+    },
+    {
+      "path": "/api/cron/festival-reminders",
+      "schedule": "30 2 * * *"
     }
   ]
 }

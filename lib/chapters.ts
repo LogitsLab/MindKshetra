@@ -14,6 +14,10 @@ export type ChapterMeta = {
   /** Core teaching / moral outcome of the chapter. */
   moral?: string;
   moral_hi?: string;
+  /** Short topic labels for browse / filter (English). */
+  tags?: string[];
+  /** Hindi labels parallel to `tags` (same order when present). */
+  tags_hi?: string[];
 };
 
 const chapters = chaptersData as ChapterMeta[];
@@ -74,4 +78,19 @@ export function chapterSummary(
     return meta.summary_hi?.trim() || meta.summary?.trim() || "";
   }
   return meta.summary?.trim() || meta.summary_hi?.trim() || "";
+}
+
+/** Topic chips for the active language (falls back to the other list). */
+export function chapterTags(
+  meta: ChapterMeta | undefined,
+  lang: "en" | "hi"
+): string[] {
+  if (!meta) return [];
+  if (lang === "hi") {
+    const hi = meta.tags_hi?.map((t) => t.trim()).filter(Boolean) ?? [];
+    if (hi.length) return hi;
+  }
+  const en = meta.tags?.map((t) => t.trim()).filter(Boolean) ?? [];
+  if (en.length) return en;
+  return meta.tags_hi?.map((t) => t.trim()).filter(Boolean) ?? [];
 }

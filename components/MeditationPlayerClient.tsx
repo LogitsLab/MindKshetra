@@ -16,6 +16,9 @@ import { markGuestJourneyDay } from "@/lib/journeys/local";
 import { playSoftBell, startAmbient, stopAmbient, type AmbientBed } from "@/lib/audio/ambient";
 import { playOrSpeak, stopNarration } from "@/lib/audio/narration";
 import { isSpeechSynthesisSupported } from "@/lib/tts";
+import { recordMeditationSit } from "@/lib/meditation-stats";
+import { writeSitCredit } from "@/lib/sit-credit";
+import { trackMeta } from "@/lib/meta-pixel";
 
 type Stage = "moodBefore" | "play" | "moodAfter" | "done";
 
@@ -106,6 +109,7 @@ export default function MeditationPlayerClient({
   const [guestSaved, setGuestSaved] = useState(false);
   const [ttsOk, setTtsOk] = useState(false);
   const [milestone, setMilestone] = useState<SittingMilestone | null>(null);
+  const [sitCredited, setSitCredited] = useState(false);
   const satSecRef = useRef(0);
   const silenceStartRef = useRef<number | null>(null);
   const satCreditedRef = useRef(0);
@@ -278,6 +282,10 @@ export default function MeditationPlayerClient({
     satCreditedRef.current = 0;
     setPhaseIdx(0);
     setStage("play");
+    trackMeta("StartSit", {
+      session: session.id,
+      tier: session.tier || "course",
+    });
   }
 
   async function finish() {
@@ -305,6 +313,7 @@ export default function MeditationPlayerClient({
     if (!signedIn) {
       markGuestDay(session.day_number, daysCount);
       queueGuestCompletion(body);
+      recordMeditationSit(Number(body.durationSec) || session.duration_minutes * 60);
       if (
         session.day_number === 7 ||
         session.day_number === 21 ||
@@ -313,6 +322,7 @@ export default function MeditationPlayerClient({
         setMilestone(session.day_number as SittingMilestone);
       }
       setGuestSaved(true);
+      trackMeta("CompleteSit", { session: session.id });
       setStage("done");
       setSaving(false);
       return;
@@ -325,46 +335,71 @@ export default function MeditationPlayerClient({
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error();
+      recordMeditationSit(Number(body.durationSec) || session.duration_minutes * 60);
       const data = (await res.json()) as {
         progress?: { milestone?: SittingMilestone | null };
         milestone?: SittingMilestone | null;
       };
       setMilestone(data.milestone ?? data.progress?.milestone ?? null);
+      trackMeta("CompleteSit", { session: session.id });
       setStage("done");
     } catch {
       markGuestDay(session.day_number, daysCount);
       queueGuestCompletion(body);
+      recordMeditationSit(Number(body.durationSec) || session.duration_minutes * 60);
       setGuestSaved(true);
+      trackMeta("CompleteSit", { session: session.id });
       setStage("done");
     } finally {
       setSaving(false);
     }
   }
 
+  const POST_MOODS = [
+    { value: 4, label: t("medMoodGreat") },
+    { value: 3, label: t("medMoodGood") },
+    { value: 2, label: t("medMoodNeutral") },
+    { value: 1, label: t("medMoodLow") },
+  ] as const;
+
   const MoodRow = ({
     value,
     onPick,
     label,
+    labeled = false,
   }: {
     value: number | null;
     onPick: (n: number) => void;
     label: string;
+    labeled?: boolean;
   }) => (
     <section>
       <h2 className="font-display text-2xl text-[var(--text)]">{label}</h2>
       <p className="mt-2 text-sm text-[var(--text-muted)]">{t("medMoodHint")}</p>
       <div className="med-mood mt-6">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            onClick={() => onPick(n)}
-            className={`med-mood__mark ${value === n ? "is-active" : ""}`}
-            aria-pressed={value === n}
-          >
-            {n}
-          </button>
-        ))}
+        {labeled
+          ? POST_MOODS.map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => onPick(m.value)}
+                className={`med-mood__mark med-mood__mark--wide ${value === m.value ? "is-active" : ""}`}
+                aria-pressed={value === m.value}
+              >
+                {m.label}
+              </button>
+            ))
+          : [1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => onPick(n)}
+                className={`med-mood__mark ${value === n ? "is-active" : ""}`}
+                aria-pressed={value === n}
+              >
+                {n}
+              </button>
+            ))}
       </div>
     </section>
   );
@@ -542,6 +577,7 @@ export default function MeditationPlayerClient({
               {phase.type === "silence" ? (
                 <>
                   <div className="relative flex h-[220px] w-[220px] items-center justify-center">
+                    <div className="med-player__breath" aria-hidden />
                     <svg
                       width={ringSize}
                       height={ringSize}
@@ -569,7 +605,7 @@ export default function MeditationPlayerClient({
                     </p>
                   </div>
                   <p className="mt-6 text-sm tracking-[0.14em] text-white/55">
-                    {t("medSilenceHint")}
+                    {t("medBreathHint")}
                   </p>
                   <div className="mt-6 flex flex-wrap justify-center gap-2">
                     {BEDS.map((b) => (
@@ -671,6 +707,7 @@ export default function MeditationPlayerClient({
           <MoodRow
             label={t("medMoodAfter")}
             value={moodAfter}
+            labeled
             onPick={(n) => {
               setMoodAfter(n);
             }}
@@ -719,6 +756,23 @@ export default function MeditationPlayerClient({
                 {t("medBack")}
               </Link>
             )}
+            <button
+              type="button"
+              disabled={sitCredited}
+              onClick={() => {
+                writeSitCredit(
+                  session.tier === "daily" ? "daily-sit" : "meditation",
+                  Math.max(
+                    1,
+                    satSecRef.current || session.duration_minutes * 60
+                  )
+                );
+                setSitCredited(true);
+              }}
+              className="min-h-11 border border-[var(--line)] px-5 py-2.5 text-sm text-[var(--brass-soft)] disabled:opacity-60"
+            >
+              {sitCredited ? t("medCountAsSitDone") : t("medCountAsSit")}
+            </button>
             <Link
               href="/sadhana"
               className="min-h-11 border border-[var(--line)] px-5 py-2.5 text-sm text-[var(--brass-soft)]"

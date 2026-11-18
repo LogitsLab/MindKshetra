@@ -149,14 +149,6 @@ export default function TransitsClient() {
       <Link href="/astrology" className="text-sm text-[var(--text-muted)]">
         ← {L === "hi" ? "ज्योतिष" : "Astrology"}
       </Link>
-      <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl text-[var(--text)]">
-        {L === "hi" ? "गोचर" : "Planetary transits"}
-      </h1>
-      <p className="mt-2 text-sm text-[var(--text-soft)]">
-        {L === "hi"
-          ? "गोचर हिट जन्म कुंडली के विरुद्ध गणना होते हैं — एफेमेरिस सत्य का स्रोत है।"
-          : "Transit hits are computed against a natal chart. Ephemeris is the source of truth."}
-      </p>
 
       {!source && !loading ? (
         <div className="mt-8 space-y-3">

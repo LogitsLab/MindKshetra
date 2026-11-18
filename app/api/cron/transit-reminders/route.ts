@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
  * Weekly transit → practice reminder cron (roadmap Phase 6).
  *
  * Auth-gated no-op until:
- * 1. A `transit_reminder` notification pref column + push kind ship
- * 2. Cohort selection can resolve opted-in users with a saved self chart
+ * 1. `dispatchTransitReminders` ships with real cohort + copy
+ * 2. Account UIs may expose an opt-in (today `astrologyAlerts` exists in DB/API only — no live toggle)
  * 3. Copy is reviewed (companionship, never causation — same as Pressure→Practice)
  *
+ * Do not surface transit / astrology alert toggles in web or mobile until this cron sends real pushes.
  * Returns the same shape as festival-reminders so ops dashboards stay uniform.
  */
 export async function GET(request: NextRequest) {

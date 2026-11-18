@@ -1,0 +1,192 @@
+{
+  "id": "sleep-7",
+  "days_count": 7,
+  "title_en": "Seven evenings",
+  "title_hi": "सात संध्याएँ",
+  "intro_en": "A short wind-down for the end of the day. One evening opens the next. This is companionship for rest, not a treatment for sleep.",
+  "intro_hi": "दिन के अंत के लिए एक छोटा विश्राम। एक संध्या अगली खोलती है। यह आराम का साथ है, निद्रा का उपचार नहीं।",
+  "days": [
+    {
+      "id": "sleep-7-d1",
+      "day_number": 1,
+      "tier": "goal",
+      "track": "sleep",
+      "unlock_rule": "previous_completed",
+      "audio_url": "/audio/meditation/holizna-rain-sleep.m4a",
+      "duration_minutes": 8,
+      "title_en": "Put the day down",
+      "title_hi": "दिन को रख दें",
+      "theme_en": "Nothing left to finish tonight.",
+      "theme_hi": "आज रात कुछ पूरा करना शेष नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Lie down or sit. Let the jaw soften. The day can stay where it is. You do not have to solve it now.",
+          "text_hi": "लेट जाएँ या बैठें। जबड़ा कोमल हो। दिन जहाँ है वहीं रह सकता है। अभी हल करना ज़रूरी नहीं।"
+        },
+        { "type": "silence", "seconds": 360 },
+        {
+          "type": "speak",
+          "text_en": "One slower breath. If sleep comes, let it. If not, the rest still counts.",
+          "text_hi": "एक धीमी श्वास। नींद आए तो आने दें। न आए, तब भी यह विश्राम गिना जाता है।"
+        }
+      ]
+    },
+    {
+      "id": "sleep-7-d2",
+      "day_number": 2,
+      "tier": "goal",
+      "track": "sleep",
+      "unlock_rule": "previous_completed",
+      "audio_url": "/audio/meditation/holizna-20-min-1.m4a",
+      "duration_minutes": 10,
+      "title_en": "Weight of the limbs",
+      "title_hi": "अंगों का भार",
+      "theme_en": "Feel the body getting heavier, on purpose.",
+      "theme_hi": "जानबूझ कर शरीर को भारी होने दें।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Notice the weight of the feet, then the legs, then the hands. Heaviness is welcome.",
+          "text_hi": "पैरों का भार, फिर टाँगें, फिर हाथ। भारीपन स्वागत योग्य है।"
+        },
+        { "type": "silence", "seconds": 480 },
+        {
+          "type": "speak",
+          "text_en": "Stay with that weight. There is nowhere else to be.",
+          "text_hi": "उसी भार के साथ रहें। और कहीं होना नहीं है।"
+        }
+      ]
+    },
+    {
+      "id": "sleep-7-d3",
+      "day_number": 3,
+      "tier": "goal",
+      "track": "sleep",
+      "unlock_rule": "previous_completed",
+      "audio_url": "/audio/meditation/holizna-20-min-2.m4a",
+      "duration_minutes": 10,
+      "title_en": "A longer exhale",
+      "title_hi": "लंबी छोड़",
+      "theme_en": "The out-breath is enough of a practice.",
+      "theme_hi": "बाहर की श्वास ही पर्याप्त अभ्यास है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Breathe in quietly. Let the out-breath be a little longer. Do not count past comfort.",
+          "text_hi": "चुपचाप साँस लें। छोड़ थोड़ी लंबी हो। आराम से आगे न गिनें।"
+        },
+        { "type": "silence", "seconds": 480 },
+        {
+          "type": "speak",
+          "text_en": "Let the next breath be ordinary. Rest.",
+          "text_hi": "अगली श्वास साधारण रहने दें। विश्राम।"
+        }
+      ]
+    },
+    {
+      "id": "sleep-7-d4",
+      "day_number": 4,
+      "tier": "goal",
+      "track": "sleep",
+      "unlock_rule": "previous_completed",
+      "audio_url": "/audio/meditation/holizna-cosmic-waves.m4a",
+      "duration_minutes": 12,
+      "title_en": "Sounds can pass",
+      "title_hi": "ध्वनियाँ जा सकती हैं",
+      "theme_en": "The room does not have to be silent.",
+      "theme_hi": "कमरे का मौन होना ज़रूरी नहीं।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "If a sound appears, let it pass like a cart on the road. You do not have to follow it.",
+          "text_hi": "कोई ध्वनि आए तो सड़क पर गाड़ी की तरह जाने दें। उसके पीछे जाना ज़रूरी नहीं।"
+        },
+        { "type": "silence", "seconds": 600 },
+        {
+          "type": "speak",
+          "text_en": "The bed under you is still here. So are you.",
+          "text_hi": "नीचे का बिस्तर अभी भी यहीं है। आप भी।"
+        }
+      ]
+    },
+    {
+      "id": "sleep-7-d5",
+      "day_number": 5,
+      "tier": "goal",
+      "track": "sleep",
+      "unlock_rule": "previous_completed",
+      "audio_url": "/audio/meditation/holizna-rain-sleep.m4a",
+      "duration_minutes": 10,
+      "title_en": "Unclench the hands",
+      "title_hi": "हाथ खोलें",
+      "theme_en": "The day is often still held in the fists.",
+      "theme_hi": "दिन अक्सर मुट्ठियों में रह जाता है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Open the hands. Let the fingers rest apart. Whatever you were holding can wait until morning.",
+          "text_hi": "हाथ खोलें। उँगलियाँ अलग रहें। जो पकड़ा था वह सुबह तक रुक सकता है।"
+        },
+        { "type": "silence", "seconds": 480 },
+        {
+          "type": "speak",
+          "text_en": "Hands soft. Breath soft. Enough.",
+          "text_hi": "हाथ कोमल। श्वास कोमल। पर्याप्त।"
+        }
+      ]
+    },
+    {
+      "id": "sleep-7-d6",
+      "day_number": 6,
+      "tier": "goal",
+      "track": "sleep",
+      "unlock_rule": "previous_completed",
+      "audio_url": "/audio/meditation/holizna-20-min-1.m4a",
+      "duration_minutes": 12,
+      "title_en": "Name, then leave it",
+      "title_hi": "नाम लें, फिर छोड़ें",
+      "theme_en": "A thought can be named once and set down.",
+      "theme_hi": "एक विचार का नाम एक बार लेकर उसे रख दिया जा सकता है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "If a thought keeps returning, give it a plain name — work, person, plan — and set it outside the room.",
+          "text_hi": "यदि कोई विचार लौटता रहे, उसे सादा नाम दें — काम, व्यक्ति, योजना — और कमरे के बाहर रख दें।"
+        },
+        { "type": "silence", "seconds": 600 },
+        {
+          "type": "speak",
+          "text_en": "You can pick it up tomorrow. Tonight it stays outside.",
+          "text_hi": "कल उसे उठा सकते हैं। आज रात वह बाहर रहता है।"
+        }
+      ]
+    },
+    {
+      "id": "sleep-7-d7",
+      "day_number": 7,
+      "tier": "goal",
+      "track": "sleep",
+      "unlock_rule": "previous_completed",
+      "audio_url": "/audio/meditation/holizna-cosmic-waves.m4a",
+      "duration_minutes": 12,
+      "title_en": "The week can close",
+      "title_hi": "सप्ताह बंद हो सकता है",
+      "theme_en": "Seven evenings. The seat for night is familiar now.",
+      "theme_hi": "सात संध्याएँ। रात का आसन अब परिचित है।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "This is the seventh evening. You already know how to lie down and let the breath lengthen. Nothing new is required.",
+          "text_hi": "यह सातवीं संध्या है। लेटना और श्वास को लंबा होने देना आप जानते हैं। कुछ नया आवश्यक नहीं।"
+        },
+        { "type": "silence", "seconds": 600 },
+        {
+          "type": "speak",
+          "text_en": "Rest. The week is complete. Begin again any evening you wish.",
+          "text_hi": "विश्राम। सप्ताह पूर्ण। जिस संध्या चाहें फिर आरंभ करें।"
+        }
+      ]
+    }
+  ]
+}

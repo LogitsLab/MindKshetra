@@ -65,11 +65,8 @@ export default function MuhuratPage() {
       <Link href="/astrology" className="text-sm text-[var(--text-muted)]">
         ← {t("astroTitle")}
       </Link>
-      <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl text-[var(--text)]">
-        {t("astroMuhuratTitle")}
-      </h1>
-      <p className="mt-2 text-sm text-[var(--text-soft)]">
-        {t("astroMuhuratIntro")} {t("astroMuhuratApprox")}
+      <p className="mt-3 text-sm text-[var(--text-soft)]">
+        {t("astroMuhuratApprox")}
       </p>
       {error ? (
         <div className="mt-6 space-y-3">

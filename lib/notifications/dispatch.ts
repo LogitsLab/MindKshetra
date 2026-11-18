@@ -9,13 +9,23 @@ import {
   sendPushMessages,
   ticketIds,
 } from "@/lib/notifications/expo-push";
+import { computeDailyPanchang } from "@/lib/astrology/daily-panchang";
+import { festivalsForDailyPanchang } from "@/lib/astrology/festivals";
+import { resolveIanaTz } from "@/lib/astrology/geo";
 import {
   dailyVerseDedupeKey,
+  festivalReminderDedupeKey,
   isDueAtLocalHour,
+  localDayInTz,
   resolveTimezone,
 } from "@/lib/notifications/scheduling";
-import { dailyVerseCopy, normalizePushLang } from "@/lib/push-copy";
+import {
+  dailyVerseCopy,
+  festivalReminderCopy,
+  normalizePushLang,
+} from "@/lib/push-copy";
 import { formatVerseRef } from "@/lib/sloka-utils";
+import { getSlokaByRef } from "@/lib/slokas";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
 /**
@@ -31,6 +41,9 @@ import type { createAdminClient } from "@/lib/supabase/admin";
 type Admin = ReturnType<typeof createAdminClient>;
 
 export const CATEGORY_DAILY_VERSE = "daily-verse";
+export const CATEGORY_FESTIVAL = "festival-reminder";
+const DELHI_LAT = 28.6139;
+const DELHI_LNG = 77.209;
 const MAX_ATTEMPTS = 3;
 /** A pending row younger than this may still be in-flight in another run. */
 const STALE_PENDING_MINUTES = 10;
@@ -362,6 +375,250 @@ export async function dispatchDailyVerse(
   }
 
   return totals;
+}
+
+type FestivalMark = {
+  id: string;
+  labelEn: string;
+  labelHi: string;
+  isEkadashi: boolean;
+  deepLink: string;
+};
+
+function parseFestivalVerseRef(
+  ref: string | undefined
+): { chapter: number; verse: number } | null {
+  if (!ref) return null;
+  const m = /^(\d{1,2})\.(\d{1,3})$/.exec(ref.trim());
+  if (!m) return null;
+  const chapter = Number(m[1]);
+  const verse = Number(m[2]);
+  if (!Number.isFinite(chapter) || !Number.isFinite(verse)) return null;
+  return { chapter, verse };
+}
+
+async function festivalDeepLinkFor(verseRef: string | undefined): Promise<string> {
+  const parsed = parseFestivalVerseRef(verseRef);
+  if (!parsed) return "/panchang";
+  try {
+    const sloka = await getSlokaByRef(parsed.chapter, parsed.verse);
+    if (sloka?.id) return `/sloka/${sloka.id}`;
+  } catch {
+    /* content layer unavailable — fall back to VOTD */
+  }
+  return "/verse-of-the-day";
+}
+
+/** Named festivals + Ekadashi for the Delhi reference sky on `now`'s IST day. */
+export async function festivalMarksForNow(now: Date): Promise<FestivalMark[]> {
+  const ianaTz = resolveIanaTz(DELHI_LAT, DELHI_LNG);
+  const date = localDayInTz(ianaTz, now);
+  const panchang = computeDailyPanchang(date, DELHI_LAT, DELHI_LNG, ianaTz);
+  const festivals = festivalsForDailyPanchang(panchang, DELHI_LAT, DELHI_LNG);
+  const marks: FestivalMark[] = [];
+  for (const f of festivals) {
+    marks.push({
+      id: f.id,
+      labelEn: f.labelEn,
+      labelHi: f.labelHi,
+      isEkadashi: false,
+      deepLink: await festivalDeepLinkFor(f.verseRef),
+    });
+  }
+  if (panchang.isEkadashi) {
+    marks.push({
+      id: "ekadashi",
+      labelEn: panchang.tithi || "Ekadashi",
+      labelHi: panchang.tithi || "एकादशी",
+      isEkadashi: true,
+      deepLink: "/panchang",
+    });
+  }
+  return marks;
+}
+
+/**
+ * Opt-in festival / Ekadashi push for users with festival_reminders=true,
+ * at their chosen send_hour_local. No-op when the sky has no mark today.
+ */
+export async function dispatchFestivalReminders(
+  admin: Admin,
+  now: Date,
+  deadline: number
+): Promise<{ claimed: number; sent: number; failed: number; marks: number }> {
+  const totals = { claimed: 0, sent: 0, failed: 0, marks: 0 };
+  const marks = await festivalMarksForNow(now);
+  totals.marks = marks.length;
+  if (!marks.length) return totals;
+
+  // One push per user per day covering the primary mark (first festival, else Ekadashi).
+  const primary = marks[0];
+
+  let lastId: string | null = null;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    if (Date.now() > deadline) break;
+
+    let query = admin
+      .from("notification_preferences")
+      .select("user_id, send_hour_local")
+      .eq("push_enabled", true)
+      .eq("festival_reminders", true)
+      .order("user_id", { ascending: true })
+      .limit(PAGE_SIZE);
+    if (lastId) query = query.gt("user_id", lastId);
+
+    const { data, error } = await query;
+    if (error) {
+      // Column missing until migration 023 is applied — fail soft.
+      if (
+        /festival_reminders|column .* does not exist/i.test(error.message ?? "")
+      ) {
+        console.warn(
+          "[notify/dispatch] festival_reminders column missing — apply 023_festival_reminders.sql"
+        );
+        break;
+      }
+      throwIfMissingTables(error);
+      console.warn("[notify/dispatch] festival prefs scan failed:", error.message);
+      break;
+    }
+    const prefs = (data ?? []) as PrefTarget[];
+    if (!prefs.length) break;
+    lastId = prefs[prefs.length - 1].user_id;
+
+    const tzByUser = await loadTimezones(
+      admin,
+      prefs.map((p) => p.user_id)
+    );
+
+    const due: ClaimEntry[] = [];
+    for (const pref of prefs) {
+      const tz = resolveTimezone(tzByUser.get(pref.user_id)?.timezone);
+      if (isDueAtLocalHour(tz, now, pref.send_hour_local ?? 8)) {
+        due.push({
+          userId: pref.user_id,
+          dedupeKey: festivalReminderDedupeKey(tz, now, primary.id),
+        });
+      }
+    }
+
+    if (due.length) {
+      const claimedRows = await claim(admin, due, "push", CATEGORY_FESTIVAL);
+      totals.claimed += claimedRows.length;
+      if (claimedRows.length) {
+        const outcome = await sendFestivalToClaimed(
+          admin,
+          claimedRows,
+          primary,
+          tzByUser
+        );
+        totals.sent += outcome.sent;
+        totals.failed += outcome.failed;
+      }
+    }
+
+    if (prefs.length < PAGE_SIZE) break;
+  }
+
+  return totals;
+}
+
+async function sendFestivalToClaimed(
+  admin: Admin,
+  rows: ClaimedRow[],
+  mark: FestivalMark,
+  metaByUser: Map<string, UserMeta>
+): Promise<{ sent: number; failed: number }> {
+  const outcome = { sent: 0, failed: 0 };
+  const userIds = Array.from(new Set(rows.map((r) => r.user_id)));
+
+  const tokensByUser = new Map<string, string[]>();
+  for (const ids of chunk(userIds, IN_CHUNK)) {
+    const { data, error } = await admin
+      .from("device_push_tokens")
+      .select("user_id, expo_push_token")
+      .in("user_id", ids)
+      .is("disabled_at", null)
+      .order("last_seen_at", { ascending: false });
+    throwIfMissingTables(error);
+    if (error) {
+      console.warn("[notify/dispatch] festival token load failed:", error.message);
+      continue;
+    }
+    for (const row of data ?? []) {
+      const list = tokensByUser.get(row.user_id as string) ?? [];
+      if (list.length >= MAX_TOKENS_PER_USER) continue;
+      list.push(row.expo_push_token as string);
+      tokensByUser.set(row.user_id as string, list);
+    }
+  }
+
+  const messages: ExpoPushMessage[] = [];
+  const rowByToken = new Map<string, ClaimedRow>();
+  const rowsWithoutTokens: ClaimedRow[] = [];
+  for (const row of rows) {
+    const tokens = tokensByUser.get(row.user_id) ?? [];
+    if (!tokens.length) {
+      rowsWithoutTokens.push(row);
+      continue;
+    }
+    const lang = normalizePushLang(metaByUser.get(row.user_id)?.preferred_language);
+    const label = lang === "hi" ? mark.labelHi : mark.labelEn;
+    const copy = festivalReminderCopy(lang, label, mark.isEkadashi);
+    for (const token of tokens) {
+      rowByToken.set(token, row);
+      messages.push({
+        to: token,
+        title: copy.title,
+        body: copy.body,
+        data: { url: mark.deepLink },
+      });
+    }
+  }
+
+  if (rowsWithoutTokens.length) {
+    await settleRows(
+      admin,
+      rowsWithoutTokens.map((r) => r.id),
+      { status: "failed", error: "no active push tokens" }
+    );
+    outcome.failed += rowsWithoutTokens.length;
+  }
+  if (!messages.length) return outcome;
+
+  const result = await sendPushMessages(messages);
+  await disableTokens(admin, deadTokensFromTickets(result.tickets));
+
+  const ticketsByRow = new Map<
+    string,
+    { row: ClaimedRow; ids: string[]; errors: string[] }
+  >();
+  for (const { token, ticket } of result.tickets) {
+    const row = rowByToken.get(token);
+    if (!row) continue;
+    const bucket = ticketsByRow.get(row.id) ?? { row, ids: [], errors: [] };
+    if (ticket.status === "ok") bucket.ids.push(ticket.id);
+    else bucket.errors.push(ticket.details?.error ?? ticket.message ?? "error");
+    ticketsByRow.set(row.id, bucket);
+  }
+
+  for (const { row, ids, errors } of Array.from(ticketsByRow.values())) {
+    if (ids.length) {
+      await settleRows(admin, [row.id], {
+        status: "sent",
+        expo_ticket_id: ids.join(","),
+      });
+      outcome.sent += 1;
+    } else {
+      await settleRows(admin, [row.id], {
+        status: "failed",
+        error: errors.slice(0, 3).join("; ") || "all tickets errored",
+      });
+      outcome.failed += 1;
+    }
+  }
+
+  return outcome;
 }
 
 type UserMeta = { timezone: string | null; preferred_language: string | null };

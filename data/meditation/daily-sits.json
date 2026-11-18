@@ -6,6 +6,32 @@
   "intro_hi": "अनलॉक श्रृंखला के बाहर छोटी बैठकें। सदैव उपलब्ध — पाठ्यक्रम पूरा होने के बाद, या जब केवल पाँच शांत मिनट चाहें।",
   "sessions": [
     {
+      "id": "daily-first-sit-3",
+      "day_number": 0,
+      "tier": "daily",
+      "track": null,
+      "unlock_rule": "always",
+      "audio_url": null,
+      "duration_minutes": 3,
+      "title_en": "First sit — three minutes",
+      "title_hi": "पहली बैठक — तीन मिनट",
+      "theme_en": "A gentle entry. No course unlock needed — just arrive.",
+      "theme_hi": "कोमल प्रवेश। पाठ्यक्रम अनलॉक की ज़रूरत नहीं — बस आएँ।",
+      "phases": [
+        {
+          "type": "speak",
+          "text_en": "Sit comfortably. Soften the jaw. Breathe in for a count of four, out for a count of six. Do not force.",
+          "text_hi": "आराम से बैठें। जबड़ा कोमल। चार गिनती साँस लें, छह गिनती छोड़ें। जबरदस्ती न करें।"
+        },
+        { "type": "silence", "seconds": 120 },
+        {
+          "type": "speak",
+          "text_en": "One clear breath. Open the eyes when ready. You can begin the course whenever you wish.",
+          "text_hi": "एक स्पष्ट श्वास। जब तैयार हों आँखें खोलें। पाठ्यक्रम जब चाहें शुरू कर सकते हैं।"
+        }
+      ]
+    },
+    {
       "id": "daily-breath-5",
       "day_number": 0,
       "tier": "daily",
