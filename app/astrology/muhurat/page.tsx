@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
+import AstrologyToolIntro from "@/components/AstrologyToolIntro";
 import { pageMetadata } from "@/lib/seo";
 import MuhuratPageClient from "./MuhuratPageClient";
 
-// Server wrapper so this route can export metadata; the page itself is the
-// client component next to it.
 export const metadata: Metadata = pageMetadata({
   title: "Today's muhurat and choghadiya timings",
   description:
@@ -12,5 +11,19 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function Page() {
-  return <MuhuratPageClient />;
+  return (
+    <div className="animate-fade">
+      <AstrologyToolIntro
+        eyebrow="Muhurat"
+        title="Today's muhurat and choghadiya"
+        body="Local sunrise opens the day: choghadiya and traditional muhurat windows for your place — good, neutral, and quieter hours. Use them as orientation, not as a rule that overrides conscience or care."
+        bullets={[
+          "Computed for your location when location is available.",
+          "Swiss Ephemeris sunrise; periods labelled gently.",
+          "Pair with today's panchang or a short sādhana if you wish.",
+        ]}
+      />
+      <MuhuratPageClient />
+    </div>
+  );
 }

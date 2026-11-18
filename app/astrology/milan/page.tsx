@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LocalizedPageHeader from "@/components/LocalizedPageHeader";
+import AstrologyToolIntro from "@/components/AstrologyToolIntro";
 import PageHeroImage from "@/components/PageHeroImage";
 import MilanClient from "@/components/astrology/MilanClient";
 import { pageMetadata } from "@/lib/seo";
@@ -17,7 +17,16 @@ export default function MilanPage() {
       {/* Ashtakoota is moon-nakshatra matching, and this is the one image in
           the set with a crescent moon and named constellations. */}
       <PageHeroImage src="/images/paths/astrology.jpg" />
-      <LocalizedPageHeader eyebrowKey="milanEyebrow" titleKey="milanTitle" />
+      <AstrologyToolIntro
+        eyebrow="Kundli Milan"
+        title="Ashtakoota guna matching"
+        body="Traditional 36-guna Ashtakoota between two birth charts — moon and nakshatra based, computed with the Swiss Ephemeris. Read as cultural companionship for conversation, never as a verdict on love or worth."
+        bullets={[
+          "Needs two charts (saved members or session charts).",
+          "Scores and gunas explained in plain language.",
+          "Gita-aware tone: dignity for both people, no fear copy.",
+        ]}
+      />
       <MilanClient />
     </div>
   );

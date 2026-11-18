@@ -4,6 +4,11 @@ import Link from "next/link";
 import ImmersiveHero from "@/components/ImmersiveHero";
 import { useLanguage } from "@/components/LanguageProvider";
 import transparency from "@/data/transparency.json";
+import {
+  INSTAGRAM_HANDLE,
+  INSTAGRAM_URL,
+  resolveWhatsAppChannelUrl,
+} from "@/lib/brand-links";
 
 /**
  * Links are env-driven so the page ships before the accounts exist and
@@ -14,8 +19,9 @@ import transparency from "@/data/transparency.json";
 const GITHUB_SPONSORS = process.env.NEXT_PUBLIC_GITHUB_SPONSORS_URL;
 const OPEN_COLLECTIVE = process.env.NEXT_PUBLIC_OPEN_COLLECTIVE_URL;
 const UPI_DONATION = process.env.NEXT_PUBLIC_RAZORPAY_DONATION_URL;
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL;
+const WHATSAPP = resolveWhatsAppChannelUrl();
 const TELEGRAM = process.env.NEXT_PUBLIC_TELEGRAM_URL;
+const INSTAGRAM = INSTAGRAM_URL;
 
 const outlineBtn =
   "inline-flex min-h-11 items-center border border-[var(--line)] px-5 py-2.5 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/50 hover:text-[var(--brass-soft)]";
@@ -157,33 +163,37 @@ export default function SupportClient() {
         </p>
       </section>
 
-      {WHATSAPP || TELEGRAM ? (
-        <section className="mt-12">
-          <p className="eyebrow text-[var(--brass)]">{t("supportCommunity")}</p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            {WHATSAPP ? (
-              <a
-                href={WHATSAPP}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={outlineBtn}
-              >
-                WhatsApp
-              </a>
-            ) : null}
-            {TELEGRAM ? (
-              <a
-                href={TELEGRAM}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={outlineBtn}
-              >
-                Telegram
-              </a>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
+      <section className="mt-12">
+        <p className="eyebrow text-[var(--brass)]">{t("supportCommunity")}</p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <a
+            href={WHATSAPP}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={outlineBtn}
+          >
+            WhatsApp Channel
+          </a>
+          <a
+            href={INSTAGRAM}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={outlineBtn}
+          >
+            {INSTAGRAM_HANDLE}
+          </a>
+          {TELEGRAM ? (
+            <a
+              href={TELEGRAM}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={outlineBtn}
+            >
+              Telegram
+            </a>
+          ) : null}
+        </div>
+      </section>
 
       <p className="mt-12 max-w-2xl text-[15px] font-light leading-relaxed text-[var(--text-soft)]">
         {t("supportAgpl")}

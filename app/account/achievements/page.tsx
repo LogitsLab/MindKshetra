@@ -24,6 +24,7 @@ type LifetimeStats = {
   sessions: number;
   durationMinutes: number;
   mantras: number;
+  meditationSits: number;
 };
 
 export default function AchievementsPage() {
@@ -47,6 +48,7 @@ export default function AchievementsPage() {
           sessions: Number(d.sessions) || 0,
           durationMinutes: Number(d.durationMinutes) || 0,
           mantras: Number(d.mantras) || 0,
+          meditationSits: Number(d.meditationSits) || 0,
         });
       })
       .catch(() => setLifetime(null));
@@ -105,7 +107,7 @@ export default function AchievementsPage() {
               );
             })}
           </ul>
-          <section className="glass mt-8 grid grid-cols-3 divide-x divide-[var(--hairline)] py-8">
+          <section className="glass mt-8 grid grid-cols-2 divide-x divide-[var(--hairline)] py-8 sm:grid-cols-4">
             {(
               [
                 [lifetime?.sessions ?? 0, L === "hi" ? "सत्र" : "Sessions"],
@@ -114,6 +116,10 @@ export default function AchievementsPage() {
                   L === "hi" ? "मिनट" : "Mindful minutes",
                 ],
                 [lifetime?.mantras ?? 0, L === "hi" ? "माला" : "Malas"],
+                [
+                  lifetime?.meditationSits ?? 0,
+                  L === "hi" ? "बैठक" : "Sits",
+                ],
               ] as const
             ).map(([value, label]) => (
               <div key={label} className="px-3 py-5 text-center">

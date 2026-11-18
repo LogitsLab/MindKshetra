@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useMemo } from "react";
 import EmptyState from "@/components/EmptyState";
+import ChapterListenPlayer from "@/components/ChapterListenPlayer";
 import { MilestoneMark } from "@/components/MilestoneMarks";
 import SlokaCard from "@/components/SlokaCard";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -10,6 +12,7 @@ import {
   chapterMoral,
   chapterSubtitle,
   chapterSummary,
+  chapterTags,
   chapterTitle,
   type ChapterMeta,
 } from "@/lib/chapters";
@@ -63,6 +66,15 @@ export default function ChapterPageClient({
   const groups = groupByUnits(chapter, slokas);
   const completedSet = new Set(completedIds);
   const doneCount = slokas.filter((s) => completedSet.has(s.id)).length;
+  const verseNumbers = useMemo(
+    () => slokas.map((s) => s.verse_number),
+    [slokas]
+  );
+  const summaryText = chapterSummary(meta, lang);
+  const summaryParts = summaryText
+    ? summaryText.split(/\n\n+/).map((p) => p.trim()).filter(Boolean)
+    : [];
+  const tags = chapterTags(meta, lang);
 
   return (
     <div className="animate-fade">
@@ -94,10 +106,24 @@ export default function ChapterPageClient({
             {chapterSubtitle(meta, lang)}
           </p>
         ) : null}
-        {chapterSummary(meta, lang) ? (
-          <p className="mt-4 text-sm font-light leading-relaxed text-[var(--text-muted)]">
-            {chapterSummary(meta, lang)}
-          </p>
+        {tags.length ? (
+          <ul className="mt-4 flex flex-wrap gap-2" aria-label={t("chapterTags")}>
+            {tags.map((tag) => (
+              <li
+                key={tag}
+                className="border border-[var(--line)] px-2.5 py-1 text-[11px] tracking-[0.06em] text-[var(--brass-soft)]"
+              >
+                {tag}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {summaryParts.length ? (
+          <div className="mt-4 space-y-3 text-sm font-light leading-relaxed text-[var(--text-muted)]">
+            {summaryParts.map((part) => (
+              <p key={part.slice(0, 48)}>{part}</p>
+            ))}
+          </div>
         ) : null}
         {chapterMoral(meta, lang) ? (
           <div className="mt-5 border border-[var(--line)] bg-[var(--panel)] p-4">
@@ -135,6 +161,12 @@ export default function ChapterPageClient({
           >
             {t("continueReading")}
           </Link>
+        ) : null}
+        {verseNumbers.length > 0 ? (
+          <ChapterListenPlayer
+            chapter={chapter}
+            verseNumbers={verseNumbers}
+          />
         ) : null}
       </header>
 

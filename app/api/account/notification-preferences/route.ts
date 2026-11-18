@@ -12,7 +12,8 @@ export const dynamic = "force-dynamic";
  * keep it stable:
  *
  *   GET   → { pushEnabled, dailyVerse, streakReminder, continueReading,
- *             astrologyAlerts, reflections, weeklyDigestEmail, sendHourLocal }
+ *             astrologyAlerts, reflections, weeklyDigestEmail,
+ *             festivalReminders, sendHourLocal }
  *   PATCH → any subset of the same keys; sendHourLocal is an integer 4-21.
  *
  * First GET creates the row with defaults. The table is service-role only,
@@ -27,11 +28,12 @@ type Row = {
   astrology_alerts: boolean;
   reflections: boolean;
   weekly_digest_email: boolean;
+  festival_reminders: boolean;
   send_hour_local: number;
 };
 
 const ROW_COLUMNS =
-  "push_enabled, daily_verse, streak_reminder, continue_reading, astrology_alerts, reflections, weekly_digest_email, send_hour_local";
+  "push_enabled, daily_verse, streak_reminder, continue_reading, astrology_alerts, reflections, weekly_digest_email, festival_reminders, send_hour_local";
 
 const DEFAULTS: Row = {
   push_enabled: true,
@@ -41,6 +43,7 @@ const DEFAULTS: Row = {
   astrology_alerts: false,
   reflections: false,
   weekly_digest_email: false,
+  festival_reminders: false,
   send_hour_local: 8,
 };
 
@@ -53,6 +56,7 @@ const BOOL_FIELDS = {
   astrologyAlerts: "astrology_alerts",
   reflections: "reflections",
   weeklyDigestEmail: "weekly_digest_email",
+  festivalReminders: "festival_reminders",
 } as const;
 
 function toWire(row: Row) {
@@ -64,6 +68,7 @@ function toWire(row: Row) {
     astrologyAlerts: row.astrology_alerts,
     reflections: row.reflections,
     weeklyDigestEmail: row.weekly_digest_email,
+    festivalReminders: row.festival_reminders ?? DEFAULTS.festival_reminders,
     sendHourLocal: row.send_hour_local,
   };
 }
@@ -97,11 +102,28 @@ export async function GET() {
   }
 
   const admin = createAdminClient();
-  const { data, error } = await admin
+  let { data, error } = await admin
     .from("notification_preferences")
     .select(ROW_COLUMNS)
     .eq("user_id", userId)
     .maybeSingle();
+  // Migration 023 adds festival_reminders — fall back if not applied yet.
+  if (
+    error &&
+    /festival_reminders|column .* does not exist/i.test(error.message ?? "")
+  ) {
+    const legacy = await admin
+      .from("notification_preferences")
+      .select(
+        "push_enabled, daily_verse, streak_reminder, continue_reading, astrology_alerts, reflections, weekly_digest_email, send_hour_local"
+      )
+      .eq("user_id", userId)
+      .maybeSingle();
+    data = legacy.data
+      ? ({ ...DEFAULTS, ...legacy.data, festival_reminders: false } as Row)
+      : null;
+    error = legacy.error;
+  }
   if (error) {
     if (tableMissing(error)) return tableMissingResponse();
     console.warn("[notification-preferences] read failed:", error.message);

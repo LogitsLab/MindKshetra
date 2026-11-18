@@ -1,7 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  dispatchFestivalReminders,
+  MissingNotificationTablesError,
+} from "@/lib/notifications/dispatch";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { requireSupabase } from "@/lib/supabase/require";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 120;
+
+const BUDGET_MS = 90_000;
 
 function authorizeCron(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -11,21 +19,39 @@ function authorizeCron(request: NextRequest): boolean {
 }
 
 /**
- * Festival reminder fan-out (plan Phase 3).
- *
- * TODO: When the push dispatcher gains a `festival_reminder` kind (and/or
- * email twin of votd-email), resolve today's named festivals via
- * `festivalsForDailyPanchang` / `computeMonthPanchang` for the Delhi
- * reference sky and notify opted-in users. Until then this is an
- * authorized no-op so schedules and secrets can be wired safely.
- *
- * Suggested schedule (IST morning): mirror votd-email — "30 2 * * *" UTC.
+ * Festival / Ekadashi opt-in push fan-out.
+ * Schedule (IST morning window): mirror votd-email — "30 2 * * *" UTC,
+ * plus notify-dispatch which also hits users at send_hour_local.
  */
 export async function GET(request: NextRequest) {
   if (!authorizeCron(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const unconfigured = requireSupabase({ admin: true });
+  if (unconfigured) return unconfigured;
 
-  // No-op stub — push/email dispatcher not live for festivals yet.
-  return NextResponse.json({ ok: true, sent: 0 });
+  try {
+    const admin = createAdminClient();
+    const result = await dispatchFestivalReminders(
+      admin,
+      new Date(),
+      Date.now() + BUDGET_MS
+    );
+    return NextResponse.json({
+      ok: true,
+      marks: result.marks,
+      claimed: result.claimed,
+      sent: result.sent,
+      failed: result.failed,
+    });
+  } catch (err) {
+    if (err instanceof MissingNotificationTablesError) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+    console.warn(
+      "[cron/festival-reminders]",
+      err instanceof Error ? err.message : err
+    );
+    return NextResponse.json({ error: "Festival dispatch failed" }, { status: 500 });
+  }
 }

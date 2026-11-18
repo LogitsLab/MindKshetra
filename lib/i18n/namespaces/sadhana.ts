@@ -68,7 +68,11 @@ export const en = {
   japaBegin: "Begin japa",
   japaOfTarget: "of {n}",
   japaTargetDone: "This round is complete.",
+  japaAnotherRound: "Another round",
   japaChangeSetup: "Change setup",
+  japaLifetime: "{beads} beads · {malas} malas so far",
+  japaDailyToday: "Today {n} / {goal} beads",
+  japaDailyGoalMet: "Daily goal met · {n} beads",
 };
 
 export const hi: Record<keyof typeof en, string> = {
@@ -137,5 +141,9 @@ export const hi: Record<keyof typeof en, string> = {
   japaBegin: "जप आरंभ करें",
   japaOfTarget: "{n} में से",
   japaTargetDone: "यह चक्र पूर्ण हुआ।",
+  japaAnotherRound: "एक और चक्र",
   japaChangeSetup: "सेटअप बदलें",
+  japaLifetime: "{beads} मनके · {malas} माला अब तक",
+  japaDailyToday: "आज {n} / {goal} मनके",
+  japaDailyGoalMet: "दैनिक लक्ष्य पूर्ण · {n} मनके",
 };

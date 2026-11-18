@@ -7,12 +7,15 @@ type Props = {
   text: string;
   url: string;
   imageUrl?: string;
+  /** 1080×1920 Stories / Reels still */
+  storiesImageUrl?: string;
   /** Verse id, recorded in share_card props for per-verse share analytics. */
   slokaId?: number;
   /** Which card was shared: the verse block or the reflection story block. */
   surface?: "verse" | "story";
   shareLabel?: string;
   imageLabel?: string;
+  storiesLabel?: string;
   /** Quiet text links instead of bordered buttons. */
   quiet?: boolean;
 };
@@ -22,15 +25,15 @@ export default function ShareButton({
   text,
   url,
   imageUrl,
+  storiesImageUrl,
   slokaId,
   surface,
   shareLabel = "Share",
   imageLabel = "Card",
+  storiesLabel = "Stories",
   quiet = false,
 }: Props) {
-  // `path` distinguishes the page the share happened on (/sloka/[id] vs
-  // /verse-of-the-day — both render this button through SlokaDetail).
-  function recordShare(method: "native" | "copy" | "image") {
+  function recordShare(method: "native" | "copy" | "image" | "stories") {
     track("share_card", {
       method,
       ...(surface ? { surface } : {}),
@@ -61,58 +64,56 @@ export default function ShareButton({
     alert("Link copied.");
   }
 
-  function downloadImage() {
-    if (!imageUrl) return;
-    recordShare("image");
-    window.open(imageUrl, "_blank", "noopener,noreferrer");
+  function openImage(href: string, method: "image" | "stories") {
+    recordShare(method);
+    window.open(href, "_blank", "noopener,noreferrer");
   }
 
   const buttonClass = quiet
     ? "inline-flex h-8 items-center text-sm leading-none text-[var(--text-muted)] transition hover:text-[var(--brass-soft)]"
     : "min-h-10 border border-[var(--line)] px-3 py-2 text-sm text-[var(--text-muted)] transition hover:border-[var(--brass)]/45 hover:text-[var(--brass-soft)]";
 
-  if (quiet) {
-    return (
-      <>
-        <button type="button" onClick={() => void share()} className={buttonClass}>
-          {shareLabel}
-        </button>
-        {imageUrl ? (
-          <>
-            <span className="select-none text-[var(--text-muted)]/35" aria-hidden>
-              ·
-            </span>
-            <button
-              type="button"
-              onClick={downloadImage}
-              className={buttonClass}
-            >
-              {imageLabel}
-            </button>
-          </>
-        ) : null}
-      </>
-    );
-  }
-
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        onClick={() => void share()}
-        className={buttonClass}
-      >
+  const links = (
+    <>
+      <button type="button" onClick={() => void share()} className={buttonClass}>
         {shareLabel}
       </button>
       {imageUrl ? (
-        <button
-          type="button"
-          onClick={downloadImage}
-          className={buttonClass}
-        >
-          {imageLabel}
-        </button>
+        <>
+          {quiet ? (
+            <span className="select-none text-[var(--text-muted)]/35" aria-hidden>
+              ·
+            </span>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => openImage(imageUrl, "image")}
+            className={buttonClass}
+          >
+            {imageLabel}
+          </button>
+        </>
       ) : null}
-    </div>
+      {storiesImageUrl ? (
+        <>
+          {quiet ? (
+            <span className="select-none text-[var(--text-muted)]/35" aria-hidden>
+              ·
+            </span>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => openImage(storiesImageUrl, "stories")}
+            className={buttonClass}
+          >
+            {storiesLabel}
+          </button>
+        </>
+      ) : null}
+    </>
   );
+
+  if (quiet) return links;
+
+  return <div className="flex flex-wrap items-center gap-2">{links}</div>;
 }

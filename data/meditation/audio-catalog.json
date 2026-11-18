@@ -1,0 +1,53 @@
+{
+  "_comment": "CC0 sleep beds. Files live under public/audio/meditation. HoliznaCC0, Free Music Archive, CC0 1.0.",
+  "tracks": [
+    {
+      "id": "holizna-med-1",
+      "kind": "ambient",
+      "shelf": "sleep",
+      "durationSec": 1280,
+      "title_en": "20 minute meditation",
+      "title_hi": "बीस मिनट का ध्यान",
+      "src": "/audio/meditation/holizna-20-min-1.m4a",
+      "license": "CC0-1.0",
+      "credit": "HoliznaCC0 — 20 Minute Meditation 1",
+      "sourceUrl": "https://freemusicarchive.org/music/holiznacc0/space-sleep-meditation/20-minute-meditation-1/"
+    },
+    {
+      "id": "holizna-med-2",
+      "kind": "ambient",
+      "shelf": "sleep",
+      "durationSec": 1203,
+      "title_en": "20 minute meditation II",
+      "title_hi": "बीस मिनट का ध्यान २",
+      "src": "/audio/meditation/holizna-20-min-2.m4a",
+      "license": "CC0-1.0",
+      "credit": "HoliznaCC0 — 20 Minute Meditation 2",
+      "sourceUrl": "https://freemusicarchive.org/music/holiznacc0/space-sleep-meditation/20-minute-meditation-2/"
+    },
+    {
+      "id": "holizna-rain",
+      "kind": "ambient",
+      "shelf": "sleep",
+      "durationSec": 876,
+      "title_en": "Rain for sleep",
+      "title_hi": "नींद के लिए वर्षा",
+      "src": "/audio/meditation/holizna-rain-sleep.m4a",
+      "license": "CC0-1.0",
+      "credit": "HoliznaCC0 — Rain Sleep Meditation",
+      "sourceUrl": "https://freemusicarchive.org/music/holiznacc0/space-sleep-meditation/rain-sleep-meditation/"
+    },
+    {
+      "id": "holizna-cosmic",
+      "kind": "ambient",
+      "shelf": "sleep",
+      "durationSec": 1985,
+      "title_en": "Cosmic waves",
+      "title_hi": "ब्रह्मांडीय तरंगें",
+      "src": "/audio/meditation/holizna-cosmic-waves.m4a",
+      "license": "CC0-1.0",
+      "credit": "HoliznaCC0 — Cosmic Waves",
+      "sourceUrl": "https://freemusicarchive.org/music/holiznacc0/space-sleep-meditation/cosmic-waves/"
+    }
+  ]
+}

@@ -12,6 +12,8 @@ type Summary = {
   sessions: number;
   durationMinutes: number;
   mantras: number;
+  meditationMinutes: number;
+  meditationSits: number;
   visitStreak: { current: number; longest: number };
   distribution: {
     meditation: number;
@@ -112,11 +114,12 @@ export default function ProgressPage() {
             </section>
           </div>
 
-          <section className="glass mt-5 grid grid-cols-3 divide-x divide-[var(--hairline)] rounded-xl py-8">
+          <section className="glass mt-5 grid grid-cols-2 divide-x divide-[var(--hairline)] rounded-xl py-8 sm:grid-cols-4">
             {[
               [data?.sessions ?? 0, L === "hi" ? "सत्र" : "Sessions"],
               [data?.durationMinutes ?? 0, L === "hi" ? "मिनट" : "Minutes"],
               [data?.mantras ?? 0, L === "hi" ? "मंत्र" : "Mantras"],
+              [data?.meditationSits ?? 0, L === "hi" ? "बैठक" : "Sits"],
             ].map(([value, label]) => (
               <div key={String(label)} className="text-center">
                 <p className="font-display text-2xl text-[var(--brass-soft)] sm:text-4xl">{value}</p>

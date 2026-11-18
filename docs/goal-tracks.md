@@ -24,6 +24,7 @@ catalog only after review — composition is intentionally not automatic yet
 
 | File | Status |
 |------|--------|
-| `data/meditation/tracks/anxiety-7.json` | Content stub (7 short sits). Loadable via `loadGoalTrack("anxiety-7")` in `lib/meditation.ts`. **Not** in `/api/meditation/catalog` and **not** composed into `sitting-course`. |
+| `data/meditation/tracks/anxiety-7.json` | Content stub (7 short sits). Loadable via `loadGoalTrack("anxiety-7")`. **Not** in the catalog and **not** composed into `sitting-course`. |
+| `data/meditation/tracks/sleep-7.json` | Shipped. Seven evenings. Completing day N writes `journey_runs.journey_id = sleep-7` and does not advance the sitting course. |
 
 App mirror note: `MindKshetra-app/src/data/meditation/goal-tracks.md`.

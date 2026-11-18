@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import { nextSleepEvening, readMeditationStats, readSilentSetup, readSleepEvenings } from "@/lib/meditation-stats";
+import { sleepTracks } from "@/lib/meditation-audio";
 import {
   SITTING_COURSE_ID,
   isDayUnlocked,
@@ -227,6 +229,7 @@ export default function MeditationHubClient({
   const title = lang === "hi" ? program.title_hi : program.title_en;
   const intro = lang === "hi" ? program.intro_hi : program.intro_en;
   const doneCount = completed.size;
+  const courseOpen = doneCount > 0 && doneCount < program.days_count;
   const pathPct = Math.round((doneCount / program.days_count) * 100);
 
   const sections = useMemo(() => {
@@ -247,6 +250,25 @@ export default function MeditationHubClient({
     return groups;
   }, [program.days]);
 
+  const [tally, setTally] = useState({ dayMinutes: 0, daySits: 0, lifetimeMinutes: 0, lifetimeSits: 0 });
+  const [againMin, setAgainMin] = useState(10);
+  const [sleepNight, setSleepNight] = useState(1);
+
+  useEffect(() => {
+    const s = readMeditationStats();
+    setTally(s);
+    setAgainMin(readSilentSetup().minutes);
+    if (!user) {
+      setSleepNight(nextSleepEvening(readSleepEvenings()));
+      return;
+    }
+    void fetch("/api/meditation/progress?program=sleep-7")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { currentDay?: number } | null) => {
+        if (typeof data?.currentDay === "number") setSleepNight(data.currentDay);
+      })
+      .catch(() => undefined);
+  }, [progress, user]);
   const activeSection = sittingSectionForDay(continueDay).id;
   const windowDays = nearbyDays(program.days, continueDay, 7);
 
@@ -272,6 +294,39 @@ export default function MeditationHubClient({
           <p className="mt-3 max-w-lg text-sm font-light leading-relaxed text-white/75 sm:text-base">
             {intro}
           </p>
+
+          <p className="mt-4 text-sm text-white/80">
+            {t("medTodayLine")
+              .replace("{min}", String(tally.dayMinutes))
+              .replace("{sits}", String(tally.daySits))
+              .replace("{life}", String(tally.lifetimeMinutes))}
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link
+              href={
+                courseOpen
+                  ? `/meditation/${continueDay}`
+                  : "/meditation/daily/daily-breath-5"
+              }
+              className="min-h-11 bg-[var(--brass)] px-4 py-2 text-sm font-medium text-[var(--on-brass)]"
+            >
+              {courseOpen
+                ? fill(t("medContinue"), { n: continueDay })
+                : t("medDailySit")}
+            </Link>
+            <Link
+              href="/meditation/silent"
+              className="min-h-11 border border-white/30 px-4 py-2 text-sm text-white"
+            >
+              {t("medSitAgain").replace("{n}", String(againMin))}
+            </Link>
+            <Link
+              href="/meditation/library"
+              className="min-h-11 border border-white/30 px-4 py-2 text-sm text-white"
+            >
+              {t("medSleepTonight")}
+            </Link>
+          </div>
 
           {progress ? (
             <div className="mt-6 max-w-md">
@@ -316,19 +371,12 @@ export default function MeditationHubClient({
             </div>
           ) : null}
 
-          <div className="mt-8 flex flex-wrap items-end gap-4">
-            <Link
-              href={`/meditation/${continueDay}`}
-              className="inline-flex min-h-12 items-center bg-[var(--brass)] px-6 py-3 text-sm font-medium text-[var(--on-brass)] transition hover:bg-[var(--brass-hover)]"
-            >
-              {doneCount === 0
-                ? t("medStart")
-                : fill(t("medContinue"), { n: continueDay })}
-            </Link>
-            {continueSession ? (
+          {courseOpen && continueSession ? (
+            <div className="mt-8 flex flex-wrap items-end gap-4">
               <div className="min-w-0 max-w-sm">
                 <p className="text-[11px] tracking-[0.16em] text-[var(--brass-soft)]">
-                  Day {continueDay} · {continueSession.duration_minutes} min
+                  {t("medWhyToday")} · {fill(t("pathDay"), { n: continueDay })} ·{" "}
+                  {continueSession.duration_minutes} {t("pathDayMinutes")}
                 </p>
                 <p className="mt-1 font-display text-lg text-white">
                   {continueTitle}
@@ -339,8 +387,8 @@ export default function MeditationHubClient({
                   </p>
                 ) : null}
               </div>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
 
           {progress?.guest ? (
             <p className="mt-4 text-sm text-white/55">
@@ -427,6 +475,31 @@ export default function MeditationHubClient({
           })}
         </div>
 
+      </section>
+
+      <section className="border-t border-[var(--hairline)] pt-10">
+        <h2 className="font-display text-2xl text-[var(--text)]">{t("medSleepShelf")}</h2>
+        <p className="mt-2 text-sm text-[var(--text-muted)]">
+          <Link href={`/meditation/sleep/${sleepNight}`} className="text-[var(--brass-soft)] underline-offset-4 hover:underline">
+            {t("medSevenEvenings")}
+          </Link>
+          {" · "}
+          <Link href="/meditation/credits" className="text-[var(--brass-soft)] underline-offset-4 hover:underline">
+            {t("medCredits")}
+          </Link>
+        </p>
+        <ul className="mt-4 space-y-2">
+          {sleepTracks().map((track) => (
+            <li key={track.id}>
+              <Link href={`/meditation/library/${track.id}`} className="text-[var(--text)] hover:text-[var(--brass-soft)]">
+                {lang === "hi" ? track.title_hi : track.title_en}
+                <span className="ml-2 text-sm text-[var(--text-muted)]">
+                  {Math.round(track.durationSec / 60)} min · {track.credit}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="border-t border-[var(--hairline)] pt-10">

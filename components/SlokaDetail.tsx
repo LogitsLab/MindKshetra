@@ -12,7 +12,9 @@ import SpeakButton from "@/components/SpeakButton";
 import VerseStory from "@/components/VerseStory";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useProgress } from "@/components/ProgressProvider";
-import type { ChapterMeta } from "@/lib/chapters";
+import { chapterSummary, chapterTags, type ChapterMeta } from "@/lib/chapters";
+import { bhashyaCompareFor } from "@/lib/bhashya-compare";
+import { plainWordsFor } from "@/lib/plain-words";
 import type { VerseCredits } from "@/lib/commentary-sources";
 import type { Sloka } from "@/lib/types";
 import { formatVerseRef, truncatePreview } from "@/lib/sloka-utils";
@@ -95,6 +97,18 @@ export default function SlokaDetail({
   const chapterTitle =
     lang === "hi" ? chapterMeta?.name_sanskrit : chapterMeta?.name;
   const verseCount = chapterMeta?.verses_count;
+  const chapterTagList = chapterTags(chapterMeta, lang);
+  const chapterLead =
+    chapterSummary(chapterMeta, lang)
+      .split(/\n\n+/)
+      .map((p) => p.trim())
+      .filter(Boolean)[0] ?? "";
+  const plain = plainWordsFor(sloka.chapter, sloka.verse_number, lang);
+  const compareVoices = bhashyaCompareFor(
+    sloka.chapter,
+    sloka.verse_number,
+    lang === "hi" ? "hi" : "en"
+  );
   const unitIds = passage?.verses.map((v) => v.id) ?? [];
   const unitAllDone =
     unitIds.length > 0 && unitIds.every((id) => isComplete(id));
@@ -235,10 +249,12 @@ export default function SlokaDetail({
             text={translation}
             url={`${typeof window !== "undefined" ? window.location.origin : ""}/sloka/${sloka.id}`}
             imageUrl={`/api/og/verse/${sloka.id}`}
+            storiesImageUrl={`/api/og/verse/${sloka.id}?format=stories`}
             slokaId={sloka.id}
             surface="verse"
             shareLabel={t("verseShare")}
-            imageLabel={t("verseShareImage")}
+            imageLabel={t("shareLinkCard")}
+            storiesLabel={t("shareStoriesCard")}
             quiet
           />
         </nav>
@@ -276,6 +292,40 @@ export default function SlokaDetail({
           className="mx-auto mt-7 opacity-70"
         />
       </header>
+
+      {chapterMeta && (chapterTagList.length > 0 || chapterLead) ? (
+        <aside className="mt-6 border border-[var(--line)] bg-[var(--panel)]/40 p-4 sm:p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="eyebrow text-[var(--brass-soft)]">
+              {t("chapterAboutVerse")}
+            </p>
+            <Link
+              href={`/explore/${sloka.chapter}`}
+              className="text-xs text-[var(--brass-soft)] underline-offset-2 hover:underline"
+            >
+              {t("chapter")} {sloka.chapter}
+              {chapterTitle ? ` · ${chapterTitle}` : ""} →
+            </Link>
+          </div>
+          {chapterTagList.length ? (
+            <ul className="mt-3 flex flex-wrap gap-1.5">
+              {chapterTagList.map((tag) => (
+                <li
+                  key={tag}
+                  className="border border-[var(--line)] px-2 py-0.5 text-[10px] tracking-[0.06em] text-[var(--brass-soft)]"
+                >
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {chapterLead ? (
+            <p className="mt-3 text-sm font-light leading-relaxed text-[var(--text-muted)]">
+              {chapterLead}
+            </p>
+          ) : null}
+        </aside>
+      ) : null}
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:gap-3">
         <a
@@ -325,6 +375,16 @@ export default function SlokaDetail({
             <p className="font-display text-xl leading-relaxed text-[var(--text)] sm:text-[1.35rem]">
               {translation}
             </p>
+            {plain ? (
+              <div className="mt-5 border-l border-[var(--brass)]/45 pl-3">
+                <h3 className="eyebrow mb-2 text-[var(--brass-soft)]">
+                  {t("versePlainWords")}
+                </h3>
+                <p className="text-[15px] font-light leading-relaxed text-[var(--text-soft)]">
+                  {plain}
+                </p>
+              </div>
+            ) : null}
             {otherTranslation ? (
               <div className="mt-5">
                 <h3 className="eyebrow mb-2 text-[var(--text-muted)]">
@@ -373,6 +433,31 @@ export default function SlokaDetail({
                 ) : null}
               </div>
             )}
+            {compareVoices ? (
+              <div className="mt-8">
+                <h3 className="eyebrow mb-3 text-[var(--brass-soft)]">
+                  {t("bhashyaCompare")}
+                </h3>
+                <p className="mb-4 text-xs font-light text-[var(--text-muted)]/80">
+                  {t("bhashyaCompareNote")}
+                </p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {compareVoices.map((voice) => (
+                    <div
+                      key={voice.id}
+                      className="border border-[var(--line)] px-4 py-3"
+                    >
+                      <p className="text-xs tracking-[0.14em] text-[var(--brass-soft)]">
+                        {voice.label}
+                      </p>
+                      <p className="mt-2 text-[14px] font-light leading-relaxed text-[var(--text-muted)]">
+                        {voice.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           {/* Secondary study material */}

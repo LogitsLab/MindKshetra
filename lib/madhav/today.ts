@@ -40,17 +40,27 @@ function japadToday(done: string[]): boolean {
   return done.includes("japa");
 }
 
+function isGitaJayantiLabel(label: string | null): boolean {
+  if (!label) return false;
+  return /gita\s*jayanti|गीता\s*जयंती|गीताजयन्ती/i.test(label);
+}
+
 function opening(facts: MadhavTodayFacts, name: string): string {
   const { lang } = facts;
+  if (facts.festivalLabel && isGitaJayantiLabel(facts.festivalLabel)) {
+    return lang === "hi"
+      ? `आज गीता जयंती है, ${name}। संवाद फिर खुल सकता है — मैं यहीं हूँ।`
+      : `Today is Gita Jayanti, ${name}. The dialogue can open again — I am here.`;
+  }
   if (facts.festivalLabel) {
     return lang === "hi"
-      ? `आज ${facts.festivalLabel} है, ${name}। मैं यहीं हूँ।`
-      : `Today is ${facts.festivalLabel}, ${name}. I am here.`;
+      ? `आज ${facts.festivalLabel} है, ${name}। उत्सव का दिन भी मैदान पर बैठने का दिन हो सकता है।`
+      : `Today is ${facts.festivalLabel}, ${name}. A festival day can still be a day to sit on the field.`;
   }
   if (facts.isEkadashi) {
     return lang === "hi"
-      ? `आज एकादशी है, ${name}। मैं यहीं हूँ।`
-      : `It is Ekadashi, ${name}. I am here.`;
+      ? `आज एकादशी है, ${name}। हल्का रहें — नाम, मौन, या एक श्लोक पर्याप्त है।`
+      : `It is Ekadashi, ${name}. Travel light — a name, silence, or one verse is enough.`;
   }
   const japad = japadToday(facts.doneToday);
   const sat = satToday(facts.doneToday);
@@ -85,7 +95,17 @@ function question(facts: MadhavTodayFacts): string {
       ? "क्या वह बैठ गया, या अभी भी कुछ बोझ है?"
       : "Did that land, or is something still weighing?";
   }
-  if (facts.isEkadashi || facts.festivalLabel) {
+  if (facts.festivalLabel && isGitaJayantiLabel(facts.festivalLabel)) {
+    return lang === "hi"
+      ? "किस श्लोक के साथ आज बैठें?"
+      : "Which verse shall we sit with today?";
+  }
+  if (facts.isEkadashi) {
+    return lang === "hi"
+      ? "उपवास शरीर का है या मन का भी कुछ छोड़ना है?"
+      : "Is the fast only of the body, or is the mind releasing something too?";
+  }
+  if (facts.festivalLabel) {
     return lang === "hi" ? "आज मैदान पर क्या है?" : "What is on the field today?";
   }
   if (facts.votdRef) {
@@ -125,6 +145,24 @@ function pickStarters(facts: MadhavTodayFacts): string[] {
       lang === "hi"
         ? `आज का श्लोक — ${facts.votdRef}`
         : `Today's verse — ${facts.votdRef}`
+    );
+  }
+
+  if (facts.festivalLabel && isGitaJayantiLabel(facts.festivalLabel)) {
+    add(
+      lang === "hi"
+        ? "गीता जयंती — एक श्लोक पढ़ें"
+        : "Gita Jayanti — read one verse with me"
+    );
+  } else if (facts.isEkadashi) {
+    add(
+      lang === "hi" ? "एकादशी — हल्का जप" : "Ekadashi — a light japa"
+    );
+  } else if (facts.festivalLabel) {
+    add(
+      lang === "hi"
+        ? `${facts.festivalLabel} — Madhav से बैठें`
+        : `${facts.festivalLabel} — sit with Madhav`
     );
   }
 

@@ -129,8 +129,20 @@ describe("composeMadhavToday", () => {
     });
     expect(copy.greeting).toContain("Gita Jayanti");
     expect(copy.greeting).toContain("Saksham");
+    expect(copy.greeting).toContain("dialogue can open again");
     expect(copy.greeting).not.toMatch(/^Today's verse is 2\.47/);
-    expect(copy.starters[0]).toContain("2.47");
+    expect(copy.starters).toContain("Gita Jayanti — read one verse with me");
+  });
+
+  it("speaks lightly on Ekadashi", () => {
+    const copy = composeMadhavToday({
+      ...emptyFacts(),
+      displayName: "Asha",
+      isEkadashi: true,
+    });
+    expect(copy.greeting).toContain("Ekadashi");
+    expect(copy.greeting).toContain("Travel light");
+    expect(copy.starters).toContain("Ekadashi — a light japa");
   });
 
   it("asks whether today's sit landed", () => {

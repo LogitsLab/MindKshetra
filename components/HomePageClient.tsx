@@ -7,7 +7,9 @@ import { useAuth } from "@/components/AuthProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import SpeakButton from "@/components/SpeakButton";
 import { StoreBadges } from "@/components/StoreLinks";
+import { trackMeta, trackMetaStandard } from "@/lib/meta-pixel";
 import { stopNarration } from "@/lib/audio/narration";
+import { resolveWhatsAppChannelUrl } from "@/lib/brand-links";
 
 export type FeaturedVerse = {
   id: number;
@@ -333,17 +335,20 @@ export default function HomePageClient({
     sitTotal,
     Math.max(1, progress.meditationDay ?? 1)
   );
-  const sitHref =
-    progress.meditationDay == null
-      ? "/meditation"
-      : `/meditation/${sitDay}`;
-  const sitLabel =
-    progress.meditationDone === 0
-      ? t("medHomeStart")
-      : t("medHomeContinue").replace("{n}", String(sitDay));
-  const sitProgressLabel = t("medProgress")
-    .replace("{done}", String(sitDone))
-    .replace("{total}", String(sitTotal));
+  const courseOpen = sitDone > 0 && sitDone < sitTotal;
+  const practiceHref = courseOpen ? `/meditation/${sitDay}` : "/sadhana";
+  const practiceTitle = courseOpen
+    ? t("medHomeContinue").replace("{n}", String(sitDay))
+    : progress.done
+      ? t("sadhanaDoneToday")
+      : t("sadhanaHomeLink");
+  const practiceBody = courseOpen
+    ? t("medProgress")
+        .replace("{done}", String(sitDone))
+        .replace("{total}", String(sitTotal))
+    : progress.done && progress.streak > 0
+      ? t("sadhanaStreakLine").replace("{n}", String(progress.streak))
+      : t("sadhanaHomeBody");
 
   const dayLine = dayPanchang
     ? t("homeDayLine")
@@ -365,12 +370,6 @@ export default function HomePageClient({
       image: "/images/paths/sadhana.jpg",
     },
     {
-      href: sitHref,
-      title: sitLabel,
-      body: sitProgressLabel,
-      image: "/images/paths/meditation.jpg",
-    },
-    {
       href: "/sadhana#japa",
       title: t("homeBlockJapaTitle"),
       body: t("homeBlockJapaBody"),
@@ -388,7 +387,7 @@ export default function HomePageClient({
       body: t("homeBlockNotifBody"),
       image: "/images/paths/astrology.jpg",
     },
-  ];
+  ].filter((tile) => courseOpen || tile.href !== "/sadhana");
 
   const togetherLinks = [
     {
@@ -457,25 +456,24 @@ export default function HomePageClient({
               </Link>
             </div>
             <StoreBadges className="animate-rise-delay-4 mt-4" />
-            {process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL ? (
               <a
-                href={process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="animate-rise-delay-4 mt-4 inline-flex min-h-11 items-center gap-2 text-sm text-white/80 underline-offset-4 transition hover:text-[var(--brass-soft)] hover:underline"
+              href={resolveWhatsAppChannelUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackMeta("JoinCommunity")}
+              className="animate-rise-delay-4 mt-4 inline-flex min-h-11 items-center gap-2 text-sm text-white/80 underline-offset-4 transition hover:text-[var(--brass-soft)] hover:underline"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="#25D366"
+                aria-hidden
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="#25D366"
-                  aria-hidden
-                >
-                  <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.004c5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2Zm5.8 14.17c-.24.68-1.42 1.32-1.95 1.37-.5.05-.95.23-3.2-.67-2.7-1.06-4.42-3.8-4.56-3.98-.13-.18-1.1-1.46-1.1-2.79 0-1.33.7-1.98.95-2.25.24-.27.53-.34.7-.34.18 0 .35 0 .5.01.17.01.39-.06.6.46.24.56.82 1.94.9 2.08.07.14.12.3.02.48-.1.18-.15.3-.3.46-.14.17-.3.38-.44.5-.14.14-.29.3-.12.58.17.3.76 1.25 1.63 2.03 1.12 1 2.06 1.3 2.35 1.45.3.14.47.12.64-.07.18-.2.74-.86.94-1.16.2-.3.4-.25.66-.15.27.1 1.7.8 1.99.95.3.14.5.21.57.33.07.12.07.68-.17 1.36Z" />
-                </svg>
-                {t("homeJoinWhatsApp")}
-              </a>
-            ) : null}
+                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.004c5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2Zm5.8 14.17c-.24.68-1.42 1.32-1.95 1.37-.5.05-.95.23-3.2-.67-2.7-1.06-4.42-3.8-4.56-3.98-.13-.18-1.1-1.46-1.1-2.79 0-1.33.7-1.98.95-2.25.24-.27.53-.34.7-.34.18 0 .35 0 .5.01.17.01.39-.06.6.46.24.56.82 1.94.9 2.08.07.14.12.3.02.48-.1.18-.15.3-.3.46-.14.17-.3.38-.44.5-.14.14-.29.3-.12.58.17.3.76 1.25 1.63 2.03 1.12 1 2.06 1.3 2.35 1.45.3.14.47.12.64-.07.18-.2.74-.86.94-1.16.2-.3.4-.25.66-.15.27.1 1.7.8 1.99.95.3.14.5.21.57.33.07.12.07.68-.17 1.36Z" />
+              </svg>
+              {t("homeJoinWhatsApp")}
+            </a>
           </div>
         </div>
 
@@ -629,7 +627,18 @@ export default function HomePageClient({
                         listenLabel={t("verseListen")}
                         stopLabel={t("verseStop")}
                         unsupportedLabel={t("ttsUnsupported")}
-                        onSpeakingChange={setSpeaking}
+                        onSpeakingChange={(speakingNow) => {
+                          setSpeaking(speakingNow);
+                          if (speakingNow) {
+                            trackMetaStandard("ViewContent", {
+                              content_name: "votd_listen",
+                              content_ids: String(verse.id),
+                            });
+                            trackMeta("FirstVerseOpened", {
+                              verse: String(verse.id),
+                            });
+                          }
+                        }}
                         className="home-votd__listen"
                       />
                       <Link
@@ -646,6 +655,96 @@ export default function HomePageClient({
                 </article>
               );
             })}
+          </div>
+        </section>
+
+        <section
+          id="battlefield"
+          data-home-reveal
+          className="home-reveal scroll-mt-20 border-t border-[var(--hairline)] py-12 sm:py-14"
+          aria-label={t("homeBattlefieldEyebrow")}
+        >
+          <header className="mb-6 max-w-2xl">
+            <p className="eyebrow text-[var(--brass)]">
+              {t("homeBattlefieldEyebrow")}
+            </p>
+            <h2 className="mt-3 font-display text-[clamp(1.75rem,2.8vw,2.5rem)] leading-[1.05] tracking-[-.02em] text-[var(--text)]">
+              {t("homeBattlefieldTitle")}
+            </h2>
+            <p className="mt-2 text-sm font-light leading-relaxed text-[var(--text-soft)]">
+              {t("homeBattlefieldBlurb")}
+            </p>
+            {dayLine ? (
+              <p className="mt-3 text-[11px] tracking-[0.14em] text-[var(--brass-soft)]">
+                {dayLine}
+              </p>
+            ) : null}
+          </header>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="border border-[var(--line)] bg-[var(--panel)]/40 p-5 sm:p-6">
+              <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--brass-soft)]">
+                {verses[0]?.ref}
+              </p>
+              <p className="mt-3 font-display text-xl leading-snug text-[var(--text)] sm:text-2xl">
+                {(() => {
+                  const body =
+                    (lang === "hi" ? verses[0]?.hindi : verses[0]?.english) ??
+                    "";
+                  return body.length > 160
+                    ? `${body.slice(0, 160).trimEnd()}…`
+                    : body;
+                })()}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <SpeakButton
+                  text={verses[0]?.sanskritLines.join(" ") ?? ""}
+                  lang={lang === "hi" ? "hi" : "en"}
+                  chapter={verses[0]?.chapter}
+                  verseNumber={verses[0]?.verseNumber}
+                  recitationOnly
+                  listenLabel={t("homeBattlefieldListen")}
+                  stopLabel={t("verseStop")}
+                  unsupportedLabel={t("ttsUnsupported")}
+                  className="min-h-11 border border-[var(--line)] px-4 py-2 text-sm text-[var(--brass-soft)]"
+                />
+                <Link
+                  href={`/sloka/${verses[0]?.id}`}
+                  className="inline-flex min-h-11 items-center border border-[var(--line)] px-4 py-2 text-sm text-[var(--brass-soft)] transition hover:border-[var(--brass)]/50"
+                >
+                  {t("homeBattlefieldVerse")}
+                </Link>
+              </div>
+            </div>
+            <div className="relative flex min-h-[12rem] flex-col justify-end overflow-hidden border border-[var(--line)] p-5 sm:p-6">
+              <Image
+                src="/images/paths/meditation.jpg"
+                alt=""
+                fill
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="object-cover opacity-45"
+              />
+              <div
+                className="absolute inset-0 bg-gradient-to-t from-[var(--media-scrim)] via-[var(--media-scrim-mid)] to-transparent"
+                aria-hidden
+              />
+              <div className="relative z-10">
+                <p className="text-[11px] tracking-[0.16em] text-[var(--brass-soft)]">
+                  {practiceBody}
+                </p>
+                <p className="mt-2 font-display text-2xl text-[var(--on-media)]">
+                  {practiceTitle}
+                </p>
+                <Link
+                  href={practiceHref}
+                  className="home-button home-button--primary mt-5 self-start"
+                >
+                  <span>{practiceTitle}</span>
+                  <span className="home-arrow" aria-hidden>
+                    ↗
+                  </span>
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -727,7 +826,7 @@ export default function HomePageClient({
                 key={tile.href + tile.title}
                 href={tile.href}
                 className={`group relative flex min-h-[148px] flex-col justify-end overflow-hidden border border-[var(--line)] transition hover:border-[var(--brass)]/45 sm:min-h-[168px] ${
-                  index < 2
+                  practiceTiles.length > 3 && index < 2
                     ? "lg:col-span-3 lg:min-h-[220px]"
                     : "lg:col-span-2"
                 }`}

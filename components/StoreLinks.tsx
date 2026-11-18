@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/LanguageProvider";
+import { trackMeta } from "@/lib/meta-pixel";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/site";
 
 const linkProps = {
@@ -18,6 +19,7 @@ export function StoreBadges({ className = "" }: { className?: string }) {
         {...linkProps}
         className="store-badge"
         aria-label={`${t("storeAppStoreKicker")} ${t("storeAppStore")}`}
+        onClick={() => trackMeta("StoreClick", { store: "app_store" })}
       >
         <AppleMark />
         <span className="flex flex-col items-start leading-none">
@@ -34,6 +36,7 @@ export function StoreBadges({ className = "" }: { className?: string }) {
         {...linkProps}
         className="store-badge"
         aria-label={`${t("storePlayKicker")} ${t("storePlay")}`}
+        onClick={() => trackMeta("StoreClick", { store: "play" })}
       >
         <PlayMark />
         <span className="flex flex-col items-start leading-none">
