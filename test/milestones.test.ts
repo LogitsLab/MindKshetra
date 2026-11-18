@@ -135,7 +135,7 @@ describe("nextMilestone", () => {
     expect(
       nextMilestone({
         visitStreakDays: 108,
-        practiceStreakDays: { flow: 108, japa: 108, sit: 108, pranayama: 108 },
+        practiceStreakDays: { flow: 108, japa: 108, sit: 108, pranayama: 108, meditation: 108 },
         japaLifetimeCount: 108 * 108,
         versesRead: DEFAULT_TOTAL_VERSES,
       })
